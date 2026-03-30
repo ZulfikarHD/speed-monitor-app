@@ -224,107 +224,155 @@ PUT    /api/settings               - Update settings (bulk)
 
 ---
 
-## Frontend Architecture (Vue 3)
+## Frontend Architecture (Inertia.js v3 + Vue 3)
 
-### Directory Structure
+**Key Technologies:**
+- **Inertia.js v3:** Server-side routing with client-side SPA feel
+- **Laravel Wayfinder:** Type-safe route generation for frontend
+- **Pinia:** State management
+- **Tailwind CSS v4:** Styling
+- **TypeScript:** Type safety
+
+### Directory Structure (Actual Implementation)
 ```
-frontend/
-├── public/
-│   ├── manifest.json           (PWA manifest)
-│   ├── service-worker.js       (SW for offline + caching)
-│   └── icons/                  (PWA icons)
+resources/js/
+├── actions/                    (Wayfinder generated - type-safe routes)
+│   └── App/Http/Controllers/
+│       └── Auth/
+│           └── AuthController.ts   (login, logout, me functions)
 │
-├── src/
-│   ├── assets/                 (CSS, images)
-│   │   ├── styles/
-│   │   │   ├── main.css
-│   │   │   └── speedometer.css
-│   │   └── images/
-│   │
-│   ├── components/
-│   │   ├── common/
-│   │   │   ├── AppHeader.vue
-│   │   │   ├── AppFooter.vue
-│   │   │   ├── LoadingSpinner.vue
-│   │   │   └── AlertMessage.vue
-│   │   │
-│   │   ├── speedometer/
-│   │   │   ├── SpeedGauge.vue       (main gauge display)
-│   │   │   ├── TripControls.vue     (start/stop buttons)
-│   │   │   ├── TripStats.vue        (current stats)
-│   │   │   └── SpeedChart.vue       (real-time chart)
-│   │   │
-│   │   ├── dashboard/
-│   │   │   ├── StatsCard.vue
-│   │   │   ├── ViolationLeaderboard.vue
-│   │   │   ├── ActiveTripsTable.vue
-│   │   │   └── RecentTripsTable.vue
-│   │   │
-│   │   └── trips/
-│   │       ├── TripList.vue
-│   │       ├── TripDetail.vue
-│   │       └── TripFilters.vue
-│   │
-│   ├── composables/
-│   │   ├── useGeolocation.js    (GPS tracking logic)
-│   │   ├── useTrip.js           (trip management)
-│   │   ├── useOfflineSync.js    (sync logic)
-│   │   ├── useAuth.js           (authentication)
-│   │   └── useNotification.js   (toast notifications)
-│   │
-│   ├── stores/                  (Pinia)
-│   │   ├── auth.js              (user, role, token)
-│   │   ├── trip.js              (current trip, speed logs)
-│   │   ├── settings.js          (speed limit, etc.)
-│   │   └── sync.js              (sync queue)
-│   │
-│   ├── services/
-│   │   ├── api.js               (axios instance)
-│   │   ├── indexeddb.js         (offline storage)
-│   │   └── notifications.js     (browser notifications)
-│   │
-│   ├── router/
-│   │   └── index.js
-│   │
-│   ├── views/
-│   │   ├── auth/
-│   │   │   └── Login.vue
-│   │   │
-│   │   ├── employee/
-│   │   │   ├── Speedometer.vue
-│   │   │   ├── MyTrips.vue
-│   │   │   ├── MyStatistics.vue
-│   │   │   └── Profile.vue
-│   │   │
-│   │   └── supervisor/
-│   │       ├── Dashboard.vue
-│   │       ├── Employees.vue
-│   │       ├── AllTrips.vue
-│   │       ├── ViolationLeaderboard.vue
-│   │       ├── Reports.vue
-│   │       └── Settings.vue
-│   │
-│   ├── App.vue
-│   └── main.js
+├── composables/
+│   └── useAuth.ts              (authentication logic with Inertia useHttp)
 │
-├── package.json
-├── vite.config.js
-└── index.html
+├── pages/                      (Inertia.js pages)
+│   ├── auth/
+│   │   └── Login.vue           (login form with validation)
+│   ├── employee/
+│   │   └── Dashboard.vue       (employee landing page)
+│   ├── supervisor/
+│   │   └── Dashboard.vue       (supervisor landing page)
+│   ├── admin/
+│   │   └── Dashboard.vue       (admin landing page)
+│   └── Welcome.vue             (default landing)
+│
+├── stores/                     (Pinia)
+│   ├── auth.ts                 (user, token, role management)
+│   └── settings.ts             (app settings)
+│
+├── types/
+│   ├── api.ts                  (API request/response types)
+│   ├── auth.ts                 (User, Auth types)
+│   ├── index.ts                (barrel exports)
+│   └── global.d.ts             (global type declarations)
+│
+├── lib/
+│   └── utils.ts                (utility functions like cn)
+│
+├── app.ts                      (Inertia app bootstrap)
+└── wayfinder.ts                (Wayfinder runtime types)
+
+routes/
+├── web.php                     (Inertia routes)
+└── api.php                     (API endpoints)
 ```
+
+### Future Components (Sprint 3+)
+```
+resources/js/components/
+├── common/
+│   ├── AppHeader.vue
+│   ├── LoadingSpinner.vue
+│   └── AlertMessage.vue
+│
+├── speedometer/
+│   ├── SpeedGauge.vue       (main gauge display)
+│   ├── TripControls.vue     (start/stop buttons)
+│   ├── TripStats.vue        (current stats)
+│   └── SpeedChart.vue       (real-time chart)
+│
+├── dashboard/
+│   ├── StatsCard.vue
+│   ├── ViolationLeaderboard.vue
+│   └── ActiveTripsTable.vue
+│
+└── trips/
+    ├── TripList.vue
+    ├── TripDetail.vue
+    └── TripFilters.vue
+```
+
+### Future Composables (Sprint 3+)
+```
+resources/js/composables/
+├── useAuth.ts              ✅ (implemented)
+├── useGeolocation.ts       (GPS tracking logic)
+├── useTrip.ts              (trip management)
+└── useOfflineSync.ts       (sync logic)
+```
+
+### Authentication Flow (Implemented)
+
+**Token-Based Auth with Inertia.js:**
+1. User submits login form on `/login` (Inertia page)
+2. `useAuth` composable calls Wayfinder-generated `login.url()`
+3. Uses Inertia's `useHttp().post()` to call `/api/auth/login`
+4. On success: token stored in localStorage via Pinia auth store
+5. Inertia router navigates to role-based dashboard:
+   - Employee → `/employee/dashboard`
+   - Supervisor → `/supervisor/dashboard`
+   - Admin → `/admin/dashboard`
+
+**Key Implementation Details:**
+- **Wayfinder** generates type-safe route functions from Laravel controllers
+- **useHttp** (Inertia v3) replaces Axios for API calls
+- **Pinia** manages auth state (user, token, role getters)
+- **localStorage** persists token across sessions
+
+### Laravel Wayfinder Integration
+
+**What is Wayfinder?**
+Laravel Wayfinder auto-generates TypeScript functions for all Laravel routes and controller actions, providing type-safe route access in the frontend.
+
+**Usage Example:**
+```typescript
+// Import Wayfinder-generated functions
+import { login, logout, me } from '@/actions/App/Http/Controllers/Auth/AuthController'
+
+// Type-safe API calls
+const response = await http.post(login.url(), credentials)
+await http.post(logout.url())
+const user = await http.get(me.url())
+```
+
+**Benefits:**
+- ✅ Type safety: TypeScript knows all available routes
+- ✅ Auto-completion: IDE suggests available routes
+- ✅ Refactor-safe: Renaming controller breaks frontend at compile time
+- ✅ No hardcoded URLs: Routes generated from Laravel definitions
 
 ### State Management (Pinia Stores)
 
-**Auth Store:**
-```javascript
+**Auth Store (Implemented):**
+```typescript
 {
-  user: null,
-  token: null,
-  isAuthenticated: false,
-  role: null
+  user: User | null,
+  token: string | null,
+  isAuthenticated: computed(() => user !== null),
+  role: computed(() => user?.role ?? null),
+  isEmployee: computed(() => role === 'employee'),
+  isSupervisor: computed(() => role === 'supervisor'),
+  isAdmin: computed(() => role === 'admin'),
+  
+  // Actions
+  login(user: User, token: string),
+  logout(),
+  setUser(user: User),
+  setToken(token: string),
+  initializeAuth()  // Restores token from localStorage
 }
 ```
 
-**Trip Store:**
+**Trip Store (Future - Sprint 2):**
 ```javascript
 {
   currentTrip: null,
@@ -340,7 +388,7 @@ frontend/
 }
 ```
 
-**Sync Store:**
+**Sync Store (Future - Sprint 5):**
 ```javascript
 {
   syncQueue: [],        // pending trips/logs to sync
