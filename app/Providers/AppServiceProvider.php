@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Setting;
 use App\Models\Trip;
+use App\Policies\SettingPolicy;
 use App\Policies\TripPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
@@ -36,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
     protected function registerPolicies(): void
     {
         Gate::policy(Trip::class, TripPolicy::class);
+        Gate::policy(Setting::class, SettingPolicy::class);
     }
 
     /**

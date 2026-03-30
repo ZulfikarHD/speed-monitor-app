@@ -2,11 +2,15 @@
 
 namespace Database\Seeders;
 
-use App\Models\Setting;
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+/**
+ * Database Seeder
+ *
+ * Main seeder that orchestrates all database seeding. Seeds are executed
+ * in order: settings first (required by other features), then users
+ * (required by trips), and finally trips with speed logs.
+ */
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -14,23 +18,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->admin()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
+        $this->call([
+            SettingsSeeder::class,
+            UserSeeder::class,
+            TripSeeder::class,
         ]);
-
-        User::factory()->supervisor()->create([
-            'name' => 'Supervisor User',
-            'email' => 'supervisor@example.com',
-        ]);
-
-        User::factory()->employee()->create([
-            'name' => 'Employee User',
-            'email' => 'employee@example.com',
-        ]);
-
-        Setting::set('speed_limit', '60', 'Global speed limit in km/h');
-        Setting::set('auto_stop_duration', '1800', 'Auto-stop trip after inactivity (seconds)');
-        Setting::set('speed_log_interval', '5', 'Speed logging interval (seconds)');
     }
 }
