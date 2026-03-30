@@ -565,4 +565,466 @@ class TripControllerTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    // ========== BULK INSERT SPEED LOGS TESTS (POST /api/trips/{id}/speed-logs) ==========
+
+    public function test_employee_can_bulk_insert_speed_logs_to_own_active_trip(): void
+    {
+        $user = $this->actingAsEmployee();
+        $trip = Trip::factory()->create([
+            'user_id' => $user->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $speedLogs = [
+            ['speed' => 45.5, 'recorded_at' => '2026-03-30 10:00:00'],
+            ['speed' => 62.0, 'recorded_at' => '2026-03-30 10:00:05'],
+            ['speed' => 58.3, 'recorded_at' => '2026-03-30 10:00:10'],
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'message',
+                'created_count',
+                'trip' => [
+                    'id',
+                    'max_speed',
+                    'average_speed',
+                    'total_distance',
+                    'violation_count',
+                    'synced_at',
+                ],
+            ])
+            ->assertJson([
+                'message' => 'Speed logs created successfully',
+                'created_count' => 3,
+            ]);
+
+        $this->assertDatabaseCount('speed_logs', 3);
+    }
+
+    public function test_bulk_insert_successfully_creates_speed_logs_in_database(): void
+    {
+        $user = $this->actingAsEmployee();
+        $trip = Trip::factory()->create([
+            'user_id' => $user->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $speedLogs = [
+            ['speed' => 50.0, 'recorded_at' => '2026-03-30 10:00:00'],
+            ['speed' => 60.0, 'recorded_at' => '2026-03-30 10:00:05'],
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('speed_logs', [
+            'trip_id' => $trip->id,
+            'speed' => 50.0,
+        ]);
+
+        $this->assertDatabaseHas('speed_logs', [
+            'trip_id' => $trip->id,
+            'speed' => 60.0,
+        ]);
+    }
+
+    public function test_bulk_insert_updates_trip_statistics(): void
+    {
+        $user = $this->actingAsEmployee();
+        $trip = Trip::factory()->create([
+            'user_id' => $user->id,
+            'status' => TripStatus::InProgress,
+            'max_speed' => null,
+            'average_speed' => null,
+            'total_distance' => null,
+            'violation_count' => 0,
+        ]);
+
+        $speedLogs = [
+            ['speed' => 40.0, 'recorded_at' => '2026-03-30 10:00:00'],
+            ['speed' => 60.0, 'recorded_at' => '2026-03-30 10:00:05'],
+            ['speed' => 80.0, 'recorded_at' => '2026-03-30 10:00:10'],
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'trip' => [
+                    'max_speed' => 80.0,
+                    'average_speed' => 60.0,
+                ],
+            ]);
+
+        $trip->refresh();
+        $this->assertEquals(80.0, (float) $trip->max_speed);
+        $this->assertEquals(60.0, (float) $trip->average_speed);
+        $this->assertGreaterThan(0, $trip->total_distance);
+    }
+
+    public function test_bulk_insert_calculates_violation_flags_correctly(): void
+    {
+        $user = $this->actingAsEmployee();
+        $trip = Trip::factory()->create([
+            'user_id' => $user->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $speedLogs = [
+            ['speed' => 45.0, 'recorded_at' => '2026-03-30 10:00:00'],
+            ['speed' => 70.0, 'recorded_at' => '2026-03-30 10:00:05'],
+            ['speed' => 80.0, 'recorded_at' => '2026-03-30 10:00:10'],
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(200);
+
+        $trip->refresh();
+        $this->assertEquals(2, $trip->violation_count);
+
+        $createdLogs = SpeedLog::where('trip_id', $trip->id)->orderBy('recorded_at')->get();
+        $this->assertFalse($createdLogs[0]->is_violation);
+        $this->assertTrue($createdLogs[1]->is_violation);
+        $this->assertTrue($createdLogs[2]->is_violation);
+    }
+
+    public function test_bulk_insert_handles_large_batch_efficiently(): void
+    {
+        $user = $this->actingAsEmployee();
+        $trip = Trip::factory()->create([
+            'user_id' => $user->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $speedLogs = [];
+        for ($i = 0; $i < 100; $i++) {
+            $speedLogs[] = [
+                'speed' => 40.0 + ($i % 40),
+                'recorded_at' => now()->addSeconds($i * 5)->format('Y-m-d H:i:s'),
+            ];
+        }
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'created_count' => 100,
+            ]);
+
+        $this->assertDatabaseCount('speed_logs', 100);
+    }
+
+    public function test_bulk_insert_updates_synced_at_timestamp(): void
+    {
+        $user = $this->actingAsEmployee();
+        $trip = Trip::factory()->create([
+            'user_id' => $user->id,
+            'status' => TripStatus::InProgress,
+            'synced_at' => null,
+        ]);
+
+        $speedLogs = [
+            ['speed' => 50.0, 'recorded_at' => '2026-03-30 10:00:00'],
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'trip' => ['synced_at'],
+            ]);
+
+        $trip->refresh();
+        $this->assertNotNull($trip->synced_at);
+    }
+
+    public function test_employee_cannot_add_speed_logs_to_another_users_trip(): void
+    {
+        $user = $this->actingAsEmployee();
+        $otherUser = User::factory()->create();
+        $trip = Trip::factory()->create([
+            'user_id' => $otherUser->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $speedLogs = [
+            ['speed' => 50.0, 'recorded_at' => '2026-03-30 10:00:00'],
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_supervisor_cannot_add_speed_logs_to_employee_trip(): void
+    {
+        $supervisor = $this->actingAsSupervisor();
+        $employee = User::factory()->employee()->create();
+        $trip = Trip::factory()->create([
+            'user_id' => $employee->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $speedLogs = [
+            ['speed' => 50.0, 'recorded_at' => '2026-03-30 10:00:00'],
+        ];
+
+        $response = $this->actingAs($supervisor, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_unauthenticated_user_cannot_add_speed_logs(): void
+    {
+        $trip = Trip::factory()->create([
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $speedLogs = [
+            ['speed' => 50.0, 'recorded_at' => '2026-03-30 10:00:00'],
+        ];
+
+        $response = $this->postJson("/api/trips/{$trip->id}/speed-logs", [
+            'speed_logs' => $speedLogs,
+        ]);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_bulk_insert_rejects_empty_speed_logs_array(): void
+    {
+        $user = $this->actingAsEmployee();
+        $trip = Trip::factory()->create([
+            'user_id' => $user->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => [],
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['speed_logs']);
+    }
+
+    public function test_bulk_insert_rejects_missing_speed_field(): void
+    {
+        $user = $this->actingAsEmployee();
+        $trip = Trip::factory()->create([
+            'user_id' => $user->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $speedLogs = [
+            ['recorded_at' => '2026-03-30 10:00:00'],
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['speed_logs.0.speed']);
+    }
+
+    public function test_bulk_insert_rejects_missing_recorded_at_field(): void
+    {
+        $user = $this->actingAsEmployee();
+        $trip = Trip::factory()->create([
+            'user_id' => $user->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $speedLogs = [
+            ['speed' => 50.0],
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['speed_logs.0.recorded_at']);
+    }
+
+    public function test_bulk_insert_rejects_negative_speed_values(): void
+    {
+        $user = $this->actingAsEmployee();
+        $trip = Trip::factory()->create([
+            'user_id' => $user->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $speedLogs = [
+            ['speed' => -10.0, 'recorded_at' => '2026-03-30 10:00:00'],
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['speed_logs.0.speed']);
+    }
+
+    public function test_bulk_insert_rejects_non_numeric_speed_values(): void
+    {
+        $user = $this->actingAsEmployee();
+        $trip = Trip::factory()->create([
+            'user_id' => $user->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $speedLogs = [
+            ['speed' => 'fast', 'recorded_at' => '2026-03-30 10:00:00'],
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['speed_logs.0.speed']);
+    }
+
+    public function test_bulk_insert_rejects_invalid_datetime_format(): void
+    {
+        $user = $this->actingAsEmployee();
+        $trip = Trip::factory()->create([
+            'user_id' => $user->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $speedLogs = [
+            ['speed' => 50.0, 'recorded_at' => 'invalid-date'],
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['speed_logs.0.recorded_at']);
+    }
+
+    public function test_bulk_insert_rejects_array_exceeding_max_size(): void
+    {
+        $user = $this->actingAsEmployee();
+        $trip = Trip::factory()->create([
+            'user_id' => $user->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $speedLogs = [];
+        for ($i = 0; $i < 1001; $i++) {
+            $speedLogs[] = [
+                'speed' => 50.0,
+                'recorded_at' => now()->addSeconds($i * 5)->format('Y-m-d H:i:s'),
+            ];
+        }
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['speed_logs']);
+    }
+
+    public function test_cannot_add_speed_logs_to_completed_trip(): void
+    {
+        $user = $this->actingAsEmployee();
+        $trip = Trip::factory()->completed()->create([
+            'user_id' => $user->id,
+        ]);
+
+        $speedLogs = [
+            ['speed' => 50.0, 'recorded_at' => '2026-03-30 10:00:00'],
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'message' => 'Only trips in progress can accept speed logs',
+            ]);
+    }
+
+    public function test_cannot_add_speed_logs_to_auto_stopped_trip(): void
+    {
+        $user = $this->actingAsEmployee();
+        $trip = Trip::factory()->autoStopped()->create([
+            'user_id' => $user->id,
+        ]);
+
+        $speedLogs = [
+            ['speed' => 50.0, 'recorded_at' => '2026-03-30 10:00:00'],
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson("/api/trips/{$trip->id}/speed-logs", [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'message' => 'Only trips in progress can accept speed logs',
+            ]);
+    }
+
+    public function test_bulk_insert_returns_404_when_trip_not_found(): void
+    {
+        $user = $this->actingAsEmployee();
+
+        $speedLogs = [
+            ['speed' => 50.0, 'recorded_at' => '2026-03-30 10:00:00'],
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/trips/99999/speed-logs', [
+                'speed_logs' => $speedLogs,
+            ]);
+
+        $response->assertStatus(404);
+    }
 }

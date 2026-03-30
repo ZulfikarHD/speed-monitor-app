@@ -88,4 +88,20 @@ class TripPolicy
     {
         return $user->isSupervisor() || $user->isAdmin();
     }
+
+    /**
+     * Determine if the user can add speed logs to a specific trip.
+     *
+     * Only the trip owner can add speed logs to their own trip. This ensures
+     * data integrity by preventing employees from modifying other users' trip
+     * data. Supervisors and admins cannot add logs to maintain audit trail accuracy.
+     *
+     * @param  User  $user  The authenticated user
+     * @param  Trip  $trip  The trip to add speed logs to
+     * @return bool True if user can add speed logs to the trip
+     */
+    public function addSpeedLogs(User $user, Trip $trip): bool
+    {
+        return $user->id === $trip->user_id;
+    }
 }

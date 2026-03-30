@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TripStatus;
+use App\Http\Requests\Trip\BulkCreateSpeedLogsRequest;
 use App\Http\Requests\Trip\EndTripRequest;
 use App\Http\Requests\Trip\ListTripsRequest;
 use App\Http\Requests\Trip\StartTripRequest;
 use App\Models\Trip;
+use App\Services\SpeedLogService;
 use App\Services\TripService;
 use Illuminate\Http\JsonResponse;
 
@@ -23,7 +25,10 @@ use Illuminate\Http\JsonResponse;
 */
 class TripController extends Controller
 {
-    public function __construct(private TripService $tripService) {}
+    public function __construct(
+        private TripService $tripService,
+        private SpeedLogService $speedLogService
+    ) {}
 
     /**
      * List trips with filtering and pagination.
@@ -169,6 +174,51 @@ class TripController extends Controller
 
         return response()->json([
             'trip' => $trip,
+        ], 200);
+    }
+
+    /**
+     * Bulk insert speed logs for a trip.
+     *
+     * Accepts multiple speed log entries and performs efficient bulk insert
+     * to database. Primarily used for offline sync when devices reconnect.
+     * Updates trip statistics and synced_at timestamp after insertion.
+     *
+     * @param  BulkCreateSpeedLogsRequest  $request  Validated speed logs array
+     * @param  Trip  $trip  The trip to add speed logs to (route model binding)
+     * @return JsonResponse Created speed logs count and updated trip (200) or validation error (422)
+     */
+    public function storeSpeedLogs(BulkCreateSpeedLogsRequest $request, Trip $trip): JsonResponse
+    {
+        $this->authorize('addSpeedLogs', $trip);
+
+        // Validate trip is in progress
+        if ($trip->status !== TripStatus::InProgress) {
+            return response()->json([
+                'message' => 'Only trips in progress can accept speed logs',
+            ], 422);
+        }
+
+        $speedLogs = $this->speedLogService->bulkInsert(
+            $trip,
+            $request->input('speed_logs')
+        );
+
+        // Update synced_at timestamp for offline sync tracking
+        $trip->update(['synced_at' => now()]);
+        $trip->refresh();
+
+        return response()->json([
+            'message' => 'Speed logs created successfully',
+            'created_count' => $speedLogs->count(),
+            'trip' => [
+                'id' => $trip->id,
+                'max_speed' => $trip->max_speed,
+                'average_speed' => $trip->average_speed,
+                'total_distance' => $trip->total_distance,
+                'violation_count' => $trip->violation_count,
+                'synced_at' => $trip->synced_at,
+            ],
         ], 200);
     }
 }

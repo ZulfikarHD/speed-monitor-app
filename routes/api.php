@@ -14,4 +14,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/trips', [TripController::class, 'store'])->name('trips.store');
     Route::get('/trips/{trip}', [TripController::class, 'show'])->name('trips.show');
     Route::put('/trips/{trip}', [TripController::class, 'update'])->name('trips.update');
+    Route::post('/trips/{trip}/speed-logs', [TripController::class, 'storeSpeedLogs'])->name('trips.speed-logs.store');
 });
