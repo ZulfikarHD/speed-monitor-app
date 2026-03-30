@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Services\SpeedLogService;
 use Database\Factories\SpeedLogFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Collection;
 
 /**
  * Speed Log Model
@@ -28,9 +31,9 @@ class SpeedLog extends Model
     /**
      * Disable updated_at timestamp (only uses created_at).
      *
-     * @var bool
+     * @var string|null
      */
-    public $timestamps = false;
+    public const UPDATED_AT = null;
 
     /**
      * Get the attributes that should be cast.
@@ -55,5 +58,43 @@ class SpeedLog extends Model
     public function trip(): BelongsTo
     {
         return $this->belongsTo(Trip::class);
+    }
+
+    /**
+     * Bulk create speed logs for a trip.
+     *
+     * Facade method to SpeedLogService for convenient bulk insertion.
+     *
+     * @param  Trip  $trip  The trip to add speed logs to
+     * @param  array<int, array{speed: float, recorded_at: string}>  $speedLogData  Array of speed log records
+     * @return Collection<int, SpeedLog> Collection of created speed logs
+     */
+    public static function bulkCreate(Trip $trip, array $speedLogData): Collection
+    {
+        $service = new SpeedLogService;
+
+        return $service->bulkInsert($trip, $speedLogData);
+    }
+
+    /**
+     * Scope to filter only speed logs that are violations.
+     *
+     * @param  Builder<SpeedLog>  $query
+     * @return Builder<SpeedLog>
+     */
+    public function scopeViolations(Builder $query): Builder
+    {
+        return $query->where('is_violation', true);
+    }
+
+    /**
+     * Scope to filter only safe speed logs (non-violations).
+     *
+     * @param  Builder<SpeedLog>  $query
+     * @return Builder<SpeedLog>
+     */
+    public function scopeSafe(Builder $query): Builder
+    {
+        return $query->where('is_violation', false);
     }
 }
