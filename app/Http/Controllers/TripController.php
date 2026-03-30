@@ -1,0 +1,174 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Enums\TripStatus;
+use App\Http\Requests\Trip\EndTripRequest;
+use App\Http\Requests\Trip\ListTripsRequest;
+use App\Http\Requests\Trip\StartTripRequest;
+use App\Models\Trip;
+use App\Services\TripService;
+use Illuminate\Http\JsonResponse;
+
+/*
+|--------------------------------------------------------------------------
+| Trip Controller
+|--------------------------------------------------------------------------
+|
+| Handles trip management endpoints for starting, ending, listing, and
+| viewing trips. Implements role-based authorization ensuring employees
+| can only manage their own trips while supervisors and admins have
+| broader access for monitoring purposes.
+|
+*/
+class TripController extends Controller
+{
+    public function __construct(private TripService $tripService) {}
+
+    /**
+     * List trips with filtering and pagination.
+     *
+     * Employees can only view their own trips. Supervisors and admins
+     * can view all trips with optional user_id filtering for monitoring.
+     * Supports date range, status filtering, and pagination.
+     *
+     * @param  ListTripsRequest  $request  Validated query parameters
+     * @return JsonResponse Paginated trip list with user relationships (200)
+     */
+    public function index(ListTripsRequest $request): JsonResponse
+    {
+        $this->authorize('viewAny', Trip::class);
+
+        $query = Trip::query()->with('user:id,name,email');
+
+        // Employees can only see their own trips
+        $user = auth()->user();
+        if ($user->isEmployee() && ! $user->isSupervisor() && ! $user->isAdmin()) {
+            $query->where('user_id', $user->id);
+        } else {
+            // Supervisors and admins can filter by user_id
+            if ($request->has('user_id')) {
+                $query->where('user_id', $request->input('user_id'));
+            }
+        }
+
+        // Apply status filter
+        if ($request->has('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        // Apply date range filters
+        if ($request->has('date_from')) {
+            $query->whereDate('started_at', '>=', $request->input('date_from'));
+        }
+
+        if ($request->has('date_to')) {
+            $query->whereDate('started_at', '<=', $request->input('date_to'));
+        }
+
+        // Order by most recent first
+        $query->orderBy('started_at', 'desc');
+
+        $perPage = $request->input('per_page', 20);
+        $trips = $query->paginate($perPage);
+
+        return response()->json([
+            'data' => $trips->items(),
+            'meta' => [
+                'current_page' => $trips->currentPage(),
+                'per_page' => $trips->perPage(),
+                'total' => $trips->total(),
+                'last_page' => $trips->lastPage(),
+            ],
+        ], 200);
+    }
+
+    /**
+     * Start a new trip for the authenticated user.
+     *
+     * Creates a new trip in InProgress status. Prevents multiple active
+     * trips by checking for existing in-progress trips before creation.
+     *
+     * @param  StartTripRequest  $request  Validated trip data (optional notes)
+     * @return JsonResponse Created trip data (201) or validation error (422)
+     */
+    public function store(StartTripRequest $request): JsonResponse
+    {
+        $this->authorize('create', Trip::class);
+
+        // Check if user already has an active trip
+        $activeTrip = Trip::where('user_id', auth()->id())
+            ->where('status', TripStatus::InProgress)
+            ->exists();
+
+        if ($activeTrip) {
+            return response()->json([
+                'message' => 'You already have an active trip',
+            ], 422);
+        }
+
+        $trip = $this->tripService->startTrip(
+            auth()->user(),
+            $request->input('notes')
+        );
+
+        return response()->json([
+            'trip' => $trip,
+        ], 201);
+    }
+
+    /**
+     * Get detailed trip information including speed logs.
+     *
+     * Returns complete trip data with associated user and speed log records.
+     * Trip owner, supervisors, and admins can view trip details.
+     *
+     * @param  Trip  $trip  The trip to view (route model binding)
+     * @return JsonResponse Trip details with user and speed logs (200)
+     */
+    public function show(Trip $trip): JsonResponse
+    {
+        $this->authorize('view', $trip);
+
+        $trip->load(['user:id,name,email', 'speedLogs']);
+
+        return response()->json([
+            'trip' => $trip,
+        ], 200);
+    }
+
+    /**
+     * End an active trip and calculate final statistics.
+     *
+     * Updates trip status to Completed, calculates duration and statistics
+     * from speed logs. Only trip owner can end their own trip. Trip must
+     * be in InProgress status.
+     *
+     * @param  EndTripRequest  $request  Validated request (optional notes)
+     * @param  Trip  $trip  The trip to end (route model binding)
+     * @return JsonResponse Updated trip with statistics (200) or validation error (422)
+     */
+    public function update(EndTripRequest $request, Trip $trip): JsonResponse
+    {
+        $this->authorize('update', $trip);
+
+        // Validate trip is in progress
+        if ($trip->status !== TripStatus::InProgress) {
+            return response()->json([
+                'message' => 'Only trips in progress can be ended',
+            ], 422);
+        }
+
+        $trip = $this->tripService->endTrip($trip);
+
+        // Update notes if provided
+        if ($request->has('notes')) {
+            $trip->update(['notes' => $request->input('notes')]);
+            $trip->refresh();
+        }
+
+        return response()->json([
+            'trip' => $trip,
+        ], 200);
+    }
+}
