@@ -169,31 +169,88 @@ Set up development environment and implement user authentication system.
 **So that** I can authenticate to the app
 
 **Acceptance Criteria:**
-- [x] Login.vue component created
-- [x] Email and password inputs
-- [x] Form validation (required fields)
-- [x] Submit button triggers API call (using Wayfinder + Inertia useHttp)
-- [x] Token stored in localStorage
-- [x] Redirects to appropriate page based on role
-- [x] Error messages displayed
-- [x] Loading state during API call
+- [x] Login.vue component created with email and password inputs
+- [x] Client-side form validation (email format, password length)
+- [x] Submit using Wayfinder + Inertia useForm composable
+- [x] User data and token stored in localStorage via Pinia store
+- [x] Role-based redirect (employee/supervisor/admin dashboards)
+- [x] Backend error messages displayed (Laravel validation)
+- [x] Loading state with disabled inputs during submission
+- [x] Test with all three user roles (employee, supervisor, admin)
 
 **Implementation Details:**
-- Created `resources/js/pages/auth/Login.vue` with form validation
-- Created `resources/js/composables/useAuth.ts` using Wayfinder routes
-- Created `resources/js/types/api.ts` for TypeScript types
-- Created placeholder dashboards for all three roles
-- Uses Inertia v3's `useHttp()` hook instead of Axios
-- Uses Wayfinder-generated type-safe routes (`login.url()`)
-- Integrated with existing Pinia auth store
+**Backend (`app/Http/Controllers/Auth/AuthController.php`):**
+- Login method returns Inertia response with user + token as props
+- Logout method supports both Inertia (redirect) and API (JSON) responses
+- Fixed 500 error: changed from `Inertia::location()` to `redirect()`
+- Full PHPDoc documentation with @param/@return/@throws
+
+**Frontend - Login (`resources/js/pages/auth/Login.vue`):**
+- Uses Inertia v3's `useForm` composable (NOT `useHttp`)
+- Wayfinder integration: `form.submit(loginAction())` with route object
+- Client-side validation before submission
+- onSuccess callback stores user + token in Pinia auth store
+- Role-based redirect after successful login
+- Comprehensive JSDoc documentation
+
+**Frontend - Auth Composable (`resources/js/composables/useAuth.ts`):**
+- `handleLogout()` function using Inertia router + Wayfinder
+- Uses `router.post(logoutAction(), {})` pattern
+- Full JSDoc with @returns and @example
+
+**Frontend - Auth Store (`resources/js/stores/auth.ts`):**
+- User data persisted to localStorage (not just token)
+- `initializeAuth()` restores both user and token on app startup
+- Called in `app.ts` during Inertia app initialization
+- Comprehensive documentation with JSDoc on all methods
+
+**Frontend - Types (`resources/js/types/api.ts`):**
+- TypeScript interfaces: LoginCredentials, LoginResponse, ApiError
+- Full JSDoc on all type definitions
+
+**Dashboard Pages:**
+- Employee: `resources/js/pages/employee/Dashboard.vue`
+- Supervisor: `resources/js/pages/supervisor/Dashboard.vue`
+- Admin: `resources/js/pages/admin/Dashboard.vue`
+- All display user data from auth store with logout button
+
+**Key Architecture Decisions:**
+1. **Wayfinder + useForm (NOT useHttp):**
+   - `useForm` is the recommended Inertia v3 pattern for forms
+   - `form.submit(wayfinderObject)` passes route object directly
+   - Backend returns Inertia response, not JSON
+2. **localStorage Persistence:**
+   - Both user object and token persisted
+   - Session survives page refresh
+   - Initialized on app startup in `app.ts`
+3. **Full Documentation:**
+   - PHPDoc on all public methods
+   - JSDoc on composables, stores, and types
+   - Inline WHY comments for complex logic
+   - Section comments in large templates
+
+**Testing Results:**
+- ✅ Login with employee/supervisor/admin accounts successful
+- ✅ User data displays correctly on dashboard
+- ✅ Page refresh preserves session (localStorage working)
+- ✅ Logout redirects to login without 500 error
+- ✅ No console errors during full flow
+- ✅ All linters passing (PHP Pint, ESLint)
 
 **Story Points:** 3  
 **Priority:** Critical  
 **Status:** ✅ Completed (March 30, 2026)
 
+**Lessons Learned:**
+- Wayfinder works differently with `useForm` vs `useHttp` vs `router`
+- `useForm.submit()` expects route object: `loginAction()`
+- `useHttp` expects URL string: `loginAction.url()`
+- `router.visit()` accepts both route objects and URL strings
+- Always check Wayfinder's `.form()` method availability (needs `--with-form` flag)
+
 ---
 
-#### US-1.6: Implement Auth Store (Pinia) ✅ COMPLETED (Already Done in Setup)
+#### US-1.6: Implement Auth Store (Pinia) ✅ COMPLETED (Enhanced in US-1.5)
 **As a** developer  
 **I want** centralized authentication state  
 **So that** auth data is accessible throughout the app
@@ -204,17 +261,22 @@ Set up development environment and implement user authentication system.
 - [x] Actions: login, logout, setUser, setToken
 - [x] Getters: isEmployee, isSupervisor, isAdmin
 - [x] Token persisted to localStorage
-- [x] Auto-fetch user on app init (initializeAuth method)
+- [x] User data persisted to localStorage (added in US-1.5)
+- [x] Auto-restore session on app init (initializeAuth method)
 
 **Implementation Details:**
-- Already implemented in `resources/js/stores/auth.ts`
+- Initially implemented in `resources/js/stores/auth.ts`
+- Enhanced during US-1.5 to persist user data (not just token)
 - TypeScript with proper type definitions
 - Computed getters for role-based checks
-- localStorage integration for token persistence
+- localStorage integration for both token AND user object
+- `initializeAuth()` called in `app.ts` during bootstrap
+- Comprehensive JSDoc documentation on all methods
+- Export User interface and UserRole type for app-wide use
 
 **Story Points:** 3  
 **Priority:** Critical  
-**Status:** ✅ Completed (During US-1.2/1.3 Setup)
+**Status:** ✅ Completed (Initial in US-1.2/1.3, Enhanced in US-1.5)
 
 ---
 

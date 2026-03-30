@@ -1,51 +1,80 @@
 /**
- * API request and response type definitions.
+ * API Request and Response Type Definitions
  *
- * Defines TypeScript interfaces for API interactions including
- * authentication, error handling, and generic API responses.
+ * Defines TypeScript interfaces for authentication API endpoints.
+ * These types ensure type safety when making API calls and handling responses.
+ *
+ * @example
+ * ```ts
+ * const credentials: LoginCredentials = {
+ *   email: 'user@example.com',
+ *   password: 'secret123'
+ * };
+ *
+ * const response: LoginResponse = await api.login(credentials);
+ * console.log(response.user.name, response.token);
+ * ```
  */
 
-import type { User } from './auth';
-
 /**
- * Login credentials for authentication request.
+ * Login request credentials.
+ *
+ * User-provided credentials for authentication.
  */
 export interface LoginCredentials {
     /** User email address */
     email: string;
-    /** User password (min 8 characters) */
+    /** User password */
     password: string;
 }
 
 /**
- * Login API response with user data and token.
+ * Login response data.
+ *
+ * Returned by backend after successful authentication.
+ * Contains user data and Sanctum API token.
  */
 export interface LoginResponse {
-    /** Sanctum API token for authentication */
+    /** Authenticated user data */
+    user: {
+        /** Unique user identifier */
+        id: number;
+        /** Full name */
+        name: string;
+        /** Email address */
+        email: string;
+        /** User role for RBAC */
+        role: 'employee' | 'supervisor' | 'admin';
+        /** Account status */
+        is_active: boolean;
+    };
+    /** Sanctum API token for authenticated requests */
     token: string;
-    /** Authenticated user object with role */
-    user: User;
 }
 
 /**
  * API error response structure.
+ *
+ * Standard Laravel validation error response format.
  */
 export interface ApiError {
-    /** Human-readable error message */
+    /** Error message */
     message: string;
-    /** Field-specific validation errors (optional) */
+    /** Field-specific validation errors (422 responses) */
     errors?: Record<string, string[]>;
 }
 
 /**
  * Generic API response wrapper.
  *
- * @template T - Type of the response data
+ * Standardizes API response structure across endpoints.
+ *
+ * @template T - The data type for successful responses
  */
 export interface ApiResponse<T> {
-    /** Response data (present on success) */
+    /** Response data on success */
     data?: T;
-    /** Error details (present on failure) */
+    /** Error information on failure */
     error?: ApiError;
     /** HTTP status code */
     status: number;

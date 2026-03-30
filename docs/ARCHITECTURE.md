@@ -310,23 +310,79 @@ resources/js/composables/
 └── useOfflineSync.ts       (sync logic)
 ```
 
-### Authentication Flow (Implemented)
+### Authentication Flow (Implemented - Sprint 1)
 
-**Token-Based Auth with Inertia.js:**
-1. User submits login form on `/login` (Inertia page)
-2. `useAuth` composable calls Wayfinder-generated `login.url()`
-3. Uses Inertia's `useHttp().post()` to call `/api/auth/login`
-4. On success: token stored in localStorage via Pinia auth store
-5. Inertia router navigates to role-based dashboard:
-   - Employee → `/employee/dashboard`
-   - Supervisor → `/supervisor/dashboard`
-   - Admin → `/admin/dashboard`
+**Token-Based Auth with Inertia.js + Wayfinder:**
+
+**Login Flow:**
+1. User visits `/login` (Inertia page route)
+2. `Login.vue` component renders with email/password form
+3. User enters credentials and submits
+4. Client-side validation runs (email format, password length)
+5. If valid, `form.submit(loginAction())` called with Wayfinder route object
+6. Inertia POST to `/api/auth/login` via backend controller
+7. Backend validates credentials, generates Sanctum token
+8. Backend returns Inertia response with user + token as props
+9. Frontend `onSuccess` callback receives user + token
+10. Data stored in Pinia auth store → persisted to localStorage
+11. Inertia router navigates to role-based dashboard:
+    - Employee → `/employee/dashboard`
+    - Supervisor → `/supervisor/dashboard`
+    - Admin → `/admin/dashboard`
+
+**Logout Flow:**
+1. User clicks logout button on dashboard
+2. `useAuth().handleLogout()` called
+3. Inertia router POST to `/api/auth/logout` with Wayfinder: `router.post(logoutAction())`
+4. Backend revokes Sanctum token
+5. Backend returns redirect response to `/login`
+6. Frontend `onFinish` callback clears Pinia auth store
+7. localStorage cleared (user + token removed)
+8. Redirects to login page
+
+**Session Persistence (Page Refresh):**
+1. App loads → `app.ts` initializes Pinia
+2. `authStore.initializeAuth()` called immediately
+3. Reads `auth_token` and `auth_user` from localStorage
+4. If both exist, hydrates store state
+5. User remains logged in across refreshes
 
 **Key Implementation Details:**
 - **Wayfinder** generates type-safe route functions from Laravel controllers
-- **useHttp** (Inertia v3) replaces Axios for API calls
+- **useForm** (Inertia v3) used for login form submission, NOT useHttp
+- **router.post()** (Inertia v3) used for logout, accepts route objects
 - **Pinia** manages auth state (user, token, role getters)
-- **localStorage** persists token across sessions
+- **localStorage** persists BOTH user object and token across sessions
+- **Sanctum** provides token-based API authentication
+- **Full Documentation** with PHPDoc and JSDoc throughout
+
+**Wayfinder Usage Patterns:**
+```typescript
+// Login: form.submit() with route object
+form.submit(loginAction())
+
+// Logout: router.post() with route object
+router.post(logoutAction(), {}, { headers: {...} })
+
+// Note: Different from useHttp which needs .url()
+// http.post(loginAction.url(), data)  // if using useHttp
+```
+
+**File Structure:**
+```
+Backend:
+├── app/Http/Controllers/Auth/AuthController.php (login, logout, me)
+├── app/Services/AuthService.php (business logic)
+└── app/Http/Requests/Auth/LoginRequest.php (validation)
+
+Frontend:
+├── resources/js/pages/auth/Login.vue (login form)
+├── resources/js/composables/useAuth.ts (logout logic)
+├── resources/js/stores/auth.ts (state management)
+├── resources/js/types/api.ts (TypeScript types)
+├── resources/js/actions/App/Http/Controllers/Auth/AuthController.ts (Wayfinder generated)
+└── resources/js/app.ts (Pinia init + auth restore)
+```
 
 ### Laravel Wayfinder Integration
 
@@ -352,11 +408,15 @@ const user = await http.get(me.url())
 
 ### State Management (Pinia Stores)
 
-**Auth Store (Implemented):**
+**Auth Store (Implemented - Sprint 1):**
 ```typescript
+// Location: resources/js/stores/auth.ts
 {
-  user: User | null,
-  token: string | null,
+  // State
+  user: User | null,             // Current authenticated user
+  token: string | null,          // Sanctum API token
+  
+  // Computed Getters
   isAuthenticated: computed(() => user !== null),
   role: computed(() => user?.role ?? null),
   isEmployee: computed(() => role === 'employee'),
@@ -364,13 +424,20 @@ const user = await http.get(me.url())
   isAdmin: computed(() => role === 'admin'),
   
   // Actions
-  login(user: User, token: string),
-  logout(),
-  setUser(user: User),
-  setToken(token: string),
-  initializeAuth()  // Restores token from localStorage
+  login(user: User, token: string),    // Store user + token, persist to localStorage
+  logout(),                             // Clear state, remove from localStorage
+  setUser(user: User | null),          // Update user, persist to localStorage
+  setToken(token: string | null),      // Update token, persist to localStorage
+  initializeAuth()                      // Restore user + token from localStorage on app startup
 }
 ```
+
+**Key Features:**
+- ✅ Both user object AND token persisted to localStorage
+- ✅ Automatic session restore on page refresh
+- ✅ Called in `app.ts` during Inertia initialization
+- ✅ Role-based computed properties for access control
+- ✅ Comprehensive JSDoc documentation
 
 **Trip Store (Future - Sprint 2):**
 ```javascript

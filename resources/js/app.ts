@@ -3,6 +3,8 @@ import { createPinia } from 'pinia';
 import { createApp, h } from 'vue';
 import type { DefineComponent } from 'vue';
 
+import { useAuthStore } from '@/stores/auth';
+
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
@@ -20,9 +22,14 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         const pinia = createPinia();
 
-        createApp({ render: () => h(App, props) })
+        const app = createApp({ render: () => h(App, props) })
             .use(plugin)
-            .use(pinia)
-            .mount(el);
+            .use(pinia);
+
+        // Initialize auth store from localStorage
+        const authStore = useAuthStore();
+        authStore.initializeAuth();
+
+        app.mount(el);
     },
 });

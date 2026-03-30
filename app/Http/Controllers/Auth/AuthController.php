@@ -7,14 +7,21 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Services\AuthService;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
-/**
- * Authentication Controller
- *
- * Handles API authentication endpoints for login, logout, and
- * user retrieval with Sanctum token-based authentication.
- */
+/*
+|--------------------------------------------------------------------------
+| Authentication Controller
+|--------------------------------------------------------------------------
+|
+| Handles authentication endpoints for login, logout, and user retrieval
+| using Laravel Sanctum token-based authentication. Supports both Inertia
+| form submissions and traditional API JSON requests.
+|
+*/
 class AuthController extends Controller
 {
     public function __construct(private AuthService $authService) {}
@@ -22,20 +29,24 @@ class AuthController extends Controller
     /**
      * Authenticate user and return access token.
      *
-     * Validates credentials and returns Sanctum API token for stateless
-     * authentication. Frontend should store token in localStorage and
-     * include it in Authorization header for protected endpoints.
+     * Validates credentials via AuthService and generates Sanctum API token.
+     * For Inertia requests, returns user data as props to be handled by
+     * frontend (stored in localStorage). On failure, redirects back with
+     * validation errors.
      *
-     * @param  LoginRequest  $request  Validated login credentials
-     * @return JsonResponse Token and user data (200) or error (401/403)
+     * @param  LoginRequest  $request  Validated email and password credentials
+     * @return InertiaResponse User data and token as props, or back with errors
+     *
+     * @throws AuthenticationException When credentials are invalid or account is inactive
      */
-    public function login(LoginRequest $request): JsonResponse
+    public function login(LoginRequest $request): InertiaResponse
     {
         try {
             $result = $this->authService->login($request->validated());
 
-            return response()->json([
-                'token' => $result['token'],
+            // Return user data and token as Inertia props
+            // Frontend will store these in localStorage for persistence
+            return Inertia::render('auth/Login', [
                 'user' => [
                     'id' => $result['user']->id,
                     'name' => $result['user']->name,
@@ -43,29 +54,35 @@ class AuthController extends Controller
                     'role' => $result['user']->role,
                     'is_active' => $result['user']->is_active,
                 ],
-            ], 200);
+                'token' => $result['token'],
+            ]);
         } catch (AuthenticationException $e) {
-            $statusCode = $e->getMessage() === 'Account is inactive' ? 403 : 401;
-
-            return response()->json([
-                'message' => $e->getMessage(),
-            ], $statusCode);
+            // Redirect back to login with error message
+            return back()->withErrors([
+                'email' => $e->getMessage(),
+            ]);
         }
     }
 
     /**
      * Revoke current access token and logout user.
      *
-     * Deletes the token used for current request. Token cannot be
-     * reused after logout. Frontend should clear stored token.
+     * Deletes the Sanctum token used for current request. For Inertia requests,
+     * redirects to login page. For API requests, returns JSON success message.
      *
-     * @param  Request  $request  Authenticated request
-     * @return JsonResponse Success message (200)
+     * @param  Request  $request  Authenticated request with valid Sanctum token
+     * @return RedirectResponse|JsonResponse Redirects to login (Inertia) or returns success JSON (API)
      */
-    public function logout(Request $request): JsonResponse
+    public function logout(Request $request): RedirectResponse|JsonResponse
     {
         $this->authService->logout($request->user());
 
+        // Inertia requests: redirect to login page
+        if ($request->inertia()) {
+            return redirect('/login');
+        }
+
+        // API requests: return JSON success message
         return response()->json([
             'message' => 'Logged out successfully',
         ], 200);

@@ -1,52 +1,123 @@
 <script setup lang="ts">
 /**
- * Login Page - User authentication with form validation.
+ * Login Page - User authentication form.
+ *
+ * Handles user login using Inertia.js v3 useForm composable with
+ * Wayfinder integration for type-safe route handling. Includes
+ * client-side validation, loading states, and error display.
+ *
+ * Authentication Flow:
+ * 1. User enters email/password
+ * 2. Client-side validation checks format
+ * 3. Form submits to backend via Wayfinder route
+ * 4. Backend returns user data + token as Inertia props
+ * 5. Frontend stores in localStorage via auth store
+ * 6. Redirects to role-based dashboard
  *
  * Features:
  * - Email and password inputs with client-side validation
- * - Loading state during API call
- * - Error message display for invalid credentials
- * - Role-based redirect after successful login
+ * - Inertia useForm composable with Wayfinder integration
+ * - Backend error display from Laravel validation
+ * - Loading state with disabled inputs during submission
+ * - Role-based redirect (admin/supervisor/employee dashboards)
  * - Test account hints for development
+ *
+ * @see {@link https://inertiajs.com/forms Inertia Forms Documentation}
+ * @see {@link https://laravel.com/docs/wayfinder Wayfinder Documentation}
  */
 
-import { Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, router, useForm } from '@inertiajs/vue3';
 
-import { useAuth } from '@/composables/useAuth';
+import { login as loginAction } from '@/actions/App/Http/Controllers/Auth/AuthController';
+import { useAuthStore } from '@/stores/auth';
 
-const email = ref('');
-const password = ref('');
-const validationErrors = ref<Record<string, string>>({});
+const authStore = useAuthStore();
 
-const { handleLogin, isLoading, error } = useAuth();
+// Inertia form state with Wayfinder integration
+// useForm provides reactive form data, processing state, and error handling
+const form = useForm({
+    email: '',
+    password: '',
+});
 
-const validateForm = (): boolean => {
-    validationErrors.value = {};
-
-    if (!email.value) {
-        validationErrors.value.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-        validationErrors.value.email = 'Please enter a valid email address';
-    }
-
-    if (!password.value) {
-        validationErrors.value.password = 'Password is required';
-    } else if (password.value.length < 8) {
-        validationErrors.value.password = 'Password must be at least 8 characters';
-    }
-
-    return Object.keys(validationErrors.value).length === 0;
+// Client-side validation errors (separate from backend errors)
+// These are cleared when user types to provide immediate feedback
+const clientErrors = {
+    email: '',
+    password: '',
 };
 
-const onSubmit = async () => {
+/**
+ * Validate form inputs before submission.
+ *
+ * Checks email format and password length requirements.
+ * Updates clientErrors object with validation messages.
+ *
+ * @returns True if all fields are valid, false otherwise
+ */
+const validateForm = (): boolean => {
+    clientErrors.email = '';
+    clientErrors.password = '';
+
+    if (!form.email) {
+        clientErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+        clientErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!form.password) {
+        clientErrors.password = 'Password is required';
+    } else if (form.password.length < 8) {
+        clientErrors.password = 'Password must be at least 8 characters';
+    }
+
+    return !clientErrors.email && !clientErrors.password;
+};
+
+/**
+ * Handle form submission.
+ *
+ * Validates form inputs, then submits to backend using Wayfinder route object.
+ * On success, stores user data and token in auth store (persisted to localStorage),
+ * then redirects to appropriate dashboard based on user role.
+ *
+ * Wayfinder Integration:
+ * - loginAction() returns route object: { url: '/api/auth/login', method: 'post' }
+ * - form.submit() uses this object for type-safe Inertia form submission
+ * - Backend returns user data + token as Inertia props
+ *
+ * @returns void
+ */
+const handleSubmit = (): void => {
+    // Step 1: Validate client-side before sending request
     if (!validateForm()) {
         return;
     }
 
-    await handleLogin({
-        email: email.value,
-        password: password.value,
+    // Step 2: Submit form using Wayfinder route object
+    // Wayfinder provides type-safe route generation from Laravel routes
+    form.submit(loginAction(), {
+        preserveScroll: true,
+        onSuccess: (page) => {
+            const responseData = page.props as any;
+
+            if (responseData.user && responseData.token) {
+                // Step 3: Store user data and token in auth store
+                // This persists to localStorage for session recovery
+                authStore.login(responseData.user, responseData.token);
+
+                // Step 4: Redirect to role-based dashboard
+                const role = responseData.user.role;
+                const redirectUrl =
+                    role === 'admin'
+                        ? '/admin/dashboard'
+                        : role === 'supervisor'
+                          ? '/supervisor/dashboard'
+                          : '/employee/dashboard';
+
+                router.visit(redirectUrl);
+            }
+        },
     });
 };
 </script>
@@ -70,11 +141,17 @@ const onSubmit = async () => {
                     </p>
                 </div>
 
-                <form @submit.prevent="onSubmit" class="space-y-4">
-                    <div v-if="error" class="rounded-lg bg-red-50 p-3 text-sm text-red-800 dark:bg-red-900/20 dark:text-red-200">
-                        {{ error }}
+                <!-- Wayfinder + Inertia useForm -->
+                <form @submit.prevent="handleSubmit" class="space-y-4">
+                    <!-- Backend Error Message -->
+                    <div
+                        v-if="form.errors.email || form.errors.password"
+                        class="rounded-lg bg-red-50 p-3 text-sm text-red-800 dark:bg-red-900/20 dark:text-red-200"
+                    >
+                        {{ form.errors.email || form.errors.password }}
                     </div>
 
+                    <!-- Email Input -->
                     <div>
                         <label
                             for="email"
@@ -84,24 +161,27 @@ const onSubmit = async () => {
                         </label>
                         <input
                             id="email"
-                            v-model="email"
+                            v-model="form.email"
+                            name="email"
                             type="email"
                             autocomplete="email"
                             class="w-full rounded-lg border border-[#e3e3e0] bg-white px-4 py-2.5 text-sm transition-colors focus:border-[#1b1b18] focus:outline-none focus:ring-2 focus:ring-[#1b1b18]/10 dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/10"
                             :class="{
                                 'border-red-500 focus:border-red-500 focus:ring-red-500/10':
-                                    validationErrors.email,
+                                    clientErrors.email || form.errors.email,
                             }"
-                            :disabled="isLoading"
+                            :disabled="form.processing"
+                            @input="clientErrors.email = ''"
                         />
                         <p
-                            v-if="validationErrors.email"
+                            v-if="clientErrors.email"
                             class="mt-1.5 text-sm text-red-600 dark:text-red-400"
                         >
-                            {{ validationErrors.email }}
+                            {{ clientErrors.email }}
                         </p>
                     </div>
 
+                    <!-- Password Input -->
                     <div>
                         <label
                             for="password"
@@ -111,30 +191,33 @@ const onSubmit = async () => {
                         </label>
                         <input
                             id="password"
-                            v-model="password"
+                            v-model="form.password"
+                            name="password"
                             type="password"
                             autocomplete="current-password"
                             class="w-full rounded-lg border border-[#e3e3e0] bg-white px-4 py-2.5 text-sm transition-colors focus:border-[#1b1b18] focus:outline-none focus:ring-2 focus:ring-[#1b1b18]/10 dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/10"
                             :class="{
                                 'border-red-500 focus:border-red-500 focus:ring-red-500/10':
-                                    validationErrors.password,
+                                    clientErrors.password || form.errors.password,
                             }"
-                            :disabled="isLoading"
+                            :disabled="form.processing"
+                            @input="clientErrors.password = ''"
                         />
                         <p
-                            v-if="validationErrors.password"
+                            v-if="clientErrors.password"
                             class="mt-1.5 text-sm text-red-600 dark:text-red-400"
                         >
-                            {{ validationErrors.password }}
+                            {{ clientErrors.password }}
                         </p>
                     </div>
 
+                    <!-- Submit Button -->
                     <button
                         type="submit"
                         class="w-full rounded-lg border border-black bg-[#1b1b18] px-5 py-2.5 text-sm font-medium leading-normal text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#eeeeec] dark:bg-[#eeeeec] dark:text-[#1C1C1A] dark:hover:border-white dark:hover:bg-white"
-                        :disabled="isLoading"
+                        :disabled="form.processing"
                     >
-                        <span v-if="isLoading" class="flex items-center justify-center">
+                        <span v-if="form.processing" class="flex items-center justify-center">
                             <svg
                                 class="-ml-1 mr-2 h-4 w-4 animate-spin"
                                 xmlns="http://www.w3.org/2000/svg"
@@ -161,6 +244,7 @@ const onSubmit = async () => {
                     </button>
                 </form>
 
+                <!-- Test Accounts Info -->
                 <div class="mt-6 text-center text-sm text-[#706f6c] dark:text-[#A1A09A]">
                     <p class="mb-2">Test Accounts:</p>
                     <div class="space-y-1 text-xs">
