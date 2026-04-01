@@ -242,7 +242,8 @@ resources/js/
 │           └── AuthController.ts   (login, logout, me functions)
 │
 ├── composables/
-│   └── useAuth.ts              (authentication logic with Inertia useHttp)
+│   ├── useAuth.ts              (authentication logic with Inertia router)
+│   └── useGeolocation.ts       (GPS tracking for speed monitoring)
 │
 ├── pages/                      (Inertia.js pages)
 │   ├── auth/
@@ -257,11 +258,14 @@ resources/js/
 │
 ├── stores/                     (Pinia)
 │   ├── auth.ts                 (user, token, role management)
-│   └── settings.ts             (app settings)
+│   ├── settings.ts             (app settings)
+│   └── trip.ts                 (trip tracking and speed log management)
 │
 ├── types/
 │   ├── api.ts                  (API request/response types)
 │   ├── auth.ts                 (User, Auth types)
+│   ├── geolocation.ts          (GPS and speed tracking types)
+│   ├── trip.ts                 (Trip, SpeedLog, TripStats types)
 │   ├── index.ts                (barrel exports)
 │   └── global.d.ts             (global type declarations)
 │
@@ -301,13 +305,15 @@ resources/js/components/
     └── TripFilters.vue
 ```
 
-### Future Composables (Sprint 3+)
+### Composables (Implemented)
 ```
 resources/js/composables/
-├── useAuth.ts              ✅ (implemented)
-├── useGeolocation.ts       (GPS tracking logic)
-├── useTrip.ts              (trip management)
-└── useOfflineSync.ts       (sync logic)
+├── useAuth.ts              ✅ (Sprint 1 - authentication & logout)
+└── useGeolocation.ts       ✅ (Sprint 3 - GPS tracking with speed monitoring)
+
+Future:
+├── useOfflineSync.ts       (Sprint 5 - offline sync logic)
+└── useNotification.ts      (Sprint 3 - violation alerts)
 ```
 
 ### Authentication Flow (Implemented - Sprint 1)
@@ -439,21 +445,45 @@ const user = await http.get(me.url())
 - ✅ Role-based computed properties for access control
 - ✅ Comprehensive JSDoc documentation
 
-**Trip Store (Future - Sprint 2):**
-```javascript
+**Trip Store (Implemented - Sprint 3):**
+```typescript
+// Location: resources/js/stores/trip.ts
 {
-  currentTrip: null,
-  speedLogs: [],
-  isTracking: false,
-  stats: {
-    currentSpeed: 0,
-    maxSpeed: 0,
-    averageSpeed: 0,
-    distance: 0,
-    duration: 0
-  }
+  // Core State
+  currentTrip: Trip | null,           // Active trip session
+  speedLogs: SpeedLog[],              // Buffered speed logs (sync every 10)
+  isTracking: boolean,                // Tracking status
+  stats: TripStats,                   // Real-time statistics
+  
+  // Loading States
+  isStarting: boolean,
+  isEnding: boolean,
+  isSyncing: boolean,
+  
+  // Metadata
+  lastSyncAt: Date | null,            // Last successful sync timestamp
+  error: string | null,               // Current error message
+  
+  // Actions
+  startTrip(notes?: string),          // POST /api/trips
+  addSpeedLog(speed, timestamp),      // Buffer speed logs locally
+  syncSpeedLogs(),                    // Bulk POST /api/trips/{id}/speed-logs
+  endTrip(notes?: string),            // PUT /api/trips/{id}
+  clearTrip(),                        // Reset state
+  
+  // Computed
+  hasActiveTrip,                      // Boolean: trip in progress
+  pendingLogCount,                    // Number of logs awaiting sync
+  needsSync                           // Boolean: ≥10 logs (50s data)
 }
 ```
+
+**Key Features:**
+- **Speed Log Batching**: Buffers 10 logs (~50 seconds) before syncing to reduce API calls by ~90%
+- **Real-time Statistics**: Calculates max/avg speed, distance, violations locally for immediate feedback
+- **Retry Logic**: Exponential backoff (1s, 2s, 4s) with max 3 attempts for failed syncs
+- **Violation Detection**: Automatic comparison against configurable speed_limit from settings store
+- **Type Safety**: Full TypeScript with types matching Laravel backend models exactly
 
 **Sync Store (Future - Sprint 5):**
 ```javascript

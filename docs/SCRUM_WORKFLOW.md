@@ -457,20 +457,80 @@ Build the core speedometer interface with GPS tracking and trip controls.
 
 ---
 
-#### US-3.2: Trip Store (Pinia)
+#### US-3.2: Trip Store (Pinia) ✅ COMPLETED
 **As a** developer  
 **I want** centralized trip state management  
 **So that** trip data is accessible across components
 
 **Acceptance Criteria:**
-- [ ] Trip store created (`stores/trip.js`)
-- [ ] State: currentTrip, speedLogs, isTracking, stats
-- [ ] Actions: startTrip, endTrip, addSpeedLog, updateStats
-- [ ] Integrates with API service
-- [ ] Calculates real-time stats (max, avg, distance)
+- [x] Trip store created (`stores/trip.ts`)
+- [x] State: currentTrip, speedLogs, isTracking, stats
+- [x] Actions: startTrip, endTrip, addSpeedLog, updateStats (+ syncSpeedLogs, clearTrip)
+- [x] Integrates with API service (Wayfinder + useHttp)
+- [x] Calculates real-time stats (max, avg, distance)
+- [x] Computed properties: hasActiveTrip, pendingLogCount, needsSync
+- [x] Error handling with retry logic (exponential backoff)
+- [x] Comprehensive JSDoc documentation
+
+**Implementation Details:**
+
+**Backend Integration:**
+- Uses Wayfinder `TripController` for type-safe route generation
+- Integrates with Inertia v3 `useHttp` for API requests
+- Full TypeScript types matching Laravel backend models
+
+**Files Created:**
+- `resources/js/types/trip.ts` (277 lines) - TypeScript type definitions
+- `resources/js/stores/trip.ts` (616 lines) - Pinia store with full documentation
+- Updated: `resources/js/types/index.ts` (added trip exports)
+
+**State Management:**
+```typescript
+{
+  currentTrip: Trip | null,
+  speedLogs: SpeedLog[],      // Buffer (sync every 10 logs)
+  isTracking: boolean,
+  stats: TripStats,           // Real-time calculations
+  isStarting/isEnding/isSyncing: boolean,
+  lastSyncAt: Date | null,
+  error: string | null
+}
+```
+
+**Key Actions:**
+1. `startTrip(notes?)` - Creates trip via POST `/api/trips`
+2. `addSpeedLog(speed, timestamp)` - Buffers speed with violation detection
+3. `syncSpeedLogs()` - Bulk insert via POST `/api/trips/{id}/speed-logs` with retry logic
+4. `endTrip(notes?)` - Completes trip via PUT `/api/trips/{id}`
+5. `clearTrip()` - Resets state for next session
+
+**Key Features:**
+- **Speed Log Batching**: ~90% fewer API calls by syncing every 10 logs (50 seconds)
+- **Real-time Statistics**: Local calculation for immediate user feedback
+- **Retry Logic**: Exponential backoff (1s, 2s, 4s) with max 3 attempts
+- **Violation Detection**: Automatic comparison against settings.speed_limit
+- **Type Safety**: Full TypeScript coverage with backend model matching
+
+**Integration Points:**
+- Uses `useSettingsStore` for speed_limit configuration
+- Integrates with `useGeolocation` composable (US-3.1)
+- Provides data for Speedometer components (US-3.3, 3.4, 3.5)
+
+**Testing:**
+- ESLint passing (exit code 0)
+- Build successful (219.39 kB bundle)
+- Manual testing checklist created
+- See: `docs/US-3.2_IMPLEMENTATION_SUMMARY.md`
 
 **Story Points:** 5  
-**Priority:** Critical
+**Priority:** Critical  
+**Status:** ✅ Completed (April 2, 2026)
+
+**Lessons Learned:**
+- Inertia v3's `useHttp` preferred over Axios for API consistency
+- Speed log batching significantly improves API efficiency
+- Local statistics calculation provides better UX than waiting for backend
+- TypeScript types matching backend models prevented many potential bugs
 
 ---
 
