@@ -2,8 +2,14 @@
 /**
  * TripCard Component
  *
- * Displays a summary of a single trip with key metrics.
+ * Displays a summary of a single trip with key metrics and sync status.
  * Clickable card that navigates to trip detail page via Inertia router.
+ *
+ * Features:
+ * - Trip summary (date, time, duration, distance, speeds)
+ * - Status badge (in_progress, completed, auto_stopped)
+ * - Sync status badge with animated icon
+ * - Motion-v animations for interactivity
  *
  * @example
  * ```vue
@@ -17,6 +23,7 @@
 
 import { router } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
+import { computed } from 'vue';
 
 import type { Trip } from '@/types/trip';
 import { formatDate, formatTime, formatDuration } from '@/utils/date';
@@ -115,6 +122,39 @@ function getViolationColor(count: number): string {
 function handleClick(): void {
     router.visit(`/employee/trips/${props.trip.id}`);
 }
+
+// ========================================================================
+// Sync Status Logic
+// ========================================================================
+
+/**
+ * Check if trip is synced to backend.
+ *
+ * @returns True if trip has synced_at timestamp
+ */
+const isSynced = computed<boolean>(() => {
+    return props.trip.synced_at !== null;
+});
+
+/**
+ * Get sync status text.
+ *
+ * @returns Indonesian sync status text
+ */
+function getSyncStatusText(): string {
+    return isSynced.value ? 'Tersinkronisasi' : 'Menunggu Sync';
+}
+
+/**
+ * Get sync status badge color classes.
+ *
+ * @returns Tailwind CSS classes for sync badge
+ */
+function getSyncStatusColor(): string {
+    return isSynced.value
+        ? 'bg-green-500/10 text-green-400 border-green-500/20'
+        : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
+}
 </script>
 
 <template>
@@ -147,15 +187,75 @@ function handleClick(): void {
                 </p>
             </div>
 
-            <!-- Status Badge -->
-            <span
-                :class="[
-                    'inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium',
-                    getStatusColor(trip.status),
-                ]"
-            >
-                {{ getStatusText(trip.status) }}
-            </span>
+            <!-- Badges Container -->
+            <div class="flex flex-col items-end gap-2">
+                <!-- Status Badge -->
+                <span
+                    :class="[
+                        'inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium',
+                        getStatusColor(trip.status),
+                    ]"
+                >
+                    {{ getStatusText(trip.status) }}
+                </span>
+
+                <!-- Sync Status Badge -->
+                <span
+                    :class="[
+                        'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium',
+                        getSyncStatusColor(),
+                    ]"
+                >
+                    <!-- Animated Sync Icon (pending) or Static Checkmark (synced) -->
+                    <motion.div
+                        v-if="!isSynced"
+                        :animate="{
+                            scale: [1, 1.15, 1],
+                            opacity: [0.7, 1, 0.7],
+                        }"
+                        :transition="{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                        }"
+                        class="flex items-center"
+                    >
+                        <!-- Cloud Upload Icon (pending sync) -->
+                        <svg
+                            class="h-3.5 w-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                            />
+                        </svg>
+                    </motion.div>
+                    <div v-else class="flex items-center">
+                        <!-- Checkmark Icon (synced) -->
+                        <svg
+                            class="h-3.5 w-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M5 13l4 4L19 7"
+                            />
+                        </svg>
+                    </div>
+                    <span>{{ getSyncStatusText() }}</span>
+                </span>
+            </div>
         </div>
 
         <!-- Stats Grid -->

@@ -4,6 +4,7 @@ export * from './geolocation';
 export * from './indexeddb';
 export * from './speedometer';
 export * from './statistics';
+export * from './sync';
 export * from './trip';
 export type { User, UserRole } from '../stores/auth';
 export type { AppSettings } from '../stores/settings';
