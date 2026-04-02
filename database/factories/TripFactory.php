@@ -7,6 +7,17 @@ use App\Models\Trip;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/*
+|--------------------------------------------------------------------------
+| Trip Factory
+|--------------------------------------------------------------------------
+|
+| Factory for generating Trip model instances in tests and seeding.
+| Provides states for different trip scenarios: in-progress, completed,
+| auto-stopped, with violations, and synced trips.
+|
+*/
+
 /**
  * @extends Factory<Trip>
  */
@@ -15,9 +26,11 @@ class TripFactory extends Factory
     /**
      * Define the model's default state.
      *
-     * Creates a trip in progress with start time.
+     * Creates a trip in progress with start time. Default state represents
+     * an active trip that hasn't been completed yet, useful for testing
+     * active trip tracking scenarios.
      *
-     * @return array<string, mixed>
+     * @return array<string, mixed> Trip attributes for in-progress trip
      */
     public function definition(): array
     {
@@ -40,6 +53,10 @@ class TripFactory extends Factory
      * Create a completed trip with calculated statistics.
      *
      * Generates realistic trip data with end time, duration, and basic stats.
+     * Useful for testing trip history, statistics display, and reporting features.
+     * Creates trips that happened 1-2 hours ago by default.
+     *
+     * @return static Factory instance with completed state
      */
     public function completed(): static
     {
@@ -64,6 +81,10 @@ class TripFactory extends Factory
      * Create an auto-stopped trip.
      *
      * Represents a trip that was automatically terminated due to inactivity.
+     * Useful for testing auto-stop functionality and edge cases where trips
+     * don't end normally. Creates trips that were auto-stopped 2-3 hours ago.
+     *
+     * @return static Factory instance with auto-stopped state
      */
     public function autoStopped(): static
     {
@@ -88,6 +109,10 @@ class TripFactory extends Factory
      * Create a trip with speed violations.
      *
      * Sets violation count to indicate driver exceeded speed limit.
+     * Can be chained with completed() or autoStopped() to create
+     * ended trips with violations. Generates 1-20 random violations.
+     *
+     * @return static Factory instance with violations
      */
     public function withViolations(): static
     {
@@ -99,7 +124,11 @@ class TripFactory extends Factory
     /**
      * Create a synced trip from offline data.
      *
-     * Marks trip as having been synced from local storage.
+     * Marks trip as having been synced from local storage. Useful for
+     * testing offline-first functionality and sync reconciliation scenarios.
+     * Sets synced_at to current timestamp.
+     *
+     * @return static Factory instance with synced state
      */
     public function synced(): static
     {

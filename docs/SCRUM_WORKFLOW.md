@@ -1025,22 +1025,35 @@ Build trip history, statistics, and profile pages for employees.
 
 ### User Stories
 
-#### US-4.1: My Trips List Page
+#### US-4.1: My Trips List Page ✅
 **As a** employee  
 **I want** to view my past trips  
 **So that** I can review my driving history
 
 **Acceptance Criteria:**
-- [ ] MyTrips.vue view created
-- [ ] Shows list of trips (paginated)
-- [ ] Displays: date, duration, distance, max speed, violations
-- [ ] Filter by date range
-- [ ] Sort by date (newest first)
-- [ ] Click trip to view details
-- [ ] Empty state when no trips
+- [x] MyTrips.vue view created
+- [x] Shows list of trips (paginated)
+- [x] Displays: date, duration, distance, max speed, violations
+- [x] Filter by date range
+- [x] Sort by date (newest first)
+- [x] Click trip to view details (placeholder ready for US-4.2)
+- [x] Empty state when no trips
 
 **Story Points:** 5  
-**Priority:** High
+**Priority:** High  
+**Status:** ✅ **COMPLETED** (Sprint 4)  
+**Completed:** April 2, 2026
+
+**Implementation Notes:**
+- Created 7 new frontend components (MyTrips.vue, TripCard, EmptyState, Pagination, TripListFilters, useTrips composable, date utils)
+- Added `/employee/my-trips` route with auth + role:employee middleware
+- Integrated navigation card in employee dashboard
+- Fixed Sanctum stateful auth for SPA (added EnsureFrontendRequestsAreStateful middleware)
+- Factory already exists with comprehensive states (completed, autoStopped, withViolations, synced)
+- All components follow VeloTrack dark theme design system
+- Responsive layout with mobile-first approach
+- Empty state handles both "no trips" and "no filter results" scenarios
+- Trip cards ready for click navigation to detail page (US-4.2)
 
 ---
 

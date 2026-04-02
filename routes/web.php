@@ -18,6 +18,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 Route::middleware(['auth', 'role:employee'])->group(function () {
     Route::inertia('/employee/dashboard', 'employee/Dashboard')->name('employee.dashboard');
     Route::inertia('/employee/speedometer', 'employee/Speedometer')->name('employee.speedometer');
+    Route::inertia('/employee/my-trips', 'employee/MyTrips')->name('employee.my-trips');
 });
 
 // Supervisor routes (auth + supervisor role required)

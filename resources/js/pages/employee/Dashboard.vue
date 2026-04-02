@@ -52,46 +52,91 @@ const { handleLogout, isLoading } = useAuth();
                         Quick Actions
                     </h2>
 
-                    <Link
-                        href="/employee/speedometer"
-                        class="block rounded-lg border border-[#e3e3e0] bg-gradient-to-br from-blue-50 to-indigo-50 p-6 transition-all hover:scale-[1.02] hover:shadow-md dark:border-[#3E3E3A] dark:from-blue-900/20 dark:to-indigo-900/20"
-                    >
-                        <div class="flex items-center gap-4">
-                            <div
-                                class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-blue-500 text-3xl dark:bg-blue-600"
-                            >
-                                🚗
-                            </div>
-                            <div class="flex-1">
-                                <h3
-                                    class="mb-1 text-lg font-semibold text-[#1b1b18] dark:text-[#EDEDEC]"
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <!-- Start Speedometer -->
+                        <Link
+                            href="/employee/speedometer"
+                            class="block rounded-lg border border-[#e3e3e0] bg-gradient-to-br from-blue-50 to-indigo-50 p-6 transition-all hover:scale-[1.02] hover:shadow-md dark:border-[#3E3E3A] dark:from-blue-900/20 dark:to-indigo-900/20"
+                        >
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-blue-500 text-3xl dark:bg-blue-600"
                                 >
-                                    Start Speedometer
-                                </h3>
-                                <p
-                                    class="text-sm text-[#706f6c] dark:text-[#A1A09A]"
-                                >
-                                    Track your trip speed and distance in
-                                    real-time
-                                </p>
+                                    🚗
+                                </div>
+                                <div class="flex-1">
+                                    <h3
+                                        class="mb-1 text-lg font-semibold text-[#1b1b18] dark:text-[#EDEDEC]"
+                                    >
+                                        Start Speedometer
+                                    </h3>
+                                    <p
+                                        class="text-sm text-[#706f6c] dark:text-[#A1A09A]"
+                                    >
+                                        Track your trip speed and distance in
+                                        real-time
+                                    </p>
+                                </div>
+                                <div>
+                                    <svg
+                                        class="h-6 w-6 text-blue-500 dark:text-blue-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M9 5l7 7-7 7"
+                                        />
+                                    </svg>
+                                </div>
                             </div>
-                            <div>
-                                <svg
-                                    class="h-6 w-6 text-blue-500 dark:text-blue-400"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
+                        </Link>
+
+                        <!-- Trip History -->
+                        <Link
+                            href="/employee/my-trips"
+                            class="block rounded-lg border border-[#e3e3e0] bg-gradient-to-br from-cyan-50 to-teal-50 p-6 transition-all hover:scale-[1.02] hover:shadow-md dark:border-[#3E3E3A] dark:from-cyan-900/20 dark:to-teal-900/20"
+                        >
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-cyan-500 text-3xl dark:bg-cyan-600"
                                 >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M9 5l7 7-7 7"
-                                    />
-                                </svg>
+                                    📋
+                                </div>
+                                <div class="flex-1">
+                                    <h3
+                                        class="mb-1 text-lg font-semibold text-[#1b1b18] dark:text-[#EDEDEC]"
+                                    >
+                                        Trip History
+                                    </h3>
+                                    <p
+                                        class="text-sm text-[#706f6c] dark:text-[#A1A09A]"
+                                    >
+                                        View your past trips and detailed
+                                        statistics
+                                    </p>
+                                </div>
+                                <div>
+                                    <svg
+                                        class="h-6 w-6 text-cyan-500 dark:text-cyan-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M9 5l7 7-7 7"
+                                        />
+                                    </svg>
+                                </div>
                             </div>
-                        </div>
-                    </Link>
+                        </Link>
+                    </div>
                 </div>
 
                 <!-- Profile Info -->
