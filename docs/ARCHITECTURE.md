@@ -255,9 +255,11 @@ resources/js/
 │   ├── admin/
 │   │   └── Dashboard.vue       (admin landing page)
 │   ├── test/                   ✅ (Development testing pages)
-│   │   ├── GeolocationTest.vue (GPS testing page)
-│   │   └── SpeedGaugeDemo.vue  ✅ (SpeedGauge interactive demo)
-│   └── Welcome.vue             (default landing)
+│   │   ├── TestIndex.vue       ✅ (Test navigation hub - accessible at /test)
+│   │   ├── GeolocationTest.vue ✅ (GPS testing page)
+│   │   ├── SpeedGaugeDemo.vue  ✅ (SpeedGauge interactive demo)
+│   │   └── TripControlsDemo.vue ✅ (TripControls + SpeedGauge integration test)
+│   └── Welcome.vue             (default landing with link to /test)
 │
 ├── stores/                     (Pinia)
 │   ├── auth.ts                 (user, token, role management)
@@ -284,6 +286,39 @@ routes/
 └── api.php                     (API endpoints)
 ```
 
+### Test & Demo Pages Access
+
+**Test Navigation Hub:** `/test` (TestIndex.vue)
+
+Following the page accessibility principle, all test and demo pages are accessible through a central navigation hub instead of requiring users to manually type URLs.
+
+**How to Access:**
+1. **From Home Page:** Visit the welcome page (`/`) and click "Test Pages" link in the main list
+2. **Direct URL:** Navigate to `/test` to see all available demo pages
+3. **Test Index Page Features:**
+   - Grid of cards showing all test pages with descriptions
+   - Status badges (✅ completed, 🚧 in-progress, 📋 planned)
+   - Sprint and User Story labels for tracking
+   - One-click navigation to each demo page
+   - Progress statistics (completed/in-progress/planned)
+   - Coming next section showing future user stories
+
+**Available Test Pages:**
+- **Geolocation Test** (`/test/geolocation`) - GPS tracking, speed monitoring, location permissions
+- **SpeedGauge Demo** (`/test/speed-gauge-demo`) - Interactive speedometer gauge with controls
+- **TripControls Demo** (`/test/trip-controls-demo`) - Full integration test with GPS + API
+
+**Test Routes (web.php):**
+```php
+Route::inertia('/test', 'test/TestIndex')->name('test.index');
+Route::inertia('/test/geolocation', 'test/GeolocationTest')->name('test.geolocation');
+Route::inertia('/test/speed-gauge-demo', 'test/SpeedGaugeDemo')->name('test.speed-gauge-demo');
+Route::inertia('/test/trip-controls-demo', 'test/TripControlsDemo')->name('test.trip-controls-demo');
+```
+
+**Development Only:**
+These test pages are for development and testing purposes. They will be removed or restricted in production builds.
+
 ### Components Structure
 ```
 resources/js/components/
@@ -294,7 +329,7 @@ resources/js/components/
 │
 ├── speedometer/            (Sprint 3 - Active Development)
 │   ├── SpeedGauge.vue       ✅ (US-3.3: 270° SVG gauge with color zones)
-│   ├── TripControls.vue     (US-3.4: start/stop buttons)
+│   ├── TripControls.vue     ✅ (US-3.4: start/stop buttons with GPS integration)
 │   ├── TripStats.vue        (US-3.5: real-time statistics)
 │   └── SpeedChart.vue       (Future: speed over time chart)
 │
@@ -328,6 +363,36 @@ resources/js/components/
   - `size?: 'sm' | 'md' | 'lg'` - Responsive size preset (default: 'md')
 - **Dependencies:** settings store, speedometer types
 - **Demo Page:** `resources/js/pages/test/SpeedGaugeDemo.vue` (interactive testing)
+
+**TripControls Component (Implemented - US-3.4):**
+- **Location:** `resources/js/components/speedometer/TripControls.vue`
+- **Purpose:** UI controls for starting/stopping trip tracking sessions with GPS integration
+- **Features:**
+  - Large, touch-friendly start/stop buttons (56px height, mobile-optimized)
+  - GPS permission request before starting trip
+  - Real-time trip duration display (HH:MM:SS format, updates every second)
+  - Inline confirmation dialog before stopping (Teleport modal, no external library)
+  - Automatic speed logging via geolocation composable
+  - Speed log batching (sync every 10 logs / 50 seconds) - reduces API calls by ~90%
+  - Retry logic with exponential backoff (1s, 2s, 4s) for failed syncs
+  - Loading states with spinners (isStarting, isEnding, isSyncing)
+  - Error handling for GPS permission denied and API failures
+  - Indonesian error messages for better UX
+  - Comprehensive JSDoc and HTML documentation
+  - Resource cleanup (intervals, GPS tracking) on component unmount
+- **Integration Points:**
+  - Trip Store: `startTrip()`, `endTrip()`, `addSpeedLog()`, `syncSpeedLogs()`
+  - Geolocation Composable: `watchSpeed()`, `stopTracking()`, `requestPermission()`
+  - Settings Store: `speed_limit` (via trip store for violation detection)
+- **Trip Lifecycle:**
+  1. User clicks "Mulai Perjalanan" → GPS permission requested
+  2. If granted → `tripStore.startTrip()` (creates trip in backend)
+  3. `watchSpeed()` starts monitoring GPS → callback logs speed every update
+  4. Speed logs buffered locally → auto-sync when 10 logs reached (50 seconds)
+  5. User clicks "Akhiri Perjalanan" → confirmation dialog
+  6. If confirmed → sync remaining logs → `tripStore.endTrip()` → GPS stops
+- **Demo Page:** `resources/js/pages/test/TripControlsDemo.vue` (full integration test with SpeedGauge)
+- **Access:** Navigate to `/test` → click "TripControls Demo" card
 
 ### Composables (Implemented)
 ```
