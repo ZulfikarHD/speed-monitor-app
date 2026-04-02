@@ -3,16 +3,18 @@ VeloTrack - Production GPS Speedometer
 
 Full production speedometer with backend integration via Trip Store and Settings Store.
 Features professional design from HTML spec while maintaining proper API integration.
+Uses EmployeeLayout for consistent navigation across all employee pages.
 -->
 
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+
 
 import ProductionGauge from '@/components/speedometer/ProductionGauge.vue';
 import TripControls from '@/components/speedometer/TripControls.vue';
 import { useAutoStop } from '@/composables/useAutoStop';
 import { useGeolocation } from '@/composables/useGeolocation';
+import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
 import { useSettingsStore } from '@/stores/settings';
 import { useTripStore } from '@/stores/trip';
 import { haversineDistance, metersToKm, metersToMiles } from '@/utils/distance';
@@ -205,49 +207,18 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="speedometer-page">
-        <Head title="VeloTrack Speedometer">
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
-            <link
-                rel="preconnect"
-                href="https://fonts.gstatic.com"
-                crossorigin
-            />
-            <link
-                href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Barlow:wght@300;400;600&display=swap"
-                rel="stylesheet"
-            />
-        </Head>
-
-        <!-- Header -->
-        <header class="velo-header">
-            <div class="header-left">
-                <Link
-                    href="/employee/dashboard"
-                    class="back-button"
-                    aria-label="Back to dashboard"
-                >
-                    <svg
-                        class="back-icon"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M15 19l-7-7 7-7"
-                        />
-                    </svg>
-                </Link>
-                <div class="velo-logo">Velo<span>Track</span></div>
-            </div>
-            <div class="status-indicator">
-                <div :class="['status-dot', gpsStatusClass]" />
-                <span>{{ gpsStatus }}</span>
-            </div>
-        </header>
+    <EmployeeLayout title="Speedometer">
+        <div class="speedometer-page">
+            <!-- Header -->
+            <header class="velo-header">
+                <div class="header-left">
+                    <div class="velo-logo">Velo<span>Track</span></div>
+                </div>
+                <div class="status-indicator">
+                    <div :class="['status-dot', gpsStatusClass]" />
+                    <span>{{ gpsStatus }}</span>
+                </div>
+            </header>
 
         <!-- Main -->
         <main class="velo-main">
@@ -338,7 +309,8 @@ onBeforeUnmount(() => {
             <!-- Trip Controls -->
             <TripControls />
         </main>
-    </div>
+        </div>
+    </EmployeeLayout>
 </template>
 
 <style scoped>

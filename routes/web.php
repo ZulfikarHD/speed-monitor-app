@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
 use App\Http\Controllers\Employee\MyTripsController;
 use App\Http\Controllers\Employee\SpeedometerController;
+use App\Http\Controllers\Employee\StatisticsController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,7 @@ Route::middleware(['auth', 'role:employee'])->group(function () {
     Route::get('/employee/speedometer', [SpeedometerController::class, 'index'])->name('employee.speedometer');
     Route::get('/employee/my-trips', [MyTripsController::class, 'index'])->name('employee.my-trips');
     Route::get('/employee/trips/{trip}', [TripController::class, 'showWeb'])->name('employee.trips.show');
+    Route::get('/employee/statistics', [StatisticsController::class, 'index'])->name('employee.statistics');
 });
 
 // Supervisor routes (auth + supervisor role required)

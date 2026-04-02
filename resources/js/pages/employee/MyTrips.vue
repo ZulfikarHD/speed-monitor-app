@@ -5,6 +5,7 @@
  * Displays paginated list of user's trips with filtering capabilities.
  * Data is passed from MyTripsController via Inertia props for optimal
  * performance and SEO. Filter changes trigger new server requests.
+ * Uses EmployeeLayout for consistent navigation across all employee pages.
  *
  * Features:
  * - Server-side pagination (20 per page default)
@@ -16,14 +17,14 @@
  * @example Route: /employee/my-trips
  */
 
-import { Head, Link, router } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 import EmptyState from '@/components/trips/EmptyState.vue';
 import Pagination from '@/components/trips/Pagination.vue';
 import TripCard from '@/components/trips/TripCard.vue';
 import TripListFilters from '@/components/trips/TripListFilters.vue';
-import { useAuth } from '@/composables/useAuth';
+import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
 import type { Trip, TripStatus } from '@/types/trip';
 
 // ========================================================================
@@ -54,7 +55,6 @@ const props = defineProps<Props>();
 // Dependencies
 // ========================================================================
 
-const { handleLogout, isLoading: isLoggingOut } = useAuth();
 
 // ========================================================================
 // Local State
@@ -151,52 +151,19 @@ const showEmptyState = computed(() => {
 </script>
 
 <template>
-    <Head title="Riwayat Perjalanan" />
-
-    <div class="min-h-screen bg-[#0a0c0f]">
-        <!-- ====================================================================
-            Header Section
-            Page title with logout button
-        ==================================================================== -->
-        <header
-            class="border-b border-[#3E3E3A] bg-[#0a0c0f] px-4 py-6 sm:px-6 lg:px-8"
-        >
-            <div class="mx-auto flex max-w-7xl items-center justify-between">
-                <div>
-                    <h1
-                        class="font-display text-3xl font-bold tracking-tight text-[#EDEDEC]"
-                    >
-                        Riwayat Perjalanan
-                    </h1>
-                    <p class="mt-1 text-sm text-[#A1A09A]">
-                        Lihat dan kelola history perjalanan Anda
-                    </p>
-                </div>
-
-                <button
-                    @click="handleLogout"
-                    :disabled="isLoggingOut"
-                    class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-4 py-2 text-sm font-medium text-[#EDEDEC] transition-colors hover:bg-[#2a2d33] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                    {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
-                </button>
-            </div>
-        </header>
-
-        <!-- ====================================================================
-            Main Content
-            Filters, trip list, and pagination
-        ==================================================================== -->
-        <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-            <!-- Back to Dashboard -->
+    <EmployeeLayout title="My Trips">
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <!-- Page Header -->
             <div class="mb-6">
-                <Link
-                    href="/employee/dashboard"
-                    class="inline-flex items-center gap-2 text-sm text-cyan-400 transition-colors hover:text-cyan-300"
+                <h1
+                    class="text-3xl font-bold text-[#e5e7eb]"
+                    style="font-family: 'Bebas Neue', sans-serif"
                 >
-                    <span>←</span>
-                    <span>Kembali ke Dashboard</span>
-                </Link>
+                    My Trips
+                </h1>
+                <p class="mt-1 text-sm text-[#9ca3af]">
+                    View and filter your trip history
+                </p>
             </div>
 
             <!-- Filters Section -->
@@ -259,6 +226,6 @@ const showEmptyState = computed(() => {
                     @reset-filters="handleResetFilters"
                 />
             </div>
-        </main>
-    </div>
+        </div>
+    </EmployeeLayout>
 </template>

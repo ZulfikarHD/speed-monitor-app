@@ -2,6 +2,7 @@ export * from './auth';
 export * from './chart';
 export * from './geolocation';
 export * from './speedometer';
+export * from './statistics';
 export * from './trip';
 export type { User, UserRole } from '../stores/auth';
 export type { AppSettings } from '../stores/settings';

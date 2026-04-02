@@ -5,6 +5,7 @@
  * Displays comprehensive trip information including speed chart visualization,
  * summary statistics, violation markers, and trip metadata. Allows employees
  * to review their driving history in detail with interactive speed chart.
+ * Uses EmployeeLayout for consistent navigation across all employee pages.
  *
  * Features:
  * - Back navigation to trip list
@@ -18,10 +19,11 @@
  * @example Route: /employee/trips/{id}
  */
 
-import { Head, Link } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
+
 import SpeedChart from '@/components/trips/SpeedChart.vue';
-import { useAuth } from '@/composables/useAuth';
+import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
 import type { Trip, SpeedLog } from '@/types/trip';
 import { formatDate, formatTime, formatDuration } from '@/utils/date';
 
@@ -37,12 +39,6 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
-// ========================================================================
-// Dependencies
-// ========================================================================
-
-const { handleLogout, isLoading: isLoggingOut } = useAuth();
 
 // ========================================================================
 // Computed Properties
@@ -117,85 +113,57 @@ function formatSpeed(speed: number | string | null): string {
 </script>
 
 <template>
-    <Head :title="`Detail Perjalanan - ${formatDate(trip.started_at)}`" />
+    <EmployeeLayout :title="`Trip Detail - ${formatDate(trip.started_at)}`">
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <!-- Back Button -->
+            <Link
+                href="/employee/my-trips"
+                class="mb-6 inline-flex items-center gap-2 text-sm text-cyan-400 transition-colors hover:text-cyan-300"
+            >
+                <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 19l-7-7 7-7"
+                    />
+                </svg>
+                Back to My Trips
+            </Link>
 
-    <div class="min-h-screen bg-[#0a0c0f]">
-        <!-- ====================================================================
-            Header Section
-            Back button, trip date, status badge, and logout
-        ==================================================================== -->
-        <div class="border-b border-[#3E3E3A] bg-[#1a1d23]">
-            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between">
-                    <!-- Title and Status -->
-                    <div class="flex-1">
-                        <!-- Back Button -->
-                        <Link
-                            href="/employee/my-trips"
-                            class="mb-3 inline-flex items-center gap-2 text-sm text-cyan-500 transition-colors hover:text-cyan-400"
-                        >
-                            <svg
-                                class="h-4 w-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M15 19l-7-7 7-7"
-                                />
-                            </svg>
-                            Kembali ke Riwayat
-                        </Link>
+            <!-- Page Header -->
+            <div class="mb-6 flex items-center gap-3">
+                <h1
+                    class="text-3xl font-bold text-[#e5e7eb]"
+                    style="font-family: 'Bebas Neue', sans-serif"
+                >
+                    {{ formatDate(trip.started_at) }}
+                </h1>
 
-                        <!-- Title -->
-                        <div class="flex items-center gap-3">
-                            <h1
-                                class="text-3xl font-bold text-[#e5e7eb]"
-                                style="font-family: 'Bebas Neue', sans-serif"
-                            >
-                                {{ formatDate(trip.started_at) }}
-                            </h1>
-
-                            <!-- Status Badge -->
-                            <span
-                                :class="[
-                                    'inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium',
-                                    statusColor,
-                                ]"
-                            >
-                                {{ statusText }}
-                            </span>
-                        </div>
-
-                        <p class="mt-1 text-sm text-[#9ca3af]">
-                            Dimulai: {{ formatTime(trip.started_at) }}
-                            <span v-if="trip.ended_at">
-                                • Selesai: {{ formatTime(trip.ended_at) }}
-                            </span>
-                        </p>
-                    </div>
-
-                    <!-- Logout Button -->
-                    <button
-                        @click="handleLogout"
-                        :disabled="isLoggingOut"
-                        class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-4 py-2 text-sm font-medium text-[#e5e7eb] transition-colors hover:bg-[#2a2d33] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
-                    >
-                        {{ isLoggingOut ? 'Keluar...' : 'Keluar' }}
-                    </button>
-                </div>
+                <!-- Status Badge -->
+                <span
+                    :class="[
+                        'inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium',
+                        statusColor,
+                    ]"
+                >
+                    {{ statusText }}
+                </span>
             </div>
-        </div>
 
-        <!-- ====================================================================
-            Main Content
-            Statistics, chart, violation summary, and metadata
-        ==================================================================== -->
-        <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+            <p class="mb-6 text-sm text-[#9ca3af]">
+                Dimulai: {{ formatTime(trip.started_at) }}
+                <span v-if="trip.ended_at">
+                    • Selesai: {{ formatTime(trip.ended_at) }}
+                </span>
+            </p>
+
             <!-- Statistics Grid -->
             <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <!-- Duration -->
@@ -416,6 +384,6 @@ function formatSpeed(speed: number | string | null): string {
                 </div>
             </div>
         </div>
-    </div>
+    </EmployeeLayout>
 </template>
 

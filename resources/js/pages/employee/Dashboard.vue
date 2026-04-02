@@ -2,198 +2,139 @@
 /**
  * Employee Dashboard - Landing page for employee role.
  *
- * Placeholder dashboard showing user profile and logout functionality.
- * Will be expanded with speedometer and trip tracking in Sprint 3.
+ * Main dashboard showing quick actions and profile information.
+ * Uses EmployeeLayout for consistent navigation across all employee pages.
  */
 
-import { Head, Link } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 
-import { useAuth } from '@/composables/useAuth';
+import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
 import { useAuthStore } from '@/stores/auth';
 
 const authStore = useAuthStore();
-const { handleLogout, isLoading } = useAuth();
 </script>
 
 <template>
-    <Head title="Employee Dashboard" />
-    <div class="min-h-screen bg-[#FDFDFC] p-6 dark:bg-[#0a0a0a]">
-        <div class="mx-auto max-w-4xl">
-            <div
-                class="overflow-hidden rounded-lg bg-white p-8 shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] dark:bg-[#161615] dark:text-[#EDEDEC] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]"
-            >
-                <div class="mb-6 flex items-center justify-between">
-                    <div>
-                        <h1
-                            class="text-2xl font-semibold text-[#1b1b18] dark:text-[#EDEDEC]"
+    <EmployeeLayout title="Dashboard">
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <!-- Page Header -->
+            <div class="mb-6">
+                <h1
+                    class="text-3xl font-bold text-[#e5e7eb]"
+                    style="font-family: 'Bebas Neue', sans-serif"
+                >
+                    Dashboard
+                </h1>
+                <p class="mt-1 text-sm text-[#9ca3af]">
+                    Welcome back, {{ authStore.user?.name }}!
+                </p>
+            </div>
+
+            <!-- Quick Actions Grid -->
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <!-- Speedometer Card -->
+                <Link
+                    href="/employee/speedometer"
+                    class="group block rounded-lg border border-[#3E3E3A] bg-gradient-to-br from-blue-500/10 to-indigo-500/10 p-6 transition-all hover:scale-[1.02] hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/20"
+                >
+                    <div class="flex items-start gap-4">
+                        <div
+                            class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-2xl shadow-lg"
                         >
-                            Employee Dashboard
-                        </h1>
-                        <p
-                            class="mt-1 text-sm text-[#706f6c] dark:text-[#A1A09A]"
+                            🚗
+                        </div>
+                        <div class="flex-1">
+                            <h3
+                                class="mb-1 text-lg font-semibold text-[#e5e7eb] group-hover:text-blue-400"
+                            >
+                                Start Speedometer
+                            </h3>
+                            <p class="text-sm text-[#9ca3af]">
+                                Track your trip speed and distance in real-time
+                            </p>
+                        </div>
+                    </div>
+                </Link>
+
+                <!-- Trip History Card -->
+                <Link
+                    href="/employee/my-trips"
+                    class="group block rounded-lg border border-[#3E3E3A] bg-gradient-to-br from-cyan-500/10 to-teal-500/10 p-6 transition-all hover:scale-[1.02] hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20"
+                >
+                    <div class="flex items-start gap-4">
+                        <div
+                            class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-teal-600 text-2xl shadow-lg"
                         >
-                            Welcome back, {{ authStore.user?.name }}!
+                            📋
+                        </div>
+                        <div class="flex-1">
+                            <h3
+                                class="mb-1 text-lg font-semibold text-[#e5e7eb] group-hover:text-cyan-400"
+                            >
+                                Trip History
+                            </h3>
+                            <p class="text-sm text-[#9ca3af]">
+                                View your past trips and detailed statistics
+                            </p>
+                        </div>
+                    </div>
+                </Link>
+
+                <!-- Statistics Card -->
+                <Link
+                    href="/employee/statistics"
+                    class="group block rounded-lg border border-[#3E3E3A] bg-gradient-to-br from-purple-500/10 to-pink-500/10 p-6 transition-all hover:scale-[1.02] hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20"
+                >
+                    <div class="flex items-start gap-4">
+                        <div
+                            class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-2xl shadow-lg"
+                        >
+                            📊
+                        </div>
+                        <div class="flex-1">
+                            <h3
+                                class="mb-1 text-lg font-semibold text-[#e5e7eb] group-hover:text-purple-400"
+                            >
+                                My Statistics
+                            </h3>
+                            <p class="text-sm text-[#9ca3af]">
+                                Track your performance and driving metrics
+                            </p>
+                        </div>
+                    </div>
+                </Link>
+            </div>
+
+            <!-- Profile Info Card -->
+            <div class="mt-8 rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-6">
+                <h2 class="mb-4 text-lg font-semibold text-[#e5e7eb]">
+                    Your Profile
+                </h2>
+                <div class="grid gap-3 sm:grid-cols-2">
+                    <div class="rounded-lg bg-[#0a0c0f] p-4">
+                        <p class="text-xs text-[#9ca3af]">Name</p>
+                        <p class="mt-1 text-sm font-medium text-[#e5e7eb]">
+                            {{ authStore.user?.name }}
                         </p>
                     </div>
-                    <button
-                        @click="handleLogout"
-                        :disabled="isLoading"
-                        class="rounded-lg border border-[#e3e3e0] bg-white px-4 py-2 text-sm font-medium text-[#1b1b18] transition-colors hover:bg-[#FDFDFC] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-[#EDEDEC] dark:hover:bg-[#161615]"
-                    >
-                        {{ isLoading ? 'Logging out...' : 'Logout' }}
-                    </button>
-                </div>
-
-                <!-- Quick Actions -->
-                <div class="mb-6">
-                    <h2
-                        class="mb-4 text-lg font-medium text-[#1b1b18] dark:text-[#EDEDEC]"
-                    >
-                        Quick Actions
-                    </h2>
-
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <!-- Start Speedometer -->
-                        <Link
-                            href="/employee/speedometer"
-                            class="block rounded-lg border border-[#e3e3e0] bg-gradient-to-br from-blue-50 to-indigo-50 p-6 transition-all hover:scale-[1.02] hover:shadow-md dark:border-[#3E3E3A] dark:from-blue-900/20 dark:to-indigo-900/20"
-                        >
-                            <div class="flex items-center gap-4">
-                                <div
-                                    class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-blue-500 text-3xl dark:bg-blue-600"
-                                >
-                                    🚗
-                                </div>
-                                <div class="flex-1">
-                                    <h3
-                                        class="mb-1 text-lg font-semibold text-[#1b1b18] dark:text-[#EDEDEC]"
-                                    >
-                                        Start Speedometer
-                                    </h3>
-                                    <p
-                                        class="text-sm text-[#706f6c] dark:text-[#A1A09A]"
-                                    >
-                                        Track your trip speed and distance in
-                                        real-time
-                                    </p>
-                                </div>
-                                <div>
-                                    <svg
-                                        class="h-6 w-6 text-blue-500 dark:text-blue-400"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M9 5l7 7-7 7"
-                                        />
-                                    </svg>
-                                </div>
-                            </div>
-                        </Link>
-
-                        <!-- Trip History -->
-                        <Link
-                            href="/employee/my-trips"
-                            class="block rounded-lg border border-[#e3e3e0] bg-gradient-to-br from-cyan-50 to-teal-50 p-6 transition-all hover:scale-[1.02] hover:shadow-md dark:border-[#3E3E3A] dark:from-cyan-900/20 dark:to-teal-900/20"
-                        >
-                            <div class="flex items-center gap-4">
-                                <div
-                                    class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-cyan-500 text-3xl dark:bg-cyan-600"
-                                >
-                                    📋
-                                </div>
-                                <div class="flex-1">
-                                    <h3
-                                        class="mb-1 text-lg font-semibold text-[#1b1b18] dark:text-[#EDEDEC]"
-                                    >
-                                        Trip History
-                                    </h3>
-                                    <p
-                                        class="text-sm text-[#706f6c] dark:text-[#A1A09A]"
-                                    >
-                                        View your past trips and detailed
-                                        statistics
-                                    </p>
-                                </div>
-                                <div>
-                                    <svg
-                                        class="h-6 w-6 text-cyan-500 dark:text-cyan-400"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M9 5l7 7-7 7"
-                                        />
-                                    </svg>
-                                </div>
-                            </div>
-                        </Link>
+                    <div class="rounded-lg bg-[#0a0c0f] p-4">
+                        <p class="text-xs text-[#9ca3af]">Email</p>
+                        <p class="mt-1 text-sm font-medium text-[#e5e7eb]">
+                            {{ authStore.user?.email }}
+                        </p>
                     </div>
-                </div>
-
-                <!-- Profile Info -->
-                <div
-                    class="rounded-lg border border-[#e3e3e0] bg-[#FDFDFC] p-6 dark:border-[#3E3E3A] dark:bg-[#0a0a0a]"
-                >
-                    <h2
-                        class="mb-4 text-lg font-medium text-[#1b1b18] dark:text-[#EDEDEC]"
-                    >
-                        Your Profile
-                    </h2>
-                    <div class="space-y-3 text-sm">
-                        <div
-                            class="flex items-center justify-between rounded-lg border border-[#e3e3e0] bg-white p-3 dark:border-[#3E3E3A] dark:bg-[#161615]"
-                        >
+                    <div class="rounded-lg bg-[#0a0c0f] p-4">
+                        <p class="text-xs text-[#9ca3af]">Role</p>
+                        <p class="mt-1">
                             <span
-                                class="font-medium text-[#706f6c] dark:text-[#A1A09A]"
-                            >
-                                Name
-                            </span>
-                            <span
-                                class="text-[#1b1b18] dark:text-[#EDEDEC]"
-                            >
-                                {{ authStore.user?.name }}
-                            </span>
-                        </div>
-                        <div
-                            class="flex items-center justify-between rounded-lg border border-[#e3e3e0] bg-white p-3 dark:border-[#3E3E3A] dark:bg-[#161615]"
-                        >
-                            <span
-                                class="font-medium text-[#706f6c] dark:text-[#A1A09A]"
-                            >
-                                Email
-                            </span>
-                            <span
-                                class="text-[#1b1b18] dark:text-[#EDEDEC]"
-                            >
-                                {{ authStore.user?.email }}
-                            </span>
-                        </div>
-                        <div
-                            class="flex items-center justify-between rounded-lg border border-[#e3e3e0] bg-white p-3 dark:border-[#3E3E3A] dark:bg-[#161615]"
-                        >
-                            <span
-                                class="font-medium text-[#706f6c] dark:text-[#A1A09A]"
-                            >
-                                Role
-                            </span>
-                            <span
-                                class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/20 dark:text-blue-200"
+                                class="inline-flex items-center rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400"
                             >
                                 {{ authStore.user?.role }}
                             </span>
-                        </div>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </EmployeeLayout>
 </template>
