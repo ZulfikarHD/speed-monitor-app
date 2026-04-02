@@ -1168,13 +1168,14 @@ Build trip history, statistics, and profile pages for employees.
 **Story Points:** 3  
 **Priority:** Medium
 
-**Implementation Details (Commit 400d3c5):**
+**Implementation Details (Commit 400d3c5, 3c52c88, Latest):**
 
 **Backend - Controller (`app/Http/Controllers/ProfileController.php`):**
 - `show()` - Display profile page via Inertia
 - `updateProfile()` - Update name and email with validation
 - `updatePassword()` - Change password with current password verification
 - Service pattern with ProfileService injection
+- Returns flash success messages on successful operations
 
 **Backend - Service (`app/Services/ProfileService.php`):**
 - `updateProfile()` - Handles profile update logic with email uniqueness check
@@ -1192,11 +1193,19 @@ Build trip history, statistics, and profile pages for employees.
 - `GET /profile/change-password` - Show change password page (auth middleware)
 - `PUT /profile/password` - Update password (auth middleware)
 
+**Backend - Middleware (`app/Http/Middleware/HandleInertiaRequests.php`):**
+- Added flash message sharing to Inertia shared data
+- Shares `success` and `error` flash messages to all pages
+- Critical for toast notifications to work properly
+
 **Frontend - Profile Page (`resources/js/pages/Profile.vue`):**
 - Responsive container with max-width and proper padding (mx-auto max-w-4xl)
 - Profile information form (name, email, read-only role)
 - Wayfinder integration for type-safe routes
-- Success/error message display
+- Toast notifications with auto-dismiss (5s success, 7s error)
+- Error summary toast showing all validation errors
+- Manual dismiss button for both success and error toasts
+- Smooth slide-in/slide-out transitions
 - Link to separate Change Password page in "Security Settings" section
 
 **Frontend - Change Password Page (`resources/js/pages/ChangePassword.vue`):**
@@ -1204,7 +1213,10 @@ Build trip history, statistics, and profile pages for employees.
 - Current password, new password, confirm password fields
 - Back link to Profile page
 - Form validation with min 8 characters
-- Success message display
+- Toast notifications with auto-dismiss (5s success, 7s error)
+- Error summary toast showing all validation errors
+- Manual dismiss button for both success and error toasts
+- Smooth slide-in/slide-out transitions
 - Security tip section
 
 **Frontend - Reusable UI Components:**
@@ -1223,12 +1235,22 @@ Build trip history, statistics, and profile pages for employees.
 - Password change success, validation, authorization, current password verification
 - All tests passing
 
+**UX Improvements:**
+1. Toast notifications with prominent visual feedback (green for success, red for error)
+2. Auto-dismiss timers (5 seconds for success, 7 seconds for errors)
+3. Manual dismiss buttons with hover states
+4. Error summary toast lists all validation errors in one place
+5. Smooth animations with Vue transitions
+6. Accessibility: aria-live regions for screen readers
+7. Shadow and border styling for depth and visual hierarchy
+
 **Key Design Decisions:**
 1. Separated profile info and password change into two distinct pages for better UX and information architecture (separation of concerns principle)
 2. Created reusable UI components (Input, Button, Label) for consistency and future use
 3. Proper container styling with max-width and responsive padding to prevent edge-to-edge stretching
 4. Full Wayfinder integration as best practice example for the codebase
 5. Laravel service pattern for business logic separation
+6. Flash message sharing via HandleInertiaRequests middleware for global toast support
 
 ---
 
