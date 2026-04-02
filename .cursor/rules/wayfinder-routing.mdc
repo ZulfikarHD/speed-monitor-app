@@ -1,0 +1,221 @@
+---
+description: Enforce Wayfinder routing instead of Ziggy with best practices
+alwaysApply: true
+---
+
+# Wayfinder Routing Standards
+
+## NEVER Use Ziggy
+
+**FORBIDDEN**: Do not use Ziggy's `route()` helper or any Ziggy imports.
+
+```javascript
+// ❌ NEVER - Ziggy legacy method
+import { route } from 'ziggy-js';
+route('posts.show', { post: 1 });
+
+// ❌ NEVER - Legacy route() helper
+<Link :href="route('posts.index')">Posts</Link>
+```
+
+## ALWAYS Use Wayfinder
+
+Import from `@/actions/` (controllers) or `@/routes/` (named routes).
+
+```typescript
+// ✅ CORRECT - Controller action imports (preferred)
+import { index, show, store, update, destroy } from '@/actions/App/Http/Controllers/PostController';
+
+// ✅ CORRECT - Named route imports
+import posts from '@/routes/posts';
+```
+
+## Route Generation Best Practices
+
+### 1. Controller Actions (Preferred)
+
+Use named imports for tree-shaking optimization:
+
+```typescript
+// ✅ CORRECT - Named imports
+import { show, update } from '@/actions/App/Http/Controllers/PostController';
+
+show({ post: 1 });        // { url: '/posts/1', method: 'get' }
+show.url({ post: 1 });    // '/posts/1'
+update({ post: 1 });      // { url: '/posts/1', method: 'put' }
+
+// ❌ WRONG - Default import (no tree-shaking)
+import PostController from '@/actions/App/Http/Controllers/PostController';
+PostController.show({ post: 1 });
+```
+
+### 2. Query Parameters
+
+Always use the `query` object:
+
+```typescript
+// ✅ CORRECT
+index({ query: { page: 2, sort: 'created_at' } });
+// Result: '/posts?page=2&sort=created_at'
+
+// ❌ WRONG - Manual query string
+index() + '?page=2&sort=created_at';
+```
+
+### 3. HTTP Method Awareness
+
+Wayfinder knows the correct HTTP method for each route:
+
+```typescript
+// ✅ CORRECT - Automatic method detection
+show({ post: 1 });    // GET /posts/1
+store({});            // POST /posts
+update({ post: 1 });  // PUT /posts/1
+destroy({ post: 1 }); // DELETE /posts/1
+
+// For specific methods:
+show.get({ post: 1 });
+update.patch({ post: 1 });
+destroy.delete({ post: 1 });
+```
+
+## Inertia Integration
+
+### Vue Links
+
+```vue
+<!-- ✅ CORRECT - Wayfinder with Inertia Link -->
+<script setup>
+import { Link } from '@inertiajs/vue3';
+import { index, show } from '@/actions/App/Http/Controllers/PostController';
+</script>
+
+<template>
+  <Link :href="index.url()">All Posts</Link>
+  <Link :href="show.url({ post: post.id })">View Post</Link>
+</template>
+
+<!-- ❌ WRONG - Ziggy route() helper -->
+<Link :href="route('posts.index')">Posts</Link>
+```
+
+### Vue Forms
+
+Use `.form()` for automatic method spoofing (PUT/PATCH/DELETE):
+
+```vue
+<!-- ✅ CORRECT - Wayfinder form binding -->
+<script setup>
+import { Form } from '@inertiajs/vue3';
+import { store, update } from '@/actions/App/Http/Controllers/PostController';
+
+const props = defineProps<{ post?: Post }>();
+</script>
+
+<template>
+  <!-- Create (POST) -->
+  <Form v-bind="store.form()">
+    <input name="title" type="text" />
+    <button type="submit">Create</button>
+  </Form>
+
+  <!-- Update (PUT/PATCH) -->
+  <Form v-bind="update.form({ post: props.post.id })">
+    <input name="title" type="text" :value="props.post.title" />
+    <button type="submit">Update</button>
+  </Form>
+</template>
+
+<!-- ❌ WRONG - Manual action and method -->
+<Form action="/posts" method="post">...</Form>
+```
+
+### TypeScript Form Types
+
+Wayfinder generates types from Laravel Form Requests:
+
+```typescript
+// ✅ CORRECT - Type-safe form data
+import { useForm } from '@inertiajs/vue3';
+import { store } from '@/actions/App/Http/Controllers/PostController';
+import type { StorePostRequest } from '@/wayfinder/types';
+
+const form = useForm<StorePostRequest>({
+  title: '',
+  content: '',
+  tags: [],
+  meta: {
+    description: ''
+  }
+});
+
+// TypeScript validates all fields match the form request
+form.post(store.url());
+
+// ❌ WRONG - No type safety
+const form = useForm({
+  title: '',
+  wrong_field: '' // Won't be caught
+});
+```
+
+## Common Patterns
+
+### Navigation with Parameters
+
+```typescript
+// ✅ CORRECT - Route model binding
+import { show } from '@/actions/App/Http/Controllers/PostController';
+
+router.visit(show.url({ post: postId }));
+
+// ✅ CORRECT - Multiple parameters
+import { edit } from '@/actions/App/Http/Controllers/CommentController';
+
+router.visit(edit.url({ post: postId, comment: commentId }));
+```
+
+### Prefetching Routes
+
+```vue
+<script setup>
+import { show } from '@/actions/App/Http/Controllers/PostController';
+</script>
+
+<template>
+  <!-- ✅ CORRECT - Prefetch with Wayfinder -->
+  <Link :href="show.url({ post: post.id })" prefetch>
+    {{ post.title }}
+  </Link>
+</template>
+```
+
+## Type Generation
+
+After adding/modifying routes, controllers, or form requests:
+
+```bash
+# Auto-regenerates with Vite plugin (recommended)
+yarn dev
+
+# Or manually generate
+php artisan wayfinder:generate --no-interaction
+```
+
+## Verification Checklist
+
+Before committing frontend routing changes:
+
+- [ ] All `route()` calls replaced with Wayfinder imports
+- [ ] Using named imports from `@/actions/` or `@/routes/`
+- [ ] Forms use `.form()` for method spoofing
+- [ ] Type-safe parameters for route model binding
+- [ ] Query parameters use `{ query: {...} }` object
+- [ ] TypeScript compiles without routing errors
+
+## Resources
+
+- Wayfinder generates to: `resources/js/wayfinder/`
+- Controller actions: `@/actions/App/Http/Controllers/`
+- Named routes: `@/routes/`
+- Type definitions: `@/wayfinder/types.d.ts`

@@ -1,0 +1,88 @@
+---
+description: Always verify user can actually access pages through UI navigation
+alwaysApply: true
+---
+
+# Page Accessibility Mindset
+
+## Core Principle
+
+**Before telling users to "check the page" or "access the link", always verify there's an actual UI element to navigate there.**
+
+## Required Checks
+
+When creating or modifying pages/routes:
+
+1. **Is there a navigation element?**
+   - Link in navbar/sidebar/menu
+   - Button that routes to this page
+   - Card/item that links here
+   - Breadcrumb trail
+
+2. **Can users discover it naturally?**
+   - Not just `/hidden-admin-panel` in URL bar
+   - Accessible through normal app flow
+   - Visible in the UI
+
+3. **Create navigation as part of the feature**
+   - Don't leave pages orphaned
+   - Add menu items, buttons, or links
+   - Update layouts/navigation components
+
+## Bad vs Good Approaches
+
+### ❌ BAD
+
+```
+Agent: "I've created the Trip History page. You can access it at /trip-history"
+```
+
+**Problem**: No navigation element exists. User has to manually type URL.
+
+### ✅ GOOD
+
+```
+Agent: "I've created the Trip History page and added a navigation link in the main menu. 
+Users can now access it by clicking 'Trip History' in the navigation bar."
+```
+
+**What was done**:
+- Created the page/route
+- Added `<Link>` in navigation component
+- Verified the flow works end-to-end
+
+## Implementation Pattern
+
+When adding a new page:
+
+```vue
+<!-- 1. Create the page: resources/js/pages/TripHistory.vue -->
+<template>
+  <div>Trip History Content</div>
+</template>
+
+<!-- 2. Add navigation in layout or menu component -->
+<template>
+  <nav>
+    <Link :href="index.url()">Dashboard</Link>
+    <Link :href="tripHistory.url()">Trip History</Link> <!-- NEW -->
+  </nav>
+</template>
+```
+
+## Questions to Ask Yourself
+
+Before finalizing any page/route work:
+
+- [ ] Where will users click to reach this page?
+- [ ] Is there a visible link/button in the UI?
+- [ ] Have I tested the full navigation flow?
+- [ ] Or is this an API/backend-only route that doesn't need UI access?
+
+## Exception
+
+Backend API routes, webhooks, or admin-only programmatic endpoints don't need UI navigation. But **user-facing pages always need accessible navigation**.
+
+---
+
+**Remember**: Users navigate through UI elements, not URL bars. Always create the navigation path.
