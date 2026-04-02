@@ -1151,22 +1151,84 @@ Build trip history, statistics, and profile pages for employees.
 
 ---
 
-#### US-4.4: Profile Page
+#### US-4.4: Profile Page ✅ COMPLETED
 **As a** user  
 **I want** to view and edit my profile  
 **So that** I can update my information
 
 **Acceptance Criteria:**
-- [ ] Profile.vue view created
-- [ ] Shows user name, email, role
-- [ ] Edit name field
-- [ ] Change password option
-- [ ] Save changes button
-- [ ] Form validation
-- [ ] Success/error messages
+- [x] Profile.vue view created
+- [x] Shows user name, email, role
+- [x] Edit name field
+- [x] Change password option (separate page)
+- [x] Save changes button
+- [x] Form validation
+- [x] Success/error messages
 
 **Story Points:** 3  
 **Priority:** Medium
+
+**Implementation Details (Commit 400d3c5):**
+
+**Backend - Controller (`app/Http/Controllers/ProfileController.php`):**
+- `show()` - Display profile page via Inertia
+- `updateProfile()` - Update name and email with validation
+- `updatePassword()` - Change password with current password verification
+- Service pattern with ProfileService injection
+
+**Backend - Service (`app/Services/ProfileService.php`):**
+- `updateProfile()` - Handles profile update logic with email uniqueness check
+- `updatePassword()` - Handles password change with bcrypt hashing
+- Throws ValidationException for duplicate emails
+
+**Backend - Form Requests:**
+- `UpdateProfileRequest` - Validates name (required, max:255) and email (required, email, max:255)
+- `ChangePasswordRequest` - Validates current_password, new_password (min:8, confirmed)
+- Custom validator in ChangePasswordRequest to verify current password matches
+
+**Backend - Routes (`routes/web.php`):**
+- `GET /profile` - Show profile page (auth middleware)
+- `PUT /profile` - Update profile (auth middleware)
+- `GET /profile/change-password` - Show change password page (auth middleware)
+- `PUT /profile/password` - Update password (auth middleware)
+
+**Frontend - Profile Page (`resources/js/pages/Profile.vue`):**
+- Responsive container with max-width and proper padding (mx-auto max-w-4xl)
+- Profile information form (name, email, read-only role)
+- Wayfinder integration for type-safe routes
+- Success/error message display
+- Link to separate Change Password page in "Security Settings" section
+
+**Frontend - Change Password Page (`resources/js/pages/ChangePassword.vue`):**
+- Dedicated page for password management (max-w-2xl container)
+- Current password, new password, confirm password fields
+- Back link to Profile page
+- Form validation with min 8 characters
+- Success message display
+- Security tip section
+
+**Frontend - Reusable UI Components:**
+- `Input.vue` - Text/password input with error display, VeloTrack theme
+- `Button.vue` - Multiple variants (primary, secondary, danger), loading states
+- `Label.vue` - Form labels with required field indicator
+
+**Frontend - Navigation (`UserProfileDropdown.vue`):**
+- Enabled "Profile" link using Wayfinder `profileShow.url()`
+- Added "Change Password" link to dropdown menu
+- Removed "Coming Soon" disabled state
+
+**Testing (`tests/Feature/ProfileTest.php`):**
+- 18 test cases covering all scenarios
+- Profile update success, validation, authorization, edge cases
+- Password change success, validation, authorization, current password verification
+- All tests passing
+
+**Key Design Decisions:**
+1. Separated profile info and password change into two distinct pages for better UX and information architecture (separation of concerns principle)
+2. Created reusable UI components (Input, Button, Label) for consistency and future use
+3. Proper container styling with max-width and responsive padding to prevent edge-to-edge stretching
+4. Full Wayfinder integration as best practice example for the codebase
+5. Laravel service pattern for business logic separation
 
 ---
 
