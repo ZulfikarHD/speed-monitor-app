@@ -237,3 +237,29 @@ export function toInputDate(date: string | Date): string {
 export function getTodayDate(): string {
     return toInputDate(new Date());
 }
+
+/**
+ * Format timestamp for chart axis labels.
+ *
+ * Returns time in HH:MM:SS format for chart X-axis display. Uses 24-hour
+ * format to maintain consistency across chart visualization.
+ *
+ * @param timestamp - ISO 8601 timestamp string
+ * @returns Time string in HH:MM:SS format (24-hour)
+ *
+ * @example
+ * ```ts
+ * formatChartTime('2026-04-02T10:30:45Z'); // "10:30:45"
+ * ```
+ */
+export function formatChartTime(timestamp: string): string {
+    const date = new Date(timestamp);
+
+    return date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Jakarta',
+    });
+}

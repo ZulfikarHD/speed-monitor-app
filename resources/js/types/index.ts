@@ -1,4 +1,5 @@
 export * from './auth';
+export * from './chart';
 export * from './geolocation';
 export * from './speedometer';
 export * from './trip';
