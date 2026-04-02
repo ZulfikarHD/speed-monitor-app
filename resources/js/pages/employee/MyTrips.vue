@@ -117,17 +117,7 @@ async function handlePageChange(page: number): Promise<void> {
     await loadTrips();
 }
 
-/**
- * Handle trip card click.
- * TODO: Navigate to trip detail page (US-4.2)
- *
- * @param tripId - ID of clicked trip
- */
-function handleTripClick(tripId: number): void {
-    // TODO: Implement navigation to trip detail page (US-4.2)
-    console.log('Trip clicked:', tripId);
-    // router.visit(`/employee/trips/${tripId}`);
-}
+// Navigation is now handled internally by TripCard component
 
 /**
  * Handle retry after error.
@@ -293,7 +283,6 @@ const showEmptyState = computed(() => {
                         v-for="trip in trips"
                         :key="trip.id"
                         :trip="trip"
-                        @click="handleTripClick"
                     />
                 </div>
 

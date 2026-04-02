@@ -3,7 +3,7 @@
  * TripCard Component
  *
  * Displays a summary of a single trip with key metrics.
- * Click-able card that navigates to trip detail page (US-4.2 future).
+ * Clickable card that navigates to trip detail page via Inertia router.
  *
  * @example
  * ```vue
@@ -11,11 +11,11 @@
  *   v-for="trip in trips"
  *   :key="trip.id"
  *   :trip="trip"
- *   @click="handleTripClick(trip.id)"
  * />
  * ```
  */
 
+import { router } from '@inertiajs/vue3';
 import type { Trip } from '@/types/trip';
 import { formatDate, formatTime, formatDuration } from '@/utils/date';
 
@@ -27,15 +27,7 @@ interface TripCardProps {
     trip: Trip;
 }
 
-/**
- * TripCard component emits.
- */
-interface TripCardEmits {
-    (event: 'click', tripId: number): void;
-}
-
 const props = defineProps<TripCardProps>();
-const emit = defineEmits<TripCardEmits>();
 
 /**
  * Format distance for display.
@@ -112,11 +104,10 @@ function getViolationColor(count: number): string {
 }
 
 /**
- * Handle card click.
+ * Handle card click - navigate to trip detail page.
  */
 function handleClick(): void {
-    // TODO: Navigate to trip detail page (US-4.2)
-    emit('click', props.trip.id);
+    router.visit(`/employee/trips/${props.trip.id}`);
 }
 </script>
 
