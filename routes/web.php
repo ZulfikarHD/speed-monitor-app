@@ -5,9 +5,11 @@ use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardContro
 use App\Http\Controllers\Employee\MyTripsController;
 use App\Http\Controllers\Employee\SpeedometerController;
 use App\Http\Controllers\TripController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'Welcome')->name('home');
+// Root route - redirect to login or dashboard based on auth state
+Route::get('/', [WelcomeController::class, 'index'])->name('home');
 
 // Guest routes (login page and submission)
 Route::middleware('guest')->group(function () {
