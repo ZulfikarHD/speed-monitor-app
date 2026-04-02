@@ -61,14 +61,14 @@ export interface Trip {
     /** Current trip status */
     status: TripStatus;
 
-    /** Total distance traveled in kilometers, null until calculated */
-    total_distance: number | null;
+    /** Total distance traveled in kilometers, null until calculated (string from DB) */
+    total_distance: number | string | null;
 
-    /** Maximum speed recorded in km/h, null until calculated */
-    max_speed: number | null;
+    /** Maximum speed recorded in km/h, null until calculated (string from DB) */
+    max_speed: number | string | null;
 
-    /** Average speed in km/h, null until calculated */
-    average_speed: number | null;
+    /** Average speed in km/h, null until calculated (string from DB) */
+    average_speed: number | string | null;
 
     /** Number of speed limit violations detected */
     violation_count: number;
@@ -102,8 +102,8 @@ export interface SpeedLog {
     /** Associated trip ID (optional for local logs not yet synced) */
     trip_id?: number;
 
-    /** Speed in kilometers per hour */
-    speed: number;
+    /** Speed in kilometers per hour (string from DB) */
+    speed: number | string;
 
     /** Timestamp when speed was recorded (ISO 8601 format) */
     recorded_at: string;

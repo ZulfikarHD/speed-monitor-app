@@ -102,8 +102,10 @@ const chartData = computed<ChartData<'line'>>(() => {
     // Extract time labels for X-axis
     const labels = sortedLogs.map((log) => formatChartTime(log.recorded_at));
 
-    // Extract speed values for Y-axis
-    const speeds = sortedLogs.map((log) => log.speed);
+    // Extract speed values for Y-axis (parse to number if string from DB)
+    const speeds = sortedLogs.map((log) => 
+        typeof log.speed === 'string' ? parseFloat(log.speed) : log.speed
+    );
 
     // Filter violation points for scatter overlay
     // WHY: Separate dataset allows different styling (red dots) for violations
@@ -111,7 +113,7 @@ const chartData = computed<ChartData<'line'>>(() => {
         .filter((log) => log.is_violation)
         .map((log) => ({
             x: formatChartTime(log.recorded_at),
-            y: log.speed,
+            y: typeof log.speed === 'string' ? parseFloat(log.speed) : log.speed,
         }));
 
     return {

@@ -32,29 +32,33 @@ const props = defineProps<TripCardProps>();
 /**
  * Format distance for display.
  *
- * @param distance - Distance in kilometers
+ * @param distance - Distance in kilometers (number or string from DB)
  * @returns Formatted distance string (e.g., "12.5 km")
  */
-function formatDistance(distance: number | null): string {
+function formatDistance(distance: number | string | null): string {
     if (distance === null) {
-return '-';
-}
+        return '-';
+    }
 
-    return `${distance.toFixed(2)} km`;
+    const numDistance = typeof distance === 'string' ? parseFloat(distance) : distance;
+
+    return `${numDistance.toFixed(2)} km`;
 }
 
 /**
  * Format speed for display.
  *
- * @param speed - Speed in km/h
+ * @param speed - Speed in km/h (number or string from DB)
  * @returns Formatted speed string (e.g., "65 km/h")
  */
-function formatSpeed(speed: number | null): string {
+function formatSpeed(speed: number | string | null): string {
     if (speed === null) {
-return '-';
-}
+        return '-';
+    }
 
-    return `${speed.toFixed(1)} km/h`;
+    const numSpeed = typeof speed === 'string' ? parseFloat(speed) : speed;
+
+    return `${numSpeed.toFixed(1)} km/h`;
 }
 
 /**

@@ -91,23 +91,27 @@ const violationColor = computed(() => {
 /**
  * Format distance for display.
  */
-function formatDistance(distance: number | null): string {
+function formatDistance(distance: number | string | null): string {
     if (distance === null) {
         return '-';
     }
 
-    return `${distance.toFixed(2)} km`;
+    const numDistance = typeof distance === 'string' ? parseFloat(distance) : distance;
+
+    return `${numDistance.toFixed(2)} km`;
 }
 
 /**
  * Format speed for display.
  */
-function formatSpeed(speed: number | null): string {
+function formatSpeed(speed: number | string | null): string {
     if (speed === null) {
         return '-';
     }
 
-    return `${speed.toFixed(1)} km/h`;
+    const numSpeed = typeof speed === 'string' ? parseFloat(speed) : speed;
+
+    return `${numSpeed.toFixed(1)} km/h`;
 }
 
 </script>
