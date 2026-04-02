@@ -59,14 +59,17 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
 import TripController from '@/actions/App/Http/Controllers/TripController';
+import { indexedDBService } from '@/services/indexeddb';
+import type { IDBSpeedLog, IDBTrip } from '@/types/indexeddb';
 import type {
-    Trip,
-    SpeedLog,
-    TripStats,
-    StartTripResponse,
-    EndTripResponse,
     BulkSpeedLogsResponse,
+    EndTripResponse,
+    SpeedLog,
+    StartTripResponse,
+    Trip,
+    TripStats,
 } from '@/types/trip';
+import { useAuthStore } from './auth';
 import { useSettingsStore } from './settings';
 
 /**
@@ -91,15 +94,32 @@ export const useTripStore = defineStore('trip', () => {
     const currentTrip = ref<Trip | null>(null);
 
     /**
+     * Local IndexedDB trip ID for offline trips.
+     *
+     * WHY: Track the local ID separately from backend ID for offline trips.
+     * WHY: Used to associate speed logs and sync queue items.
+     */
+    const localTripId = ref<number | null>(null);
+
+    /**
      * Speed logs buffer for current trip.
      *
      * WHY: Buffer speed logs in memory before syncing to reduce API calls.
      * WHY: Cleared after successful sync to backend.
+     * WHY: OFFLINE: Also saved to IndexedDB for persistence.
      */
     const speedLogs = ref<SpeedLog[]>([]);
 
     /** Whether trip tracking is currently active */
     const isTracking = ref<boolean>(false);
+
+    /**
+     * Whether current trip was created offline.
+     *
+     * WHY: Determines sync strategy - offline trips need full sync.
+     * WHY: Online trips only sync speed logs incrementally.
+     */
+    const isOfflineTrip = ref<boolean>(false);
 
     /**
      * Real-time trip statistics.
@@ -179,8 +199,12 @@ export const useTripStore = defineStore('trip', () => {
     /**
      * Start a new trip session.
      *
-     * Creates a new trip via API and initializes tracking state.
-     * Resets all speed logs and statistics for fresh session.
+     * Creates a new trip via API (if online) or IndexedDB (if offline).
+     * Initializes tracking state and resets all speed logs and statistics.
+     *
+     * OFFLINE SUPPORT:
+     * - When offline: Saves trip to IndexedDB and queues for sync
+     * - When online: Creates trip via API normally
      *
      * @param notes - Optional notes about the trip
      * @returns Promise resolving when trip is successfully started
@@ -201,19 +225,89 @@ export const useTripStore = defineStore('trip', () => {
         isStarting.value = true;
 
         try {
-            /**
-             * POST to /api/trips to create new trip.
-             *
-             * WHY: Use Wayfinder store() for type-safe route generation.
-             * WHY: useHttp provides automatic CSRF token handling.
-             */
-            const response = await http.post<StartTripResponse>(
-                TripController.store().url,
-                { notes },
-            );
+            const isOnline = navigator.onLine;
 
-            // Store the newly created trip
-            currentTrip.value = response.trip;
+            if (isOnline) {
+                /**
+                 * ONLINE: POST to /api/trips to create new trip.
+                 *
+                 * WHY: Use Wayfinder store() for type-safe route generation.
+                 * WHY: useHttp provides automatic CSRF token handling.
+                 */
+                const response = await http.post<StartTripResponse>(
+                    TripController.store().url,
+                    { notes },
+                );
+
+                // Store the newly created trip
+                currentTrip.value = response.trip;
+                localTripId.value = null;
+                isOfflineTrip.value = false;
+            } else {
+                /**
+                 * OFFLINE: Save trip to IndexedDB.
+                 *
+                 * WHY: Allow trip tracking without internet connectivity.
+                 * WHY: Data will be synced when connection restored.
+                 */
+                const authStore = useAuthStore();
+                const userId = authStore.user?.id;
+
+                if (!userId) {
+                    throw new Error('User tidak terautentikasi');
+                }
+
+                const offlineTrip: Omit<IDBTrip, 'id'> = {
+                    userId,
+                    startedAt: new Date().toISOString(),
+                    endedAt: null,
+                    status: 'in_progress',
+                    totalDistance: null,
+                    maxSpeed: null,
+                    averageSpeed: null,
+                    violationCount: 0,
+                    durationSeconds: null,
+                    notes: notes || null,
+                    syncedAt: null,
+                };
+
+                // Save to IndexedDB and get local ID
+                const tripId = await indexedDBService.addTrip(offlineTrip);
+                localTripId.value = tripId;
+                isOfflineTrip.value = true;
+
+                // Create pseudo Trip object for state management
+                currentTrip.value = {
+                    id: -1, // Temporary ID for offline trip
+                    user_id: userId,
+                    started_at: offlineTrip.startedAt,
+                    ended_at: null,
+                    status: 'in_progress',
+                    total_distance: null,
+                    max_speed: null,
+                    average_speed: null,
+                    violation_count: 0,
+                    duration_seconds: null,
+                    notes: notes || null,
+                    synced_at: null,
+                    created_at: offlineTrip.startedAt,
+                    updated_at: offlineTrip.startedAt,
+                };
+
+                // Add to sync queue
+                await indexedDBService.addToSyncQueue({
+                    type: 'trip',
+                    tripId,
+                    data: offlineTrip,
+                    status: 'pending',
+                    retryCount: 0,
+                    lastAttemptAt: null,
+                    errorMessage: null,
+                    createdAt: new Date().toISOString(),
+                });
+
+                console.log(`Trip started offline with local ID: ${tripId}`);
+            }
 
             // Reset tracking state for new session
             speedLogs.value = [];
@@ -233,6 +327,7 @@ export const useTripStore = defineStore('trip', () => {
         } catch (err: any) {
             const errorMessage =
                 err.response?.data?.message ||
+                err.message ||
                 'Gagal memulai perjalanan. Silakan coba lagi.';
             error.value = errorMessage;
 
@@ -248,6 +343,10 @@ export const useTripStore = defineStore('trip', () => {
      * Records speed measurement with violation detection and updates
      * real-time statistics. Does not sync to API immediately - logs
      * are batched and synced via syncSpeedLogs().
+     *
+     * OFFLINE SUPPORT:
+     * - Always saves to IndexedDB for offline backup
+     * - Logs persisted even if app crashes or network fails
      *
      * @param speed - Speed in kilometers per hour
      * @param timestamp - Unix timestamp in milliseconds when speed was recorded
@@ -265,7 +364,7 @@ export const useTripStore = defineStore('trip', () => {
      * });
      * ```
      */
-    function addSpeedLog(speed: number, timestamp: number | null): void {
+    async function addSpeedLog(speed: number, timestamp: number | null): Promise<void> {
         if (!hasActiveTrip.value) {
             console.warn('Cannot add speed log: no active trip');
 
@@ -280,6 +379,12 @@ export const useTripStore = defineStore('trip', () => {
          */
         const speedLimit = settingsStore.settings.speed_limit;
 
+        const recordedAt = timestamp
+            ? new Date(timestamp).toISOString()
+            : new Date().toISOString();
+
+        const isViolation = speed > speedLimit;
+
         /**
          * Create speed log entry with violation detection.
          *
@@ -288,17 +393,38 @@ export const useTripStore = defineStore('trip', () => {
          */
         const log: SpeedLog = {
             speed,
-            recorded_at: timestamp
-                ? new Date(timestamp).toISOString()
-                : new Date().toISOString(),
-            is_violation: speed > speedLimit,
+            recorded_at: recordedAt,
+            is_violation: isViolation,
         };
 
-        // Add to buffer
+        // Add to memory buffer
         speedLogs.value.push(log);
 
         // Update real-time statistics
         updateStats(speed);
+
+        /**
+         * OFFLINE SUPPORT: Save to IndexedDB for persistence.
+         *
+         * WHY: Ensures data safety if app crashes or network fails.
+         * WHY: Required for offline trips to have data when syncing later.
+         * WHY: Non-blocking async operation won't slow down UI.
+         */
+        if (localTripId.value !== null) {
+            try {
+                const idbLog: Omit<IDBSpeedLog, 'id'> = {
+                    tripId: localTripId.value,
+                    speed,
+                    recordedAt,
+                    isViolation,
+                };
+
+                await indexedDBService.addSpeedLog(idbLog);
+            } catch (err) {
+                // Log error but don't throw - memory buffer still has the log
+                console.error('Failed to save speed log to IndexedDB:', err);
+            }
+        }
     }
 
     /**
@@ -370,6 +496,10 @@ export const useTripStore = defineStore('trip', () => {
      * from backend response. Implements retry logic with exponential backoff
      * for failed syncs.
      *
+     * OFFLINE SUPPORT:
+     * - Skips sync when offline (logs remain in buffer)
+     * - Logs already saved to IndexedDB for safety
+     *
      * @returns Promise resolving when sync completes successfully
      * @throws Error if sync fails after max retries
      *
@@ -394,6 +524,33 @@ export const useTripStore = defineStore('trip', () => {
 
         // Skip if already syncing
         if (isSyncing.value) {
+            return;
+        }
+
+        /**
+         * OFFLINE SUPPORT: Skip sync when offline.
+         *
+         * WHY: Can't reach API without network connectivity.
+         * WHY: Logs are already saved to IndexedDB for later sync.
+         * WHY: Prevents error spam from failed network requests.
+         */
+        const isOnline = navigator.onLine;
+
+        if (!isOnline) {
+            console.log('Offline - speed logs saved to IndexedDB, will sync when online');
+
+            return;
+        }
+
+        /**
+         * Skip sync for offline trips.
+         *
+         * WHY: Offline trips don't have backend ID yet.
+         * WHY: Full trip sync happens when connection restored.
+         */
+        if (isOfflineTrip.value) {
+            console.log('Offline trip - speed logs will sync with trip later');
+
             return;
         }
 
@@ -481,8 +638,12 @@ export const useTripStore = defineStore('trip', () => {
     /**
      * End the current trip session.
      *
-     * Syncs any remaining speed logs, marks trip as completed via API,
-     * and cleans up tracking state. Final statistics are calculated by backend.
+     * Syncs any remaining speed logs, marks trip as completed via API (if online)
+     * or IndexedDB (if offline), and cleans up tracking state.
+     *
+     * OFFLINE SUPPORT:
+     * - When offline: Updates trip in IndexedDB with final stats
+     * - When online: Ends trip via API normally
      *
      * @param notes - Optional notes to add/update for the trip
      * @returns Promise resolving when trip is successfully ended
@@ -507,29 +668,78 @@ export const useTripStore = defineStore('trip', () => {
         isEnding.value = true;
 
         try {
-            /**
-             * Sync remaining speed logs before ending trip.
-             *
-             * WHY: Ensure all data is saved before final calculation.
-             * WHY: Backend needs complete logs for accurate statistics.
-             */
-            if (speedLogs.value.length > 0) {
-                await syncSpeedLogs();
+            const isOnline = navigator.onLine;
+
+            if (isOnline && !isOfflineTrip.value) {
+                /**
+                 * ONLINE: Sync remaining speed logs before ending trip.
+                 *
+                 * WHY: Ensure all data is saved before final calculation.
+                 * WHY: Backend needs complete logs for accurate statistics.
+                 */
+                if (speedLogs.value.length > 0) {
+                    await syncSpeedLogs();
+                }
+
+                /**
+                 * PUT to /api/trips/{id} to end trip.
+                 *
+                 * WHY: Backend calculates final statistics from all speed logs.
+                 * WHY: Updates status to 'completed' and sets ended_at timestamp.
+                 */
+                const response = await http.put<EndTripResponse>(
+                    TripController.update(currentTrip.value!.id).url,
+                    { notes },
+                );
+
+                // Update trip with final statistics from backend
+                currentTrip.value = response.trip;
+            } else {
+                /**
+                 * OFFLINE: Update trip in IndexedDB.
+                 *
+                 * WHY: Allow trip completion without internet connectivity.
+                 * WHY: Trip will be synced when connection restored.
+                 */
+                if (localTripId.value === null) {
+                    throw new Error('Local trip ID tidak tersedia');
+                }
+
+                const endedAt = new Date().toISOString();
+                const durationSeconds = currentTrip.value?.started_at
+                    ? Math.floor(
+                          (new Date(endedAt).getTime() -
+                              new Date(currentTrip.value.started_at).getTime()) /
+                              1000,
+                      )
+                    : stats.value.duration;
+
+                // Update trip in IndexedDB
+                await indexedDBService.updateTrip(localTripId.value, {
+                    endedAt,
+                    status: 'completed',
+                    totalDistance: stats.value.distance,
+                    maxSpeed: stats.value.maxSpeed,
+                    averageSpeed: stats.value.averageSpeed,
+                    violationCount: stats.value.violationCount,
+                    durationSeconds,
+                    notes: notes || currentTrip.value?.notes || null,
+                });
+
+                // Update current trip state
+                if (currentTrip.value) {
+                    currentTrip.value.ended_at = endedAt;
+                    currentTrip.value.status = 'completed';
+                    currentTrip.value.total_distance = stats.value.distance;
+                    currentTrip.value.max_speed = stats.value.maxSpeed;
+                    currentTrip.value.average_speed = stats.value.averageSpeed;
+                    currentTrip.value.violation_count = stats.value.violationCount;
+                    currentTrip.value.duration_seconds = durationSeconds;
+                    currentTrip.value.notes = notes || currentTrip.value.notes;
+                }
+
+                console.log(`Trip ended offline with local ID: ${localTripId.value}`);
             }
-
-            /**
-             * PUT to /api/trips/{id} to end trip.
-             *
-             * WHY: Backend calculates final statistics from all speed logs.
-             * WHY: Updates status to 'completed' and sets ended_at timestamp.
-             */
-            const response = await http.put<EndTripResponse>(
-                TripController.update(currentTrip.value!.id).url,
-                { notes },
-            );
-
-            // Update trip with final statistics from backend
-            currentTrip.value = response.trip;
 
             // Stop tracking
             isTracking.value = false;
@@ -539,6 +749,7 @@ export const useTripStore = defineStore('trip', () => {
         } catch (err: any) {
             const errorMessage =
                 err.response?.data?.message ||
+                err.message ||
                 'Gagal mengakhiri perjalanan. Silakan coba lagi.';
             error.value = errorMessage;
 
@@ -567,8 +778,10 @@ export const useTripStore = defineStore('trip', () => {
      */
     function clearTrip(): void {
         currentTrip.value = null;
+        localTripId.value = null;
         speedLogs.value = [];
         isTracking.value = false;
+        isOfflineTrip.value = false;
         lastSyncAt.value = null;
         syncRetryCount.value = 0;
         error.value = null;
@@ -584,6 +797,32 @@ export const useTripStore = defineStore('trip', () => {
         };
     }
 
+    /**
+     * Get pending sync queue count.
+     *
+     * Returns the number of items waiting to be synced to backend.
+     * Used by OfflineIndicator to show pending count badge.
+     *
+     * @returns Promise resolving to number of pending sync items
+     *
+     * @example
+     * ```ts
+     * const pendingCount = await tripStore.getPendingSyncCount();
+     * console.log(`${pendingCount} items waiting to sync`);
+     * ```
+     */
+    async function getPendingSyncCount(): Promise<number> {
+        try {
+            const pendingItems = await indexedDBService.getPendingSyncItems();
+
+            return pendingItems.length;
+        } catch (err) {
+            console.error('Failed to get pending sync count:', err);
+
+            return 0;
+        }
+    }
+
     // ========================================================================
     // Return Public API
     // ========================================================================
@@ -591,8 +830,10 @@ export const useTripStore = defineStore('trip', () => {
     return {
         // State
         currentTrip,
+        localTripId,
         speedLogs,
         isTracking,
+        isOfflineTrip,
         stats,
         isStarting,
         isEnding,
@@ -611,5 +852,6 @@ export const useTripStore = defineStore('trip', () => {
         syncSpeedLogs,
         endTrip,
         clearTrip,
+        getPendingSyncCount,
     };
 });

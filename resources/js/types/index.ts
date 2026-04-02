@@ -1,6 +1,7 @@
 export * from './auth';
 export * from './chart';
 export * from './geolocation';
+export * from './indexeddb';
 export * from './speedometer';
 export * from './statistics';
 export * from './trip';

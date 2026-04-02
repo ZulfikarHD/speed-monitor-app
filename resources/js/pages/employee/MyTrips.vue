@@ -19,13 +19,15 @@
 
 import { router } from '@inertiajs/vue3';
 import { AnimatePresence, motion } from 'motion-v';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
+import OfflineIndicator from '@/components/offline/OfflineIndicator.vue';
 import EmptyState from '@/components/trips/EmptyState.vue';
 import Pagination from '@/components/trips/Pagination.vue';
 import TripCard from '@/components/trips/TripCard.vue';
 import TripListFilters from '@/components/trips/TripListFilters.vue';
 import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
+import { useTripStore } from '@/stores/trip';
 import type { Trip, TripStatus } from '@/types/trip';
 
 // ========================================================================
@@ -56,6 +58,7 @@ const props = defineProps<Props>();
 // Dependencies
 // ========================================================================
 
+const tripStore = useTripStore();
 
 // ========================================================================
 // Local State
@@ -67,6 +70,9 @@ const localFilters = ref({
     date_from: props.filters.date_from,
     date_to: props.filters.date_to,
 });
+
+/** Pending sync count for offline indicator */
+const pendingSyncCount = ref<number>(0);
 
 // ========================================================================
 // Methods
@@ -149,10 +155,60 @@ const hasActiveFilters = computed(() => {
 const showEmptyState = computed(() => {
     return props.trips.length === 0;
 });
+
+// ========================================================================
+// Lifecycle Hooks
+// ========================================================================
+
+onMounted(async () => {
+    // Load pending sync count on mount
+    await updatePendingSyncCount();
+});
+
+// ========================================================================
+// Offline Sync Management
+// ========================================================================
+
+/**
+ * Update pending sync count.
+ *
+ * Fetches the number of items waiting to be synced from IndexedDB.
+ */
+const updatePendingSyncCount = async (): Promise<void> => {
+    try {
+        pendingSyncCount.value = await tripStore.getPendingSyncCount();
+    } catch (err) {
+        console.error('Failed to update pending sync count:', err);
+    }
+};
+
+/**
+ * Handle manual sync request from OfflineIndicator.
+ *
+ * Triggers sync of pending items when user clicks "Sync Now" button.
+ * This will be implemented in US-5.3 (Background Sync Service).
+ */
+const handleManualSync = async (): Promise<void> => {
+    // TODO: US-5.3 - Implement manual sync via useOfflineSync composable
+    console.log('Manual sync requested - to be implemented in US-5.3');
+    await updatePendingSyncCount();
+    
+    // Refresh trip list after sync
+    router.reload({ only: ['trips', 'meta'] });
+};
 </script>
 
 <template>
     <EmployeeLayout title="My Trips">
+        <!-- ============================================================ -->
+        <!-- OFFLINE INDICATOR (Fixed position, outside main layout) -->
+        <!-- ============================================================ -->
+        <OfflineIndicator
+            :pending-count="pendingSyncCount"
+            :is-syncing="tripStore.isSyncing"
+            @sync="handleManualSync"
+        />
+
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- Page Header -->
             <motion.div

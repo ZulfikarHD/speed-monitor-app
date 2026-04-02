@@ -10,6 +10,7 @@ Uses EmployeeLayout for consistent navigation across all employee pages.
 import { motion } from 'motion-v';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
+import OfflineIndicator from '@/components/offline/OfflineIndicator.vue';
 import ProductionGauge from '@/components/speedometer/ProductionGauge.vue';
 import TripControls from '@/components/speedometer/TripControls.vue';
 import { useAutoStop } from '@/composables/useAutoStop';
@@ -35,6 +36,7 @@ const { speedKmh, speedMps, accuracy, coords, stopTracking } = useGeolocation();
 const unit = ref<'kmh' | 'mph'>('kmh');
 const localSpeedLimit = ref<number>(60);
 const lastPosition = ref<{ lat: number; lon: number } | null>(null);
+const pendingSyncCount = ref<number>(0);
 
 // ========================================================================
 // Auto-Stop Monitoring
@@ -65,7 +67,39 @@ onMounted(async () => {
     } else {
         localSpeedLimit.value = settingsStore.speed_limit;
     }
+
+    // Load pending sync count
+    await updatePendingSyncCount();
 });
+
+// ========================================================================
+// Offline Sync Management
+// ========================================================================
+
+/**
+ * Update pending sync count.
+ *
+ * Fetches the number of items waiting to be synced from IndexedDB.
+ */
+const updatePendingSyncCount = async (): Promise<void> => {
+    try {
+        pendingSyncCount.value = await tripStore.getPendingSyncCount();
+    } catch (err) {
+        console.error('Failed to update pending sync count:', err);
+    }
+};
+
+/**
+ * Handle manual sync request from OfflineIndicator.
+ *
+ * Triggers sync of pending items when user clicks "Sync Now" button.
+ * This will be implemented in US-5.3 (Background Sync Service).
+ */
+const handleManualSync = async (): Promise<void> => {
+    // TODO: US-5.3 - Implement manual sync via useOfflineSync composable
+    console.log('Manual sync requested - to be implemented in US-5.3');
+    await updatePendingSyncCount();
+};
 
 // ========================================================================
 // Distance Calculation (Haversine)
@@ -208,6 +242,15 @@ onBeforeUnmount(() => {
 
 <template>
     <EmployeeLayout title="Speedometer">
+        <!-- ============================================================ -->
+        <!-- OFFLINE INDICATOR (Fixed position, outside main layout) -->
+        <!-- ============================================================ -->
+        <OfflineIndicator
+            :pending-count="pendingSyncCount"
+            :is-syncing="tripStore.isSyncing"
+            @sync="handleManualSync"
+        />
+
         <div class="speedometer-page">
             <!-- Header -->
             <header class="velo-header">
