@@ -24,7 +24,7 @@ Props:
 -->
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 import { useSettingsStore } from '@/stores/settings';
 import type { SpeedGaugeProps } from '@/types/speedometer';
@@ -321,6 +321,56 @@ const statusText = computed(() => {
 
     return 'Kecepatan normal';
 });
+
+// ========================================================================
+// Violation Flash Animation
+// ========================================================================
+
+/**
+ * Flash animation state for violation alerts.
+ *
+ * WHY: Reactive state triggers CSS animation via class binding.
+ * WHY: Automatically resets after animation completes (500ms).
+ */
+const isFlashing = ref<boolean>(false);
+
+/**
+ * Trigger red flash animation for speed violation alert.
+ *
+ * Activates flash animation for 500ms, then automatically resets state.
+ * Called by parent component when violation detected.
+ *
+ * WHY: Visual feedback reinforces audio/notification alerts.
+ * WHY: 500ms duration provides noticeable alert without being intrusive.
+ * WHY: Auto-reset prevents manual state management in parent.
+ *
+ * @example
+ * ```ts
+ * // Parent component usage
+ * const gaugeRef = ref<InstanceType<typeof SpeedGauge> | null>(null);
+ *
+ * function onViolation() {
+ *     gaugeRef.value?.triggerFlash();
+ * }
+ * ```
+ */
+function triggerFlash(): void {
+    isFlashing.value = true;
+
+    setTimeout(() => {
+        isFlashing.value = false;
+    }, 500);
+}
+
+/**
+ * Expose triggerFlash method to parent components.
+ *
+ * WHY: Allows parent to trigger flash animation imperatively.
+ * WHY: defineExpose required for composition API <script setup> syntax.
+ */
+defineExpose({
+    triggerFlash,
+});
 </script>
 
 <template>
@@ -328,7 +378,11 @@ const statusText = computed(() => {
     <!-- Outer Container with Accessibility -->
     <!-- ================================================================ -->
     <div
-        :class="['relative flex items-center justify-center', sizeClasses]"
+        :class="[
+            'relative flex items-center justify-center',
+            sizeClasses,
+            { 'violation-flash': isFlashing },
+        ]"
         role="img"
         :aria-label="`Kecepatan saat ini: ${displaySpeed} kilometer per jam`"
         :aria-live="speed > effectiveSpeedLimit ? 'assertive' : 'polite'"
@@ -447,5 +501,48 @@ const statusText = computed(() => {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
+}
+
+/**
+ * Violation flash animation keyframes.
+ *
+ * Creates attention-grabbing red pulse effect with scale transformation.
+ * Animation uses opacity and scale variations to create pulsing effect.
+ *
+ * WHY: 0%, 100% at opacity 1 ensures smooth start/end.
+ * WHY: 25%, 75% at opacity 0.5 creates pulsing effect.
+ * WHY: 50% at opacity 0.7 adds middle pulse variation.
+ * WHY: Scale 1.05 provides subtle "pop" without being jarring.
+ */
+@keyframes violation-flash {
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    25%,
+    75% {
+        opacity: 0.5;
+        transform: scale(1.05);
+    }
+
+    50% {
+        opacity: 0.7;
+        transform: scale(1.02);
+    }
+}
+
+/**
+ * Violation flash animation class.
+ *
+ * Applied to gauge container when isFlashing is true.
+ *
+ * WHY: 500ms duration provides noticeable alert without being intrusive.
+ * WHY: ease-in-out timing creates smooth acceleration and deceleration.
+ * WHY: Bound to isFlashing reactive state for automatic triggering.
+ */
+.violation-flash {
+    animation: violation-flash 500ms ease-in-out;
 }
 </style>

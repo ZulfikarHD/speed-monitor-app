@@ -35,12 +35,13 @@ Page Flow:
 
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import SpeedGauge from '@/components/speedometer/SpeedGauge.vue';
 import TripControls from '@/components/speedometer/TripControls.vue';
 import TripStats from '@/components/speedometer/TripStats.vue';
 import { useGeolocation } from '@/composables/useGeolocation';
+import { useViolationAlert } from '@/composables/useViolationAlert';
 import { useSettingsStore } from '@/stores/settings';
 import { useTripStore } from '@/stores/trip';
 
@@ -72,6 +73,31 @@ const settingsStore = useSettingsStore();
  */
 const { speedKmh } = useGeolocation();
 
+/**
+ * Violation alert composable for multi-channel alerting.
+ *
+ * WHY: Provides browser notifications, audio beeps, and violation tracking.
+ * WHY: Handles permission requests and cooldown logic.
+ */
+const {
+    checkViolation,
+    triggerAlert,
+    requestNotificationPermission,
+    resetViolationState,
+} = useViolationAlert();
+
+// ========================================================================
+// Component Refs
+// ========================================================================
+
+/**
+ * Reference to SpeedGauge component instance.
+ *
+ * WHY: Needed to call triggerFlash() method imperatively.
+ * WHY: TypeScript type ensures compile-time safety for method calls.
+ */
+const speedGaugeRef = ref<InstanceType<typeof SpeedGauge> | null>(null);
+
 // ========================================================================
 // Computed Properties
 // ========================================================================
@@ -91,6 +117,68 @@ const speedLimit = computed<number>(() => settingsStore.speed_limit);
  * WHY: Provides better UX by hiding empty stats when no trip.
  */
 const hasActiveTrip = computed<boolean>(() => tripStore.hasActiveTrip);
+
+// ========================================================================
+// Violation Detection Logic
+// ========================================================================
+
+/**
+ * Watch for speed changes and check for violations.
+ *
+ * Monitors current speed against speed limit and triggers multi-channel
+ * alerts when violation detected. Only active during trip with alerts enabled.
+ *
+ * WHY: Reactive watch automatically triggers when speed or limit changes.
+ * WHY: Early returns prevent unnecessary checks when conditions not met.
+ * WHY: Multi-channel approach ensures user notices (notification + audio + visual).
+ */
+watch(
+    [speedKmh, speedLimit],
+    ([currentSpeed, limit]) => {
+        // Skip if alerts disabled in settings
+        if (!settingsStore.settings.violation_alerts_enabled) {
+            return;
+        }
+
+        // Skip if no active trip
+        if (!hasActiveTrip.value) {
+            return;
+        }
+
+        // Check if violation should trigger alert (handles cooldown logic)
+        if (checkViolation(currentSpeed, limit)) {
+            // Fire notification and audio alerts
+            triggerAlert(currentSpeed, limit);
+
+            // Trigger visual flash animation on gauge
+            speedGaugeRef.value?.triggerFlash();
+        }
+    },
+    { immediate: false },
+);
+
+/**
+ * Request notification permission when trip starts.
+ *
+ * Automatically requests browser notification permission when user begins
+ * trip session. Permission only requested if alerts are enabled in settings.
+ *
+ * WHY: Permission must be requested in response to user action (trip start).
+ * WHY: Avoids permission prompt on page load (better UX).
+ * WHY: Reset violation state ensures clean tracking for new trip.
+ */
+watch(
+    () => tripStore.hasActiveTrip,
+    (isActive) => {
+        if (isActive && settingsStore.settings.violation_alerts_enabled) {
+            // Request notification permission
+            requestNotificationPermission();
+        } else {
+            // Clear violation state when trip ends
+            resetViolationState();
+        }
+    },
+);
 </script>
 
 <template>
@@ -128,7 +216,7 @@ const hasActiveTrip = computed<boolean>(() => tripStore.hasActiveTrip);
                     </Link>
 
                     <!-- Page Title -->
-                    <div>
+                    <div class="flex-1">
                         <h1
                             class="text-xl font-semibold text-[#1b1b18] dark:text-[#EDEDEC]"
                         >
@@ -140,6 +228,58 @@ const hasActiveTrip = computed<boolean>(() => tripStore.hasActiveTrip);
                             Track your trip speed
                         </p>
                     </div>
+
+                    <!-- Alert Toggle Button -->
+                    <button
+                        @click="
+                            settingsStore.updateSetting(
+                                'violation_alerts_enabled',
+                                !settingsStore.settings.violation_alerts_enabled,
+                            )
+                        "
+                        :class="[
+                            'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all',
+                            settingsStore.settings.violation_alerts_enabled
+                                ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50'
+                                : 'bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700',
+                        ]"
+                        :aria-label="
+                            settingsStore.settings.violation_alerts_enabled
+                                ? 'Disable violation alerts'
+                                : 'Enable violation alerts'
+                        "
+                        :title="
+                            settingsStore.settings.violation_alerts_enabled
+                                ? 'Click to disable alerts'
+                                : 'Click to enable alerts'
+                        "
+                    >
+                        <!-- Bell Icon -->
+                        <svg
+                            class="h-4 w-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                        >
+                            <path
+                                v-if="settingsStore.settings.violation_alerts_enabled"
+                                d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+                            />
+                            <path
+                                v-else
+                                d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+                                opacity="0.5"
+                            />
+                        </svg>
+
+                        <!-- Status Text -->
+                        <span class="hidden sm:inline">
+                            {{
+                                settingsStore.settings.violation_alerts_enabled
+                                    ? 'Alerts On'
+                                    : 'Alerts Off'
+                            }}
+                        </span>
+                    </button>
                 </div>
             </div>
         </header>
@@ -153,6 +293,7 @@ const hasActiveTrip = computed<boolean>(() => tripStore.hasActiveTrip);
             <section class="mb-8">
                 <div class="flex justify-center">
                     <SpeedGauge
+                        ref="speedGaugeRef"
                         :speed="speedKmh"
                         :speed-limit="speedLimit"
                         size="lg"

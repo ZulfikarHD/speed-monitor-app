@@ -8,13 +8,20 @@ use Illuminate\Database\Seeder;
 /**
  * Settings Seeder
  *
- * Seeds default application settings for speed limit, auto-stop duration,
- * and speed log interval. These values can be updated via the settings API.
+ * Seeds default application settings for speed tracking system including
+ * speed limits, auto-stop duration, logging intervals, and violation alerts.
+ * These values can be updated dynamically via the settings API.
  */
 class SettingsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     *
+     * Creates default settings for:
+     * - Speed limit enforcement (60 km/h)
+     * - Trip auto-stop after inactivity (30 minutes)
+     * - Speed logging interval (5 seconds)
+     * - Violation alerts (enabled by default)
      */
     public function run(): void
     {
@@ -34,6 +41,12 @@ class SettingsSeeder extends Seeder
             'speed_log_interval',
             '5',
             'Speed logging interval (seconds)'
+        );
+
+        Setting::set(
+            'violation_alerts_enabled',
+            'true',
+            'Enable/disable speed violation alerts (browser notification, audio, visual)'
         );
     }
 }
