@@ -7,10 +7,13 @@ use App\Http\Requests\Trip\BulkCreateSpeedLogsRequest;
 use App\Http\Requests\Trip\EndTripRequest;
 use App\Http\Requests\Trip\ListTripsRequest;
 use App\Http\Requests\Trip\StartTripRequest;
+use App\Models\Setting;
 use App\Models\Trip;
 use App\Services\SpeedLogService;
 use App\Services\TripService;
 use Illuminate\Http\JsonResponse;
+use Inertia\Inertia;
+use Inertia\Response;
 
 /*
 |--------------------------------------------------------------------------
@@ -140,6 +143,33 @@ class TripController extends Controller
         return response()->json([
             'trip' => $trip,
         ], 200);
+    }
+
+    /**
+     * Display trip detail page with speed chart visualization (Web view).
+     *
+     * Shows comprehensive trip information including speed logs, statistics,
+     * and violation markers in an Inertia-rendered Vue page. Uses route model
+     * binding for automatic Trip lookup and eager loads speed_logs relationship
+     * to avoid N+1 queries.
+     *
+     * @param  Trip  $trip  The trip to display (route model binding)
+     * @return Response Inertia response with trip and speedLimit data
+     */
+    public function showWeb(Trip $trip): Response
+    {
+        $this->authorize('view', $trip);
+
+        // Eager load relationships to prevent N+1 queries
+        $trip->load(['user:id,name,email', 'speedLogs']);
+
+        // Fetch speed limit from settings
+        $speedLimit = Setting::where('key', 'speed_limit')->value('value') ?? 60;
+
+        return Inertia::render('employee/TripDetail', [
+            'trip' => $trip,
+            'speedLimit' => (int) $speedLimit,
+        ]);
     }
 
     /**

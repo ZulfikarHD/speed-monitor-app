@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\TripController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'Welcome')->name('home');
@@ -19,6 +20,7 @@ Route::middleware(['auth', 'role:employee'])->group(function () {
     Route::inertia('/employee/dashboard', 'employee/Dashboard')->name('employee.dashboard');
     Route::inertia('/employee/speedometer', 'employee/Speedometer')->name('employee.speedometer');
     Route::inertia('/employee/my-trips', 'employee/MyTrips')->name('employee.my-trips');
+    Route::get('/employee/trips/{trip}', [TripController::class, 'showWeb'])->name('employee.trips.show');
 });
 
 // Supervisor routes (auth + supervisor role required)
