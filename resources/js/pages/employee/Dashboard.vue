@@ -6,7 +6,7 @@
  * Will be expanded with speedometer and trip tracking in Sprint 3.
  */
 
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 
 import { useAuth } from '@/composables/useAuth';
 import { useAuthStore } from '@/stores/auth';

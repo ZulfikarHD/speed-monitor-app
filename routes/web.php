@@ -1,10 +1,18 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'Welcome')->name('home');
 
-Route::inertia('/login', 'auth/Login')->name('login');
+// Guest routes (login page and submission)
+Route::middleware('guest')->group(function () {
+    Route::inertia('/login', 'auth/Login')->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+});
+
+// Logout route
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 // Employee routes (auth + employee role required)
 Route::middleware(['auth', 'role:employee'])->group(function () {
@@ -21,10 +29,3 @@ Route::middleware(['auth', 'role:supervisor'])->group(function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::inertia('/admin/dashboard', 'admin/Dashboard')->name('admin.dashboard');
 });
-
-// Test pages (development only)
-Route::inertia('/test', 'test/TestIndex')->name('test.index');
-Route::inertia('/test/geolocation', 'test/GeolocationTest')->name('test.geolocation');
-Route::inertia('/test/speed-gauge-demo', 'test/SpeedGaugeDemo')->name('test.speed-gauge-demo');
-Route::inertia('/test/trip-controls-demo', 'test/TripControlsDemo')->name('test.trip-controls-demo');
-Route::inertia('/test/trip-stats-demo', 'test/TripStatsDemo')->name('test.trip-stats-demo');

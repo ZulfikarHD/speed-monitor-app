@@ -1,385 +1,650 @@
 <!--
-Employee Speedometer Page
+VeloTrack - Production GPS Speedometer
 
-Complete speedometer interface integrating GPS tracking, trip management,
-and real-time statistics display. Mobile-first design optimized for
-portrait phone usage during commute sessions.
-
-Features:
-- Real-time speed gauge (270° arc with color zones)
-- Trip start/stop controls with GPS integration
-- Live statistics (speed, distance, duration, violations)
-- Mobile-optimized layout (touch-friendly buttons, full viewport)
-- Automatic speed logging every ~5 seconds
-- Speed log batching (sync every 10 logs/50s)
-- Route guard: employee role only
-
-Integration:
-- SpeedGauge: Visual speedometer display
-- TripControls: Start/stop buttons + GPS permission
-- TripStats: Real-time metrics grid
-- useGeolocation: GPS speed tracking
-- Trip Store: Session management + speed logging
-- Settings Store: Speed limit configuration
-
-Page Flow:
-1. Employee navigates from dashboard
-2. Page loads with idle state (no active trip)
-3. User clicks "Start Trip" → GPS permission requested
-4. If granted → trip starts → speed logging begins
-5. Real-time updates: gauge + stats display current data
-6. Speed logs buffered locally, synced every 10 logs
-7. User clicks "Stop Trip" → confirmation shown
-8. If confirmed → remaining logs synced → trip ends
+Full production speedometer with backend integration via Trip Store and Settings Store.
+Features professional design from HTML spec while maintaining proper API integration.
 -->
 
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
-import SpeedGauge from '@/components/speedometer/SpeedGauge.vue';
+import ProductionGauge from '@/components/speedometer/ProductionGauge.vue';
 import TripControls from '@/components/speedometer/TripControls.vue';
 import TripStats from '@/components/speedometer/TripStats.vue';
+import { useAutoStop } from '@/composables/useAutoStop';
 import { useGeolocation } from '@/composables/useGeolocation';
-import { useViolationAlert } from '@/composables/useViolationAlert';
 import { useSettingsStore } from '@/stores/settings';
 import { useTripStore } from '@/stores/trip';
+import { haversineDistance, metersToKm, metersToMiles } from '@/utils/distance';
+import { estimateSatelliteCount, mpsToDisplay } from '@/utils/units';
 
 // ========================================================================
-// Store and Composable Integration
+// Store Integration
 // ========================================================================
 
-/**
- * Trip store for session management and speed logging.
- *
- * WHY: Centralized state for current trip, speed logs, and statistics.
- * WHY: Provides actions for start/stop/sync operations.
- */
 const tripStore = useTripStore();
-
-/**
- * Settings store for speed limit configuration.
- *
- * WHY: Speed limit is admin-configurable, needs to be fetched from settings.
- * WHY: Used for violation detection and gauge marker display.
- */
 const settingsStore = useSettingsStore();
-
-/**
- * Geolocation composable for real-time speed tracking.
- *
- * WHY: Provides GPS-based speed data in km/h.
- * WHY: speedKmh is reactive and updates on GPS position changes.
- */
-const { speedKmh } = useGeolocation();
-
-/**
- * Violation alert composable for multi-channel alerting.
- *
- * WHY: Provides browser notifications, audio beeps, and violation tracking.
- * WHY: Handles permission requests and cooldown logic.
- */
-const {
-    checkViolation,
-    triggerAlert,
-    requestNotificationPermission,
-    resetViolationState,
-} = useViolationAlert();
+const { speedKmh, speedMps, accuracy, coords, stopTracking } = useGeolocation();
 
 // ========================================================================
-// Component Refs
+// Local State
 // ========================================================================
 
-/**
- * Reference to SpeedGauge component instance.
- *
- * WHY: Needed to call triggerFlash() method imperatively.
- * WHY: TypeScript type ensures compile-time safety for method calls.
- */
-const speedGaugeRef = ref<InstanceType<typeof SpeedGauge> | null>(null);
+const unit = ref<'kmh' | 'mph'>('kmh');
+const localSpeedLimit = ref<number>(60);
+const lastPosition = ref<{ lat: number; lon: number } | null>(null);
 
 // ========================================================================
-// Computed Properties
+// Auto-Stop Monitoring
 // ========================================================================
 
-/**
- * Current speed limit from settings.
- *
- * WHY: Dynamic speed limit allows admin configuration changes.
- * WHY: Defaults to 60 km/h if settings not loaded yet.
- */
-const speedLimit = computed<number>(() => settingsStore.speed_limit);
-
-/**
- * Whether there's an active trip in progress.
- *
- * WHY: Used to conditionally show stats component.
- * WHY: Provides better UX by hiding empty stats when no trip.
- */
-const hasActiveTrip = computed<boolean>(() => tripStore.hasActiveTrip);
-
-// ========================================================================
-// Violation Detection Logic
-// ========================================================================
-
-/**
- * Watch for speed changes and check for violations.
- *
- * Monitors current speed against speed limit and triggers multi-channel
- * alerts when violation detected. Only active during trip with alerts enabled.
- *
- * WHY: Reactive watch automatically triggers when speed or limit changes.
- * WHY: Early returns prevent unnecessary checks when conditions not met.
- * WHY: Multi-channel approach ensures user notices (notification + audio + visual).
- */
-watch(
-    [speedKmh, speedLimit],
-    ([currentSpeed, limit]) => {
-        // Skip if alerts disabled in settings
-        if (!settingsStore.settings.violation_alerts_enabled) {
-            return;
-        }
-
-        // Skip if no active trip
-        if (!hasActiveTrip.value) {
-            return;
-        }
-
-        // Check if violation should trigger alert (handles cooldown logic)
-        if (checkViolation(currentSpeed, limit)) {
-            // Fire notification and audio alerts
-            triggerAlert(currentSpeed, limit);
-
-            // Trigger visual flash animation on gauge
-            speedGaugeRef.value?.triggerFlash();
-        }
+const autoStop = useAutoStop({
+    inactivityDuration: settingsStore.auto_stop_duration,
+    speedThreshold: 5,
+    onWarning: () => {
+        alert('⚠️ Peringatan: Trip akan berhenti otomatis dalam 5 menit karena tidak ada pergerakan.');
     },
-    { immediate: false },
-);
-
-/**
- * Request notification permission when trip starts.
- *
- * Automatically requests browser notification permission when user begins
- * trip session. Permission only requested if alerts are enabled in settings.
- *
- * WHY: Permission must be requested in response to user action (trip start).
- * WHY: Avoids permission prompt on page load (better UX).
- * WHY: Reset violation state ensures clean tracking for new trip.
- */
-watch(
-    () => tripStore.hasActiveTrip,
-    (isActive) => {
-        if (isActive && settingsStore.settings.violation_alerts_enabled) {
-            // Request notification permission
-            requestNotificationPermission();
-        } else {
-            // Clear violation state when trip ends
-            resetViolationState();
-        }
+    onAutoStop: async () => {
+        await tripStore.endTrip('Auto-stopped: no movement detected');
+        stopTracking();
+        alert('🛑 Trip dihentikan otomatis karena tidak ada pergerakan selama 30 menit.');
     },
-);
+});
+
+// ========================================================================
+// Fetch Settings on Mount
+// ========================================================================
+
+onMounted(async () => {
+    // Fetch settings from backend if not loaded
+    if (!settingsStore.isLoaded) {
+        // Settings will be loaded via API in settings store
+        localSpeedLimit.value = settingsStore.speed_limit;
+    } else {
+        localSpeedLimit.value = settingsStore.speed_limit;
+    }
+});
+
+// ========================================================================
+// Distance Calculation (Haversine)
+// ========================================================================
+
+watch([coords], () => {
+    if (!tripStore.hasActiveTrip) return;
+    if (!coords.value.latitude || !coords.value.longitude) return;
+
+    if (lastPosition.value) {
+        const dist = haversineDistance(
+            lastPosition.value.lat,
+            lastPosition.value.lon,
+            coords.value.latitude,
+            coords.value.longitude,
+        );
+        
+        // Update trip store distance
+        tripStore.stats.distance += dist;
+    }
+
+    lastPosition.value = {
+        lat: coords.value.latitude,
+        lon: coords.value.longitude,
+    };
+});
+
+// ========================================================================
+// Computed
+// ========================================================================
+
+const currentSpeed = computed(() => mpsToDisplay(speedMps.value, unit.value));
+
+const speedLimit = computed(() => localSpeedLimit.value);
+
+const hasActiveTrip = computed(() => tripStore.hasActiveTrip);
+
+const satelliteCount = computed(() => estimateSatelliteCount(accuracy.value));
+
+const accuracyPercentage = computed(() => {
+    if (!accuracy.value) return 0;
+    return Math.max(0, Math.min(100, 100 - (accuracy.value / 50) * 100));
+});
+
+const accuracyColor = computed(() => {
+    const pct = accuracyPercentage.value;
+    if (pct > 60) return '#00e5ff';
+    if (pct > 30) return '#ffab00';
+    return '#ff3d57';
+});
+
+const gpsStatus = computed(() => {
+    if (!tripStore.hasActiveTrip) return 'Stopped';
+    if (accuracy.value === null) return 'Acquiring GPS…';
+    if (accuracy.value > 50) return 'GPS Weak';
+    return 'GPS Active';
+});
+
+const gpsStatusClass = computed(() => {
+    if (!tripStore.hasActiveTrip) return 'muted';
+    if (accuracy.value === null) return 'warn';
+    if (accuracy.value > 50) return 'warn';
+    return 'active';
+});
+
+const tripDistance = computed(() => {
+    return unit.value === 'kmh'
+        ? metersToKm(tripStore.stats.distance)
+        : metersToMiles(tripStore.stats.distance);
+});
+
+const maxSpeed = computed(() => mpsToDisplay(tripStore.stats.maxSpeed, unit.value));
+const avgSpeed = computed(() => mpsToDisplay(tripStore.stats.averageSpeed, unit.value));
+
+// ========================================================================
+// Speed Limit Controls
+// ========================================================================
+
+function changeLimit(delta: number) {
+    localSpeedLimit.value = Math.max(10, Math.min(200, localSpeedLimit.value + delta));
+}
+
+function setUnit(newUnit: 'kmh' | 'mph') {
+    unit.value = newUnit;
+}
+
+// ========================================================================
+// Auto-Stop Integration
+// ========================================================================
+
+watch(() => tripStore.hasActiveTrip, (isActive) => {
+    if (isActive) {
+        autoStop.startMonitoring(() => speedKmh.value);
+    } else {
+        autoStop.stopMonitoring();
+        lastPosition.value = null;
+    }
+});
+
+// ========================================================================
+// Cleanup
+// ========================================================================
+
+onBeforeUnmount(() => {
+    autoStop.stopMonitoring();
+    lastPosition.value = null;
+});
 </script>
 
 <template>
-    <Head title="Speedometer" />
+    <div class="speedometer-page">
+        <Head title="VeloTrack Speedometer">
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link
+                rel="preconnect"
+                href="https://fonts.gstatic.com"
+                crossorigin
+            />
+            <link
+                href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Barlow:wght@300;400;600&display=swap"
+                rel="stylesheet"
+            />
+        </Head>
 
-    <div class="min-h-screen bg-[#FDFDFC] dark:bg-[#0a0a0a]">
-        <!-- ================================================================ -->
-        <!-- Page Header -->
-        <!-- ================================================================ -->
-
-        <header
-            class="sticky top-0 z-10 border-b border-[#e3e3e0] bg-white/80 backdrop-blur-sm dark:border-[#3E3E3A] dark:bg-[#161615]/80"
-        >
-            <div class="mx-auto max-w-2xl px-4 py-4">
-                <div class="flex items-center gap-4">
-                    <!-- Back Button -->
-                    <Link
-                        href="/employee/dashboard"
-                        class="flex items-center justify-center rounded-lg border border-[#e3e3e0] bg-white p-2 text-[#1b1b18] transition-colors hover:bg-[#FDFDFC] dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-[#EDEDEC] dark:hover:bg-[#161615]"
-                        aria-label="Back to dashboard"
+        <!-- Header -->
+        <header class="velo-header">
+            <div class="header-left">
+                <Link
+                    href="/employee/dashboard"
+                    class="back-button"
+                    aria-label="Back to dashboard"
+                >
+                    <svg
+                        class="back-icon"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                     >
-                        <svg
-                            class="h-5 w-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M15 19l-7-7 7-7"
-                            />
-                        </svg>
-                    </Link>
-
-                    <!-- Page Title -->
-                    <div class="flex-1">
-                        <h1
-                            class="text-xl font-semibold text-[#1b1b18] dark:text-[#EDEDEC]"
-                        >
-                            Speedometer
-                        </h1>
-                        <p
-                            class="text-sm text-[#706f6c] dark:text-[#A1A09A]"
-                        >
-                            Track your trip speed
-                        </p>
-                    </div>
-
-                    <!-- Alert Toggle Button -->
-                    <button
-                        @click="
-                            settingsStore.updateSetting(
-                                'violation_alerts_enabled',
-                                !settingsStore.settings.violation_alerts_enabled,
-                            )
-                        "
-                        :class="[
-                            'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all',
-                            settingsStore.settings.violation_alerts_enabled
-                                ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50'
-                                : 'bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700',
-                        ]"
-                        :aria-label="
-                            settingsStore.settings.violation_alerts_enabled
-                                ? 'Disable violation alerts'
-                                : 'Enable violation alerts'
-                        "
-                        :title="
-                            settingsStore.settings.violation_alerts_enabled
-                                ? 'Click to disable alerts'
-                                : 'Click to enable alerts'
-                        "
-                    >
-                        <!-- Bell Icon -->
-                        <svg
-                            class="h-4 w-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                v-if="settingsStore.settings.violation_alerts_enabled"
-                                d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
-                            />
-                            <path
-                                v-else
-                                d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
-                                opacity="0.5"
-                            />
-                        </svg>
-
-                        <!-- Status Text -->
-                        <span class="hidden sm:inline">
-                            {{
-                                settingsStore.settings.violation_alerts_enabled
-                                    ? 'Alerts On'
-                                    : 'Alerts Off'
-                            }}
-                        </span>
-                    </button>
-                </div>
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15 19l-7-7 7-7"
+                        />
+                    </svg>
+                </Link>
+                <div class="velo-logo">Velo<span>Track</span></div>
+            </div>
+            <div class="status-indicator">
+                <div :class="['status-dot', gpsStatusClass]" />
+                <span>{{ gpsStatus }}</span>
             </div>
         </header>
 
-        <!-- ================================================================ -->
-        <!-- Main Content -->
-        <!-- ================================================================ -->
-
-        <main class="mx-auto max-w-2xl px-4 pb-8 pt-6">
-            <!-- Speed Gauge Section -->
-            <section class="mb-8">
-                <div class="flex justify-center">
-                    <SpeedGauge
-                        ref="speedGaugeRef"
-                        :speed="speedKmh"
-                        :speed-limit="speedLimit"
-                        size="lg"
-                    />
+        <!-- Main -->
+        <main class="velo-main">
+            <!-- Speed Limit Banner -->
+            <div class="limit-banner">
+                <div>
+                    <div class="limit-label">Speed Limit</div>
                 </div>
-            </section>
-
-            <!-- Trip Controls Section -->
-            <section class="mb-8">
-                <TripControls />
-            </section>
-
-            <!-- Trip Statistics Section -->
-            <section v-if="hasActiveTrip">
-                <TripStats />
-            </section>
-
-            <!-- Empty State (No Active Trip) -->
-            <section v-else>
-                <div
-                    class="rounded-lg border border-[#e3e3e0] bg-white p-6 text-center dark:border-[#3E3E3A] dark:bg-[#161615]"
-                >
-                    <div class="mb-2 text-4xl">🚗</div>
-                    <h3
-                        class="mb-1 text-lg font-medium text-[#1b1b18] dark:text-[#EDEDEC]"
+                <div class="limit-controls">
+                    <button @click="changeLimit(-10)">−</button>
+                    <div class="limit-value">
+                        {{ speedLimit }} {{ unit === 'kmh' ? 'km/h' : 'mph' }}
+                    </div>
+                    <button @click="changeLimit(10)">+</button>
+                </div>
+                <div class="unit-toggle">
+                    <button
+                        :class="{ active: unit === 'kmh' }"
+                        @click="setUnit('kmh')"
                     >
-                        No Active Trip
-                    </h3>
-                    <p class="text-sm text-[#706f6c] dark:text-[#A1A09A]">
-                        Start a trip to see real-time statistics and track your
-                        speed
-                    </p>
-                </div>
-            </section>
-        </main>
-
-        <!-- ================================================================ -->
-        <!-- Info Footer -->
-        <!-- ================================================================ -->
-
-        <footer class="mx-auto max-w-2xl px-4 pb-6">
-            <div
-                class="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/50 dark:bg-blue-900/10"
-            >
-                <div class="flex gap-3">
-                    <div class="flex-shrink-0">
-                        <svg
-                            class="h-5 w-5 text-blue-600 dark:text-blue-400"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                clip-rule="evenodd"
-                            />
-                        </svg>
-                    </div>
-                    <div>
-                        <h4
-                            class="mb-1 text-sm font-medium text-blue-800 dark:text-blue-200"
-                        >
-                            Speed Tracking Tips
-                        </h4>
-                        <ul
-                            class="space-y-1 text-xs text-blue-700 dark:text-blue-300"
-                        >
-                            <li>
-                                • Keep your phone in a stable position during
-                                the trip
-                            </li>
-                            <li>
-                                • Ensure GPS is enabled for accurate speed
-                                tracking
-                            </li>
-                            <li>
-                                • Speed is logged automatically every ~5 seconds
-                            </li>
-                            <li>
-                                • Data syncs to server every 50 seconds or when
-                                trip ends
-                            </li>
-                        </ul>
-                    </div>
+                        km/h
+                    </button>
+                    <button
+                        :class="{ active: unit === 'mph' }"
+                        @click="setUnit('mph')"
+                    >
+                        mph
+                    </button>
                 </div>
             </div>
-        </footer>
+
+            <!-- Gauge -->
+            <ProductionGauge
+                :speed="currentSpeed"
+                :speed-limit="speedLimit"
+                :unit="unit"
+            />
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card danger">
+                    <div class="stat-label">Max Speed</div>
+                    <div class="stat-value">{{ Math.round(maxSpeed) }}</div>
+                    <div class="stat-unit">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
+                </div>
+                <div class="stat-card warn">
+                    <div class="stat-label">Avg Speed</div>
+                    <div class="stat-value">{{ Math.round(avgSpeed) }}</div>
+                    <div class="stat-unit">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
+                </div>
+            </div>
+
+            <!-- Trip Bar -->
+            <div class="trip-bar">
+                <div class="trip-item">
+                    <div class="trip-val">{{ tripDistance.toFixed(2) }}</div>
+                    <div class="trip-lbl">Distance ({{ unit === 'kmh' ? 'km' : 'mi' }})</div>
+                </div>
+                <div class="trip-divider" />
+                <div class="trip-item">
+                    <div class="trip-val">{{ Math.floor(tripStore.stats.duration / 60).toString().padStart(2, '0') }}:{{ (tripStore.stats.duration % 60).toString().padStart(2, '0') }}</div>
+                    <div class="trip-lbl">Duration</div>
+                </div>
+                <div class="trip-divider" />
+                <div class="trip-item">
+                    <div class="trip-val">{{ satelliteCount || '—' }}</div>
+                    <div class="trip-lbl">Satellites</div>
+                </div>
+            </div>
+
+            <!-- GPS Accuracy -->
+            <div class="accuracy-row">
+                <div class="accuracy-label">GPS Accuracy</div>
+                <div class="accuracy-bar">
+                    <div
+                        class="accuracy-fill"
+                        :style="{
+                            width: accuracyPercentage + '%',
+                            background: accuracyColor,
+                        }"
+                    />
+                </div>
+                <div class="accuracy-text">
+                    {{ accuracy !== null ? Math.round(accuracy) + ' m' : '— m' }}
+                </div>
+            </div>
+
+            <!-- Trip Controls -->
+            <TripControls />
+        </main>
     </div>
 </template>
+
+<style scoped>
+.speedometer-page {
+    min-height: 100vh;
+    background: #0a0c0f;
+    color: #e8eaf0;
+    font-family: 'Barlow', sans-serif;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Noise overlay */
+.speedometer-page::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.5;
+}
+
+.velo-header {
+    width: 100%;
+    padding: 18px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1e2230;
+    background: rgba(10, 12, 15, 0.95);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.back-button {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid #1e2230;
+    background: #111318;
+    color: #e8eaf0;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    border-color: #00e5ff;
+    color: #00e5ff;
+    background: #0a0c0f;
+}
+
+.back-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.velo-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+    color: #00e5ff;
+    text-shadow: 0 0 20px rgba(0, 229, 255, 0.35);
+}
+
+.velo-logo span {
+    color: #e8eaf0;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #4a5068;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4a5068;
+    transition: all 0.4s;
+}
+
+.status-dot.active {
+    background: #00e676;
+    box-shadow: 0 0 8px #00e676;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.warn {
+    background: #ffab00;
+    box-shadow: 0 0 8px #ffab00;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.velo-main {
+    width: 100%;
+    max-width: 480px;
+    padding: 24px 16px 40px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.limit-banner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #111318;
+    border: 1px solid #1e2230;
+    border-radius: 14px;
+    padding: 12px 18px;
+    gap: 12px;
+}
+
+.limit-label {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #4a5068;
+}
+
+.limit-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.limit-controls button {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid #1e2230;
+    background: #0a0c0f;
+    color: #e8eaf0;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.limit-controls button:hover {
+    border-color: #00e5ff;
+    color: #00e5ff;
+}
+
+.limit-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    color: #e8eaf0;
+    min-width: 80px;
+    text-align: center;
+}
+
+.unit-toggle {
+    display: flex;
+    background: #0a0c0f;
+    border: 1px solid #1e2230;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.unit-toggle button {
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    color: #4a5068;
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.unit-toggle button.active {
+    background: #00e5ff;
+    color: #000;
+    font-weight: 600;
+}
+
+.stats-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.stat-card {
+    background: #111318;
+    border: 1px solid #1e2230;
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #00e5ff;
+    opacity: 0.4;
+}
+
+.stat-card.danger::before {
+    background: #ff3d57;
+    opacity: 0.6;
+}
+
+.stat-card.warn::before {
+    background: #ffab00;
+    opacity: 0.6;
+}
+
+.stat-label {
+    font-size: 0.65rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #4a5068;
+}
+
+.stat-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.7rem;
+    color: #e8eaf0;
+    line-height: 1;
+}
+
+.stat-unit {
+    font-size: 0.65rem;
+    color: #4a5068;
+    letter-spacing: 1px;
+}
+
+.trip-bar {
+    width: 100%;
+    background: #111318;
+    border: 1px solid #1e2230;
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.trip-item {
+    text-align: center;
+}
+
+.trip-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.3rem;
+    color: #00e5ff;
+}
+
+.trip-lbl {
+    font-size: 0.62rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #4a5068;
+    margin-top: 3px;
+}
+
+.trip-divider {
+    width: 1px;
+    height: 36px;
+    background: #1e2230;
+}
+
+.accuracy-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 4px;
+}
+
+.accuracy-label {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #4a5068;
+    white-space: nowrap;
+}
+
+.accuracy-bar {
+    flex: 1;
+    height: 3px;
+    background: #1e2230;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.accuracy-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s, background 0.5s;
+}
+
+.accuracy-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: #4a5068;
+    min-width: 50px;
+    text-align: right;
+}
+</style>

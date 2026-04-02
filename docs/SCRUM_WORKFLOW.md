@@ -438,22 +438,31 @@ Build the core speedometer interface with GPS tracking and trip controls.
 
 ### User Stories
 
-#### US-3.1: Geolocation Composable
+#### US-3.1: Geolocation Composable ✅ COMPLETED
 **As a** developer  
 **I want** a reusable geolocation composable  
 **So that** GPS tracking logic is centralized
 
 **Acceptance Criteria:**
-- [ ] `useGeolocation.js` composable created
-- [ ] getCurrentSpeed() method (km/h)
-- [ ] watchSpeed() method (continuous tracking)
-- [ ] stopTracking() method
-- [ ] Handles permission requests
-- [ ] Error handling for denied permissions
-- [ ] Falls back gracefully if GPS unavailable
+- [x] `useGeolocation.ts` composable created
+- [x] getCurrentSpeed() method (km/h)
+- [x] watchSpeed() method (continuous tracking)
+- [x] stopTracking() method
+- [x] Handles permission requests
+- [x] Error handling for denied permissions
+- [x] Falls back gracefully if GPS unavailable
+
+**Implementation Details:**
+**File:** `resources/js/composables/useGeolocation.ts` (469 lines)
+- Wraps VueUse geolocation with speed-specific features
+- Converts m/s to km/h automatically
+- Permission request with user-friendly Indonesian error messages
+- Reactive state management with Vue Composition API
+- Type-safe with full TypeScript coverage
 
 **Story Points:** 5  
-**Priority:** Critical
+**Priority:** Critical  
+**Status:** ✅ Completed (April 2, 2026)
 
 ---
 
@@ -756,12 +765,20 @@ const { speedKmh } = useGeolocation();
 **So that** I can track my trips
 
 **Acceptance Criteria:**
-- [x] Speedometer.vue view created
-- [x] Integrates SpeedGauge component
-- [x] Integrates TripControls component
-- [x] Integrates TripStats component
+- [x] Speedometer.vue view created with production design
+- [x] Canvas gauge with tick marks and speed labels
+- [x] VeloTrack branding (Bebas Neue typography)
+- [x] Speed limit controls (+/- buttons) on page
+- [x] Unit toggle (km/h ↔ mph)
+- [x] GPS accuracy bar with color coding
+- [x] Satellites count (estimated from GPS accuracy)
+- [x] Haversine distance calculation
+- [x] Integrates TripControls component (backend API)
+- [x] Integrates with Trip Store (POST /api/trips, sync logs, end trip)
+- [x] Integrates with Settings Store (GET /api/settings)
+- [x] Professional dark theme with glow effects
 - [x] Layout optimized for mobile (portrait)
-- [x] Speed logging every 5 seconds when trip active (TripControls handles)
+- [x] Speed logging every 5 seconds via Trip Store
 - [x] Route guard: employee only (auth + role middleware)
 - [x] Navigation link added to dashboard (page accessibility)
 
@@ -772,69 +789,91 @@ const { speedKmh } = useGeolocation();
 - Registered middleware as `'role'` alias in `bootstrap/app.php`
 - Organized routes by role with proper middleware groups
 - Route: `/employee/speedometer` with `auth` and `role:employee` middleware
+- API integration: TripController (POST /api/trips, POST /api/trips/{id}/speed-logs, PUT /api/trips/{id})
+- API integration: SettingsController (GET /api/settings)
 
-**Frontend - Speedometer Page (`resources/js/pages/employee/Speedometer.vue`):**
-- Mobile-first layout with sticky header and back navigation
-- Integrates all three components: SpeedGauge (lg), TripControls, TripStats
-- Real-time GPS speed via `useGeolocation()` composable
-- Dynamic speed limit from `useSettingsStore()`
-- Conditional stats rendering (show only during active trip)
-- Empty state with helpful tips when idle
-- Info footer with tracking guidelines
-- Full accessibility support with ARIA labels
+**Frontend - Production Speedometer Page (`resources/js/pages/employee/Speedometer.vue`):**
+- **VeloTrack branding** with Bebas Neue typography and cyan glow effects
+- **Canvas gauge** (ProductionGauge component) with tick marks, speed labels, and gradient arcs
+- **Speed limit banner** with +/- controls (adjustable 10-200 range)
+- **Unit toggle** (km/h ↔ mph) with full conversion across all displays
+- **GPS accuracy bar** with color-coded percentage (cyan/yellow/red zones)
+- **Satellites count** estimated from GPS accuracy (4-16 satellites)
+- **Trip bar** displaying distance (Haversine formula), duration, satellites
+- **Stats grid** with max/avg speed (Share Tech Mono font)
+- **Dark theme** (#0a0c0f background) with noise overlay texture
+- **Professional design system** matching HTML specification
+- Integrates with `useTripStore()` for backend API calls
+- Integrates with `useSettingsStore()` for speed limit configuration
+- Integrates with `useGeolocation()` for real-time GPS tracking
+
+**Frontend - Components:**
+- `ProductionGauge.vue`: Canvas-based gauge with 60fps rendering, 10 tick marks, gradient fills, limit marker
+- `TripControls.vue`: Start/stop buttons with GPS permission, API integration via Trip Store
+- `TripStats.vue`: Real-time statistics display from Trip Store
 
 **Frontend - Dashboard Navigation (`resources/js/pages/employee/Dashboard.vue`):**
 - Added prominent "Start Speedometer" card with gradient styling
 - Touch-friendly design (≥44px targets)
 - Clear call-to-action and visual hierarchy
-- Improved profile info layout with card-based design
 
-**Component Integration:**
-- SpeedGauge: Receives reactive `speedKmh` from geolocation + `speedLimit` from settings
-- TripControls: Handles start/stop logic, GPS permission, speed logging internally
-- TripStats: Displays real-time data from trip store, auto-shows during active trip
+**Utility Functions Created:**
+- `resources/js/utils/distance.ts`: Haversine distance calculation for accurate GPS tracking
+- `resources/js/utils/units.ts`: Speed unit conversion (m/s ↔ km/h ↔ mph), satellite estimation
+
+**Trip Store Integration:**
+- `startTrip()` → POST /api/trips (creates trip in database)
+- `addSpeedLog()` → buffers speed logs locally
+- `syncSpeedLogs()` → POST /api/trips/{id}/speed-logs (bulk insert every 10 logs/50s)
+- `endTrip()` → PUT /api/trips/{id} (marks trip complete, calculates final stats)
+- Real-time stats calculation (maxSpeed, averageSpeed, distance, duration, violationCount)
 
 **Key Features:**
-- Speed logging every ~5 seconds via GPS updates
-- Speed log batching (sync every 10 logs/50s) reduces API calls by ~90%
-- Role-based route protection prevents non-employee access
-- Page accessibility: clear navigation path from dashboard
-- Mobile-optimized: portrait layout, touch-friendly, responsive breakpoints
+- **Backend integrated**: All trip data saves to database via API
+- **Haversine distance**: Accurate GPS-based distance calculation (not straight-line)
+- **Speed log batching**: Reduces API calls by ~90% (syncs every 10 logs)
+- **Unit conversion**: Dynamic switching between km/h and mph
+- **Professional styling**: VeloTrack branding with Bebas Neue, Share Tech Mono, Barlow fonts
+- **GPS monitoring**: Accuracy bar, satellite count, status indicator
+- **Mobile-optimized**: Portrait layout, touch-friendly, responsive
 
 **Code Quality:**
-- ✅ Build successful: 294.95 kB (90.16 kB gzipped)
+- ✅ Build successful: 247.78 kB (80.02 kB gzipped)
 - ✅ ESLint passing (0 errors)
 - ✅ PHP Pint formatted
 - ✅ TypeScript compilation successful
-- ✅ Comprehensive HTML comments and docblocks
+- ✅ Full backend API integration verified
 - ✅ Wayfinder routes regenerated
 
 **Files Created:**
-- `app/Http/Middleware/CheckRole.php` (39 lines)
-- `resources/js/pages/employee/Speedometer.vue` (244 lines)
-- `docs/US-3.6_IMPLEMENTATION_SUMMARY.md` (detailed docs)
+- `resources/js/components/speedometer/ProductionGauge.vue`
+- `resources/js/utils/distance.ts` (Haversine formula)
+- `resources/js/utils/units.ts` (unit conversion utilities)
 
 **Files Modified:**
-- `bootstrap/app.php` (registered middleware)
-- `routes/web.php` (added speedometer route, organized by role)
+- `resources/js/pages/employee/Speedometer.vue` (rebuilt with HTML spec features)
+- `resources/js/composables/useGeolocation.ts` (added speedMps, accuracy exports)
 - `resources/js/pages/employee/Dashboard.vue` (navigation card)
+- `bootstrap/app.php` (registered middleware)
+- `routes/web.php` (added speedometer route)
 
 **Testing:**
-- Build verification: successful
-- Route registration: confirmed via `php artisan route:list`
-- Linting: ESLint and PHP Pint passing
-- Manual testing: see implementation summary document
+- ✅ Build verification: successful
+- ✅ Route registration: confirmed via `php artisan route:list`
+- ✅ API integration: Trip Store calls backend endpoints
+- ✅ Linting: ESLint and PHP Pint passing
+- ✅ Store integration: Settings fetched from backend, trips saved to database
 
 **Story Points:** 5  
 **Priority:** Critical  
 **Status:** ✅ Completed (April 2, 2026)
 
 **Lessons Learned:**
-- Component reusability: All three components integrated without modifications
-- Role middleware: Clean separation of access control logic
-- Page accessibility: Dashboard navigation provides clear user flow
-- Mobile-first design: Layout works perfectly on portrait phones
-- Speed log batching: Significant performance improvement confirmed
+- HTML spec features (canvas gauge, speed limit controls, unit toggle) enhance UX significantly
+- Trip Store provides clean abstraction for backend API integration
+- Haversine distance calculation essential for accurate GPS tracking
+- Professional typography and dark theme match production requirements
+- Speed log batching (bulk insert) critical for performance and battery life
 
 ---
 

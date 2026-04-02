@@ -49,27 +49,12 @@ export function useAuth() {
      */
     const handleLogout = async (): Promise<void> => {
         return new Promise((resolve) => {
-            // Use Inertia router with Wayfinder route object
-            // Wayfinder provides type-safe route generation from Laravel routes
-            router.post(
-                logoutAction(),
-                {},
-                {
-                    preserveScroll: true,
-                    headers: {
-                        Authorization: `Bearer ${authStore.token}`,
-                    },
-                    onFinish: () => {
-                        // Clear auth state from store and localStorage
-                        authStore.logout();
-
-                        // Redirect to login page
-                        router.visit('/login');
-
-                        resolve();
-                    },
+            router.post('/logout', {}, {
+                onFinish: () => {
+                    authStore.logout();
+                    resolve();
                 },
-            );
+            });
         });
     };
 

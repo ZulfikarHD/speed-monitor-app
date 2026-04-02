@@ -151,6 +151,23 @@ export function useGeolocation() {
     });
 
     /**
+     * Current speed in meters per second (raw from GPS).
+     */
+    const speedMps = computed<number>(() => {
+        if (!coords.value.speed || coords.value.speed < 0) {
+            return 0;
+        }
+        return coords.value.speed;
+    });
+
+    /**
+     * GPS accuracy in meters.
+     */
+    const accuracy = computed<number | null>(() => {
+        return coords.value.accuracy ?? null;
+    });
+
+    /**
      * Complete geolocation state object.
      *
      * Combines all GPS data, tracking status, and error information
@@ -464,5 +481,8 @@ export function useGeolocation() {
 
         // Computed Values
         speedKmh,
+        speedMps,
+        accuracy,
+        coords,
     };
 }

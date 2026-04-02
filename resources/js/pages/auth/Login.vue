@@ -26,99 +26,16 @@
  * @see {@link https://laravel.com/docs/wayfinder Wayfinder Documentation}
  */
 
-import { Head, router, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 
-import { login as loginAction } from '@/actions/App/Http/Controllers/Auth/AuthController';
-import { useAuthStore } from '@/stores/auth';
-
-const authStore = useAuthStore();
-
-// Inertia form state with Wayfinder integration
-// useForm provides reactive form data, processing state, and error handling
+// Inertia useForm - the proper way
 const form = useForm({
     email: '',
     password: '',
 });
 
-// Client-side validation errors (separate from backend errors)
-// These are cleared when user types to provide immediate feedback
-const clientErrors = {
-    email: '',
-    password: '',
-};
-
-/**
- * Validate form inputs before submission.
- *
- * Checks email format and password length requirements.
- * Updates clientErrors object with validation messages.
- *
- * @returns True if all fields are valid, false otherwise
- */
-const validateForm = (): boolean => {
-    clientErrors.email = '';
-    clientErrors.password = '';
-
-    if (!form.email) {
-        clientErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-        clientErrors.email = 'Please enter a valid email address';
-    }
-
-    if (!form.password) {
-        clientErrors.password = 'Password is required';
-    } else if (form.password.length < 8) {
-        clientErrors.password = 'Password must be at least 8 characters';
-    }
-
-    return !clientErrors.email && !clientErrors.password;
-};
-
-/**
- * Handle form submission.
- *
- * Validates form inputs, then submits to backend using Wayfinder route object.
- * On success, stores user data and token in auth store (persisted to localStorage),
- * then redirects to appropriate dashboard based on user role.
- *
- * Wayfinder Integration:
- * - loginAction() returns route object: { url: '/api/auth/login', method: 'post' }
- * - form.submit() uses this object for type-safe Inertia form submission
- * - Backend returns user data + token as Inertia props
- *
- * @returns void
- */
 const handleSubmit = (): void => {
-    // Step 1: Validate client-side before sending request
-    if (!validateForm()) {
-        return;
-    }
-
-    // Step 2: Submit form using Wayfinder route object
-    // Wayfinder provides type-safe route generation from Laravel routes
-    form.submit(loginAction(), {
-        preserveScroll: true,
-        onSuccess: (page) => {
-            const responseData = page.props as any;
-
-            if (responseData.user && responseData.token) {
-                // Step 3: Store user data and token in auth store
-                // This persists to localStorage for session recovery
-                authStore.login(responseData.user, responseData.token);
-
-                // Step 4: Redirect to role-based dashboard
-                const role = responseData.user.role;
-                const redirectUrl =
-                    role === 'admin'
-                        ? '/admin/dashboard'
-                        : role === 'supervisor'
-                          ? '/supervisor/dashboard'
-                          : '/employee/dashboard';
-
-                router.visit(redirectUrl);
-            }
-        },
-    });
+    form.post('/login');
 };
 </script>
 
@@ -141,14 +58,13 @@ const handleSubmit = (): void => {
                     </p>
                 </div>
 
-                <!-- Wayfinder + Inertia useForm -->
                 <form @submit.prevent="handleSubmit" class="space-y-4">
                     <!-- Backend Error Message -->
                     <div
-                        v-if="form.errors.email || form.errors.password"
+                        v-if="form.errors.email"
                         class="rounded-lg bg-red-50 p-3 text-sm text-red-800 dark:bg-red-900/20 dark:text-red-200"
                     >
-                        {{ form.errors.email || form.errors.password }}
+                        {{ form.errors.email }}
                     </div>
 
                     <!-- Email Input -->
@@ -168,17 +84,10 @@ const handleSubmit = (): void => {
                             class="w-full rounded-lg border border-[#e3e3e0] bg-white px-4 py-2.5 text-sm transition-colors focus:border-[#1b1b18] focus:ring-2 focus:ring-[#1b1b18]/10 focus:outline-none dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/10"
                             :class="{
                                 'border-red-500 focus:border-red-500 focus:ring-red-500/10':
-                                    clientErrors.email || form.errors.email,
+                                    form.errors.email,
                             }"
                             :disabled="form.processing"
-                            @input="clientErrors.email = ''"
                         />
-                        <p
-                            v-if="clientErrors.email"
-                            class="mt-1.5 text-sm text-red-600 dark:text-red-400"
-                        >
-                            {{ clientErrors.email }}
-                        </p>
                     </div>
 
                     <!-- Password Input -->
@@ -198,18 +107,10 @@ const handleSubmit = (): void => {
                             class="w-full rounded-lg border border-[#e3e3e0] bg-white px-4 py-2.5 text-sm transition-colors focus:border-[#1b1b18] focus:ring-2 focus:ring-[#1b1b18]/10 focus:outline-none dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/10"
                             :class="{
                                 'border-red-500 focus:border-red-500 focus:ring-red-500/10':
-                                    clientErrors.password ||
                                     form.errors.password,
                             }"
                             :disabled="form.processing"
-                            @input="clientErrors.password = ''"
                         />
-                        <p
-                            v-if="clientErrors.password"
-                            class="mt-1.5 text-sm text-red-600 dark:text-red-400"
-                        >
-                            {{ clientErrors.password }}
-                        </p>
                     </div>
 
                     <!-- Submit Button -->
