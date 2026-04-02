@@ -234,3 +234,94 @@ export interface GaugeAnimationConfig {
      */
     easing: 'linear' | 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out';
 }
+
+/**
+ * Props interface for TripStats component.
+ *
+ * Defines configurable properties for the trip statistics display,
+ * including layout and presentation options.
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ * import type { TripStatsProps } from '@/types/speedometer';
+ *
+ * const props: TripStatsProps = {
+ *   compact: false
+ * };
+ * </script>
+ * ```
+ */
+export interface TripStatsProps {
+    /**
+     * Enable compact mode with smaller padding and text.
+     *
+     * WHY: Allows flexible sizing for different layout contexts.
+     * WHY: Compact mode useful for sidebar or dashboard widgets.
+     *
+     * Default: false (full size mode)
+     */
+    compact?: boolean;
+}
+
+/**
+ * Formatted trip statistics for display.
+ *
+ * Provides pre-formatted strings for all trip metrics with proper
+ * units and precision. Used internally by TripStats component.
+ *
+ * @example
+ * ```ts
+ * const formatted: FormattedTripStats = {
+ *   currentSpeed: "45.0 km/h",
+ *   maxSpeed: "65.0 km/h",
+ *   averageSpeed: "52.3 km/h",
+ *   distance: "12.50 km",
+ *   duration: "30:45",
+ *   violationCount: 3
+ * };
+ * ```
+ */
+export interface FormattedTripStats {
+    /**
+     * Current speed with unit.
+     *
+     * Format: "XX.X km/h" (1 decimal place)
+     */
+    currentSpeed: string;
+
+    /**
+     * Maximum speed recorded with unit.
+     *
+     * Format: "XX.X km/h" (1 decimal place)
+     */
+    maxSpeed: string;
+
+    /**
+     * Average speed with unit.
+     *
+     * Format: "XX.X km/h" (1 decimal place)
+     */
+    averageSpeed: string;
+
+    /**
+     * Total distance traveled with unit.
+     *
+     * Format: "XX.XX km" (2 decimal places)
+     */
+    distance: string;
+
+    /**
+     * Trip duration formatted as time.
+     *
+     * Format: "MM:SS" or "HH:MM:SS" (includes hours if ≥1 hour)
+     */
+    duration: string;
+
+    /**
+     * Number of speed limit violations.
+     *
+     * Raw count (not formatted)
+     */
+    violationCount: number;
+}

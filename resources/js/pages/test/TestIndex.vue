@@ -49,6 +49,14 @@ const testPages = computed<TestPage[]>(() => [
         sprint: 'Sprint 3',
         userStory: 'US-3.4',
     },
+    {
+        title: 'TripStats Demo',
+        description: 'Real-time trip statistics display with mock data controls. Test all 6 metrics, formatting, responsive design, and integration with trip store.',
+        route: '/test/trip-stats-demo',
+        status: 'completed',
+        sprint: 'Sprint 3',
+        userStory: 'US-3.5',
+    },
 ]);
 
 /**
@@ -224,15 +232,15 @@ function getStatusIcon(status: TestPage['status']): string {
                 <ul class="space-y-2 text-sm text-gray-700">
                     <li class="flex items-start">
                         <span class="text-yellow-600 mr-2">→</span>
-                        <span><strong>US-3.5:</strong> TripStats Component - Display real-time trip statistics (max speed, avg speed, distance, violations)</span>
-                    </li>
-                    <li class="flex items-start">
-                        <span class="text-gray-400 mr-2">→</span>
-                        <span><strong>US-3.6:</strong> Speedometer Page Integration - Combine SpeedGauge, TripControls, and TripStats into full page</span>
+                        <span><strong>US-3.6:</strong> Speedometer Page Integration - Combine SpeedGauge, TripControls, and TripStats into full employee page</span>
                     </li>
                     <li class="flex items-start">
                         <span class="text-gray-400 mr-2">→</span>
                         <span><strong>US-3.7:</strong> Speed Limit Violation Alerts - Browser notifications, audio alerts, visual indicators</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-gray-400 mr-2">→</span>
+                        <span><strong>US-4.1:</strong> My Trips List Page - View past trips with filters and pagination</span>
                     </li>
                 </ul>
             </div>
