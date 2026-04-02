@@ -44,39 +44,108 @@ const { handleLogout, isLoading } = useAuth();
                     </button>
                 </div>
 
+                <!-- Quick Actions -->
+                <div class="mb-6">
+                    <h2
+                        class="mb-4 text-lg font-medium text-[#1b1b18] dark:text-[#EDEDEC]"
+                    >
+                        Quick Actions
+                    </h2>
+
+                    <Link
+                        href="/employee/speedometer"
+                        class="block rounded-lg border border-[#e3e3e0] bg-gradient-to-br from-blue-50 to-indigo-50 p-6 transition-all hover:scale-[1.02] hover:shadow-md dark:border-[#3E3E3A] dark:from-blue-900/20 dark:to-indigo-900/20"
+                    >
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-blue-500 text-3xl dark:bg-blue-600"
+                            >
+                                🚗
+                            </div>
+                            <div class="flex-1">
+                                <h3
+                                    class="mb-1 text-lg font-semibold text-[#1b1b18] dark:text-[#EDEDEC]"
+                                >
+                                    Start Speedometer
+                                </h3>
+                                <p
+                                    class="text-sm text-[#706f6c] dark:text-[#A1A09A]"
+                                >
+                                    Track your trip speed and distance in
+                                    real-time
+                                </p>
+                            </div>
+                            <div>
+                                <svg
+                                    class="h-6 w-6 text-blue-500 dark:text-blue-400"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M9 5l7 7-7 7"
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+                    </Link>
+                </div>
+
+                <!-- Profile Info -->
                 <div
                     class="rounded-lg border border-[#e3e3e0] bg-[#FDFDFC] p-6 dark:border-[#3E3E3A] dark:bg-[#0a0a0a]"
                 >
-                    <div class="mb-4">
-                        <h2 class="mb-2 text-lg font-medium">Your Profile</h2>
-                        <div class="space-y-2 text-sm">
-                            <p>
-                                <span class="font-medium">Name:</span>
-                                {{ authStore.user?.name }}
-                            </p>
-                            <p>
-                                <span class="font-medium">Email:</span>
-                                {{ authStore.user?.email }}
-                            </p>
-                            <p>
-                                <span class="font-medium">Role:</span>
-                                <span
-                                    class="ml-1 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/20 dark:text-blue-200"
-                                >
-                                    {{ authStore.user?.role }}
-                                </span>
-                            </p>
-                        </div>
-                    </div>
-
-                    <div
-                        class="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/50 dark:bg-blue-900/10"
+                    <h2
+                        class="mb-4 text-lg font-medium text-[#1b1b18] dark:text-[#EDEDEC]"
                     >
-                        <p class="text-sm text-blue-800 dark:text-blue-200">
-                            This is a placeholder dashboard. The speedometer and
-                            trip tracking features will be implemented in Sprint
-                            3.
-                        </p>
+                        Your Profile
+                    </h2>
+                    <div class="space-y-3 text-sm">
+                        <div
+                            class="flex items-center justify-between rounded-lg border border-[#e3e3e0] bg-white p-3 dark:border-[#3E3E3A] dark:bg-[#161615]"
+                        >
+                            <span
+                                class="font-medium text-[#706f6c] dark:text-[#A1A09A]"
+                            >
+                                Name
+                            </span>
+                            <span
+                                class="text-[#1b1b18] dark:text-[#EDEDEC]"
+                            >
+                                {{ authStore.user?.name }}
+                            </span>
+                        </div>
+                        <div
+                            class="flex items-center justify-between rounded-lg border border-[#e3e3e0] bg-white p-3 dark:border-[#3E3E3A] dark:bg-[#161615]"
+                        >
+                            <span
+                                class="font-medium text-[#706f6c] dark:text-[#A1A09A]"
+                            >
+                                Email
+                            </span>
+                            <span
+                                class="text-[#1b1b18] dark:text-[#EDEDEC]"
+                            >
+                                {{ authStore.user?.email }}
+                            </span>
+                        </div>
+                        <div
+                            class="flex items-center justify-between rounded-lg border border-[#e3e3e0] bg-white p-3 dark:border-[#3E3E3A] dark:bg-[#161615]"
+                        >
+                            <span
+                                class="font-medium text-[#706f6c] dark:text-[#A1A09A]"
+                            >
+                                Role
+                            </span>
+                            <span
+                                class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/20 dark:text-blue-200"
+                            >
+                                {{ authStore.user?.role }}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

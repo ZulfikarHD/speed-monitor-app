@@ -750,22 +750,91 @@ const { speedKmh } = useGeolocation();
 
 ---
 
-#### US-3.6: Speedometer Page Integration
+#### US-3.6: Speedometer Page Integration ✅ COMPLETED
 **As a** employee  
 **I want** a complete speedometer page  
 **So that** I can track my trips
 
 **Acceptance Criteria:**
-- [ ] Speedometer.vue view created
-- [ ] Integrates SpeedGauge component
-- [ ] Integrates TripControls component
-- [ ] Integrates TripStats component
-- [ ] Layout optimized for mobile (portrait)
-- [ ] Speed logging every 5 seconds when trip active
-- [ ] Route guard: employee only
+- [x] Speedometer.vue view created
+- [x] Integrates SpeedGauge component
+- [x] Integrates TripControls component
+- [x] Integrates TripStats component
+- [x] Layout optimized for mobile (portrait)
+- [x] Speed logging every 5 seconds when trip active (TripControls handles)
+- [x] Route guard: employee only (auth + role middleware)
+- [x] Navigation link added to dashboard (page accessibility)
+
+**Implementation Details:**
+
+**Backend:**
+- Created `CheckRole` middleware for role-based access control
+- Registered middleware as `'role'` alias in `bootstrap/app.php`
+- Organized routes by role with proper middleware groups
+- Route: `/employee/speedometer` with `auth` and `role:employee` middleware
+
+**Frontend - Speedometer Page (`resources/js/pages/employee/Speedometer.vue`):**
+- Mobile-first layout with sticky header and back navigation
+- Integrates all three components: SpeedGauge (lg), TripControls, TripStats
+- Real-time GPS speed via `useGeolocation()` composable
+- Dynamic speed limit from `useSettingsStore()`
+- Conditional stats rendering (show only during active trip)
+- Empty state with helpful tips when idle
+- Info footer with tracking guidelines
+- Full accessibility support with ARIA labels
+
+**Frontend - Dashboard Navigation (`resources/js/pages/employee/Dashboard.vue`):**
+- Added prominent "Start Speedometer" card with gradient styling
+- Touch-friendly design (≥44px targets)
+- Clear call-to-action and visual hierarchy
+- Improved profile info layout with card-based design
+
+**Component Integration:**
+- SpeedGauge: Receives reactive `speedKmh` from geolocation + `speedLimit` from settings
+- TripControls: Handles start/stop logic, GPS permission, speed logging internally
+- TripStats: Displays real-time data from trip store, auto-shows during active trip
+
+**Key Features:**
+- Speed logging every ~5 seconds via GPS updates
+- Speed log batching (sync every 10 logs/50s) reduces API calls by ~90%
+- Role-based route protection prevents non-employee access
+- Page accessibility: clear navigation path from dashboard
+- Mobile-optimized: portrait layout, touch-friendly, responsive breakpoints
+
+**Code Quality:**
+- ✅ Build successful: 294.95 kB (90.16 kB gzipped)
+- ✅ ESLint passing (0 errors)
+- ✅ PHP Pint formatted
+- ✅ TypeScript compilation successful
+- ✅ Comprehensive HTML comments and docblocks
+- ✅ Wayfinder routes regenerated
+
+**Files Created:**
+- `app/Http/Middleware/CheckRole.php` (39 lines)
+- `resources/js/pages/employee/Speedometer.vue` (244 lines)
+- `docs/US-3.6_IMPLEMENTATION_SUMMARY.md` (detailed docs)
+
+**Files Modified:**
+- `bootstrap/app.php` (registered middleware)
+- `routes/web.php` (added speedometer route, organized by role)
+- `resources/js/pages/employee/Dashboard.vue` (navigation card)
+
+**Testing:**
+- Build verification: successful
+- Route registration: confirmed via `php artisan route:list`
+- Linting: ESLint and PHP Pint passing
+- Manual testing: see implementation summary document
 
 **Story Points:** 5  
-**Priority:** Critical
+**Priority:** Critical  
+**Status:** ✅ Completed (April 2, 2026)
+
+**Lessons Learned:**
+- Component reusability: All three components integrated without modifications
+- Role middleware: Clean separation of access control logic
+- Page accessibility: Dashboard navigation provides clear user flow
+- Mobile-first design: Layout works perfectly on portrait phones
+- Speed log batching: Significant performance improvement confirmed
 
 ---
 
