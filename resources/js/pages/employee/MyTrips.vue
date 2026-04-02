@@ -1,65 +1,70 @@
 <script setup lang="ts">
 /**
- * My Trips Page - Employee trip history view.
+ * My Trips Page - Employee trip history view (Server-Side Rendered).
  *
  * Displays paginated list of user's trips with filtering capabilities.
- * Integrates TripCard, TripListFilters, Pagination, and EmptyState components.
+ * Data is passed from MyTripsController via Inertia props for optimal
+ * performance and SEO. Filter changes trigger new server requests.
  *
  * Features:
- * - Paginated trip list (20 per page default)
+ * - Server-side pagination (20 per page default)
  * - Date range filtering
  * - Status filtering
- * - Loading states
- * - Error handling with retry
  * - Empty states
  * - Responsive design (mobile-first)
  *
  * @example Route: /employee/my-trips
  */
 
-import { Head, Link } from '@inertiajs/vue3';
-import { computed, onMounted, ref } from 'vue';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 import EmptyState from '@/components/trips/EmptyState.vue';
 import Pagination from '@/components/trips/Pagination.vue';
 import TripCard from '@/components/trips/TripCard.vue';
 import TripListFilters from '@/components/trips/TripListFilters.vue';
 import { useAuth } from '@/composables/useAuth';
-import { useTrips } from '@/composables/useTrips';
-import type { TripListParams, TripStatus } from '@/types/trip';
+import type { Trip, TripStatus } from '@/types/trip';
+
+// ========================================================================
+// Props (Server-Side Data)
+// ========================================================================
+
+interface Props {
+    /** Trips for current page */
+    trips: Trip[];
+    /** Pagination metadata */
+    meta: {
+        current_page: number;
+        per_page: number;
+        total: number;
+        last_page: number;
+    };
+    /** Current filter values */
+    filters: {
+        status: TripStatus | '';
+        date_from: string;
+        date_to: string;
+    };
+}
+
+const props = defineProps<Props>();
 
 // ========================================================================
 // Dependencies
 // ========================================================================
 
 const { handleLogout, isLoading: isLoggingOut } = useAuth();
-const { trips, meta, isLoading, error, fetchTrips, retry } = useTrips();
 
 // ========================================================================
-// State
+// Local State
 // ========================================================================
 
-/** Current filter parameters */
-const filters = ref<TripListParams>({
-    page: 1,
-    per_page: 20,
-    date_from: '',
-    date_to: '',
-    status: '' as TripStatus | '',
-});
-
-/** Flag to track if initial load has completed */
-const hasLoadedOnce = ref(false);
-
-// ========================================================================
-// Lifecycle
-// ========================================================================
-
-/**
- * Fetch trips on component mount.
- */
-onMounted(async () => {
-    await loadTrips();
+/** Local filter state (synced with props) */
+const localFilters = ref({
+    status: props.filters.status,
+    date_from: props.filters.date_from,
+    date_to: props.filters.date_to,
 });
 
 // ========================================================================
@@ -67,44 +72,42 @@ onMounted(async () => {
 // ========================================================================
 
 /**
- * Load trips with current filters.
+ * Handle filter apply - trigger server-side refetch.
  */
-async function loadTrips(): Promise<void> {
-    const params: TripListParams = {
-        page: filters.value.page,
-        per_page: filters.value.per_page,
-        ...(filters.value.status && { status: filters.value.status }),
-        ...(filters.value.date_from && { date_from: filters.value.date_from }),
-        ...(filters.value.date_to && { date_to: filters.value.date_to }),
-    };
-
-    await fetchTrips(params);
-    hasLoadedOnce.value = true;
-
-    // Scroll to top after loading
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+function handleApplyFilters(): void {
+    router.get(
+        '/employee/my-trips',
+        {
+            status: localFilters.value.status || undefined,
+            date_from: localFilters.value.date_from || undefined,
+            date_to: localFilters.value.date_to || undefined,
+            page: 1, // Reset to first page
+        },
+        {
+            preserveState: true,
+            preserveScroll: false,
+        }
+    );
 }
 
 /**
- * Handle filter apply.
+ * Handle filter reset - clear all filters.
  */
-async function handleApplyFilters(): Promise<void> {
-    filters.value.page = 1; // Reset to first page when filters change
-    await loadTrips();
-}
-
-/**
- * Handle filter reset.
- */
-async function handleResetFilters(): Promise<void> {
-    filters.value = {
-        page: 1,
-        per_page: 20,
+function handleResetFilters(): void {
+    localFilters.value = {
+        status: '',
         date_from: '',
         date_to: '',
-        status: '' as TripStatus | '',
     };
-    await loadTrips();
+
+    router.get(
+        '/employee/my-trips',
+        { page: 1 },
+        {
+            preserveState: true,
+            preserveScroll: false,
+        }
+    );
 }
 
 /**
@@ -112,36 +115,38 @@ async function handleResetFilters(): Promise<void> {
  *
  * @param page - New page number
  */
-async function handlePageChange(page: number): Promise<void> {
-    filters.value.page = page;
-    await loadTrips();
+function handlePageChange(page: number): void {
+    router.get(
+        '/employee/my-trips',
+        {
+            page,
+            status: props.filters.status || undefined,
+            date_from: props.filters.date_from || undefined,
+            date_to: props.filters.date_to || undefined,
+        },
+        {
+            preserveState: true,
+            preserveScroll: false,
+        }
+    );
 }
 
-// Navigation is now handled internally by TripCard component
-
-/**
- * Handle retry after error.
- */
-async function handleRetry(): Promise<void> {
-    await retry();
-}
+// ========================================================================
+// Computed
+// ========================================================================
 
 /**
  * Check if there are any active filters.
  */
 const hasActiveFilters = computed(() => {
-    return !!(
-        filters.value.status ||
-        filters.value.date_from ||
-        filters.value.date_to
-    );
+    return !!(props.filters.status || props.filters.date_from || props.filters.date_to);
 });
 
 /**
  * Check if showing empty state.
  */
 const showEmptyState = computed(() => {
-    return hasLoadedOnce.value && !isLoading.value && trips.value?.length === 0;
+    return props.trips.length === 0;
 });
 </script>
 
@@ -151,134 +156,85 @@ const showEmptyState = computed(() => {
     <div class="min-h-screen bg-[#0a0c0f]">
         <!-- ====================================================================
             Header Section
-            Page title, subtitle, and logout button
+            Page title with logout button
         ==================================================================== -->
-        <div class="border-b border-[#3E3E3A] bg-[#1a1d23]">
-            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h1
-                            class="text-3xl font-bold text-[#e5e7eb]"
-                            style="font-family: 'Bebas Neue', sans-serif"
-                        >
-                            Riwayat Perjalanan
-                        </h1>
-                        <p class="mt-1 text-sm text-[#9ca3af]">
-                            Lihat daftar perjalanan Anda dan statistik
-                            lengkapnya
-                        </p>
-                    </div>
-
-                    <!-- Navigation Actions -->
-                    <div class="flex items-center gap-3">
-                        <Link
-                            href="/employee/dashboard"
-                            class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-4 py-2 text-sm font-medium text-[#e5e7eb] transition-colors hover:bg-[#2a2d33] focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
-                        >
-                            ← Dashboard
-                        </Link>
-
-                        <button
-                            @click="handleLogout"
-                            :disabled="isLoggingOut"
-                            class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-4 py-2 text-sm font-medium text-[#e5e7eb] transition-colors hover:bg-[#2a2d33] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
-                        >
-                            {{ isLoggingOut ? 'Keluar...' : 'Keluar' }}
-                        </button>
-                    </div>
+        <header
+            class="border-b border-[#3E3E3A] bg-[#0a0c0f] px-4 py-6 sm:px-6 lg:px-8"
+        >
+            <div class="mx-auto flex max-w-7xl items-center justify-between">
+                <div>
+                    <h1
+                        class="font-display text-3xl font-bold tracking-tight text-[#EDEDEC]"
+                    >
+                        Riwayat Perjalanan
+                    </h1>
+                    <p class="mt-1 text-sm text-[#A1A09A]">
+                        Lihat dan kelola history perjalanan Anda
+                    </p>
                 </div>
+
+                <button
+                    @click="handleLogout"
+                    :disabled="isLoggingOut"
+                    class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-4 py-2 text-sm font-medium text-[#EDEDEC] transition-colors hover:bg-[#2a2d33] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                    {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
+                </button>
             </div>
-        </div>
+        </header>
 
         <!-- ====================================================================
             Main Content
-            Filters, trip list, pagination
+            Filters, trip list, and pagination
         ==================================================================== -->
-        <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-            <!-- Filters -->
+        <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            <!-- Back to Dashboard -->
+            <div class="mb-6">
+                <Link
+                    href="/employee/dashboard"
+                    class="inline-flex items-center gap-2 text-sm text-cyan-400 transition-colors hover:text-cyan-300"
+                >
+                    <span>←</span>
+                    <span>Kembali ke Dashboard</span>
+                </Link>
+            </div>
+
+            <!-- Filters Section -->
             <div class="mb-6">
                 <TripListFilters
-                    v-model:date-from="filters.date_from"
-                    v-model:date-to="filters.date_to"
-                    v-model:status="filters.status"
+                    v-model:status="localFilters.status"
+                    v-model:date-from="localFilters.date_from"
+                    v-model:date-to="localFilters.date_to"
                     @apply="handleApplyFilters"
                     @reset="handleResetFilters"
                 />
             </div>
 
-            <!-- Loading State -->
-            <div
-                v-if="isLoading && !hasLoadedOnce"
-                class="flex items-center justify-center py-20"
-            >
-                <div class="text-center">
-                    <div
-                        class="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-cyan-500 border-t-transparent"
-                        role="status"
-                        aria-label="Loading trips"
-                    ></div>
-                    <p class="text-sm text-[#9ca3af]">
-                        Memuat riwayat perjalanan...
-                    </p>
-                </div>
-            </div>
-
-            <!-- Error State -->
-            <div
-                v-else-if="error"
-                class="rounded-lg border border-red-500/20 bg-red-500/10 p-6 text-center"
-            >
-                <div class="mb-2 text-4xl" aria-hidden="true">⚠️</div>
-                <h3 class="mb-2 text-lg font-semibold text-red-400">
-                    Gagal Memuat Data
-                </h3>
-                <p class="mb-4 text-sm text-red-300">
-                    {{ error }}
-                </p>
-                <button
-                    @click="handleRetry"
-                    class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
+            <!-- Trips Grid -->
+            <div class="space-y-6">
+                <!-- Active Filters Indicator -->
+                <div
+                    v-if="hasActiveFilters"
+                    class="flex items-center justify-between rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-4 py-3"
                 >
-                    <svg
-                        class="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-cyan-400">
+                            Filter aktif: {{ meta.total }} trip ditemukan
+                        </span>
+                    </div>
+                    <button
+                        @click="handleResetFilters"
+                        class="text-sm text-cyan-400 hover:text-cyan-300"
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                        />
-                    </svg>
-                    Coba Lagi
-                </button>
-            </div>
+                        Reset Filter
+                    </button>
+                </div>
 
-            <!-- Empty State -->
-            <EmptyState
-                v-else-if="showEmptyState && !hasActiveFilters"
-                icon="📋"
-                title="Belum Ada Perjalanan"
-                message="Anda belum memiliki riwayat perjalanan. Mulai perjalanan pertama Anda dengan menggunakan speedometer."
-                cta-text="Mulai Perjalanan"
-                cta-href="/employee/speedometer"
-            />
-
-            <!-- Empty State with Filters -->
-            <EmptyState
-                v-else-if="showEmptyState && hasActiveFilters"
-                icon="🔍"
-                title="Tidak Ada Hasil"
-                message="Tidak ada perjalanan yang cocok dengan filter Anda. Coba ubah filter atau reset untuk melihat semua perjalanan."
-            />
-
-            <!-- Trip List -->
-            <div v-else>
-                <!-- Trip Cards Grid -->
-                <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                <!-- Trip Cards -->
+                <div
+                    v-if="!showEmptyState"
+                    class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-1"
+                >
                     <TripCard
                         v-for="trip in trips"
                         :key="trip.id"
@@ -291,29 +247,18 @@ const showEmptyState = computed(() => {
                     <Pagination
                         :current-page="meta.current_page"
                         :last-page="meta.last_page"
-                        :per-page="meta.per_page"
                         :total="meta.total"
                         @page-change="handlePageChange"
                     />
                 </div>
 
-                <!-- Loading Overlay for Page Changes -->
-                <div
-                    v-if="isLoading && hasLoadedOnce"
-                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-                >
-                    <div
-                        class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-6 text-center shadow-xl"
-                    >
-                        <div
-                            class="mb-3 inline-block h-10 w-10 animate-spin rounded-full border-4 border-cyan-500 border-t-transparent"
-                            role="status"
-                            aria-label="Loading"
-                        ></div>
-                        <p class="text-sm text-[#e5e7eb]">Memuat...</p>
-                    </div>
-                </div>
+                <!-- Empty State -->
+                <EmptyState
+                    v-if="showEmptyState"
+                    :has-filters="hasActiveFilters"
+                    @reset-filters="handleResetFilters"
+                />
             </div>
-        </div>
+        </main>
     </div>
 </template>

@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
+use App\Http\Controllers\Employee\MyTripsController;
+use App\Http\Controllers\Employee\SpeedometerController;
 use App\Http\Controllers\TripController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,9 +20,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 
 // Employee routes (auth + employee role required)
 Route::middleware(['auth', 'role:employee'])->group(function () {
-    Route::inertia('/employee/dashboard', 'employee/Dashboard')->name('employee.dashboard');
-    Route::inertia('/employee/speedometer', 'employee/Speedometer')->name('employee.speedometer');
-    Route::inertia('/employee/my-trips', 'employee/MyTrips')->name('employee.my-trips');
+    Route::get('/employee/dashboard', [EmployeeDashboardController::class, 'index'])->name('employee.dashboard');
+    Route::get('/employee/speedometer', [SpeedometerController::class, 'index'])->name('employee.speedometer');
+    Route::get('/employee/my-trips', [MyTripsController::class, 'index'])->name('employee.my-trips');
     Route::get('/employee/trips/{trip}', [TripController::class, 'showWeb'])->name('employee.trips.show');
 });
 
