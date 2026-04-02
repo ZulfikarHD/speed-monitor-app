@@ -27,6 +27,7 @@
  */
 
 import { Head, useForm } from '@inertiajs/vue3';
+import { motion } from 'motion-v';
 
 // Inertia useForm - the proper way
 const form = useForm({
@@ -45,30 +46,57 @@ const handleSubmit = (): void => {
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     </Head>
     <div
-        class="flex min-h-screen flex-col items-center justify-center bg-[#FDFDFC] p-6 text-[#1b1b18] dark:bg-[#0a0a0a]"
+        class="flex min-h-screen flex-col items-center justify-center bg-[#FDFDFC] px-4 py-6 text-[#1b1b18] sm:px-6 dark:bg-[#0a0a0a]"
     >
-        <div class="w-full max-w-md">
-            <div
+        <motion.div
+            :initial="{ opacity: 0, y: 20 }"
+            :animate="{ opacity: 1, y: 0 }"
+            :transition="{ type: 'spring', bounce: 0.4, duration: 0.8 }"
+            class="w-full max-w-md sm:max-w-lg"
+        >
+            <motion.div
+                :initial="{ opacity: 0, scale: 0.95 }"
+                :animate="{ opacity: 1, scale: 1 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.1 }"
                 class="overflow-hidden rounded-lg bg-white p-8 shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] dark:bg-[#161615] dark:text-[#EDEDEC] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]"
             >
-                <div class="mb-6 text-center">
-                    <h1 class="mb-2 text-2xl font-semibold">Welcome Back</h1>
-                    <p class="text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                <motion.div
+                    :initial="{ opacity: 0, y: -10 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :transition="{ delay: 0.2, duration: 0.5 }"
+                    class="mb-6 text-center"
+                >
+                    <h1 class="mb-2 text-3xl font-semibold sm:text-4xl">Welcome Back</h1>
+                    <p class="text-base text-[#706f6c] dark:text-[#A1A09A]">
                         Sign in to your account to continue
                     </p>
-                </div>
+                </motion.div>
 
-                <form @submit.prevent="handleSubmit" class="space-y-4">
+                <motion.form
+                    @submit.prevent="handleSubmit"
+                    :initial="{ opacity: 0 }"
+                    :animate="{ opacity: 1 }"
+                    :transition="{ delay: 0.3, duration: 0.5 }"
+                    class="space-y-4"
+                >
                     <!-- Backend Error Message -->
-                    <div
+                    <motion.div
                         v-if="form.errors.email"
+                        :initial="{ opacity: 0, x: -10 }"
+                        :animate="{ opacity: 1, x: 0 }"
+                        :exit="{ opacity: 0, x: 10 }"
+                        :transition="{ type: 'spring', bounce: 0.4, duration: 0.4 }"
                         class="rounded-lg bg-red-50 p-3 text-sm text-red-800 dark:bg-red-900/20 dark:text-red-200"
                     >
                         {{ form.errors.email }}
-                    </div>
+                    </motion.div>
 
                     <!-- Email Input -->
-                    <div>
+                    <motion.div
+                        :initial="{ opacity: 0, x: -20 }"
+                        :animate="{ opacity: 1, x: 0 }"
+                        :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.35 }"
+                    >
                         <label
                             for="email"
                             class="mb-1.5 block text-sm font-medium text-[#1b1b18] dark:text-[#EDEDEC]"
@@ -88,10 +116,14 @@ const handleSubmit = (): void => {
                             }"
                             :disabled="form.processing"
                         />
-                    </div>
+                    </motion.div>
 
                     <!-- Password Input -->
-                    <div>
+                    <motion.div
+                        :initial="{ opacity: 0, x: -20 }"
+                        :animate="{ opacity: 1, x: 0 }"
+                        :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.4 }"
+                    >
                         <label
                             for="password"
                             class="mb-1.5 block text-sm font-medium text-[#1b1b18] dark:text-[#EDEDEC]"
@@ -111,11 +143,16 @@ const handleSubmit = (): void => {
                             }"
                             :disabled="form.processing"
                         />
-                    </div>
+                    </motion.div>
 
                     <!-- Submit Button -->
-                    <button
+                    <motion.button
                         type="submit"
+                        :whileHover="{ scale: 1.01 }"
+                        :whilePress="{ scale: 0.98 }"
+                        :initial="{ opacity: 0, y: 10 }"
+                        :animate="{ opacity: 1, y: 0 }"
+                        :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.45 }"
                         class="w-full rounded-lg border border-black bg-[#1b1b18] px-5 py-2.5 text-sm leading-normal font-medium text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#eeeeec] dark:bg-[#eeeeec] dark:text-[#1C1C1A] dark:hover:border-white dark:hover:bg-white"
                         :disabled="form.processing"
                     >
@@ -146,22 +183,25 @@ const handleSubmit = (): void => {
                             Signing in...
                         </span>
                         <span v-else>Sign in</span>
-                    </button>
-                </form>
+                    </motion.button>
+                </motion.form>
 
                 <!-- Test Accounts Info -->
-                <div
-                    class="mt-6 text-center text-sm text-[#706f6c] dark:text-[#A1A09A]"
+                <motion.div
+                    :initial="{ opacity: 0, y: 10 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :transition="{ delay: 0.5, duration: 0.5 }"
+                    class="mt-6 text-center text-base text-[#706f6c] dark:text-[#A1A09A]"
                 >
                     <p class="mb-2">Test Accounts:</p>
-                    <div class="space-y-1 text-xs">
+                    <div class="space-y-1 text-sm">
                         <p>Admin: admin@example.com</p>
                         <p>Supervisor: supervisor@example.com</p>
                         <p>Employee: employee@example.com</p>
                         <p class="mt-1 italic">Password: password</p>
                     </div>
-                </div>
-            </div>
-        </div>
+                </motion.div>
+            </motion.div>
+        </motion.div>
     </div>
 </template>

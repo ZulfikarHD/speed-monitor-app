@@ -83,11 +83,14 @@ const { isActive } = useActiveRoute();
                         href="/employee/dashboard"
                         class="flex items-center gap-2 transition-opacity hover:opacity-80"
                     >
-                        <div
+                        <motion.div
+                            :whileHover="{ scale: 1.05, rotate: 3 }"
+                            :whilePress="{ scale: 0.95 }"
+                            :transition="{ type: 'spring', bounce: 0.6, duration: 0.5 }"
                             class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600"
                         >
                             <span class="text-2xl" aria-hidden="true">🚗</span>
-                        </div>
+                        </motion.div>
                         <span
                             class="text-xl font-bold tracking-tight text-[#e5e7eb]"
                             style="font-family: 'Bebas Neue', sans-serif"
@@ -111,9 +114,18 @@ const { isActive } = useActiveRoute();
                             :aria-current="isActive(item.href) ? 'page' : undefined"
                         >
                             <!-- Icon -->
-                            <span class="text-lg" aria-hidden="true">
+                            <motion.span
+                                :animate="{
+                                    scale: isActive(item.href) ? 1.1 : 1,
+                                }"
+                                :whileHover="{ scale: 1.2, rotate: 5 }"
+                                :whilePress="{ scale: 0.9 }"
+                                :transition="{ type: 'spring', bounce: 0.5, duration: 0.4 }"
+                                class="text-lg"
+                                aria-hidden="true"
+                            >
                                 {{ item.icon }}
-                            </span>
+                            </motion.span>
 
                             <!-- Label -->
                             <span>{{ item.label }}</span>

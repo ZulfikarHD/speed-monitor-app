@@ -16,6 +16,7 @@
  */
 
 import { Link } from '@inertiajs/vue3';
+import { motion } from 'motion-v';
 
 import { useActiveRoute } from '@/composables/useActiveRoute';
 
@@ -55,6 +56,12 @@ const navItems: NavItem[] = [
         icon: '📊',
         href: '/employee/statistics',
     },
+    {
+        id: 'profile',
+        label: 'Profile',
+        icon: '👤',
+        href: '/profile',
+    },
 ];
 
 // ========================================================================
@@ -75,12 +82,12 @@ const { isActive } = useActiveRoute();
         aria-label="Mobile bottom navigation"
     >
         <!-- Navigation Items Grid -->
-        <div class="grid grid-cols-4 gap-1">
+        <div class="grid grid-cols-5 gap-1">
             <Link
                 v-for="item in navItems"
                 :key="item.id"
                 :href="item.href"
-                class="flex flex-col items-center justify-center gap-1 px-2 py-3 transition-colors"
+                class="relative flex min-h-[44px] flex-col items-center justify-center gap-1 px-2 py-3 transition-colors"
                 :class="
                     isActive(item.href)
                         ? 'text-cyan-400'
@@ -90,30 +97,44 @@ const { isActive } = useActiveRoute();
                 :aria-current="isActive(item.href) ? 'page' : undefined"
             >
                 <!-- Icon (Emoji) -->
-                <span
-                    class="text-2xl transition-transform"
-                    :class="{ 'scale-110': isActive(item.href) }"
+                <motion.span
+                    :animate="{
+                        scale: isActive(item.href) ? 1.1 : 1,
+                        y: isActive(item.href) ? -2 : 0,
+                    }"
+                    :whileHover="{ scale: 1.15, y: -2 }"
+                    :whilePress="{ scale: 0.95 }"
+                    :transition="{ type: 'spring', bounce: 0.5, duration: 0.5 }"
+                    class="text-2xl"
                     aria-hidden="true"
                 >
                     {{ item.icon }}
-                </span>
+                </motion.span>
 
                 <!-- Label -->
-                <span
+                <motion.span
+                    :animate="{
+                        opacity: isActive(item.href) ? 1 : 0.8,
+                    }"
+                    :transition="{ duration: 0.3 }"
                     class="text-xs font-medium"
                     :class="
                         isActive(item.href) ? 'font-semibold' : 'font-normal'
                     "
                 >
                     {{ item.label }}
-                </span>
+                </motion.span>
 
                 <!-- Active Indicator Bar -->
-                <div
+                <motion.div
                     v-if="isActive(item.href)"
+                    :initial="{ scaleX: 0, opacity: 0 }"
+                    :animate="{ scaleX: 1, opacity: 1 }"
+                    :exit="{ scaleX: 0, opacity: 0 }"
+                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.5 }"
                     class="absolute bottom-0 left-1/2 h-1 w-12 -translate-x-1/2 rounded-t-full bg-cyan-400"
                     aria-hidden="true"
-                ></div>
+                ></motion.div>
             </Link>
         </div>
     </nav>

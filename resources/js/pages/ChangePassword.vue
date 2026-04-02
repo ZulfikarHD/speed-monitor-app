@@ -20,6 +20,7 @@
  */
 
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { AnimatePresence, motion } from 'motion-v';
 import { computed, onMounted, ref, watch } from 'vue';
 
 import { updatePassword } from '@/actions/App/Http/Controllers/ProfileController';
@@ -173,28 +174,39 @@ function submitPassword(): void {
             <!-- ======================================================================
                 Page Header with Back Link
             ======================================================================= -->
-            <header class="mb-8">
+            <motion.header
+                :initial="{ opacity: 0, y: -20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.4, duration: 0.6 }"
+                class="mb-8"
+            >
                 <!-- Back to Profile Link -->
-                <Link
-                    href="/profile"
-                    class="mb-4 inline-flex items-center gap-2 text-sm text-[#9ca3af] transition-colors hover:text-cyan-400"
+                <motion.div
+                    :initial="{ opacity: 0, x: -20 }"
+                    :animate="{ opacity: 1, x: 0 }"
+                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
                 >
-                    <svg
-                        class="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
+                    <Link
+                        href="/profile"
+                        class="mb-4 inline-flex items-center gap-2 text-sm text-[#9ca3af] transition-colors hover:text-cyan-400"
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                        />
-                    </svg>
-                    <span>Back to Profile</span>
-                </Link>
+                        <svg
+                            class="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                            />
+                        </svg>
+                        <span>Back to Profile</span>
+                    </Link>
+                </motion.div>
 
                 <h1
                     class="text-3xl font-bold tracking-tight text-[#e5e7eb] sm:text-4xl"
@@ -204,22 +216,19 @@ function submitPassword(): void {
                 <p class="mt-2 text-[#9ca3af]">
                     Update your password to keep your account secure
                 </p>
-            </header>
+            </motion.header>
 
             <!-- ======================================================================
                 Success Message Toast
                 Displays flash success messages from server with auto-dismiss
             ======================================================================= -->
-            <transition
-                enter-active-class="transition duration-300 ease-out"
-                enter-from-class="transform -translate-y-2 opacity-0"
-                enter-to-class="transform translate-y-0 opacity-100"
-                leave-active-class="transition duration-200 ease-in"
-                leave-from-class="transform translate-y-0 opacity-100"
-                leave-to-class="transform -translate-y-2 opacity-0"
-            >
-                <div
+            <AnimatePresence>
+                <motion.div
                     v-if="successMessage && showSuccessMessage"
+                    :initial="{ opacity: 0, y: -20, scale: 0.95 }"
+                    :animate="{ opacity: 1, y: 0, scale: 1 }"
+                    :exit="{ opacity: 0, y: -10, scale: 0.95 }"
+                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
                     class="mb-6 rounded-lg border border-green-500/30 bg-green-950/30 px-4 py-3 text-green-400 shadow-lg"
                     role="alert"
                     aria-live="polite"
@@ -263,23 +272,20 @@ function submitPassword(): void {
                             </svg>
                         </button>
                     </div>
-                </div>
-            </transition>
+                </motion.div>
+            </AnimatePresence>
 
             <!-- ======================================================================
                 Error Message Toast
                 Displays validation errors or server errors
             ======================================================================= -->
-            <transition
-                enter-active-class="transition duration-300 ease-out"
-                enter-from-class="transform -translate-y-2 opacity-0"
-                enter-to-class="transform translate-y-0 opacity-100"
-                leave-active-class="transition duration-200 ease-in"
-                leave-from-class="transform translate-y-0 opacity-100"
-                leave-to-class="transform -translate-y-2 opacity-0"
-            >
-                <div
+            <AnimatePresence>
+                <motion.div
                     v-if="(errorMessage || hasValidationErrors) && showErrorMessage"
+                    :initial="{ opacity: 0, y: -20, scale: 0.95 }"
+                    :animate="{ opacity: 1, y: 0, scale: 1 }"
+                    :exit="{ opacity: 0, y: -10, scale: 0.95 }"
+                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
                     class="mb-6 rounded-lg border border-red-500/30 bg-red-950/30 px-4 py-3 text-red-400 shadow-lg"
                     role="alert"
                     aria-live="assertive"
@@ -323,11 +329,11 @@ function submitPassword(): void {
                         <button
                             type="button"
                             @click="dismissError"
-                            class="flex-shrink-0 rounded p-1 hover:bg-red-500/20 focus:outline-none focus:ring-2 focus:ring-red-500"
+                            class="flex-shrink-0 rounded p-2.5 hover:bg-red-500/20 focus:outline-none focus:ring-2 focus:ring-red-500"
                             aria-label="Dismiss error message"
                         >
                             <svg
-                                class="h-4 w-4"
+                                class="h-5 w-5"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -341,14 +347,17 @@ function submitPassword(): void {
                             </svg>
                         </button>
                     </div>
-                </div>
-            </transition>
+                </motion.div>
+            </AnimatePresence>
 
             <!-- ======================================================================
                 Password Change Form
                 Verify current password and set new password
             ======================================================================= -->
-            <section
+            <motion.section
+                :initial="{ opacity: 0, y: 20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.1 }"
                 class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-6 shadow-lg"
             >
                 <form @submit.prevent="submitPassword" class="space-y-6">
@@ -411,12 +420,15 @@ function submitPassword(): void {
                         Change Password
                     </Button>
                 </form>
-            </section>
+            </motion.section>
 
             <!-- ======================================================================
                 Security Note
             ======================================================================= -->
-            <div
+            <motion.div
+                :initial="{ opacity: 0, y: 20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.2 }"
                 class="mt-6 rounded-lg border border-blue-500/30 bg-blue-950/20 px-4 py-3 text-sm text-blue-400"
             >
                 <div class="flex gap-3">
@@ -442,7 +454,7 @@ function submitPassword(): void {
                         </p>
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </div>
     </EmployeeLayout>
 </template>

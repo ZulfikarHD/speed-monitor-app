@@ -24,6 +24,7 @@ Integration:
 -->
 
 <script setup lang="ts">
+import { AnimatePresence, motion } from 'motion-v';
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
 import { useGeolocation } from '@/composables/useGeolocation';
@@ -376,209 +377,262 @@ onBeforeUnmount(() => {
         <!-- ============================================================
              Duration Display (Active Trip Only)
              ============================================================ -->
-        <div
-            v-if="tripStore.hasActiveTrip"
-            class="bg-white rounded-lg shadow-md p-4"
-        >
-            <div class="text-center">
-                <p class="text-sm text-gray-600 mb-1">Durasi Perjalanan</p>
-                <p class="text-3xl font-bold text-gray-900 font-mono">
-                    {{ durationFormatted }}
-                </p>
-                <p
-                    v-if="tripStore.isSyncing"
-                    class="text-xs text-blue-600 mt-2"
-                >
-                    Menyinkronkan data...
-                </p>
-            </div>
-        </div>
+        <AnimatePresence>
+            <motion.div
+                v-if="tripStore.hasActiveTrip"
+                :initial="{ opacity: 0, y: -20, scale: 0.9 }"
+                :animate="{ opacity: 1, y: 0, scale: 1 }"
+                :exit="{ opacity: 0, y: -20, scale: 0.9 }"
+                :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
+                class="bg-white rounded-lg shadow-md p-4"
+            >
+                <div class="text-center">
+                    <p class="text-sm text-gray-600 mb-1">Durasi Perjalanan</p>
+                    <motion.p
+                        :animate="{ scale: [1, 1.02, 1] }"
+                        :transition="{ duration: 0.5 }"
+                        :key="durationFormatted"
+                        class="text-3xl font-bold text-gray-900 font-mono"
+                    >
+                        {{ durationFormatted }}
+                    </motion.p>
+                    <motion.p
+                        v-if="tripStore.isSyncing"
+                        :initial="{ opacity: 0 }"
+                        :animate="{ opacity: 1 }"
+                        :exit="{ opacity: 0 }"
+                        class="text-xs text-blue-600 mt-2"
+                    >
+                        Menyinkronkan data...
+                    </motion.p>
+                </div>
+            </motion.div>
+        </AnimatePresence>
 
         <!-- ============================================================
              Control Buttons
              ============================================================ -->
         <div class="space-y-3">
             <!-- Start Trip Button -->
-            <button
-                v-if="!tripStore.hasActiveTrip"
-                type="button"
-                class="w-full py-4 px-6 rounded-lg font-semibold text-white transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-green-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                :class="[
-                    isLoading
-                        ? 'bg-green-400 cursor-wait'
-                        : 'bg-green-600 hover:bg-green-700 active:bg-green-800'
-                ]"
-                :disabled="isLoading"
-                @click="handleStartTrip"
-            >
-                <span v-if="tripStore.isStarting" class="flex items-center justify-center">
-                    <svg
-                        class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                    >
-                        <circle
-                            class="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            stroke-width="4"
-                        />
-                        <path
-                            class="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                    </svg>
-                    Memulai...
-                </span>
-                <span v-else>Mulai Perjalanan</span>
-            </button>
+            <AnimatePresence>
+                <motion.button
+                    v-if="!tripStore.hasActiveTrip"
+                    type="button"
+                    :initial="{ opacity: 0, scale: 0.9 }"
+                    :animate="{ opacity: 1, scale: 1 }"
+                    :exit="{ opacity: 0, scale: 0.9 }"
+                    :whileHover="{ scale: 1.02, y: -2 }"
+                    :whilePress="{ scale: 0.98 }"
+                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
+                    class="w-full py-4 px-6 rounded-lg font-semibold text-white transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-green-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    :class="[
+                        isLoading
+                            ? 'bg-green-400 cursor-wait'
+                            : 'bg-green-600 hover:bg-green-700 active:bg-green-800'
+                    ]"
+                    :disabled="isLoading"
+                    @click="handleStartTrip"
+                >
+                    <span v-if="tripStore.isStarting" class="flex items-center justify-center">
+                        <svg
+                            class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                        >
+                            <circle
+                                class="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                stroke-width="4"
+                            />
+                            <path
+                                class="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
+                        </svg>
+                        Memulai...
+                    </span>
+                    <span v-else>Mulai Perjalanan</span>
+                </motion.button>
+            </AnimatePresence>
 
             <!-- Stop Trip Button -->
-            <button
-                v-if="tripStore.hasActiveTrip"
-                type="button"
-                class="w-full py-4 px-6 rounded-lg font-semibold text-white transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                :class="[
-                    isLoading
-                        ? 'bg-red-400 cursor-wait'
-                        : 'bg-red-600 hover:bg-red-700 active:bg-red-800'
-                ]"
-                :disabled="isLoading"
-                @click="openStopConfirmation"
-            >
-                <span v-if="tripStore.isEnding" class="flex items-center justify-center">
-                    <svg
-                        class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                    >
-                        <circle
-                            class="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            stroke-width="4"
-                        />
-                        <path
-                            class="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                    </svg>
-                    Mengakhiri...
-                </span>
-                <span v-else>Akhiri Perjalanan</span>
-            </button>
+            <AnimatePresence>
+                <motion.button
+                    v-if="tripStore.hasActiveTrip"
+                    type="button"
+                    :initial="{ opacity: 0, scale: 0.9 }"
+                    :animate="{ opacity: 1, scale: 1 }"
+                    :exit="{ opacity: 0, scale: 0.9 }"
+                    :whileHover="{ scale: 1.02, y: -2 }"
+                    :whilePress="{ scale: 0.98 }"
+                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
+                    class="w-full py-4 px-6 rounded-lg font-semibold text-white transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    :class="[
+                        isLoading
+                            ? 'bg-red-400 cursor-wait'
+                            : 'bg-red-600 hover:bg-red-700 active:bg-red-800'
+                    ]"
+                    :disabled="isLoading"
+                    @click="openStopConfirmation"
+                >
+                    <span v-if="tripStore.isEnding" class="flex items-center justify-center">
+                        <svg
+                            class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                        >
+                            <circle
+                                class="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                stroke-width="4"
+                            />
+                            <path
+                                class="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
+                        </svg>
+                        Mengakhiri...
+                    </span>
+                    <span v-else>Akhiri Perjalanan</span>
+                </motion.button>
+            </AnimatePresence>
         </div>
 
         <!-- ============================================================
              Error Message Display
              ============================================================ -->
-        <div
-            v-if="errorMessage"
-            class="bg-red-50 border border-red-200 rounded-lg p-4"
-        >
-            <div class="flex items-start">
-                <svg
-                    class="h-5 w-5 text-red-600 mt-0.5 mr-3 flex-shrink-0"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                >
-                    <path
-                        fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                        clip-rule="evenodd"
-                    />
-                </svg>
-                <div class="flex-1">
-                    <p class="text-sm text-red-800">
-                        {{ errorMessage }}
-                    </p>
+        <AnimatePresence>
+            <motion.div
+                v-if="errorMessage"
+                :initial="{ opacity: 0, x: -20, scale: 0.95 }"
+                :animate="{ opacity: 1, x: 0, scale: 1 }"
+                :exit="{ opacity: 0, x: 20, scale: 0.95 }"
+                :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
+                class="bg-red-50 border border-red-200 rounded-lg p-4"
+            >
+                <div class="flex items-start">
+                    <svg
+                        class="h-5 w-5 text-red-600 mt-0.5 mr-3 flex-shrink-0"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                    <div class="flex-1">
+                        <p class="text-sm text-red-800">
+                            {{ errorMessage }}
+                        </p>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </AnimatePresence>
 
         <!-- ============================================================
              Stop Confirmation Dialog
              ============================================================ -->
         <Teleport to="body">
-            <Transition
-                enter-active-class="transition-opacity duration-200"
-                enter-from-class="opacity-0"
-                enter-to-class="opacity-100"
-                leave-active-class="transition-opacity duration-200"
-                leave-from-class="opacity-100"
-                leave-to-class="opacity-0"
-            >
-                <div
+            <AnimatePresence>
+                <motion.div
                     v-if="showStopConfirmation"
+                    :initial="{ opacity: 0 }"
+                    :animate="{ opacity: 1 }"
+                    :exit="{ opacity: 0 }"
+                    :transition="{ duration: 0.2 }"
                     class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
                     @click.self="closeStopConfirmation"
                 >
-                    <Transition
-                        enter-active-class="transition-all duration-200"
-                        enter-from-class="opacity-0 scale-95"
-                        enter-to-class="opacity-100 scale-100"
-                        leave-active-class="transition-all duration-200"
-                        leave-from-class="opacity-100 scale-100"
-                        leave-to-class="opacity-0 scale-95"
+                    <motion.div
+                        :initial="{ opacity: 0, scale: 0.9, y: 20 }"
+                        :animate="{ opacity: 1, scale: 1, y: 0 }"
+                        :exit="{ opacity: 0, scale: 0.9, y: 20 }"
+                        :transition="{ type: 'spring', bounce: 0.3, duration: 0.4 }"
+                        class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6 max-h-[90vh] overflow-y-auto"
                     >
-                        <div
-                            v-if="showStopConfirmation"
-                            class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6"
-                        >
-                            <div class="text-center">
-                                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4">
-                                    <svg
-                                        class="h-6 w-6 text-yellow-600"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                                        />
-                                    </svg>
-                                </div>
-                                <h3 class="text-lg font-semibold text-gray-900 mb-2">
-                                    Akhiri Perjalanan?
-                                </h3>
-                                <p class="text-sm text-gray-600 mb-6">
-                                    Apakah Anda yakin ingin mengakhiri perjalanan ini?
-                                    Data kecepatan akan disimpan.
-                                </p>
-                            </div>
-                            <div class="flex space-x-3">
-                                <button
-                                    type="button"
-                                    class="flex-1 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200"
-                                    @click="closeStopConfirmation"
+                        <div class="text-center">
+                            <motion.div
+                                :initial="{ scale: 0, rotate: -180 }"
+                                :animate="{ scale: 1, rotate: 0 }"
+                                :transition="{ type: 'spring', bounce: 0.5, duration: 0.6, delay: 0.1 }"
+                                class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4"
+                            >
+                                <svg
+                                    class="h-6 w-6 text-yellow-600"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
                                 >
-                                    Batal
-                                </button>
-                                <button
-                                    type="button"
-                                    class="flex-1 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200"
-                                    @click="confirmStopTrip"
-                                >
-                                    Ya, Akhiri
-                                </button>
-                            </div>
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                    />
+                                </svg>
+                            </motion.div>
+                            <motion.h3
+                                :initial="{ opacity: 0, y: -10 }"
+                                :animate="{ opacity: 1, y: 0 }"
+                                :transition="{ delay: 0.15, duration: 0.3 }"
+                                class="text-lg font-semibold text-gray-900 mb-2"
+                            >
+                                Akhiri Perjalanan?
+                            </motion.h3>
+                            <motion.p
+                                :initial="{ opacity: 0, y: -10 }"
+                                :animate="{ opacity: 1, y: 0 }"
+                                :transition="{ delay: 0.2, duration: 0.3 }"
+                                class="text-sm text-gray-600 mb-6"
+                            >
+                                Apakah Anda yakin ingin mengakhiri perjalanan ini?
+                                Data kecepatan akan disimpan.
+                            </motion.p>
                         </div>
-                    </Transition>
-                </div>
-            </Transition>
+                        <motion.div
+                            :initial="{ opacity: 0, y: 10 }"
+                            :animate="{ opacity: 1, y: 0 }"
+                            :transition="{ delay: 0.25, duration: 0.3 }"
+                            class="flex space-x-3"
+                        >
+                            <motion.button
+                                type="button"
+                                :whileHover="{ scale: 1.02, y: -1 }"
+                                :whilePress="{ scale: 0.98 }"
+                                :transition="{ type: 'spring', bounce: 0.4, duration: 0.3 }"
+                                class="flex-1 min-h-[44px] py-3 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200"
+                                @click="closeStopConfirmation"
+                            >
+                                Batal
+                            </motion.button>
+                            <motion.button
+                                type="button"
+                                :whileHover="{ scale: 1.02, y: -1 }"
+                                :whilePress="{ scale: 0.98 }"
+                                :transition="{ type: 'spring', bounce: 0.4, duration: 0.3 }"
+                                class="flex-1 min-h-[44px] py-3 px-6 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200"
+                                @click="confirmStopTrip"
+                            >
+                                Ya, Akhiri
+                            </motion.button>
+                        </motion.div>
+                    </motion.div>
+                </motion.div>
+            </AnimatePresence>
         </Teleport>
     </div>
 </template>

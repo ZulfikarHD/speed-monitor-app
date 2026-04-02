@@ -66,13 +66,13 @@ function isActive(period: Period): boolean {
         Period Selector
         Segmented control for time period selection
     ======================================================================= -->
-    <div class="inline-flex rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-1">
+    <div class="flex flex-wrap rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-1">
         <button
             v-for="option in periodOptions"
             :key="option.value"
             @click="selectPeriod(option.value)"
             type="button"
-            class="min-w-[80px] rounded-md px-4 py-2 text-sm font-medium transition-all"
+            class="min-h-[44px] min-w-[80px] rounded-md px-4 py-3 text-sm font-medium transition-all sm:min-w-[100px]"
             :class="
                 isActive(option.value)
                     ? 'bg-cyan-500 text-white shadow-lg'

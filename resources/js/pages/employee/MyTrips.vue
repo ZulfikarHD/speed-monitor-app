@@ -18,6 +18,7 @@
  */
 
 import { router } from '@inertiajs/vue3';
+import { AnimatePresence, motion } from 'motion-v';
 import { computed, ref } from 'vue';
 
 import EmptyState from '@/components/trips/EmptyState.vue';
@@ -154,7 +155,12 @@ const showEmptyState = computed(() => {
     <EmployeeLayout title="My Trips">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- Page Header -->
-            <div class="mb-6">
+            <motion.div
+                :initial="{ opacity: 0, y: -20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.4, duration: 0.6 }"
+                class="mb-6"
+            >
                 <h1
                     class="text-3xl font-bold text-[#e5e7eb]"
                     style="font-family: 'Bebas Neue', sans-serif"
@@ -164,10 +170,15 @@ const showEmptyState = computed(() => {
                 <p class="mt-1 text-sm text-[#9ca3af]">
                     View and filter your trip history
                 </p>
-            </div>
+            </motion.div>
 
             <!-- Filters Section -->
-            <div class="mb-6">
+            <motion.div
+                :initial="{ opacity: 0, y: 20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.1 }"
+                class="mb-6"
+            >
                 <TripListFilters
                     v-model:status="localFilters.status"
                     v-model:date-from="localFilters.date_from"
@@ -175,31 +186,43 @@ const showEmptyState = computed(() => {
                     @apply="handleApplyFilters"
                     @reset="handleResetFilters"
                 />
-            </div>
+            </motion.div>
 
             <!-- Trips Grid -->
             <div class="space-y-6">
                 <!-- Active Filters Indicator -->
-                <div
-                    v-if="hasActiveFilters"
-                    class="flex items-center justify-between rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-4 py-3"
-                >
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm text-cyan-400">
-                            Filter aktif: {{ meta.total }} trip ditemukan
-                        </span>
-                    </div>
-                    <button
-                        @click="handleResetFilters"
-                        class="text-sm text-cyan-400 hover:text-cyan-300"
+                <AnimatePresence>
+                    <motion.div
+                        v-if="hasActiveFilters"
+                        :initial="{ opacity: 0, x: -20 }"
+                        :animate="{ opacity: 1, x: 0 }"
+                        :exit="{ opacity: 0, x: 20 }"
+                        :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
+                        class="flex items-center justify-between rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-4 py-3"
                     >
-                        Reset Filter
-                    </button>
-                </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-cyan-400">
+                                Filter aktif: {{ meta.total }} trip ditemukan
+                            </span>
+                        </div>
+                        <motion.button
+                            @click="handleResetFilters"
+                            :whileHover="{ scale: 1.05, x: 2 }"
+                            :whilePress="{ scale: 0.95 }"
+                            :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
+                            class="inline-flex min-h-[44px] items-center gap-2 px-4 py-3 text-sm text-cyan-400 hover:text-cyan-300"
+                        >
+                            Reset Filter
+                        </motion.button>
+                    </motion.div>
+                </AnimatePresence>
 
                 <!-- Trip Cards -->
-                <div
+                <motion.div
                     v-if="!showEmptyState"
+                    :initial="{ opacity: 0, y: 20 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.2 }"
                     class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-1"
                 >
                     <TripCard
@@ -207,7 +230,7 @@ const showEmptyState = computed(() => {
                         :key="trip.id"
                         :trip="trip"
                     />
-                </div>
+                </motion.div>
 
                 <!-- Pagination -->
                 <div v-if="meta && meta.last_page > 1" class="mt-8">

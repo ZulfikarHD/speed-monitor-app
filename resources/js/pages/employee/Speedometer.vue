@@ -7,8 +7,8 @@ Uses EmployeeLayout for consistent navigation across all employee pages.
 -->
 
 <script setup lang="ts">
+import { motion } from 'motion-v';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-
 
 import ProductionGauge from '@/components/speedometer/ProductionGauge.vue';
 import TripControls from '@/components/speedometer/TripControls.vue';
@@ -223,80 +223,179 @@ onBeforeUnmount(() => {
         <!-- Main -->
         <main class="velo-main">
             <!-- Speed Limit Banner -->
-            <div class="limit-banner">
+            <motion.div
+                :initial="{ opacity: 0, y: -20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.4, duration: 0.6 }"
+                class="limit-banner"
+            >
                 <div>
                     <div class="limit-label">Speed Limit</div>
                 </div>
                 <div class="limit-controls">
-                    <button @click="changeLimit(-10)">−</button>
-                    <div class="limit-value">
+                    <motion.button
+                        @click="changeLimit(-10)"
+                        :whilePress="{ scale: 0.9 }"
+                        :whileHover="{ scale: 1.05 }"
+                        :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
+                    >
+                        −
+                    </motion.button>
+                    <motion.div
+                        :animate="{ scale: [1, 1.05, 1] }"
+                        :transition="{ duration: 0.3 }"
+                        :key="speedLimit"
+                        class="limit-value"
+                    >
                         {{ speedLimit }} {{ unit === 'kmh' ? 'km/h' : 'mph' }}
-                    </div>
-                    <button @click="changeLimit(10)">+</button>
+                    </motion.div>
+                    <motion.button
+                        @click="changeLimit(10)"
+                        :whilePress="{ scale: 0.9 }"
+                        :whileHover="{ scale: 1.05 }"
+                        :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
+                    >
+                        +
+                    </motion.button>
                 </div>
                 <div class="unit-toggle">
-                    <button
+                    <motion.button
                         :class="{ active: unit === 'kmh' }"
                         @click="setUnit('kmh')"
+                        :whilePress="{ scale: 0.95 }"
+                        :animate="{ scale: unit === 'kmh' ? 1.02 : 1 }"
+                        :transition="{ type: 'spring', bounce: 0.4, duration: 0.4 }"
                     >
                         km/h
-                    </button>
-                    <button
+                    </motion.button>
+                    <motion.button
                         :class="{ active: unit === 'mph' }"
                         @click="setUnit('mph')"
+                        :whilePress="{ scale: 0.95 }"
+                        :animate="{ scale: unit === 'mph' ? 1.02 : 1 }"
+                        :transition="{ type: 'spring', bounce: 0.4, duration: 0.4 }"
                     >
                         mph
-                    </button>
+                    </motion.button>
                 </div>
-            </div>
+            </motion.div>
 
             <!-- Gauge -->
-            <ProductionGauge
-                :speed="currentSpeed"
-                :speed-limit="speedLimit"
-                :unit="unit"
-            />
+            <motion.div
+                :initial="{ opacity: 0, scale: 0.9 }"
+                :animate="{ opacity: 1, scale: 1 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.7, delay: 0.1 }"
+            >
+                <ProductionGauge
+                    :speed="currentSpeed"
+                    :speed-limit="speedLimit"
+                    :unit="unit"
+                />
+            </motion.div>
 
             <!-- Stats Grid -->
-            <div class="stats-grid">
-                <div class="stat-card danger">
+            <motion.div
+                :initial="{ opacity: 0, y: 20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.2 }"
+                class="stats-grid"
+            >
+                <motion.div
+                    :whileHover="{ scale: 1.03, y: -2 }"
+                    :whilePress="{ scale: 0.98 }"
+                    :transition="{ type: 'spring', bounce: 0.5, duration: 0.4 }"
+                    class="stat-card danger"
+                >
                     <div class="stat-label">Max Speed</div>
-                    <div class="stat-value">{{ Math.round(maxSpeed) }}</div>
+                    <motion.div
+                        :animate="{ scale: [1, 1.1, 1] }"
+                        :transition="{ duration: 0.3 }"
+                        :key="Math.round(maxSpeed)"
+                        class="stat-value"
+                    >
+                        {{ Math.round(maxSpeed) }}
+                    </motion.div>
                     <div class="stat-unit">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
-                </div>
-                <div class="stat-card warn">
+                </motion.div>
+                <motion.div
+                    :whileHover="{ scale: 1.03, y: -2 }"
+                    :whilePress="{ scale: 0.98 }"
+                    :transition="{ type: 'spring', bounce: 0.5, duration: 0.4 }"
+                    class="stat-card warn"
+                >
                     <div class="stat-label">Avg Speed</div>
-                    <div class="stat-value">{{ Math.round(avgSpeed) }}</div>
+                    <motion.div
+                        :animate="{ scale: [1, 1.1, 1] }"
+                        :transition="{ duration: 0.3 }"
+                        :key="Math.round(avgSpeed)"
+                        class="stat-value"
+                    >
+                        {{ Math.round(avgSpeed) }}
+                    </motion.div>
                     <div class="stat-unit">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
             <!-- Trip Bar -->
-            <div class="trip-bar">
+            <motion.div
+                :initial="{ opacity: 0, y: 20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.3 }"
+                class="trip-bar"
+            >
                 <div class="trip-item">
-                    <div class="trip-val">{{ tripDistance.toFixed(2) }}</div>
+                    <motion.div
+                        :animate="{ scale: [1, 1.08, 1] }"
+                        :transition="{ duration: 0.4 }"
+                        :key="tripDistance.toFixed(2)"
+                        class="trip-val"
+                    >
+                        {{ tripDistance.toFixed(2) }}
+                    </motion.div>
                     <div class="trip-lbl">Distance ({{ unit === 'kmh' ? 'km' : 'mi' }})</div>
                 </div>
                 <div class="trip-divider" />
                 <div class="trip-item">
-                    <div class="trip-val">{{ Math.floor(tripStore.stats.duration / 60).toString().padStart(2, '0') }}:{{ (tripStore.stats.duration % 60).toString().padStart(2, '0') }}</div>
+                    <motion.div
+                        :animate="{ scale: [1, 1.08, 1] }"
+                        :transition="{ duration: 0.4 }"
+                        :key="tripStore.stats.duration"
+                        class="trip-val"
+                    >
+                        {{ Math.floor(tripStore.stats.duration / 60).toString().padStart(2, '0') }}:{{ (tripStore.stats.duration % 60).toString().padStart(2, '0') }}
+                    </motion.div>
                     <div class="trip-lbl">Duration</div>
                 </div>
                 <div class="trip-divider" />
                 <div class="trip-item">
-                    <div class="trip-val">{{ satelliteCount || '—' }}</div>
+                    <motion.div
+                        :animate="{ scale: [1, 1.08, 1] }"
+                        :transition="{ duration: 0.4 }"
+                        :key="satelliteCount"
+                        class="trip-val"
+                    >
+                        {{ satelliteCount || '—' }}
+                    </motion.div>
                     <div class="trip-lbl">Satellites</div>
                 </div>
-            </div>
+            </motion.div>
 
             <!-- GPS Accuracy -->
-            <div class="accuracy-row">
+            <motion.div
+                :initial="{ opacity: 0, y: 20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.4 }"
+                class="accuracy-row"
+            >
                 <div class="accuracy-label">GPS Accuracy</div>
                 <div class="accuracy-bar">
-                    <div
+                    <motion.div
+                        :animate="{
+                            width: accuracyPercentage + '%',
+                        }"
+                        :transition="{ type: 'spring', bounce: 0.2, duration: 0.8 }"
                         class="accuracy-fill"
                         :style="{
-                            width: accuracyPercentage + '%',
                             background: accuracyColor,
                         }"
                     />
@@ -304,7 +403,7 @@ onBeforeUnmount(() => {
                 <div class="accuracy-text">
                     {{ accuracy !== null ? Math.round(accuracy) + ' m' : '— m' }}
                 </div>
-            </div>
+            </motion.div>
 
             <!-- Trip Controls -->
             <TripControls />
@@ -315,7 +414,6 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .speedometer-page {
-    min-height: 100vh;
     background: #0a0c0f;
     color: #e8eaf0;
     font-family: 'Barlow', sans-serif;
@@ -396,7 +494,7 @@ onBeforeUnmount(() => {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.72rem;
+    font-size: 0.875rem;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     color: #4a5068;
@@ -428,7 +526,7 @@ onBeforeUnmount(() => {
 
 .velo-main {
     width: 100%;
-    max-width: 480px;
+    max-width: 28rem;
     padding: 24px 16px 40px;
     margin: 0 auto;
     display: flex;
@@ -437,9 +535,44 @@ onBeforeUnmount(() => {
     gap: 20px;
 }
 
+@media (min-width: 768px) {
+    .velo-main {
+        max-width: 32rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .velo-main {
+        max-width: 42rem;
+    }
+}
+
+/* Landscape mode optimizations (short screens) */
+@media (orientation: landscape) and (max-height: 500px) {
+    .velo-main {
+        padding: 16px 16px 20px;
+        gap: 12px;
+    }
+
+    .gauge-container {
+        max-height: 60vh;
+    }
+
+    .stats-grid,
+    .trip-bar,
+    .accuracy-row {
+        transform: scale(0.9);
+    }
+
+    .limit-banner {
+        padding: 8px 12px;
+    }
+}
+
 .limit-banner {
     width: 100%;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     background: #111318;
@@ -450,7 +583,7 @@ onBeforeUnmount(() => {
 }
 
 .limit-label {
-    font-size: 0.7rem;
+    font-size: 0.875rem;
     letter-spacing: 2px;
     text-transform: uppercase;
     color: #4a5068;
@@ -463,8 +596,8 @@ onBeforeUnmount(() => {
 }
 
 .limit-controls button {
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
     border-radius: 8px;
     border: 1px solid #1e2230;
     background: #0a0c0f;
@@ -500,11 +633,12 @@ onBeforeUnmount(() => {
 }
 
 .unit-toggle button {
-    padding: 6px 12px;
+    min-height: 44px;
+    padding: 10px 16px;
     border: none;
     background: transparent;
     color: #4a5068;
-    font-size: 0.72rem;
+    font-size: 0.875rem;
     letter-spacing: 1px;
     text-transform: uppercase;
     cursor: pointer;
@@ -558,7 +692,7 @@ onBeforeUnmount(() => {
 }
 
 .stat-label {
-    font-size: 0.65rem;
+    font-size: 0.875rem;
     letter-spacing: 2.5px;
     text-transform: uppercase;
     color: #4a5068;
@@ -599,7 +733,7 @@ onBeforeUnmount(() => {
 }
 
 .trip-lbl {
-    font-size: 0.62rem;
+    font-size: 0.875rem;
     letter-spacing: 2px;
     text-transform: uppercase;
     color: #4a5068;
@@ -621,7 +755,7 @@ onBeforeUnmount(() => {
 }
 
 .accuracy-label {
-    font-size: 0.65rem;
+    font-size: 0.875rem;
     letter-spacing: 2px;
     text-transform: uppercase;
     color: #4a5068;

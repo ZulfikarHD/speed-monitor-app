@@ -3,21 +3,33 @@ Production Canvas Gauge with Store Integration
 
 Professional circular gauge with tick marks, labels, and glow effects.
 Integrates with Settings Store for speed limit configuration.
+Responsive sizing support for different viewport widths.
 -->
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 interface Props {
     speed: number;
     speedLimit: number;
     unit: 'kmh' | 'mph';
+    size?: 'sm' | 'md' | 'lg';
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+    size: 'md',
+});
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 let animationFrame: number | null = null;
+
+const sizes = {
+    sm: { width: 240, height: 240 },
+    md: { width: 300, height: 300 },
+    lg: { width: 360, height: 360 },
+};
+
+const gaugeSize = computed(() => sizes[props.size] || sizes.md);
 
 const maxSpeedDisplay = () => (props.unit === 'kmh' ? 200 : 125);
 
@@ -146,8 +158,20 @@ watch([() => props.speed, () => props.speedLimit, () => props.unit], () => {
 </script>
 
 <template>
-    <div class="gauge-container">
-        <canvas ref="canvasRef" width="300" height="300" class="gauge-canvas" />
+    <div
+        class="gauge-container"
+        :class="{
+            'w-60 h-60': size === 'sm',
+            'w-[300px] h-[300px]': size === 'md',
+            'w-[360px] h-[360px]': size === 'lg',
+        }"
+    >
+        <canvas
+            ref="canvasRef"
+            :width="gaugeSize.width"
+            :height="gaugeSize.height"
+            class="gauge-canvas"
+        />
         <div class="gauge-overlay">
             <div
                 :class="['speed-display', { violation: speed > speedLimit }]"
@@ -168,8 +192,6 @@ watch([() => props.speed, () => props.speedLimit, () => props.unit], () => {
 <style scoped>
 .gauge-container {
     position: relative;
-    width: 300px;
-    height: 300px;
 }
 
 .gauge-canvas {

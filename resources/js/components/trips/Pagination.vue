@@ -17,6 +17,7 @@
  * ```
  */
 
+import { motion } from 'motion-v';
 import { computed } from 'vue';
 
 /**
@@ -158,10 +159,13 @@ const visiblePages = computed<(number | string)[]>(() => {
         <!-- Pagination Controls (Center/Right) -->
         <div class="flex items-center gap-2">
             <!-- Previous Button -->
-            <button
+            <motion.button
                 @click="goToPrevious"
                 :disabled="!canGoPrevious"
-                class="flex h-10 items-center gap-1 rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-3 text-sm font-medium text-[#e5e7eb] transition-colors hover:bg-[#2a2d33] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#1a1d23]"
+                :whileHover="canGoPrevious ? { scale: 1.05, x: -2 } : {}"
+                :whilePress="canGoPrevious ? { scale: 0.95 } : {}"
+                :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
+                class="flex min-h-[44px] items-center gap-1 rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-3 text-sm font-medium text-[#e5e7eb] transition-colors hover:bg-[#2a2d33] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#1a1d23]"
                 aria-label="Previous page"
             >
                 <svg
@@ -179,17 +183,21 @@ const visiblePages = computed<(number | string)[]>(() => {
                     />
                 </svg>
                 <span class="hidden sm:inline">Sebelumnya</span>
-            </button>
+            </motion.button>
 
             <!-- Page Numbers (Desktop Only) -->
             <div class="hidden items-center gap-1 md:flex">
-                <button
+                <motion.button
                     v-for="page in visiblePages"
                     :key="page"
                     @click="typeof page === 'number' ? goToPage(page) : null"
                     :disabled="typeof page !== 'number'"
+                    :whileHover="typeof page === 'number' && page !== currentPage ? { scale: 1.1, y: -2 } : {}"
+                    :whilePress="typeof page === 'number' && page !== currentPage ? { scale: 0.95 } : {}"
+                    :animate="{ scale: page === currentPage ? 1.05 : 1 }"
+                    :transition="{ type: 'spring', bounce: 0.5, duration: 0.4 }"
                     :class="[
-                        'flex h-10 min-w-[40px] items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors',
+                        'flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors',
                         page === currentPage
                             ? 'bg-cyan-600 text-white'
                             : typeof page === 'number'
@@ -202,21 +210,24 @@ const visiblePages = computed<(number | string)[]>(() => {
                     :aria-current="page === currentPage ? 'page' : undefined"
                 >
                     {{ page }}
-                </button>
+                </motion.button>
             </div>
 
             <!-- Page Info (Mobile) -->
             <div
-                class="flex h-10 items-center rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-3 text-sm font-medium text-[#e5e7eb] md:hidden"
+                class="flex min-h-[44px] items-center rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-3 text-sm font-medium text-[#e5e7eb] md:hidden"
             >
                 {{ currentPage }} / {{ lastPage }}
             </div>
 
             <!-- Next Button -->
-            <button
+            <motion.button
                 @click="goToNext"
                 :disabled="!canGoNext"
-                class="flex h-10 items-center gap-1 rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-3 text-sm font-medium text-[#e5e7eb] transition-colors hover:bg-[#2a2d33] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#1a1d23]"
+                :whileHover="canGoNext ? { scale: 1.05, x: 2 } : {}"
+                :whilePress="canGoNext ? { scale: 0.95 } : {}"
+                :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
+                class="flex min-h-[44px] items-center gap-1 rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-3 text-sm font-medium text-[#e5e7eb] transition-colors hover:bg-[#2a2d33] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#1a1d23]"
                 aria-label="Next page"
             >
                 <span class="hidden sm:inline">Selanjutnya</span>
@@ -234,7 +245,7 @@ const visiblePages = computed<(number | string)[]>(() => {
                         d="M9 5l7 7-7 7"
                     />
                 </svg>
-            </button>
+            </motion.button>
         </div>
     </div>
 </template>

@@ -15,6 +15,7 @@
  */
 
 import { Link } from '@inertiajs/vue3';
+import { AnimatePresence, motion } from 'motion-v';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { show as profileShow } from '@/actions/App/Http/Controllers/ProfileController';
@@ -117,21 +118,26 @@ onBeforeUnmount(() => {
     ======================================================================= -->
     <div ref="dropdownRef" class="relative">
         <!-- Dropdown Trigger Button -->
-        <button
+        <motion.button
             @click="toggleDropdown"
             type="button"
-            class="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-[#1a1d23] focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
+            :whileHover="{ scale: 1.02 }"
+            :whilePress="{ scale: 0.98 }"
+            :transition="{ type: 'spring', bounce: 0.4, duration: 0.3 }"
+            class="flex min-h-[44px] items-center gap-3 rounded-lg px-4 py-3 transition-colors hover:bg-[#1a1d23] focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
             :aria-expanded="isOpen"
             aria-haspopup="true"
             aria-label="User menu"
         >
             <!-- User Avatar -->
-            <div
+            <motion.div
+                :animate="{ rotate: isOpen ? 180 : 0 }"
+                :transition="{ type: 'spring', bounce: 0.5, duration: 0.5 }"
                 class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-sm font-semibold text-white"
                 aria-hidden="true"
             >
                 {{ getUserInitials() }}
-            </div>
+            </motion.div>
 
             <!-- User Info (Hidden on mobile) -->
             <div class="hidden text-left md:block">
@@ -144,9 +150,10 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- Dropdown Arrow -->
-            <svg
-                class="h-4 w-4 text-[#9ca3af] transition-transform"
-                :class="{ 'rotate-180': isOpen }"
+            <motion.svg
+                :animate="{ rotate: isOpen ? 180 : 0 }"
+                :transition="{ type: 'spring', bounce: 0.4, duration: 0.4 }"
+                class="h-4 w-4 text-[#9ca3af]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -158,93 +165,111 @@ onBeforeUnmount(() => {
                     stroke-width="2"
                     d="M19 9l-7 7-7-7"
                 />
-            </svg>
-        </button>
+            </motion.svg>
+        </motion.button>
 
         <!-- Dropdown Menu -->
-        <Transition
-            enter-active-class="transition ease-out duration-100"
-            enter-from-class="transform opacity-0 scale-95"
-            enter-to-class="transform opacity-100 scale-100"
-            leave-active-class="transition ease-in duration-75"
-            leave-from-class="transform opacity-100 scale-100"
-            leave-to-class="transform opacity-0 scale-95"
-        >
-            <div
+        <AnimatePresence>
+            <motion.div
                 v-if="isOpen"
+                :initial="{ opacity: 0, scale: 0.95, y: -10 }"
+                :animate="{ opacity: 1, scale: 1, y: 0 }"
+                :exit="{ opacity: 0, scale: 0.95, y: -10 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.3 }"
                 class="absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-lg border border-[#3E3E3A] bg-[#1a1d23] shadow-lg ring-1 ring-black ring-opacity-5"
                 role="menu"
                 aria-orientation="vertical"
             >
                 <!-- User Info (Mobile Only) -->
-                <div class="border-b border-[#3E3E3A] px-4 py-3 md:hidden">
+                <motion.div
+                    :initial="{ opacity: 0, y: -5 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :transition="{ delay: 0.05, duration: 0.3 }"
+                    class="border-b border-[#3E3E3A] px-4 py-3 md:hidden"
+                >
                     <p class="text-sm font-medium text-[#e5e7eb]">
                         {{ authStore.user?.name }}
                     </p>
                     <p class="text-xs text-[#9ca3af]">
                         {{ authStore.user?.email }}
                     </p>
-                </div>
+                </motion.div>
 
                 <!-- Menu Items -->
                 <div class="py-1">
                     <!-- Profile Link -->
-                    <Link
-                        :href="profileShow.url()"
-                        @click="closeDropdown"
-                        class="flex w-full items-center gap-3 px-4 py-2 text-sm text-[#9ca3af] transition-colors hover:bg-[#0a0c0f] hover:text-[#e5e7eb]"
-                        role="menuitem"
+                    <motion.div
+                        :initial="{ opacity: 0, x: -10 }"
+                        :animate="{ opacity: 1, x: 0 }"
+                        :transition="{ delay: 0.08, type: 'spring', bounce: 0.3, duration: 0.4 }"
                     >
-                        <svg
-                            class="h-5 w-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
+                        <Link
+                            :href="profileShow.url()"
+                            @click="closeDropdown"
+                            class="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-sm text-[#9ca3af] transition-colors hover:bg-[#0a0c0f] hover:text-[#e5e7eb]"
+                            role="menuitem"
                         >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                            />
-                        </svg>
-                        <span>Profile</span>
-                    </Link>
+                            <svg
+                                class="h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                />
+                            </svg>
+                            <span>Profile</span>
+                        </Link>
+                    </motion.div>
 
                     <!-- Change Password Link -->
-                    <Link
-                        href="/profile/change-password"
-                        @click="closeDropdown"
-                        class="flex w-full items-center gap-3 px-4 py-2 text-sm text-[#9ca3af] transition-colors hover:bg-[#0a0c0f] hover:text-[#e5e7eb]"
-                        role="menuitem"
+                    <motion.div
+                        :initial="{ opacity: 0, x: -10 }"
+                        :animate="{ opacity: 1, x: 0 }"
+                        :transition="{ delay: 0.12, type: 'spring', bounce: 0.3, duration: 0.4 }"
                     >
-                        <svg
-                            class="h-5 w-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
+                        <Link
+                            href="/profile/change-password"
+                            @click="closeDropdown"
+                            class="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-sm text-[#9ca3af] transition-colors hover:bg-[#0a0c0f] hover:text-[#e5e7eb]"
+                            role="menuitem"
                         >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
-                            />
-                        </svg>
-                        <span>Change Password</span>
-                    </Link>
+                            <svg
+                                class="h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                                />
+                            </svg>
+                            <span>Change Password</span>
+                        </Link>
+                    </motion.div>
 
                     <!-- Divider -->
                     <div class="my-1 border-t border-[#3E3E3A]"></div>
 
                     <!-- Logout Button -->
-                    <button
+                    <motion.button
                         @click="handleLogout"
                         type="button"
                         :disabled="isLoading"
-                        class="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-400 transition-colors hover:bg-[#0a0c0f] hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60"
+                        :initial="{ opacity: 0, x: -10 }"
+                        :animate="{ opacity: 1, x: 0 }"
+                        :whileHover="{ x: 3 }"
+                        :transition="{ delay: 0.16, type: 'spring', bounce: 0.3, duration: 0.4 }"
+                        class="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-sm text-red-400 transition-colors hover:bg-[#0a0c0f] hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60"
                         role="menuitem"
                     >
                         <svg
@@ -286,9 +311,9 @@ onBeforeUnmount(() => {
                         <span>{{
                             isLoading ? 'Logging out...' : 'Logout'
                         }}</span>
-                    </button>
+                    </motion.button>
                 </div>
-            </div>
-        </Transition>
+            </motion.div>
+        </AnimatePresence>
     </div>
 </template>

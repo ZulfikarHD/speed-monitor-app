@@ -20,6 +20,7 @@
  */
 
 import { Link } from '@inertiajs/vue3';
+import { motion } from 'motion-v';
 import { computed } from 'vue';
 
 import SpeedChart from '@/components/trips/SpeedChart.vue';
@@ -116,29 +117,40 @@ function formatSpeed(speed: number | string | null): string {
     <EmployeeLayout :title="`Trip Detail - ${formatDate(trip.started_at)}`">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- Back Button -->
-            <Link
-                href="/employee/my-trips"
-                class="mb-6 inline-flex items-center gap-2 text-sm text-cyan-400 transition-colors hover:text-cyan-300"
+            <motion.div
+                :initial="{ opacity: 0, x: -20 }"
+                :animate="{ opacity: 1, x: 0 }"
+                :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
             >
-                <svg
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
+                <Link
+                    href="/employee/my-trips"
+                    class="mb-6 inline-flex min-h-[44px] items-center gap-2 px-4 py-3 text-sm text-cyan-400 transition-colors hover:text-cyan-300"
                 >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 19l-7-7 7-7"
-                    />
-                </svg>
-                Back to My Trips
-            </Link>
+                    <svg
+                        class="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15 19l-7-7 7-7"
+                        />
+                    </svg>
+                    Back to My Trips
+                </Link>
+            </motion.div>
 
             <!-- Page Header -->
-            <div class="mb-6 flex items-center gap-3">
+            <motion.div
+                :initial="{ opacity: 0, y: -20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.4, duration: 0.6, delay: 0.1 }"
+                class="mb-6 flex items-center gap-3"
+            >
                 <h1
                     class="text-3xl font-bold text-[#e5e7eb]"
                     style="font-family: 'Bebas Neue', sans-serif"
@@ -147,27 +159,46 @@ function formatSpeed(speed: number | string | null): string {
                 </h1>
 
                 <!-- Status Badge -->
-                <span
+                <motion.span
+                    :initial="{ opacity: 0, scale: 0.8 }"
+                    :animate="{ opacity: 1, scale: 1 }"
+                    :transition="{ type: 'spring', bounce: 0.5, duration: 0.5, delay: 0.2 }"
                     :class="[
                         'inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium',
                         statusColor,
                     ]"
                 >
                     {{ statusText }}
-                </span>
-            </div>
+                </motion.span>
+            </motion.div>
 
-            <p class="mb-6 text-sm text-[#9ca3af]">
+            <motion.p
+                :initial="{ opacity: 0 }"
+                :animate="{ opacity: 1 }"
+                :transition="{ delay: 0.25, duration: 0.5 }"
+                class="mb-6 text-sm text-[#9ca3af]"
+            >
                 Dimulai: {{ formatTime(trip.started_at) }}
                 <span v-if="trip.ended_at">
                     • Selesai: {{ formatTime(trip.ended_at) }}
                 </span>
-            </p>
+            </motion.p>
 
             <!-- Statistics Grid -->
-            <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <motion.div
+                :initial="{ opacity: 0, y: 20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.3 }"
+                class="grid grid-cols-2 gap-4 sm:grid-cols-4"
+            >
                 <!-- Duration -->
-                <div class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-4">
+                <motion.div
+                    :initial="{ opacity: 0, y: 20 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :whileHover="{ scale: 1.03, y: -4 }"
+                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.5, delay: 0.35 }"
+                    class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-4"
+                >
                     <div class="mb-2 text-xs text-[#9ca3af]">Durasi</div>
                     <div
                         class="font-mono text-xl font-semibold text-[#e5e7eb]"
@@ -175,10 +206,16 @@ function formatSpeed(speed: number | string | null): string {
                     >
                         {{ formatDuration(trip.duration_seconds) }}
                     </div>
-                </div>
+                </motion.div>
 
                 <!-- Distance -->
-                <div class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-4">
+                <motion.div
+                    :initial="{ opacity: 0, y: 20 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :whileHover="{ scale: 1.03, y: -4 }"
+                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.5, delay: 0.4 }"
+                    class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-4"
+                >
                     <div class="mb-2 text-xs text-[#9ca3af]">Jarak</div>
                     <div
                         class="font-mono text-xl font-semibold text-cyan-400"
@@ -186,10 +223,16 @@ function formatSpeed(speed: number | string | null): string {
                     >
                         {{ formatDistance(trip.total_distance) }}
                     </div>
-                </div>
+                </motion.div>
 
                 <!-- Max Speed -->
-                <div class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-4">
+                <motion.div
+                    :initial="{ opacity: 0, y: 20 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :whileHover="{ scale: 1.03, y: -4 }"
+                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.5, delay: 0.45 }"
+                    class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-4"
+                >
                     <div class="mb-2 text-xs text-[#9ca3af]">
                         Kecepatan Maksimal
                     </div>
@@ -199,10 +242,16 @@ function formatSpeed(speed: number | string | null): string {
                     >
                         {{ formatSpeed(trip.max_speed) }}
                     </div>
-                </div>
+                </motion.div>
 
                 <!-- Average Speed -->
-                <div class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-4">
+                <motion.div
+                    :initial="{ opacity: 0, y: 20 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :whileHover="{ scale: 1.03, y: -4 }"
+                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.5, delay: 0.5 }"
+                    class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-4"
+                >
                     <div class="mb-2 text-xs text-[#9ca3af]">
                         Kecepatan Rata-rata
                     </div>
@@ -212,8 +261,8 @@ function formatSpeed(speed: number | string | null): string {
                     >
                         {{ formatSpeed(trip.average_speed) }}
                     </div>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
             <!-- Speed Chart -->
             <SpeedChart

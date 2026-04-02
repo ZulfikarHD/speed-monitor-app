@@ -16,6 +16,8 @@
  */
 
 import { router } from '@inertiajs/vue3';
+import { motion } from 'motion-v';
+
 import type { Trip } from '@/types/trip';
 import { formatDate, formatTime, formatDuration } from '@/utils/date';
 
@@ -120,8 +122,11 @@ function handleClick(): void {
         Trip Card
         Interactive card displaying trip summary with hover effects
     ======================================================================= -->
-    <button
+    <motion.button
         @click="handleClick"
+        :whileHover="{ scale: 1.02, y: -4 }"
+        :whilePress="{ scale: 0.98 }"
+        :transition="{ type: 'spring', bounce: 0.4, duration: 0.4 }"
         class="w-full rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-5 text-left transition-all hover:border-cyan-500/50 hover:bg-[#2a2d33] focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
         :aria-label="`View trip details from ${formatDate(trip.started_at)}`"
     >
@@ -229,5 +234,5 @@ function handleClick(): void {
                 />
             </svg>
         </div>
-    </button>
+    </motion.button>
 </template>

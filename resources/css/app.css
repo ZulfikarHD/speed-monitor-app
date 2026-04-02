@@ -9,3 +9,12 @@
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 }
+
+@layer utilities {
+    .touch-target {
+        @apply min-h-[44px] min-w-[44px];
+    }
+    .touch-target-sm {
+        @apply min-h-[40px] min-w-[40px];
+    }
+}

@@ -296,7 +296,7 @@ const gapClass = computed<string>(() => {
                     <div
                         :class="[
                             'text-gray-400 mt-1',
-                            compact ? 'text-[10px]' : 'text-xs',
+                            compact ? 'text-xs' : 'text-xs sm:text-sm',
                         ]"
                     >
                         km/h
@@ -327,7 +327,7 @@ const gapClass = computed<string>(() => {
                     <div
                         :class="[
                             'text-gray-400 mt-1',
-                            compact ? 'text-[10px]' : 'text-xs',
+                            compact ? 'text-xs' : 'text-xs sm:text-sm',
                         ]"
                     >
                         km/h
@@ -364,7 +364,7 @@ const gapClass = computed<string>(() => {
                     <div
                         :class="[
                             'text-gray-400 mt-1',
-                            compact ? 'text-[10px]' : 'text-xs',
+                            compact ? 'text-xs' : 'text-xs sm:text-sm',
                         ]"
                     >
                         km
@@ -395,7 +395,7 @@ const gapClass = computed<string>(() => {
                     <div
                         :class="[
                             'text-gray-400 mt-1',
-                            compact ? 'text-[10px]' : 'text-xs',
+                            compact ? 'text-xs' : 'text-xs sm:text-sm',
                         ]"
                     >
                         {{ tripStore.stats.duration >= 3600 ? 'jam' : 'menit' }}
