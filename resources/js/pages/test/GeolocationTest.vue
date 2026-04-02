@@ -18,10 +18,7 @@
                 </h2>
                 <div class="mt-4 flex items-center gap-3">
                     <div
-                        :class="[
-                            'h-3 w-3 rounded-full',
-                            permissionStatusColor,
-                        ]"
+                        :class="['h-3 w-3 rounded-full', permissionStatusColor]"
                     ></div>
                     <span class="text-sm font-medium text-gray-700">
                         {{ permissionStatus }}
@@ -141,7 +138,10 @@
                     Speed Log (Last 10 readings)
                 </h2>
                 <div class="mt-4">
-                    <div v-if="speedLog.length === 0" class="text-sm text-gray-500">
+                    <div
+                        v-if="speedLog.length === 0"
+                        class="text-sm text-gray-500"
+                    >
                         No speed readings yet. Start tracking to see data.
                     </div>
                     <div v-else class="space-y-2">
@@ -182,7 +182,9 @@
                 <h2 class="text-lg font-semibold text-blue-900">
                     Testing Instructions
                 </h2>
-                <ol class="mt-4 list-inside list-decimal space-y-2 text-sm text-blue-800">
+                <ol
+                    class="mt-4 list-inside list-decimal space-y-2 text-sm text-blue-800"
+                >
                     <li>Click "Request Permission" to grant location access</li>
                     <li>Click "Start Tracking" to begin speed monitoring</li>
                     <li>Move your device to test speed detection</li>

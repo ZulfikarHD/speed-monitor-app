@@ -165,7 +165,7 @@ const handleSubmit = (): void => {
                             name="email"
                             type="email"
                             autocomplete="email"
-                            class="w-full rounded-lg border border-[#e3e3e0] bg-white px-4 py-2.5 text-sm transition-colors focus:border-[#1b1b18] focus:outline-none focus:ring-2 focus:ring-[#1b1b18]/10 dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/10"
+                            class="w-full rounded-lg border border-[#e3e3e0] bg-white px-4 py-2.5 text-sm transition-colors focus:border-[#1b1b18] focus:ring-2 focus:ring-[#1b1b18]/10 focus:outline-none dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/10"
                             :class="{
                                 'border-red-500 focus:border-red-500 focus:ring-red-500/10':
                                     clientErrors.email || form.errors.email,
@@ -195,10 +195,11 @@ const handleSubmit = (): void => {
                             name="password"
                             type="password"
                             autocomplete="current-password"
-                            class="w-full rounded-lg border border-[#e3e3e0] bg-white px-4 py-2.5 text-sm transition-colors focus:border-[#1b1b18] focus:outline-none focus:ring-2 focus:ring-[#1b1b18]/10 dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/10"
+                            class="w-full rounded-lg border border-[#e3e3e0] bg-white px-4 py-2.5 text-sm transition-colors focus:border-[#1b1b18] focus:ring-2 focus:ring-[#1b1b18]/10 focus:outline-none dark:border-[#3E3E3A] dark:bg-[#0a0a0a] dark:text-[#EDEDEC] dark:focus:border-[#EDEDEC] dark:focus:ring-[#EDEDEC]/10"
                             :class="{
                                 'border-red-500 focus:border-red-500 focus:ring-red-500/10':
-                                    clientErrors.password || form.errors.password,
+                                    clientErrors.password ||
+                                    form.errors.password,
                             }"
                             :disabled="form.processing"
                             @input="clientErrors.password = ''"
@@ -214,12 +215,15 @@ const handleSubmit = (): void => {
                     <!-- Submit Button -->
                     <button
                         type="submit"
-                        class="w-full rounded-lg border border-black bg-[#1b1b18] px-5 py-2.5 text-sm font-medium leading-normal text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#eeeeec] dark:bg-[#eeeeec] dark:text-[#1C1C1A] dark:hover:border-white dark:hover:bg-white"
+                        class="w-full rounded-lg border border-black bg-[#1b1b18] px-5 py-2.5 text-sm leading-normal font-medium text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#eeeeec] dark:bg-[#eeeeec] dark:text-[#1C1C1A] dark:hover:border-white dark:hover:bg-white"
                         :disabled="form.processing"
                     >
-                        <span v-if="form.processing" class="flex items-center justify-center">
+                        <span
+                            v-if="form.processing"
+                            class="flex items-center justify-center"
+                        >
                             <svg
-                                class="-ml-1 mr-2 h-4 w-4 animate-spin"
+                                class="mr-2 -ml-1 h-4 w-4 animate-spin"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
                                 viewBox="0 0 24 24"
@@ -245,7 +249,9 @@ const handleSubmit = (): void => {
                 </form>
 
                 <!-- Test Accounts Info -->
-                <div class="mt-6 text-center text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                <div
+                    class="mt-6 text-center text-sm text-[#706f6c] dark:text-[#A1A09A]"
+                >
                     <p class="mb-2">Test Accounts:</p>
                     <div class="space-y-1 text-xs">
                         <p>Admin: admin@example.com</p>

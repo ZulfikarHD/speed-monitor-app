@@ -61,8 +61,8 @@
  */
 
 import { useGeolocation as useVueGeolocation } from '@vueuse/core';
-import { computed, ref, watch   } from 'vue';
-import type {Ref, WatchStopHandle} from 'vue';
+import { computed, ref, watch } from 'vue';
+import type { Ref, WatchStopHandle } from 'vue';
 
 import type {
     GeolocationError,
@@ -421,9 +421,7 @@ export function useGeolocation() {
                 },
                 // Error: Permission denied or other error
                 (positionError) => {
-                    const mappedError = mapGeolocationError(
-                        positionError.code,
-                    );
+                    const mappedError = mapGeolocationError(positionError.code);
                     error.value = mappedError;
 
                     // Update permission status

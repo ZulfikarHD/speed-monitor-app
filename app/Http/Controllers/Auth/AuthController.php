@@ -35,11 +35,11 @@ class AuthController extends Controller
      * validation errors.
      *
      * @param  LoginRequest  $request  Validated email and password credentials
-     * @return InertiaResponse User data and token as props, or back with errors
+     * @return InertiaResponse|RedirectResponse User data and token as props, or back with errors
      *
      * @throws AuthenticationException When credentials are invalid or account is inactive
      */
-    public function login(LoginRequest $request): InertiaResponse
+    public function login(LoginRequest $request): InertiaResponse|RedirectResponse
     {
         try {
             $result = $this->authService->login($request->validated());

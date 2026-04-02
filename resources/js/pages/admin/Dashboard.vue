@@ -24,10 +24,14 @@ const { handleLogout, isLoading } = useAuth();
             >
                 <div class="mb-6 flex items-center justify-between">
                     <div>
-                        <h1 class="text-2xl font-semibold text-[#1b1b18] dark:text-[#EDEDEC]">
+                        <h1
+                            class="text-2xl font-semibold text-[#1b1b18] dark:text-[#EDEDEC]"
+                        >
                             Admin Dashboard
                         </h1>
-                        <p class="mt-1 text-sm text-[#706f6c] dark:text-[#A1A09A]">
+                        <p
+                            class="mt-1 text-sm text-[#706f6c] dark:text-[#A1A09A]"
+                        >
                             Welcome back, {{ authStore.user?.name }}!
                         </p>
                     </div>
@@ -69,8 +73,9 @@ const { handleLogout, isLoading } = useAuth();
                         class="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/10"
                     >
                         <p class="text-sm text-red-800 dark:text-red-200">
-                            This is a placeholder dashboard. The user management and settings
-                            features will be implemented in Sprint 6.
+                            This is a placeholder dashboard. The user management
+                            and settings features will be implemented in Sprint
+                            6.
                         </p>
                     </div>
                 </div>

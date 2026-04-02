@@ -24,19 +24,25 @@ class UserSeeder extends Seeder
             'email' => 'admin@example.com',
         ]);
 
-        // Create 2 supervisor users
+        // Create primary test accounts with simple emails
         User::factory()->supervisor()->create([
-            'name' => 'Supervisor One',
-            'email' => 'supervisor1@example.com',
+            'name' => 'Supervisor User',
+            'email' => 'supervisor@example.com',
         ]);
 
+        User::factory()->employee()->create([
+            'name' => 'Employee User',
+            'email' => 'employee@example.com',
+        ]);
+
+        // Create additional supervisor users
         User::factory()->supervisor()->create([
             'name' => 'Supervisor Two',
             'email' => 'supervisor2@example.com',
         ]);
 
-        // Create 10 employee users
-        for ($i = 1; $i <= 10; $i++) {
+        // Create additional employee users
+        for ($i = 2; $i <= 10; $i++) {
             User::factory()->employee()->create([
                 'name' => "Employee {$i}",
                 'email' => "employee{$i}@example.com",

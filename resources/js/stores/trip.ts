@@ -150,7 +150,9 @@ export const useTripStore = defineStore('trip', () => {
      * @returns True if currentTrip exists and status is 'in_progress'
      */
     const hasActiveTrip = computed<boolean>(
-        () => currentTrip.value !== null && currentTrip.value.status === 'in_progress',
+        () =>
+            currentTrip.value !== null &&
+            currentTrip.value.status === 'in_progress',
     );
 
     /**
@@ -263,10 +265,7 @@ export const useTripStore = defineStore('trip', () => {
      * });
      * ```
      */
-    function addSpeedLog(
-        speed: number,
-        timestamp: number | null,
-    ): void {
+    function addSpeedLog(speed: number, timestamp: number | null): void {
         if (!hasActiveTrip.value) {
             console.warn('Cannot add speed log: no active trip');
 
@@ -331,9 +330,8 @@ export const useTripStore = defineStore('trip', () => {
             (sum, log) => sum + log.speed,
             0,
         );
-        stats.value.averageSpeed = Math.round(
-            (totalSpeed / speedLogs.value.length) * 10,
-        ) / 10;
+        stats.value.averageSpeed =
+            Math.round((totalSpeed / speedLogs.value.length) * 10) / 10;
 
         /**
          * Calculate distance from speed logs.
@@ -429,7 +427,8 @@ export const useTripStore = defineStore('trip', () => {
                 currentTrip.value.max_speed = response.trip.max_speed;
                 currentTrip.value.average_speed = response.trip.average_speed;
                 currentTrip.value.total_distance = response.trip.total_distance;
-                currentTrip.value.violation_count = response.trip.violation_count;
+                currentTrip.value.violation_count =
+                    response.trip.violation_count;
                 currentTrip.value.synced_at = response.trip.synced_at;
             }
 
