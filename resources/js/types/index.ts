@@ -1,5 +1,6 @@
 export * from './auth';
 export * from './geolocation';
+export * from './speedometer';
 export * from './trip';
 export type { User, UserRole } from '../stores/auth';
 export type { AppSettings } from '../stores/settings';
