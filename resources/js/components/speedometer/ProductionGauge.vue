@@ -23,10 +23,16 @@ const maxSpeedDisplay = () => (props.unit === 'kmh' ? 200 : 125);
 
 function drawGauge() {
     const canvas = canvasRef.value;
-    if (!canvas) return;
+
+    if (!canvas) {
+return;
+}
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+
+    if (!ctx) {
+return;
+}
 
     const W = canvas.width;
     const H = canvas.height;
@@ -82,6 +88,7 @@ function drawGauge() {
 
     // Tick marks
     const ticks = 10;
+
     for (let i = 0; i <= ticks; i++) {
         const a = startAngle + (arcRange / ticks) * i;
         const inner = R - 22;

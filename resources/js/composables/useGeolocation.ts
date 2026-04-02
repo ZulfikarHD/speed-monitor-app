@@ -157,6 +157,7 @@ export function useGeolocation() {
         if (!coords.value.speed || coords.value.speed < 0) {
             return 0;
         }
+
         return coords.value.speed;
     });
 

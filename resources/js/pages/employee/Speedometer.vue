@@ -11,7 +11,6 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import ProductionGauge from '@/components/speedometer/ProductionGauge.vue';
 import TripControls from '@/components/speedometer/TripControls.vue';
-import TripStats from '@/components/speedometer/TripStats.vue';
 import { useAutoStop } from '@/composables/useAutoStop';
 import { useGeolocation } from '@/composables/useGeolocation';
 import { useSettingsStore } from '@/stores/settings';
@@ -71,8 +70,13 @@ onMounted(async () => {
 // ========================================================================
 
 watch([coords], () => {
-    if (!tripStore.hasActiveTrip) return;
-    if (!coords.value.latitude || !coords.value.longitude) return;
+    if (!tripStore.hasActiveTrip) {
+return;
+}
+
+    if (!coords.value.latitude || !coords.value.longitude) {
+return;
+}
 
     if (lastPosition.value) {
         const dist = haversineDistance(
@@ -100,33 +104,59 @@ const currentSpeed = computed(() => mpsToDisplay(speedMps.value, unit.value));
 
 const speedLimit = computed(() => localSpeedLimit.value);
 
-const hasActiveTrip = computed(() => tripStore.hasActiveTrip);
-
 const satelliteCount = computed(() => estimateSatelliteCount(accuracy.value));
 
 const accuracyPercentage = computed(() => {
-    if (!accuracy.value) return 0;
+    if (!accuracy.value) {
+return 0;
+}
+
     return Math.max(0, Math.min(100, 100 - (accuracy.value / 50) * 100));
 });
 
 const accuracyColor = computed(() => {
     const pct = accuracyPercentage.value;
-    if (pct > 60) return '#00e5ff';
-    if (pct > 30) return '#ffab00';
+
+    if (pct > 60) {
+return '#00e5ff';
+}
+
+    if (pct > 30) {
+return '#ffab00';
+}
+
     return '#ff3d57';
 });
 
 const gpsStatus = computed(() => {
-    if (!tripStore.hasActiveTrip) return 'Stopped';
-    if (accuracy.value === null) return 'Acquiring GPS…';
-    if (accuracy.value > 50) return 'GPS Weak';
+    if (!tripStore.hasActiveTrip) {
+return 'Stopped';
+}
+
+    if (accuracy.value === null) {
+return 'Acquiring GPS…';
+}
+
+    if (accuracy.value > 50) {
+return 'GPS Weak';
+}
+
     return 'GPS Active';
 });
 
 const gpsStatusClass = computed(() => {
-    if (!tripStore.hasActiveTrip) return 'muted';
-    if (accuracy.value === null) return 'warn';
-    if (accuracy.value > 50) return 'warn';
+    if (!tripStore.hasActiveTrip) {
+return 'muted';
+}
+
+    if (accuracy.value === null) {
+return 'warn';
+}
+
+    if (accuracy.value > 50) {
+return 'warn';
+}
+
     return 'active';
 });
 

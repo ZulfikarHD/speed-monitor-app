@@ -14,7 +14,6 @@
  */
 import { router } from '@inertiajs/vue3';
 
-import { logout as logoutAction } from '@/actions/App/Http/Controllers/Auth/AuthController';
 import { useAuthStore } from '@/stores/auth';
 
 /**

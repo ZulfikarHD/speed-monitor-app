@@ -60,7 +60,9 @@ export function getUnitLabel(unit: SpeedUnit): string {
  * Better accuracy generally means more satellites.
  */
 export function estimateSatelliteCount(accuracy: number | null): number {
-    if (accuracy === null) return 0;
+    if (accuracy === null) {
+return 0;
+}
     
     // Good accuracy (< 10m) = more satellites
     // Poor accuracy (> 50m) = fewer satellites

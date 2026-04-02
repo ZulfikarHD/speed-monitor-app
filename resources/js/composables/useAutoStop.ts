@@ -13,7 +13,7 @@
  * - Cancellable auto-stop if movement resumes
  */
 
-import { onBeforeUnmount, ref, watch } from 'vue';
+import { onBeforeUnmount, ref } from 'vue';
 
 interface AutoStopOptions {
     /** Duration of inactivity before auto-stop (seconds) */
@@ -49,7 +49,9 @@ export function useAutoStop(options: AutoStopOptions): UseAutoStopReturn {
      * Start monitoring for inactivity.
      */
     function startMonitoring(getCurrentSpeed: () => number): void {
-        if (monitoring.value) return;
+        if (monitoring.value) {
+return;
+}
 
         speedGetter = getCurrentSpeed;
         lastMovementTime = Date.now();
@@ -57,13 +59,16 @@ export function useAutoStop(options: AutoStopOptions): UseAutoStopReturn {
 
         // Check every 10 seconds
         checkInterval = setInterval(() => {
-            if (!speedGetter) return;
+            if (!speedGetter) {
+return;
+}
 
             const speed = speedGetter();
 
             // Movement detected - reset timer
             if (speed > options.speedThreshold) {
                 lastMovementTime = Date.now();
+
                 return;
             }
 
@@ -75,6 +80,7 @@ export function useAutoStop(options: AutoStopOptions): UseAutoStopReturn {
 
                 // Warning at 5 minutes before auto-stop
                 const warningThreshold = options.inactivityDuration - 300;
+
                 if (
                     inactiveSeconds >= warningThreshold &&
                     inactiveSeconds < warningThreshold + 10 &&
@@ -100,6 +106,7 @@ export function useAutoStop(options: AutoStopOptions): UseAutoStopReturn {
             clearInterval(checkInterval);
             checkInterval = null;
         }
+
         monitoring.value = false;
         lastMovementTime = null;
         speedGetter = null;
@@ -116,13 +123,17 @@ export function useAutoStop(options: AutoStopOptions): UseAutoStopReturn {
      * Get seconds remaining until auto-stop.
      */
     function secondsUntilAutoStop(): number {
-        if (!lastMovementTime || !monitoring.value) return 0;
+        if (!lastMovementTime || !monitoring.value) {
+return 0;
+}
 
         const inactiveSeconds = Math.floor(
             (Date.now() - lastMovementTime) / 1000,
         );
 
-        if (inactiveSeconds >= options.inactivityDuration) return 0;
+        if (inactiveSeconds >= options.inactivityDuration) {
+return 0;
+}
 
         return options.inactivityDuration - inactiveSeconds;
     }
