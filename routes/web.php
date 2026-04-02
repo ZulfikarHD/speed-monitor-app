@@ -5,6 +5,7 @@ use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardContro
 use App\Http\Controllers\Employee\MyTripsController;
 use App\Http\Controllers\Employee\SpeedometerController;
 use App\Http\Controllers\Employee\StatisticsController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,14 @@ Route::middleware('guest')->group(function () {
 
 // Logout route
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+
+// Profile routes (all authenticated users)
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::inertia('/profile/change-password', 'ChangePassword')->name('profile.change-password');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+});
 
 // Employee routes (auth + employee role required)
 Route::middleware(['auth', 'role:employee'])->group(function () {

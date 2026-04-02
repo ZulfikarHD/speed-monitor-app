@@ -14,10 +14,14 @@
  * - VeloTrack dark theme styling
  */
 
+import { Link } from '@inertiajs/vue3';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
+import { show as profileShow } from '@/actions/App/Http/Controllers/ProfileController';
 import { useAuth } from '@/composables/useAuth';
 import { useAuthStore } from '@/stores/auth';
+
+// Import Wayfinder profile route
 
 // ========================================================================
 // Dependencies
@@ -184,13 +188,12 @@ onBeforeUnmount(() => {
 
                 <!-- Menu Items -->
                 <div class="py-1">
-                    <!-- Profile Link (Future: US-4.4) -->
-                    <button
-                        type="button"
+                    <!-- Profile Link -->
+                    <Link
+                        :href="profileShow.url()"
+                        @click="closeDropdown"
                         class="flex w-full items-center gap-3 px-4 py-2 text-sm text-[#9ca3af] transition-colors hover:bg-[#0a0c0f] hover:text-[#e5e7eb]"
                         role="menuitem"
-                        disabled
-                        title="Profile page coming soon"
                     >
                         <svg
                             class="h-5 w-5"
@@ -206,8 +209,32 @@ onBeforeUnmount(() => {
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                             />
                         </svg>
-                        <span class="opacity-50">Profile (Coming Soon)</span>
-                    </button>
+                        <span>Profile</span>
+                    </Link>
+
+                    <!-- Change Password Link -->
+                    <Link
+                        href="/profile/change-password"
+                        @click="closeDropdown"
+                        class="flex w-full items-center gap-3 px-4 py-2 text-sm text-[#9ca3af] transition-colors hover:bg-[#0a0c0f] hover:text-[#e5e7eb]"
+                        role="menuitem"
+                    >
+                        <svg
+                            class="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                            />
+                        </svg>
+                        <span>Change Password</span>
+                    </Link>
 
                     <!-- Divider -->
                     <div class="my-1 border-t border-[#3E3E3A]"></div>
