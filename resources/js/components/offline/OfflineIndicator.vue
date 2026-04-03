@@ -50,6 +50,9 @@ interface Props {
 
     /** Show sync button even when online (for manual sync) */
     showSyncButton?: boolean;
+
+    /** Whether auto-sync is enabled */
+    isAutoSyncEnabled?: boolean;
 }
 
 /**
@@ -63,7 +66,8 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
     pendingCount: 0,
     isSyncing: false,
-    showSyncButton: false
+    showSyncButton: false,
+    isAutoSyncEnabled: true
 });
 
 const emit = defineEmits<Emits>();
@@ -113,11 +117,15 @@ const detailMessage = computed(() => {
     }
 
     if (isOffline.value && props.pendingCount > 0) {
-        return `${props.pendingCount} item menunggu koneksi`;
+        const autoSyncText = props.isAutoSyncEnabled ? ' (auto-sync aktif)' : '';
+
+        return `${props.pendingCount} item menunggu koneksi${autoSyncText}`;
     }
 
     if (props.pendingCount > 0) {
-        return `${props.pendingCount} item siap disinkronkan`;
+        const autoSyncText = props.isAutoSyncEnabled ? ' (auto-sync aktif)' : '';
+
+        return `${props.pendingCount} item siap disinkronkan${autoSyncText}`;
     }
 
     return '';
@@ -239,20 +247,46 @@ const handleSyncClick = (): void => {
                         </svg>
                     </div>
 
-                    <!-- Cloud Icon (Online/Syncing) with rotation animation -->
+                    <!-- Cloud Icon (Online/Syncing) with rotation/pulse animation -->
                     <Transition
                         :css="false"
                         @enter="
                             (el, done) => {
-                                motion(
-                                    el,
-                                    { rotate: isSyncing ? 360 : 0 },
-                                    { duration: 1, repeat: isSyncing ? Infinity : 0, easing: 'linear' }
-                                ).finished.then(done);
+                                if (isSyncing) {
+                                    motion(el, { rotate: 360 }, { duration: 1, repeat: Infinity, easing: 'linear' }).finished.then(
+                                        done
+                                    );
+                                } else if (isAutoSyncEnabled && pendingCount > 0) {
+                                    motion(
+                                        el,
+                                        { scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] },
+                                        { duration: 2, repeat: Infinity, easing: 'easeInOut' }
+                                    ).finished.then(done);
+                                } else {
+                                    motion(el, { opacity: 1 }, { duration: 0.3 }).finished.then(done);
+                                }
                             }
                         "
                     >
-                        <div v-if="!isOffline" :class="textColorClass" class="flex-shrink-0">
+                        <motion.div
+                            v-if="!isOffline"
+                            :animate="
+                                isSyncing
+                                    ? { rotate: 360 }
+                                    : isAutoSyncEnabled && pendingCount > 0
+                                      ? { scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }
+                                      : {}
+                            "
+                            :class="textColorClass"
+                            :transition="
+                                isSyncing
+                                    ? { duration: 1, repeat: Infinity, ease: 'linear' }
+                                    : isAutoSyncEnabled && pendingCount > 0
+                                      ? { duration: 2, repeat: Infinity, ease: 'easeInOut' }
+                                      : {}
+                            "
+                            class="flex-shrink-0"
+                        >
                             <!-- Cloud Icon (Simple SVG) -->
                             <svg
                                 class="h-6 w-6"
@@ -268,7 +302,7 @@ const handleSyncClick = (): void => {
                                     stroke-linejoin="round"
                                 />
                             </svg>
-                        </div>
+                        </motion.div>
                     </Transition>
 
                     <!-- Status Text -->

@@ -25,6 +25,8 @@ export interface AppSettings {
     violation_threshold: number;
     /** Enable/disable violation alerts (notification + audio + visual) */
     violation_alerts_enabled: boolean;
+    /** Enable automatic background synchronization when online */
+    auto_sync_enabled: boolean;
 }
 
 /**
@@ -61,6 +63,7 @@ export const useSettingsStore = defineStore('settings', () => {
         speed_log_interval: 5,
         violation_threshold: 60,
         violation_alerts_enabled: true,
+        auto_sync_enabled: true,
     });
 
     /**
@@ -128,6 +131,7 @@ export const useSettingsStore = defineStore('settings', () => {
             speed_log_interval: 5,
             violation_threshold: 60,
             violation_alerts_enabled: true,
+            auto_sync_enabled: true,
         };
         isLoaded.value = false;
     }

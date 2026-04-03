@@ -14,6 +14,7 @@ import OfflineIndicator from '@/components/offline/OfflineIndicator.vue';
 import ProductionGauge from '@/components/speedometer/ProductionGauge.vue';
 import TripControls from '@/components/speedometer/TripControls.vue';
 import { useAutoStop } from '@/composables/useAutoStop';
+import { useBackgroundSync } from '@/composables/useBackgroundSync';
 import { useGeolocation } from '@/composables/useGeolocation';
 import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
 import { useSettingsStore } from '@/stores/settings';
@@ -28,6 +29,17 @@ import { estimateSatelliteCount, mpsToDisplay } from '@/utils/units';
 const tripStore = useTripStore();
 const settingsStore = useSettingsStore();
 const { speedKmh, speedMps, accuracy, coords, stopTracking } = useGeolocation();
+
+/**
+ * Background sync composable for automatic synchronization.
+ *
+ * Provides auto-sync functionality and state tracking.
+ */
+const {
+    isSyncing: isBackgroundSyncing,
+    isAutoSyncEnabled,
+    startManualSync: triggerBackgroundSync,
+} = useBackgroundSync();
 
 // ========================================================================
 // Local State
@@ -92,13 +104,15 @@ const updatePendingSyncCount = async (): Promise<void> => {
 /**
  * Handle manual sync request from OfflineIndicator.
  *
- * Triggers sync of pending items when user clicks "Sync Now" button.
- * This will be implemented in US-5.3 (Background Sync Service).
+ * Delegates to background sync composable for centralized sync logic.
  */
 const handleManualSync = async (): Promise<void> => {
-    // TODO: US-5.3 - Implement manual sync via useOfflineSync composable
-    console.log('Manual sync requested - to be implemented in US-5.3');
-    await updatePendingSyncCount();
+    try {
+        await triggerBackgroundSync();
+        await updatePendingSyncCount();
+    } catch (error: any) {
+        console.error('[Speedometer] Manual sync error:', error);
+    }
 };
 
 // ========================================================================
@@ -247,7 +261,8 @@ onBeforeUnmount(() => {
         <!-- ============================================================ -->
         <OfflineIndicator
             :pending-count="pendingSyncCount"
-            :is-syncing="tripStore.isSyncing"
+            :is-syncing="isBackgroundSyncing"
+            :is-auto-sync-enabled="isAutoSyncEnabled"
             @sync="handleManualSync"
         />
 

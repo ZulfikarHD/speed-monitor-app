@@ -23,13 +23,13 @@ import { computed, onMounted, ref } from 'vue';
 
 import Toast from '@/components/common/Toast.vue';
 import OfflineIndicator from '@/components/offline/OfflineIndicator.vue';
+import SyncProgressIndicator from '@/components/sync/SyncProgressIndicator.vue';
 import EmptyState from '@/components/trips/EmptyState.vue';
 import Pagination from '@/components/trips/Pagination.vue';
 import TripCard from '@/components/trips/TripCard.vue';
 import TripListFilters from '@/components/trips/TripListFilters.vue';
-import { useToast } from '@/composables/useToast';
+import { useBackgroundSync } from '@/composables/useBackgroundSync';
 import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
-import { syncService } from '@/services/syncService';
 import { useTripStore } from '@/stores/trip';
 import type { SyncProgress } from '@/types/sync';
 import type { Trip, TripStatus } from '@/types/trip';
@@ -63,7 +63,19 @@ const props = defineProps<Props>();
 // ========================================================================
 
 const tripStore = useTripStore();
-const { showSuccess, showError } = useToast();
+
+/**
+ * Background sync composable for automatic synchronization.
+ *
+ * Provides auto-sync functionality when app comes online and
+ * comprehensive sync state tracking for UI feedback.
+ */
+const {
+    isSyncing: isBackgroundSyncing,
+    currentProgress: backgroundSyncProgress,
+    isAutoSyncEnabled,
+    startManualSync: triggerBackgroundSync,
+} = useBackgroundSync();
 
 // ========================================================================
 // Local State
@@ -79,11 +91,17 @@ const localFilters = ref({
 /** Pending sync count for offline indicator */
 const pendingSyncCount = ref<number>(0);
 
-/** Syncing state for loading indicator */
+/** Syncing state for loading indicator (manual sync) */
 const isSyncing = ref<boolean>(false);
 
-/** Current sync progress for UI display */
+/** Current sync progress for UI display (manual sync) */
 const syncProgress = ref<SyncProgress | null>(null);
+
+/** Combined syncing state (manual or background) */
+const isAnySyncing = computed(() => isSyncing.value || isBackgroundSyncing.value);
+
+/** Combined sync progress (manual or background) */
+const currentSyncProgress = computed(() => syncProgress.value || backgroundSyncProgress.value);
 
 // ========================================================================
 // Methods
@@ -152,58 +170,28 @@ function handlePageChange(page: number): void {
 /**
  * Handle manual sync of pending offline trips.
  *
- * Syncs all pending trips from IndexedDB to backend API.
- * Shows progress during sync and displays success/error toasts.
- * Refreshes trip list from backend after successful sync.
+ * Now delegates to background sync composable for consistency.
+ * Provides UI feedback and refreshes trip list after sync.
  *
- * WHY: Gives users manual control over when to sync offline data.
- * WHY: Progress feedback improves UX for long sync operations.
+ * WHY: Centralized sync logic through background sync composable.
+ * WHY: Manual sync triggers same workflow as auto-sync.
  */
 async function handleManualSync(): Promise<void> {
-    if (isSyncing.value) {
+    if (isAnySyncing.value) {
         return; // Prevent double sync
     }
 
-    isSyncing.value = true;
-    syncProgress.value = null;
-
     try {
-        // Set up progress callback
-        syncService.onProgress((progress: SyncProgress) => {
-            syncProgress.value = progress;
-        });
+        // Trigger manual sync via background sync composable
+        await triggerBackgroundSync();
 
-        // Sync all pending trips
-        const result = await syncService.syncAllPendingTrips();
-
-        // Clear progress callback
-        syncService.clearProgressCallback();
-        syncProgress.value = null;
-
-        // Show result toast
-        if (result.failureCount === 0) {
-            showSuccess(
-                `Sinkronisasi berhasil! ${result.successCount} perjalanan tersinkronisasi.`,
-            );
-        } else if (result.successCount > 0) {
-            showError(
-                `Sinkronisasi selesai dengan ${result.successCount} berhasil dan ${result.failureCount} gagal.`,
-            );
-        } else {
-            showError('Sinkronisasi gagal. Semua perjalanan gagal disinkronkan.');
-        }
-
-        // Refresh trip list from backend
+        // Refresh trip list from backend after sync
         router.reload({ only: ['trips', 'meta'] });
 
         // Update pending count
         await updatePendingSyncCount();
     } catch (error: any) {
-        syncService.clearProgressCallback();
-        syncProgress.value = null;
-        showError(`Gagal sinkronisasi: ${error.message || 'Unknown error'}`);
-    } finally {
-        isSyncing.value = false;
+        console.error('[MyTrips] Manual sync error:', error);
     }
 }
 
@@ -232,6 +220,18 @@ const showEmptyState = computed(() => {
 onMounted(async () => {
     // Load pending sync count on mount
     await updatePendingSyncCount();
+
+    // Set up background sync watcher to refresh trip list
+    watch(isBackgroundSyncing, (newSyncing, oldSyncing) => {
+        // When background sync completes (syncing -> not syncing)
+        if (oldSyncing && !newSyncing) {
+            // Refresh trip list from backend
+            router.reload({ only: ['trips', 'meta'] });
+
+            // Update pending count
+            updatePendingSyncCount();
+        }
+    });
 });
 
 // ========================================================================
@@ -265,8 +265,22 @@ const updatePendingSyncCount = async (): Promise<void> => {
         <!-- ============================================================ -->
         <OfflineIndicator
             :pending-count="pendingSyncCount"
-            :is-syncing="isSyncing"
+            :is-syncing="isAnySyncing"
+            :is-auto-sync-enabled="isAutoSyncEnabled"
             @sync="handleManualSync"
+        />
+
+        <!-- ============================================================ -->
+        <!-- SYNC PROGRESS INDICATOR (Floating bottom-right) -->
+        <!-- ============================================================ -->
+        <SyncProgressIndicator
+            v-if="isBackgroundSyncing && currentSyncProgress"
+            :show="isBackgroundSyncing"
+            :is-syncing="isBackgroundSyncing"
+            :current="currentSyncProgress?.current || 0"
+            :total="currentSyncProgress?.total || 0"
+            :status="'syncing'"
+            @dismiss="() => {}"
         />
 
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -289,10 +303,10 @@ const updatePendingSyncCount = async (): Promise<void> => {
                     </p>
                 </div>
 
-                <!-- Manual Sync Button (only shown when pending items exist) -->
+                <!-- Manual Sync Button (only shown when pending items exist and not auto-syncing) -->
                 <AnimatePresence>
                     <motion.button
-                        v-if="pendingSyncCount > 0 && !isSyncing"
+                        v-if="pendingSyncCount > 0 && !isAnySyncing"
                         type="button"
                         @click="handleManualSync"
                         :initial="{ opacity: 0, scale: 0.8 }"
@@ -327,9 +341,9 @@ const updatePendingSyncCount = async (): Promise<void> => {
                         </span>
                     </motion.button>
 
-                    <!-- Loading Spinner (shown during sync) -->
+                    <!-- Loading Spinner (shown during any sync) -->
                     <motion.div
-                        v-else-if="isSyncing"
+                        v-else-if="isAnySyncing"
                         :initial="{ opacity: 0, scale: 0.8 }"
                         :animate="{ opacity: 1, scale: 1 }"
                         :exit="{ opacity: 0, scale: 0.8 }"
@@ -359,9 +373,9 @@ const updatePendingSyncCount = async (): Promise<void> => {
                                 />
                             </svg>
                         </motion.div>
-                        <span v-if="syncProgress">
-                            Menyinkronkan {{ syncProgress.current }}/{{
-                                syncProgress.total
+                        <span v-if="currentSyncProgress">
+                            Menyinkronkan {{ currentSyncProgress.current }}/{{
+                                currentSyncProgress.total
                             }}...
                         </span>
                         <span v-else>Menyinkronkan...</span>

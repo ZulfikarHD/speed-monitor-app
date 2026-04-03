@@ -48,5 +48,11 @@ class SettingsSeeder extends Seeder
             'true',
             'Enable/disable speed violation alerts (browser notification, audio, visual)'
         );
+
+        Setting::set(
+            'auto_sync_enabled',
+            'true',
+            'Enable automatic background synchronization when online'
+        );
     }
 }
