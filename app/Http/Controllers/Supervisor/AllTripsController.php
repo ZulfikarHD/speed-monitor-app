@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Supervisor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Trip\ExportTripsRequest;
 use App\Http\Requests\Trip\ListTripsRequest;
 use App\Models\Trip;
 use App\Models\User;
+use App\Services\ExportService;
+use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -21,6 +24,15 @@ use Inertia\Response;
 */
 class AllTripsController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     *
+     * @param  ExportService  $exportService  Service for CSV generation
+     */
+    public function __construct(
+        private ExportService $exportService
+    ) {}
+
     /**
      * Display paginated list of all employee trips for supervisors.
      *
@@ -96,6 +108,61 @@ class AllTripsController extends Controller
                 'by' => $sortBy,
                 'order' => $sortOrder,
             ],
+        ]);
+    }
+
+    /**
+     * Export trips to CSV file.
+     *
+     * Generates CSV file with filtered trips data following same filtering
+     * logic as index() method. Applies filters for employee, date range,
+     * status, and violations before generating export.
+     *
+     * @param  ExportTripsRequest  $request  Validated export parameters
+     * @return HttpResponse CSV file download response
+     */
+    public function export(ExportTripsRequest $request): HttpResponse
+    {
+        $this->authorize('viewAny', Trip::class);
+
+        $query = Trip::query()->with('user:id,name,email');
+
+        // Apply same filters as index() method
+        if ($request->has('user_id')) {
+            $query->where('user_id', $request->input('user_id'));
+        }
+
+        if ($request->has('date_from')) {
+            $query->whereDate('started_at', '>=', $request->input('date_from'));
+        }
+
+        if ($request->has('date_to')) {
+            $query->whereDate('started_at', '<=', $request->input('date_to'));
+        }
+
+        if ($request->has('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        if ($request->has('violations_only') && $request->boolean('violations_only')) {
+            $query->where('violation_count', '>', 0);
+        }
+
+        // Sort by date (oldest first for exports)
+        $query->orderBy('started_at', 'asc');
+
+        // Get all matching trips (no pagination for exports)
+        $trips = $query->get();
+
+        // Generate CSV
+        $csv = $this->exportService->generateTripsCsv($trips);
+
+        // Generate filename with current date
+        $filename = 'trips_export_'.now()->format('Y-m-d').'.csv';
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
 }

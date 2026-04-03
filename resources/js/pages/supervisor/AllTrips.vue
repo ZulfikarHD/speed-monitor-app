@@ -220,12 +220,53 @@ function navigateToTrip(tripId: number): void {
     router.visit(`/employee/trips/${tripId}`);
 }
 
+/** Loading state for CSV export */
+const isExporting = ref(false);
+
 /**
- * Handle CSV export (placeholder for US-6.7).
+ * Handle CSV export with applied filters.
+ *
+ * Triggers browser download via direct navigation to export URL with
+ * current filter parameters. Shows loading state during export.
  */
 function handleExport(): void {
-    // TODO: Implement CSV export in US-6.7
-    console.log('CSV export will be implemented in US-6.7');
+    if (isExporting.value) {
+        return;
+    }
+
+    isExporting.value = true;
+
+    // Build export URL with current filters
+    const params = new URLSearchParams();
+
+    if (props.filters.user_id) {
+        params.append('user_id', String(props.filters.user_id));
+    }
+
+    if (props.filters.date_from) {
+        params.append('date_from', props.filters.date_from);
+    }
+
+    if (props.filters.date_to) {
+        params.append('date_to', props.filters.date_to);
+    }
+
+    if (props.filters.status) {
+        params.append('status', props.filters.status);
+    }
+
+    if (props.filters.violations_only) {
+        params.append('violations_only', 'true');
+    }
+
+    // Trigger download via window.location
+    const exportUrl = '/supervisor/trips/export?' + params.toString();
+    window.location.href = exportUrl;
+
+    // Reset loading state after delay (download doesn't trigger unload)
+    setTimeout(() => {
+        isExporting.value = false;
+    }, 2000);
 }
 
 // ========================================================================
@@ -318,15 +359,54 @@ function getViolationColor(count: number): string {
                     </p>
                 </div>
 
-                <!-- Export Button (Placeholder) -->
-                <button
+                <!-- Export Button -->
+                <motion.button
                     @click="handleExport"
-                    :disabled="true"
-                    class="flex h-12 items-center gap-2 rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-4 text-sm font-medium text-[#9ca3af] opacity-50 cursor-not-allowed"
-                    title="CSV export coming in US-6.7"
-                    aria-label="Export trips to CSV (coming soon)"
+                    :disabled="isExporting || showEmptyState"
+                    :animate="{
+                        scale: isExporting ? 0.95 : 1,
+                        opacity: isExporting ? 0.7 : 1,
+                    }"
+                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.3 }"
+                    :class="[
+                        'flex h-12 items-center gap-2 rounded-lg border px-4 text-sm font-medium transition-all',
+                        isExporting || showEmptyState
+                            ? 'cursor-not-allowed border-[#3E3E3A] bg-[#1a1d23] text-[#9ca3af] opacity-50'
+                            : 'border-cyan-500/30 bg-cyan-500/10 text-cyan-400 hover:border-cyan-500/50 hover:bg-cyan-500/20',
+                    ]"
+                    :title="
+                        showEmptyState
+                            ? 'Tidak ada data untuk di-export'
+                            : 'Export trips to CSV'
+                    "
+                    aria-label="Export trips to CSV"
                 >
+                    <!-- Loading Spinner (when exporting) -->
                     <svg
+                        v-if="isExporting"
+                        class="h-5 w-5 animate-spin"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <circle
+                            class="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            stroke-width="4"
+                        ></circle>
+                        <path
+                            class="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                    </svg>
+
+                    <!-- Download Icon (when idle) -->
+                    <svg
+                        v-else
                         class="h-5 w-5"
                         fill="none"
                         stroke="currentColor"
@@ -340,8 +420,11 @@ function getViolationColor(count: number): string {
                             d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                         />
                     </svg>
-                    <span class="hidden sm:inline">Export CSV</span>
-                </button>
+
+                    <span class="hidden sm:inline">
+                        {{ isExporting ? 'Exporting...' : 'Export CSV' }}
+                    </span>
+                </motion.button>
             </motion.div>
 
             <!-- Filters Section -->

@@ -47,6 +47,7 @@ Route::middleware(['auth', 'role:employee'])->group(function () {
 Route::middleware(['auth', 'role:supervisor'])->group(function () {
     Route::get('/supervisor/dashboard', [SupervisorDashboardController::class, 'index'])->name('supervisor.dashboard');
     Route::get('/supervisor/trips', [AllTripsController::class, 'index'])->name('supervisor.trips');
+    Route::get('/supervisor/trips/export', [AllTripsController::class, 'export'])->name('supervisor.trips.export');
     Route::get('/supervisor/leaderboard', [SupervisorDashboardController::class, 'violations'])->name('supervisor.leaderboard');
 });
 

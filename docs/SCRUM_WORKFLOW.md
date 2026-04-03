@@ -2400,20 +2400,34 @@ Build supervisor/admin dashboard with monitoring and reporting features.
 
 ---
 
-#### US-6.7: CSV Export Functionality
+#### US-6.7: CSV Export Functionality ✅ COMPLETED
 **As a** supervisor  
 **I want** to export trips to CSV  
 **So that** I can analyze in Excel
 
 **Acceptance Criteria:**
-- [ ] `GET /api/dashboard/reports` endpoint
-- [ ] Accepts filters: date range, employee_id
-- [ ] Returns CSV file download
-- [ ] Columns: date, employee, duration, distance, max_speed, avg_speed, violations
-- [ ] Filename: trips_export_YYYY-MM-DD.csv
+- [x] `GET /supervisor/trips/export` endpoint (web route)
+- [x] Accepts filters: date range, employee_id, status, violations_only
+- [x] Returns CSV file download
+- [x] Columns: date, employee, email, duration, distance, max_speed, avg_speed, violations, status
+- [x] Filename: trips_export_YYYY-MM-DD.csv
 
 **Story Points:** 5  
-**Priority:** Medium
+**Priority:** Medium  
+**Status:** ✅ COMPLETED (April 4, 2026)
+
+**Key Deliverables:**
+- ExportTripsRequest with validation for export filters
+- ExportService with generateTripsCsv() method (Indonesian headers)
+- AllTripsController export() method with same filtering logic as index()
+- AllTrips.vue export button with motion-v animations and loading states
+- GET /supervisor/trips/export web route with supervisor middleware
+- Wayfinder type generation for type-safe routing
+- CSV format: 9 columns with Indonesian headers
+- Proper number formatting for Excel compatibility (HH:MM:SS duration, decimal km/km/h)
+- Export respects current filter state (employee, date range, status, violations)
+- Modern UI with spring animations, loading spinner, disabled states
+- Responsive design (hides label on mobile)
 
 ---
 
