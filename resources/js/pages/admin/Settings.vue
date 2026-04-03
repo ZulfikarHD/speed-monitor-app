@@ -25,7 +25,9 @@ import { router, useForm, usePage } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
 import { computed } from 'vue';
 
+import { update } from '@/actions/App/Http/Controllers/Admin/SettingsController';
 import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
+import { dashboard } from '@/routes/supervisor';
 import { useSettingsStore } from '@/stores/settings';
 
 // ========================================================================
@@ -99,7 +101,7 @@ const flashMessage = computed(() => page.props.flash?.success as string | undefi
  * on success so components like Speedometer immediately use new limits.
  */
 function handleSubmit(): void {
-    form.put(route('admin.settings.update'), {
+    form.put(update.url(), {
         preserveScroll: true,
         onSuccess: () => {
             // Update global settings store with new values
@@ -119,7 +121,7 @@ function handleSubmit(): void {
  * Returns to supervisor dashboard without saving changes.
  */
 function handleCancel(): void {
-    router.visit(route('supervisor.dashboard'));
+    router.visit(dashboard.url());
 }
 </script>
 
