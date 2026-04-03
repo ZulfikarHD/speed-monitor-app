@@ -2223,21 +2223,32 @@ Build supervisor/admin dashboard with monitoring and reporting features.
 
 ### User Stories
 
-#### US-6.1: Dashboard Overview API
+#### US-6.1: Dashboard Overview API ✅
 **As a** supervisor  
 **I want** summary statistics via API  
 **So that** I can see overall metrics
 
 **Acceptance Criteria:**
-- [ ] `GET /api/dashboard/overview` endpoint
-- [ ] Returns: total trips today, active trips, violations today
-- [ ] Returns: top violators (top 5)
-- [ ] Returns: average speed across all employees
-- [ ] Cached for 5 minutes (performance)
-- [ ] Only accessible by supervisor/admin
+- [x] `GET /api/dashboard/overview` endpoint
+- [x] Returns: total trips today, active trips, violations today
+- [x] Returns: top violators (top 5)
+- [x] Returns: average speed across all employees
+- [x] Cached for 5 minutes (performance)
+- [x] Only accessible by supervisor/admin
 
 **Story Points:** 5  
-**Priority:** Critical
+**Priority:** Critical  
+**Status:** ✅ COMPLETED (April 4, 2026)
+
+**Implementation Summary:** See [US-6.1_IMPLEMENTATION_SUMMARY.md](US-6.1_IMPLEMENTATION_SUMMARY.md)
+
+**Key Deliverables:**
+- DashboardService with aggregation logic
+- Supervisor/DashboardController with 5-minute cache
+- UserPolicy for authorization
+- 25 PHPUnit tests (61 assertions) - all passing
+- Wayfinder type-safe routes generated
+- Performance optimized (N+1 prevention, < 500ms response time)
 
 ---
 
@@ -2373,7 +2384,7 @@ Build supervisor/admin dashboard with monitoring and reporting features.
 ### Sprint 6 Tasks Breakdown
 
 **Day 1-2:**
-- US-6.1: Dashboard overview API
+- US-6.1: Dashboard overview API ✅ COMPLETED
 - US-6.2: Dashboard overview page
 
 **Day 3-4:**

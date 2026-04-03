@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Employee\StatisticsController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\Supervisor\DashboardController;
 use App\Http\Controllers\TripController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/trips/{trip}/speed-logs', [TripController::class, 'storeSpeedLogs'])->name('trips.speed-logs.store');
 
     Route::get('/statistics/my-stats', [StatisticsController::class, 'api'])->name('statistics.my-stats');
+
+    Route::get('/dashboard/overview', [DashboardController::class, 'overview'])->name('dashboard.overview');
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
