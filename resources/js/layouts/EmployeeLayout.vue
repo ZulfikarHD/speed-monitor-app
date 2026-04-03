@@ -16,12 +16,15 @@
  * - Proper spacing for fixed navigation
  * - VeloTrack dark theme styling
  * - Accessible navigation landmarks
+ * - Global update notification for PWA updates
  */
 
 import { Head } from '@inertiajs/vue3';
 
+import UpdateNotification from '@/components/common/UpdateNotification.vue';
 import BottomNav from '@/components/navigation/BottomNav.vue';
 import TopNav from '@/components/navigation/TopNav.vue';
+import { useServiceWorker } from '@/composables/useServiceWorker';
 
 // ========================================================================
 // Component Props
@@ -35,6 +38,35 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
     title: 'VeloTrack',
 });
+
+// ========================================================================
+// Service Worker Update Management
+// ========================================================================
+
+const { hasUpdate, applyUpdate } = useServiceWorker();
+
+/**
+ * Handle update button click.
+ * Applies pending Service Worker update.
+ */
+const handleUpdate = async (): Promise<void> => {
+    try {
+        await applyUpdate();
+        // Page will reload automatically after SW activation
+    } catch (error) {
+        console.error('[EmployeeLayout] Failed to apply update:', error);
+    }
+};
+
+/**
+ * Handle dismiss button click.
+ * User will get update on next page load.
+ */
+const handleDismiss = (): void => {
+    // Update notification will be hidden
+    // Update will be applied on next page load automatically
+    console.log('[EmployeeLayout] Update notification dismissed');
+};
 </script>
 
 <template>
@@ -60,6 +92,13 @@ const props = withDefaults(defineProps<Props>(), {
 
         <!-- Bottom Navigation (Mobile) -->
         <BottomNav />
+
+        <!-- Service Worker Update Notification (Global) -->
+        <UpdateNotification
+            :show="hasUpdate"
+            @update="handleUpdate"
+            @dismiss="handleDismiss"
+        />
     </div>
 </template>
 

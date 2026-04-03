@@ -3,6 +3,7 @@ import { createPinia } from 'pinia';
 import { createApp, h } from 'vue';
 import type { DefineComponent } from 'vue';
 
+import { serviceWorkerManager } from '@/services/serviceWorkerManager';
 import { useAuthStore } from '@/stores/auth';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -29,6 +30,18 @@ createInertiaApp({
         // Initialize auth store from localStorage
         const authStore = useAuthStore();
         authStore.initializeAuth();
+
+        // Register Service Worker for PWA offline support
+        // Deferred to window.load to avoid blocking initial render
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                serviceWorkerManager
+                    .register()
+                    .catch((error) => {
+                        console.error('[App] Service Worker registration failed:', error);
+                    });
+            });
+        }
 
         app.mount(el);
     },

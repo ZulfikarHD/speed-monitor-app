@@ -9,11 +9,28 @@
 import { Head } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
 
+import UpdateNotification from '@/components/common/UpdateNotification.vue';
 import { useAuth } from '@/composables/useAuth';
+import { useServiceWorker } from '@/composables/useServiceWorker';
 import { useAuthStore } from '@/stores/auth';
 
 const authStore = useAuthStore();
 const { handleLogout, isLoading } = useAuth();
+
+// Service Worker update management
+const { hasUpdate, applyUpdate } = useServiceWorker();
+
+const handleUpdate = async (): Promise<void> => {
+    try {
+        await applyUpdate();
+    } catch (error) {
+        console.error('[Admin Dashboard] Failed to apply update:', error);
+    }
+};
+
+const handleDismiss = (): void => {
+    console.log('[Admin Dashboard] Update notification dismissed');
+};
 </script>
 
 <template>
@@ -99,5 +116,12 @@ const { handleLogout, isLoading } = useAuth();
                 </motion.div>
             </motion.div>
         </div>
+
+        <!-- Service Worker Update Notification -->
+        <UpdateNotification
+            :show="hasUpdate"
+            @update="handleUpdate"
+            @dismiss="handleDismiss"
+        />
     </div>
 </template>
