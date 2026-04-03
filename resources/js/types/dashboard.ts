@@ -84,3 +84,50 @@ export interface TopViolator {
     /** Number of speed violations for this employee today */
     violation_count: number;
 }
+
+/**
+ * Violation leaderboard entry showing employee violation statistics.
+ *
+ * Complete ranking entry for violation leaderboard page, including employee
+ * information, violation counts, trip statistics, and calculated rates for
+ * comprehensive driver compliance monitoring.
+ */
+export interface ViolationLeaderboardEntry {
+    /** Leaderboard rank (1-indexed) */
+    rank: number;
+
+    /** Employee information */
+    user: {
+        /** Unique user identifier */
+        id: number;
+
+        /** Employee full name */
+        name: string;
+
+        /** Employee email address */
+        email: string;
+    };
+
+    /** Total violation count in period */
+    violation_count: number;
+
+    /** Total trips in period */
+    total_trips: number;
+
+    /** Violation rate (violations per trip) */
+    violation_rate: number;
+}
+
+/**
+ * Leaderboard page filter state.
+ *
+ * Date range filters for violation leaderboard, controlling which
+ * time period's data is displayed in the ranking.
+ */
+export interface LeaderboardFilters {
+    /** Start date filter (YYYY-MM-DD format) */
+    date_from: string;
+
+    /** End date filter (YYYY-MM-DD format) */
+    date_to: string;
+}

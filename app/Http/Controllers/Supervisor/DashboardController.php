@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\DashboardService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -61,5 +62,33 @@ class DashboardController extends Controller
         );
 
         return response()->json($data);
+    }
+
+    /**
+     * Display violation leaderboard page.
+     *
+     * Shows employees ranked by violation count within specified date range.
+     * Allows supervisors and admins to identify problematic drivers and monitor
+     * speed compliance trends across the organization.
+     *
+     * @param  Request  $request  HTTP request with optional date_from and date_to query params
+     * @return Response Inertia response rendering violation leaderboard page
+     */
+    public function violations(Request $request): Response
+    {
+        $this->authorize('viewDashboard', User::class);
+
+        $dateFrom = $request->query('date_from', now()->subDays(30)->format('Y-m-d'));
+        $dateTo = $request->query('date_to', now()->format('Y-m-d'));
+
+        $leaderboard = $this->dashboardService->getViolationLeaderboard($dateFrom, $dateTo);
+
+        return Inertia::render('supervisor/ViolationLeaderboard', [
+            'leaderboard' => $leaderboard,
+            'filters' => [
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
+            ],
+        ]);
     }
 }

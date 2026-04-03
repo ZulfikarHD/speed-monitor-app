@@ -2316,19 +2316,19 @@ Build supervisor/admin dashboard with monitoring and reporting features.
 
 ---
 
-#### US-6.4: Violation Leaderboard Page
+#### US-6.4: Violation Leaderboard Page ✅ COMPLETED
 **As a** supervisor  
 **I want** to see employees ranked by violations  
 **So that** I can identify problematic drivers
 
 **Acceptance Criteria:**
-- [ ] ViolationLeaderboard.vue view created
-- [ ] Table: rank, employee name, violation count, total trips
-- [ ] Sort by violation count (desc)
-- [ ] Filter by date range
-- [ ] Violation rate (violations / trips) column
-- [ ] Click employee to see their trips
-- [ ] Not visible to employees
+- [x] ViolationLeaderboard.vue view created
+- [x] Table: rank, employee name, violation count, total trips
+- [x] Sort by violation count (desc)
+- [x] Filter by date range
+- [x] Violation rate (violations / trips) column
+- [x] Click employee to see their trips
+- [x] Not visible to employees
 
 **Story Points:** 5  
 **Priority:** High

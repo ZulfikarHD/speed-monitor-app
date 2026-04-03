@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\TripStatus;
 use App\Models\Trip;
+use Carbon\Carbon;
 
 /**
  * Dashboard Service
@@ -135,5 +136,55 @@ class DashboardService
             ->avg('average_speed');
 
         return round($averageSpeed ?? 0, 2);
+    }
+
+    /**
+     * Get violation leaderboard with employee rankings.
+     *
+     * Aggregates violation statistics per employee within specified date range.
+     * Returns employees ranked by total violations descending, including trip
+     * counts and violation rates for comprehensive driver compliance monitoring.
+     *
+     * Uses efficient single query with GROUP BY to aggregate violations per user,
+     * avoiding N+1 queries. Only includes employees with violations > 0.
+     *
+     * @param  string|null  $dateFrom  Start date filter (Y-m-d format), defaults to 30 days ago
+     * @param  string|null  $dateTo  End date filter (Y-m-d format), defaults to today
+     * @return array Array of leaderboard entries with rank, user info, violations, trips, and rate
+     */
+    public function getViolationLeaderboard(?string $dateFrom = null, ?string $dateTo = null): array
+    {
+        $dateFrom = $dateFrom ?? now()->subDays(30)->format('Y-m-d');
+        $dateTo = $dateTo ?? now()->format('Y-m-d');
+
+        $dateFromStart = Carbon::parse($dateFrom)->startOfDay();
+        $dateToEnd = Carbon::parse($dateTo)->endOfDay();
+
+        $results = Trip::selectRaw('
+                user_id,
+                SUM(violation_count) as total_violations,
+                COUNT(*) as total_trips,
+                ROUND(SUM(violation_count) / COUNT(*), 2) as violation_rate
+            ')
+            ->with('user:id,name,email')
+            ->whereBetween('started_at', [$dateFromStart, $dateToEnd])
+            ->groupBy('user_id')
+            ->havingRaw('SUM(violation_count) > 0')
+            ->orderByDesc('total_violations')
+            ->get();
+
+        return $results->map(function ($result, $index) {
+            return [
+                'rank' => $index + 1,
+                'user' => [
+                    'id' => $result->user->id,
+                    'name' => $result->user->name,
+                    'email' => $result->user->email,
+                ],
+                'violation_count' => (int) $result->total_violations,
+                'total_trips' => (int) $result->total_trips,
+                'violation_rate' => (float) $result->violation_rate,
+            ];
+        })->values()->toArray();
     }
 }
