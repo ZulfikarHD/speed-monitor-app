@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Services\DashboardService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
+use Inertia\Inertia;
+use Inertia\Response;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +24,22 @@ class DashboardController extends Controller
     public function __construct(
         private DashboardService $dashboardService
     ) {}
+
+    /**
+     * Display supervisor dashboard page.
+     *
+     * Returns Inertia view for dashboard with optional initial data.
+     * Client-side will fetch fresh data via overview() API endpoint
+     * and auto-refresh every 30 seconds for real-time monitoring.
+     *
+     * @return Response Inertia response rendering supervisor dashboard
+     */
+    public function index(): Response
+    {
+        $this->authorize('viewDashboard', User::class);
+
+        return Inertia::render('supervisor/Dashboard');
+    }
 
     /**
      * Get dashboard overview statistics.

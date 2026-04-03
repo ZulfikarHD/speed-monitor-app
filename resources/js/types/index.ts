@@ -1,5 +1,6 @@
 export * from './auth';
 export * from './chart';
+export * from './dashboard';
 export * from './geolocation';
 export * from './indexeddb';
 export * from './speedometer';

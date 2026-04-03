@@ -18,10 +18,12 @@
 
 import { Link } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
+import { computed } from 'vue';
 
 import SyncBadge from '@/components/sync/SyncBadge.vue';
 import { useActiveRoute } from '@/composables/useActiveRoute';
 import { useSyncQueue } from '@/composables/useSyncQueue';
+import { useAuthStore } from '@/stores/auth';
 
 // ========================================================================
 // Navigation Configuration
@@ -34,7 +36,8 @@ interface NavItem {
     href: string;
 }
 
-const navItems: NavItem[] = [
+/** Employee navigation items (mobile) */
+const employeeNavItems: NavItem[] = [
     {
         id: 'dashboard',
         label: 'Dashboard',
@@ -67,12 +70,75 @@ const navItems: NavItem[] = [
     },
 ];
 
+/** Supervisor/Admin navigation items (mobile) */
+const supervisorNavItems: NavItem[] = [
+    {
+        id: 'dashboard',
+        label: 'Dashboard',
+        icon: '📊',
+        href: '/supervisor/dashboard',
+    },
+    {
+        id: 'trips',
+        label: 'All Trips',
+        icon: '🚗',
+        href: '/supervisor/trips',
+    },
+    {
+        id: 'leaderboard',
+        label: 'Leaderboard',
+        icon: '🏆',
+        href: '/supervisor/leaderboard',
+    },
+    {
+        id: 'settings',
+        label: 'Settings',
+        icon: '⚙️',
+        href: '/settings',
+    },
+    {
+        id: 'profile',
+        label: 'Profile',
+        icon: '👤',
+        href: '/profile',
+    },
+];
+
 // ========================================================================
 // Dependencies
 // ========================================================================
 
+const authStore = useAuthStore();
 const { isActive } = useActiveRoute();
 const { openModal } = useSyncQueue();
+
+// ========================================================================
+// Computed
+// ========================================================================
+
+/**
+ * Get navigation items based on user role.
+ *
+ * WHY: Supervisors and admins see different navigation than employees.
+ * Employees see speedometer and trip tracking, supervisors see monitoring tools.
+ */
+const navItems = computed((): NavItem[] => {
+    const role = authStore.role;
+
+    if (role === 'supervisor' || role === 'admin') {
+        return supervisorNavItems;
+    }
+
+    return employeeNavItems;
+});
+
+/**
+ * Check if user is employee.
+ *
+ * WHY: Only employees need sync badge (they track trips offline).
+ * Supervisors don't track trips, so no sync functionality needed.
+ */
+const isEmployee = computed(() => authStore.role === 'employee');
 
 // ========================================================================
 // Methods
@@ -116,9 +182,9 @@ function handleSyncBadgeClick(event: MouseEvent): void {
                 :aria-label="item.label"
                 :aria-current="isActive(item.href) ? 'page' : undefined"
             >
-                <!-- Sync Badge (My Trips only) -->
+                <!-- Sync Badge (My Trips only, employees only) -->
                 <SyncBadge
-                    v-if="item.id === 'trips'"
+                    v-if="item.id === 'trips' && isEmployee"
                     class="absolute right-1 top-2 z-10"
                     size="sm"
                     @click="handleSyncBadgeClick"

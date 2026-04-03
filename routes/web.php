@@ -6,6 +6,7 @@ use App\Http\Controllers\Employee\MyTripsController;
 use App\Http\Controllers\Employee\SpeedometerController;
 use App\Http\Controllers\Employee\StatisticsController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Supervisor\DashboardController as SupervisorDashboardController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
@@ -41,7 +42,7 @@ Route::middleware(['auth', 'role:employee'])->group(function () {
 
 // Supervisor routes (auth + supervisor role required)
 Route::middleware(['auth', 'role:supervisor'])->group(function () {
-    Route::inertia('/supervisor/dashboard', 'supervisor/Dashboard')->name('supervisor.dashboard');
+    Route::get('/supervisor/dashboard', [SupervisorDashboardController::class, 'index'])->name('supervisor.dashboard');
 });
 
 // Admin routes (auth + admin role required)
