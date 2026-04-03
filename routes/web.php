@@ -57,6 +57,7 @@ Route::middleware(['auth', 'role:supervisor,admin'])->group(function () {
     Route::put('/admin/employees/{user}', [EmployeesController::class, 'update'])->name('admin.employees.update');
     Route::delete('/admin/employees/{user}', [EmployeesController::class, 'deactivate'])->name('admin.employees.deactivate');
     Route::get('/admin/settings', [AdminSettingsController::class, 'index'])->name('admin.settings');
+    Route::put('/admin/settings', [AdminSettingsController::class, 'update'])->name('admin.settings.update');
 });
 
 // Admin-only routes

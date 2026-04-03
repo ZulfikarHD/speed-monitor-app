@@ -95,11 +95,11 @@ const flashMessage = computed(() => page.props.flash?.success as string | undefi
 /**
  * Handle form submission.
  *
- * Submits settings update to backend API and updates global settings store
+ * Submits settings update to backend web route and updates global settings store
  * on success so components like Speedometer immediately use new limits.
  */
 function handleSubmit(): void {
-    form.put(route('settings.update'), {
+    form.put(route('admin.settings.update'), {
         preserveScroll: true,
         onSuccess: () => {
             // Update global settings store with new values
