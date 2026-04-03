@@ -84,6 +84,12 @@ const supervisorNavItems: NavItem[] = [
         icon: '🏆',
         href: '/supervisor/leaderboard',
     },
+    {
+        id: 'settings',
+        label: 'Settings',
+        icon: '⚙️',
+        href: '/admin/settings',
+    },
 ];
 
 /** Admin-only navigation items */

@@ -91,6 +91,12 @@ const supervisorNavItems: NavItem[] = [
         href: '/supervisor/leaderboard',
     },
     {
+        id: 'settings',
+        label: 'Settings',
+        icon: '⚙️',
+        href: '/admin/settings',
+    },
+    {
         id: 'profile',
         label: 'Profile',
         icon: '👤',
