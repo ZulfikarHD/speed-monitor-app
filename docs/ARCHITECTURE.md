@@ -103,6 +103,27 @@ users
 └── updated_at (timestamp)
 ```
 
+**Role Hierarchy & Access Control:**
+
+The application uses a flat role system with overlapping permissions rather than hierarchical inheritance. Each role has specific capabilities:
+
+| Role | Access Level | Capabilities |
+|------|--------------|--------------|
+| **Employee** | Individual | - Start/stop trips<br>- View own trip history<br>- Personal statistics<br>- Profile management |
+| **Supervisor** | Team-wide | - **All employee capabilities**<br>- View all employees' trips<br>- Violation leaderboard<br>- Dashboard analytics<br>- **Employee management (CRUD)**<br>- **Settings configuration** |
+| **Admin** | System-wide | - **All supervisor capabilities**<br>- Exclusive admin dashboard<br>- Future: system logs, audit trails |
+
+**Design Decision (Sprint 6):**
+Initially, employee management and settings were planned as "admin-only" features. After evaluating real-world business needs, these were moved to supervisor access to enable operational autonomy:
+- Supervisors can onboard/manage their team without requiring admin intervention
+- Supervisors can adjust operational parameters (speed limits, auto-stop duration) based on field conditions
+- Admin role is reserved for system-level configurations and future advanced features
+
+**Implementation:**
+- Laravel Policies: `UserPolicy`, `SettingPolicy` check `isSupervisor() || isAdmin()`
+- Route Middleware: `['auth', 'role:supervisor,admin']` for shared routes
+- Frontend Navigation: Admin nav inherits supervisor nav items + exclusive admin features
+
 ### Trips Table
 ```sql
 trips
@@ -210,17 +231,65 @@ GET    /api/statistics/my-stats    - Personal statistics
 ### Users (Admin/Supervisor)
 ```
 GET    /api/users                  - List all users (paginated)
+                                     Supervisor/Admin: all users with search & filters
 GET    /api/users/{id}             - Get user details
-POST   /api/users                  - Create user (admin only)
-PUT    /api/users/{id}             - Update user (admin only)
-DELETE /api/users/{id}             - Delete/deactivate user (admin only)
+POST   /api/users                  - Create user (supervisor/admin)
+PUT    /api/users/{id}             - Update user (supervisor/admin)
+DELETE /api/users/{id}             - Deactivate user (supervisor/admin)
 ```
 
-### Settings (Admin)
+### Settings (Admin/Supervisor)
 ```
 GET    /api/settings               - Get all settings
-PUT    /api/settings               - Update settings (bulk)
+PUT    /api/settings               - Update settings (bulk, supervisor/admin)
 ```
+
+---
+
+## Web Routes (Inertia.js Pages)
+
+### Authentication Routes
+```
+GET    /login                      - Login page (guest only)
+POST   /login                      - Login form submission
+POST   /logout                     - Logout action
+```
+
+### Employee Routes (role:employee)
+```
+GET    /employee/dashboard         - Employee dashboard with speedometer
+GET    /employee/trips             - Employee trip history
+```
+
+### Supervisor Routes (role:supervisor)
+```
+GET    /supervisor/dashboard       - Supervisor dashboard with overview stats
+GET    /supervisor/trips           - All employees' trips page (filters, search)
+GET    /supervisor/leaderboard     - Violation leaderboard page
+```
+
+### Admin/Supervisor Shared Routes (role:supervisor,admin)
+```
+GET    /admin/employees            - Employee management page (CRUD operations)
+POST   /admin/employees            - Create new employee
+PUT    /admin/employees/{user}     - Update employee details
+DELETE /admin/employees/{user}     - Deactivate employee
+
+GET    /admin/settings             - Settings configuration page
+PUT    /admin/settings             - Update application settings
+```
+
+### Admin Routes (role:admin)
+```
+GET    /admin/dashboard            - Admin dashboard (reserved for admin-only features)
+```
+
+**Key Architectural Decisions:**
+1. **Role-Based Middleware:** `['auth', 'role:supervisor,admin']` for shared access
+2. **Wayfinder Integration:** All routes type-safe via `@/actions/` imports
+3. **Policy Enforcement:** Both middleware AND policy checks for defense-in-depth
+4. **Navigation Access:** Supervisor nav includes both supervisor and admin/supervisor shared items
+5. **Admin Role:** Admin inherits all supervisor permissions + exclusive admin features
 
 ---
 
