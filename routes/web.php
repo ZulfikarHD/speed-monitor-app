@@ -50,12 +50,16 @@ Route::middleware(['auth', 'role:supervisor'])->group(function () {
     Route::get('/supervisor/leaderboard', [SupervisorDashboardController::class, 'violations'])->name('supervisor.leaderboard');
 });
 
-// Admin routes (auth + admin role required)
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::inertia('/admin/dashboard', 'admin/Dashboard')->name('admin.dashboard');
+// Supervisor/Admin shared routes (auth + supervisor or admin role required)
+Route::middleware(['auth', 'role:supervisor,admin'])->group(function () {
     Route::get('/admin/employees', [EmployeesController::class, 'index'])->name('admin.employees');
     Route::post('/admin/employees', [EmployeesController::class, 'store'])->name('admin.employees.store');
     Route::put('/admin/employees/{user}', [EmployeesController::class, 'update'])->name('admin.employees.update');
     Route::delete('/admin/employees/{user}', [EmployeesController::class, 'deactivate'])->name('admin.employees.deactivate');
     Route::get('/admin/settings', [AdminSettingsController::class, 'index'])->name('admin.settings');
+});
+
+// Admin-only routes
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::inertia('/admin/dashboard', 'admin/Dashboard')->name('admin.dashboard');
 });
