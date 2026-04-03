@@ -6,7 +6,8 @@
  * Provides touch-friendly navigation with 4 primary app sections.
  *
  * Features:
- * - 4 navigation items: Dashboard, Speedometer, My Trips, Statistics
+ * - 5 navigation items: Dashboard, Speedometer, My Trips, Statistics, Profile
+ * - Sync status badge on My Trips icon
  * - Icon + label for each item
  * - Active state with cyan accent color
  * - Touch-friendly targets (≥44x44px)
@@ -18,7 +19,9 @@
 import { Link } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
 
+import SyncBadge from '@/components/sync/SyncBadge.vue';
 import { useActiveRoute } from '@/composables/useActiveRoute';
+import { useSyncQueue } from '@/composables/useSyncQueue';
 
 // ========================================================================
 // Navigation Configuration
@@ -69,6 +72,23 @@ const navItems: NavItem[] = [
 // ========================================================================
 
 const { isActive } = useActiveRoute();
+const { openModal } = useSyncQueue();
+
+// ========================================================================
+// Methods
+// ========================================================================
+
+/**
+ * Handle sync badge click.
+ *
+ * WHY: Opens sync queue modal without navigating to My Trips page.
+ * Allows quick access to sync status from any page.
+ */
+function handleSyncBadgeClick(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    openModal();
+}
 </script>
 
 <template>
@@ -96,6 +116,13 @@ const { isActive } = useActiveRoute();
                 :aria-label="item.label"
                 :aria-current="isActive(item.href) ? 'page' : undefined"
             >
+                <!-- Sync Badge (My Trips only) -->
+                <SyncBadge
+                    v-if="item.id === 'trips'"
+                    class="absolute right-1 top-2 z-10"
+                    size="sm"
+                    @click="handleSyncBadgeClick"
+                />
                 <!-- Icon (Emoji) -->
                 <motion.span
                     :animate="{

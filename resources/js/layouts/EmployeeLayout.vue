@@ -25,8 +25,10 @@ import UpdateNotification from '@/components/common/UpdateNotification.vue';
 import BottomNav from '@/components/navigation/BottomNav.vue';
 import TopNav from '@/components/navigation/TopNav.vue';
 import InstallPrompt from '@/components/pwa/InstallPrompt.vue';
+import SyncQueueModal from '@/components/sync/SyncQueueModal.vue';
 import { useInstallPrompt } from '@/composables/useInstallPrompt';
 import { useServiceWorker } from '@/composables/useServiceWorker';
+import { useSyncQueue } from '@/composables/useSyncQueue';
 
 // ========================================================================
 // Component Props
@@ -75,6 +77,12 @@ const handleDismiss = (): void => {
 // ========================================================================
 
 const { showPrompt: showInstallPrompt, isInstalling, install, dismiss } = useInstallPrompt();
+
+// ========================================================================
+// Sync Queue Management
+// ========================================================================
+
+const { isModalOpen, closeModal } = useSyncQueue();
 
 /**
  * Handle PWA install button click.
@@ -138,6 +146,12 @@ const handleInstallDismiss = (): void => {
             :show="hasUpdate"
             @update="handleUpdate"
             @dismiss="handleDismiss"
+        />
+
+        <!-- Sync Queue Modal (Global) -->
+        <SyncQueueModal
+            :show="isModalOpen"
+            @close="closeModal"
         />
     </div>
 </template>

@@ -171,3 +171,101 @@ export interface BackgroundSyncState {
     /** Current sync progress (if syncing) */
     currentProgress?: SyncProgress;
 }
+
+/**
+ * Sync queue UI state.
+ *
+ * Tracks the state of the sync queue management UI, including pending items,
+ * modal visibility, and loading states.
+ *
+ * @example
+ * ```ts
+ * const state: SyncQueueUIState = {
+ *   pendingCount: 5,
+ *   pendingItems: [],
+ *   isSyncing: false,
+ *   lastSyncAt: new Date(),
+ *   lastSyncResult: null,
+ *   isModalOpen: false
+ * };
+ * ```
+ */
+export interface SyncQueueUIState {
+    /** Number of pending sync items */
+    pendingCount: number;
+
+    /** Array of pending sync queue items from IndexedDB */
+    pendingItems: unknown[];
+
+    /** Whether a sync operation is currently in progress */
+    isSyncing: boolean;
+
+    /** Timestamp of the last sync attempt */
+    lastSyncAt: Date | null;
+
+    /** Result of the last sync operation */
+    lastSyncResult: SyncResult | null;
+
+    /** Whether the sync queue modal is currently open */
+    isModalOpen: boolean;
+}
+
+/**
+ * Sync queue item display data.
+ *
+ * Transformed sync queue item optimized for UI display with
+ * formatted dates, colors, and labels.
+ *
+ * @example
+ * ```ts
+ * const displayItem: SyncQueueItemDisplay = {
+ *   id: 1,
+ *   tripDate: '3 Apr 2026, 14:30',
+ *   status: 'pending',
+ *   statusColor: 'text-yellow-400',
+ *   statusLabel: 'Menunggu Sync',
+ *   retryCount: 0,
+ *   errorMessage: null,
+ *   canRetry: false
+ * };
+ * ```
+ */
+export interface SyncQueueItemDisplay {
+    /** Sync queue item ID from IndexedDB */
+    id: number;
+
+    /** Formatted trip date and time for display */
+    tripDate: string;
+
+    /** Current sync status */
+    status: SyncStatus;
+
+    /** Tailwind CSS color class for status badge */
+    statusColor: string;
+
+    /** Human-readable status label in Indonesian */
+    statusLabel: string;
+
+    /** Number of retry attempts (0-3) */
+    retryCount: number;
+
+    /** Error message if sync failed, null otherwise */
+    errorMessage: string | null;
+
+    /** Whether this item can be retried manually */
+    canRetry: boolean;
+}
+
+/**
+ * Badge size variant.
+ *
+ * Determines the visual size of the sync badge component.
+ */
+export type BadgeSize = 'sm' | 'md' | 'lg';
+
+/**
+ * Badge status type.
+ *
+ * Indicates the current sync status shown by the badge.
+ */
+export type BadgeStatus = 'pending' | 'synced' | 'syncing' | 'error';

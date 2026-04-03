@@ -8,6 +8,7 @@
  * Features:
  * - VeloTrack logo/branding on left
  * - Horizontal navigation links
+ * - Sync status badge on My Trips link
  * - User profile dropdown on right
  * - Active state indicators
  * - Responsive design (hidden on mobile)
@@ -15,9 +16,12 @@
  */
 
 import { Link } from '@inertiajs/vue3';
+import { motion } from 'motion-v';
 
 import UserProfileDropdown from '@/components/navigation/UserProfileDropdown.vue';
+import SyncBadge from '@/components/sync/SyncBadge.vue';
 import { useActiveRoute } from '@/composables/useActiveRoute';
+import { useSyncQueue } from '@/composables/useSyncQueue';
 
 // ========================================================================
 // Navigation Configuration
@@ -62,6 +66,23 @@ const navItems: NavItem[] = [
 // ========================================================================
 
 const { isActive } = useActiveRoute();
+const { openModal } = useSyncQueue();
+
+// ========================================================================
+// Methods
+// ========================================================================
+
+/**
+ * Handle sync badge click.
+ *
+ * WHY: Opens sync queue modal without navigating to My Trips page.
+ * Allows quick access to sync status from any page.
+ */
+function handleSyncBadgeClick(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    openModal();
+}
 </script>
 
 <template>
@@ -105,7 +126,7 @@ const { isActive } = useActiveRoute();
                             v-for="item in navItems"
                             :key="item.id"
                             :href="item.href"
-                            class="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+                            class="relative flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
                             :class="
                                 isActive(item.href)
                                     ? 'bg-cyan-500/10 text-cyan-400'
@@ -113,6 +134,13 @@ const { isActive } = useActiveRoute();
                             "
                             :aria-current="isActive(item.href) ? 'page' : undefined"
                         >
+                            <!-- Sync Badge (My Trips only) -->
+                            <SyncBadge
+                                v-if="item.id === 'trips'"
+                                class="absolute -right-2 -top-1 z-10"
+                                size="sm"
+                                @click="handleSyncBadgeClick"
+                            />
                             <!-- Icon -->
                             <motion.span
                                 :animate="{
