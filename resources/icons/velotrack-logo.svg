@@ -1,0 +1,39 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded square background (20% corner radius) -->
+  <rect x="0" y="0" width="512" height="512" rx="102.4" ry="102.4" fill="url(#bgGradient)"/>
+  
+  <!-- Car icon (centered, scaled to 60% of canvas for safe area) -->
+  <g transform="translate(256, 256)">
+    <!-- Car body -->
+    <path d="M -80 -30 L -60 -60 L 60 -60 L 80 -30 L 80 40 L 70 50 L 60 50 L 60 30 L -60 30 L -60 50 L -70 50 L -80 40 Z" fill="white" opacity="0.95"/>
+    
+    <!-- Windows -->
+    <rect x="-50" y="-55" width="40" height="25" rx="3" fill="#06b6d4" opacity="0.7"/>
+    <rect x="10" y="-55" width="40" height="25" rx="3" fill="#06b6d4" opacity="0.7"/>
+    
+    <!-- Wheels -->
+    <circle cx="-50" cy="40" r="15" fill="#1f2937" stroke="white" stroke-width="3"/>
+    <circle cx="50" cy="40" r="15" fill="#1f2937" stroke="white" stroke-width="3"/>
+    
+    <!-- Wheel centers -->
+    <circle cx="-50" cy="40" r="5" fill="#6b7280"/>
+    <circle cx="50" cy="40" r="5" fill="#6b7280"/>
+    
+    <!-- Headlights -->
+    <circle cx="-70" cy="-15" r="5" fill="#fbbf24" opacity="0.9"/>
+    <circle cx="70" cy="-15" r="5" fill="#fbbf24" opacity="0.9"/>
+    
+    <!-- Speed lines (motion effect) -->
+    <line x1="-100" y1="-5" x2="-85" y2="-5" stroke="white" stroke-width="3" opacity="0.6" stroke-linecap="round"/>
+    <line x1="-105" y1="5" x2="-85" y2="5" stroke="white" stroke-width="3" opacity="0.5" stroke-linecap="round"/>
+    <line x1="-100" y1="15" x2="-85" y2="15" stroke="white" stroke-width="3" opacity="0.4" stroke-linecap="round"/>
+  </g>
+</svg>

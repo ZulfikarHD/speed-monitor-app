@@ -25,6 +25,7 @@
         "eslint-plugin-vue": "^9.32.0",
         "prettier": "^3.4.2",
         "prettier-plugin-tailwindcss": "^0.6.11",
+        "sharp": "^0.34.5",
         "typescript-eslint": "^8.23.0",
         "vite-plugin-static-copy": "^4.0.0",
         "vue-tsc": "^2.2.4"

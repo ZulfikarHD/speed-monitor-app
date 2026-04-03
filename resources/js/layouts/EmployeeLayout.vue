@@ -24,6 +24,8 @@ import { Head } from '@inertiajs/vue3';
 import UpdateNotification from '@/components/common/UpdateNotification.vue';
 import BottomNav from '@/components/navigation/BottomNav.vue';
 import TopNav from '@/components/navigation/TopNav.vue';
+import InstallPrompt from '@/components/pwa/InstallPrompt.vue';
+import { useInstallPrompt } from '@/composables/useInstallPrompt';
 import { useServiceWorker } from '@/composables/useServiceWorker';
 
 // ========================================================================
@@ -67,6 +69,36 @@ const handleDismiss = (): void => {
     // Update will be applied on next page load automatically
     console.log('[EmployeeLayout] Update notification dismissed');
 };
+
+// ========================================================================
+// PWA Install Prompt Management
+// ========================================================================
+
+const { showPrompt: showInstallPrompt, isInstalling, install, dismiss } = useInstallPrompt();
+
+/**
+ * Handle PWA install button click.
+ *
+ * Triggers native browser install prompt.
+ */
+const handleInstall = async (): Promise<void> => {
+    try {
+        await install();
+        console.log('[EmployeeLayout] PWA installation triggered');
+    } catch (error) {
+        console.error('[EmployeeLayout] PWA installation failed:', error);
+    }
+};
+
+/**
+ * Handle PWA install prompt dismiss.
+ *
+ * Hides prompt and stores dismissal preference.
+ */
+const handleInstallDismiss = (): void => {
+    dismiss();
+    console.log('[EmployeeLayout] PWA install prompt dismissed');
+};
 </script>
 
 <template>
@@ -92,6 +124,14 @@ const handleDismiss = (): void => {
 
         <!-- Bottom Navigation (Mobile) -->
         <BottomNav />
+
+        <!-- PWA Install Prompt (Optional Enhancement) -->
+        <InstallPrompt
+            v-if="showInstallPrompt"
+            :is-installing="isInstalling"
+            @install="handleInstall"
+            @dismiss="handleInstallDismiss"
+        />
 
         <!-- Service Worker Update Notification (Global) -->
         <UpdateNotification

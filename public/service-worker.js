@@ -30,6 +30,7 @@ const CACHE_NAMES = {
 const PRECACHE_URLS = [
     '/',
     '/offline.html',
+    '/manifest.json',
 ];
 
 // ==============================================================================
