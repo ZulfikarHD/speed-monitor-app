@@ -25,4 +25,62 @@ class UserPolicy
     {
         return $user->isSupervisor() || $user->isAdmin();
     }
+
+    /**
+     * Determine if the user can view any users.
+     *
+     * Only admins have access to the employee management page
+     * which lists all users in the system.
+     *
+     * @param  User  $user  The authenticated user
+     * @return bool True if user can view users list
+     */
+    public function viewAny(User $user): bool
+    {
+        return $user->isAdmin();
+    }
+
+    /**
+     * Determine if the user can create new users.
+     *
+     * Only admins can create new user accounts. This ensures
+     * controlled user provisioning and access management.
+     *
+     * @param  User  $user  The authenticated user
+     * @return bool True if user can create new users
+     */
+    public function create(User $user): bool
+    {
+        return $user->isAdmin();
+    }
+
+    /**
+     * Determine if the user can update another user.
+     *
+     * Only admins can update user details, but they cannot
+     * update their own account to prevent accidental lockouts.
+     *
+     * @param  User  $user  The authenticated user
+     * @param  User  $targetUser  The user being updated
+     * @return bool True if user can update target user
+     */
+    public function update(User $user, User $targetUser): bool
+    {
+        return $user->isAdmin() && $user->id !== $targetUser->id;
+    }
+
+    /**
+     * Determine if the user can deactivate another user.
+     *
+     * Only admins can deactivate users, but they cannot
+     * deactivate their own account to prevent self-lockout.
+     *
+     * @param  User  $user  The authenticated user
+     * @param  User  $targetUser  The user being deactivated
+     * @return bool True if user can deactivate target user
+     */
+    public function deactivate(User $user, User $targetUser): bool
+    {
+        return $user->isAdmin() && $user->id !== $targetUser->id;
+    }
 }

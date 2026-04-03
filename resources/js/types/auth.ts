@@ -16,3 +16,17 @@ export type User = {
 export type Auth = {
     user: User;
 };
+
+export type UserFormData = {
+    name: string;
+    email: string;
+    password?: string;
+    role: UserRole;
+    is_active: boolean;
+};
+
+export type UserListFilters = {
+    search: string;
+    role: UserRole | '';
+    status: 'active' | 'inactive' | '';
+};

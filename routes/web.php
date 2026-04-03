@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\EmployeesController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
 use App\Http\Controllers\Employee\MyTripsController;
@@ -51,4 +52,8 @@ Route::middleware(['auth', 'role:supervisor'])->group(function () {
 // Admin routes (auth + admin role required)
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::inertia('/admin/dashboard', 'admin/Dashboard')->name('admin.dashboard');
+    Route::get('/admin/employees', [EmployeesController::class, 'index'])->name('admin.employees');
+    Route::post('/admin/employees', [EmployeesController::class, 'store'])->name('admin.employees.store');
+    Route::put('/admin/employees/{user}', [EmployeesController::class, 'update'])->name('admin.employees.update');
+    Route::delete('/admin/employees/{user}', [EmployeesController::class, 'deactivate'])->name('admin.employees.deactivate');
 });

@@ -92,6 +92,16 @@ const supervisorNavItems: NavItem[] = [
     },
 ];
 
+/** Admin-only navigation items */
+const adminNavItems: NavItem[] = [
+    {
+        id: 'employees',
+        label: 'Employees',
+        icon: '👥',
+        href: '/admin/employees',
+    },
+];
+
 // ========================================================================
 // Dependencies
 // ========================================================================
@@ -109,11 +119,16 @@ const { openModal } = useSyncQueue();
  *
  * WHY: Supervisors and admins see different navigation than employees.
  * Employees see speedometer and trip tracking, supervisors see monitoring tools.
+ * Admins get additional employee management link.
  */
 const navItems = computed((): NavItem[] => {
     const role = authStore.role;
 
-    if (role === 'supervisor' || role === 'admin') {
+    if (role === 'admin') {
+        return [...supervisorNavItems, ...adminNavItems];
+    }
+
+    if (role === 'supervisor') {
         return supervisorNavItems;
     }
 

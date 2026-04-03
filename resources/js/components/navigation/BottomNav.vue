@@ -70,7 +70,7 @@ const employeeNavItems: NavItem[] = [
     },
 ];
 
-/** Supervisor/Admin navigation items (mobile) */
+/** Supervisor navigation items (mobile) */
 const supervisorNavItems: NavItem[] = [
     {
         id: 'dashboard',
@@ -104,6 +104,40 @@ const supervisorNavItems: NavItem[] = [
     },
 ];
 
+/** Admin navigation items (mobile) */
+const adminNavItems: NavItem[] = [
+    {
+        id: 'dashboard',
+        label: 'Dashboard',
+        icon: '📊',
+        href: '/supervisor/dashboard',
+    },
+    {
+        id: 'trips',
+        label: 'All Trips',
+        icon: '🚗',
+        href: '/supervisor/trips',
+    },
+    {
+        id: 'employees',
+        label: 'Employees',
+        icon: '👥',
+        href: '/admin/employees',
+    },
+    {
+        id: 'settings',
+        label: 'Settings',
+        icon: '⚙️',
+        href: '/settings',
+    },
+    {
+        id: 'profile',
+        label: 'Profile',
+        icon: '👤',
+        href: '/profile',
+    },
+];
+
 // ========================================================================
 // Dependencies
 // ========================================================================
@@ -121,11 +155,16 @@ const { openModal } = useSyncQueue();
  *
  * WHY: Supervisors and admins see different navigation than employees.
  * Employees see speedometer and trip tracking, supervisors see monitoring tools.
+ * Admins get employee management instead of leaderboard on mobile (limited space).
  */
 const navItems = computed((): NavItem[] => {
     const role = authStore.role;
 
-    if (role === 'supervisor' || role === 'admin') {
+    if (role === 'admin') {
+        return adminNavItems;
+    }
+
+    if (role === 'supervisor') {
         return supervisorNavItems;
     }
 
