@@ -27,8 +27,9 @@ class ListTripsRequest extends FormRequest
     /**
      * Get the validation rules for listing trips.
      *
-     * Enforces pagination limits, valid date ranges, and status values
-     * to prevent performance issues and invalid queries.
+     * Enforces pagination limits, valid date ranges, status values,
+     * sorting options, and violations filter to prevent performance
+     * issues and invalid queries.
      *
      * @return array<string, ValidationRule|array<mixed>|string> Validation rules
      */
@@ -41,6 +42,9 @@ class ListTripsRequest extends FormRequest
             'status' => ['nullable', 'string', 'in:in_progress,completed,auto_stopped'],
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+            'sort_by' => ['nullable', 'string', 'in:started_at,violation_count,total_distance,duration_seconds'],
+            'sort_order' => ['nullable', 'string', 'in:asc,desc'],
+            'violations_only' => ['nullable', 'boolean'],
         ];
     }
 }

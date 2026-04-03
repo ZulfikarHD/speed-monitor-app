@@ -27,9 +27,16 @@ createInertiaApp({
             .use(plugin)
             .use(pinia);
 
-        // Initialize auth store from localStorage
+        // Initialize auth store from localStorage OR Inertia page props
         const authStore = useAuthStore();
         authStore.initializeAuth();
+
+        // Sync user data from Inertia page props (session-based auth)
+        // WHY: Backend uses session auth and shares user via Inertia middleware
+        // Frontend needs this data in the auth store for navigation/role checks
+        if (props.initialPage.props.auth?.user) {
+            authStore.setUser(props.initialPage.props.auth.user);
+        }
 
         // Register Service Worker for PWA offline support
         // Deferred to window.load to avoid blocking initial render

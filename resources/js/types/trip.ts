@@ -275,3 +275,35 @@ export interface TripListResponse {
         last_page: number;
     };
 }
+
+/**
+ * Employee summary for filter dropdown.
+ *
+ * Minimal user data for displaying employee selection
+ * in supervisor trip filtering interface.
+ */
+export interface EmployeeSummary {
+    /** Unique user identifier */
+    id: number;
+    /** Employee full name */
+    name: string;
+    /** Employee email address */
+    email: string;
+}
+
+/**
+ * Trip list query parameters for supervisors.
+ *
+ * Extends base TripListParams with additional filtering
+ * and sorting options available to supervisors and admins.
+ */
+export interface SupervisorTripListParams extends TripListParams {
+    /** Filter to show only trips with violations */
+    violations_only?: boolean;
+
+    /** Sort trips by field */
+    sort_by?: 'started_at' | 'violation_count' | 'total_distance' | 'duration_seconds';
+
+    /** Sort order direction */
+    sort_order?: 'asc' | 'desc';
+}
