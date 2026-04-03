@@ -31,15 +31,15 @@ class SettingPolicy
     /**
      * Determine if the user can update settings.
      *
-     * Only admins can modify application settings to ensure proper
-     * configuration management and prevent unauthorized changes to
-     * critical parameters like speed limits and tracking intervals.
+     * Supervisors and admins can modify application settings to allow
+     * operational flexibility in adjusting speed limits, tracking intervals,
+     * and auto-stop duration based on business needs.
      *
      * @param  User  $user  The authenticated user
      * @return bool True if user can update settings
      */
     public function update(User $user): bool
     {
-        return $user->isAdmin();
+        return $user->isSupervisor() || $user->isAdmin();
     }
 }
