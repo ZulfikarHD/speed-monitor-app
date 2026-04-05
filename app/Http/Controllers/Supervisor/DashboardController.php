@@ -45,20 +45,24 @@ class DashboardController extends Controller
     /**
      * Get dashboard overview statistics.
      *
-     * Returns comprehensive dashboard data including today's summary,
-     * active trips, top violators, and average speed. Data is cached
-     * for 5 minutes to optimize performance under high load.
+     * Returns comprehensive dashboard data including summary for specified date range,
+     * active trips, top violators, and average speed. Data is cached for 5 minutes
+     * per date range combination to optimize performance under high load.
      *
+     * @param  Request  $request  HTTP request with optional date_range query param (today|week|month)
      * @return JsonResponse Dashboard overview with all metrics
      */
-    public function overview(): JsonResponse
+    public function overview(Request $request): JsonResponse
     {
         $this->authorize('viewDashboard', User::class);
 
+        $dateRange = $request->query('date_range', 'today');
+        $cacheKey = "dashboard:overview:{$dateRange}";
+
         $data = Cache::remember(
-            'dashboard:overview',
+            $cacheKey,
             now()->addMinutes(5),
-            fn () => $this->dashboardService->getOverview()
+            fn () => $this->dashboardService->getOverview($dateRange)
         );
 
         return response()->json($data);

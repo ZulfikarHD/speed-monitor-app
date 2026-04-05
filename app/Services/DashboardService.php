@@ -18,35 +18,94 @@ class DashboardService
     /**
      * Get complete dashboard overview for supervisors/admins.
      *
-     * Aggregates today's summary statistics, active trips, top violators,
-     * and overall performance metrics for employee monitoring. Includes
-     * historical comparison for trend analysis.
+     * Aggregates summary statistics for specified date range, active trips,
+     * top violators, and overall performance metrics for employee monitoring.
+     * Includes historical comparison for trend analysis.
      *
+     * @param  string  $dateRange  Date range to query (today|week|month)
      * @return array Dashboard overview data with all metrics and trends
      */
-    public function getOverview(): array
+    public function getOverview(string $dateRange = 'today'): array
     {
-        $todaySummary = $this->getTodaySummary();
-        $yesterdaySummary = $this->getYesterdaySummary();
+        [$currentStart, $currentEnd, $previousStart, $previousEnd] = $this->getDateRangeBounds($dateRange);
+
+        $currentSummary = $this->getSummaryForPeriod($currentStart, $currentEnd);
+        $previousSummary = $this->getSummaryForPeriod($previousStart, $previousEnd);
 
         return [
-            'today_summary' => $todaySummary,
-            'yesterday_summary' => $yesterdaySummary,
+            'today_summary' => $currentSummary,
+            'yesterday_summary' => $previousSummary,
             'trends' => [
                 'trips_change' => $this->calculatePercentageChange(
-                    $yesterdaySummary['total_trips'],
-                    $todaySummary['total_trips']
+                    $previousSummary['total_trips'],
+                    $currentSummary['total_trips']
                 ),
                 'violations_change' => $this->calculatePercentageChange(
-                    $yesterdaySummary['violations_count'],
-                    $todaySummary['violations_count']
+                    $previousSummary['violations_count'],
+                    $currentSummary['violations_count']
                 ),
             ],
             'active_trips' => $this->getActiveTrips(),
-            'top_violators' => $this->getTopViolators(5),
-            'average_speed' => $this->getAverageSpeedAllEmployees(),
-            'employee_summary' => $this->getEmployeeSummary(),
+            'top_violators' => $this->getTopViolatorsForPeriod($currentStart, $currentEnd, 5),
+            'average_speed' => $this->getAverageSpeedForPeriod($currentStart, $currentEnd),
+            'employee_summary' => $this->getEmployeeSummaryForPeriod($currentStart, $currentEnd),
             'recent_alerts' => $this->getRecentAlerts(),
+            'date_range' => $dateRange,
+        ];
+    }
+
+    /**
+     * Get date range bounds based on range type.
+     *
+     * Calculates start and end timestamps for both current and previous periods
+     * to enable trend comparison (e.g., this week vs last week).
+     *
+     * @param  string  $dateRange  Range type (today|week|month)
+     * @return array Array of [currentStart, currentEnd, previousStart, previousEnd]
+     */
+    private function getDateRangeBounds(string $dateRange): array
+    {
+        $now = now();
+
+        return match ($dateRange) {
+            'week' => [
+                $now->copy()->startOfWeek(),
+                $now->copy()->endOfWeek(),
+                $now->copy()->subWeek()->startOfWeek(),
+                $now->copy()->subWeek()->endOfWeek(),
+            ],
+            'month' => [
+                $now->copy()->startOfMonth(),
+                $now->copy()->endOfMonth(),
+                $now->copy()->subMonth()->startOfMonth(),
+                $now->copy()->subMonth()->endOfMonth(),
+            ],
+            default => [ // 'today'
+                $now->copy()->startOfDay(),
+                $now->copy()->endOfDay(),
+                $now->copy()->subDay()->startOfDay(),
+                $now->copy()->subDay()->endOfDay(),
+            ],
+        };
+    }
+
+    /**
+     * Get summary statistics for a specific time period.
+     *
+     * @param  Carbon  $start  Period start timestamp
+     * @param  Carbon  $end  Period end timestamp
+     * @return array Summary with total_trips and violations_count
+     */
+    private function getSummaryForPeriod(Carbon $start, Carbon $end): array
+    {
+        $totalTrips = Trip::whereBetween('started_at', [$start, $end])->count();
+
+        $violationsCount = Trip::whereBetween('started_at', [$start, $end])
+            ->sum('violation_count');
+
+        return [
+            'total_trips' => $totalTrips,
+            'violations_count' => $violationsCount,
         ];
     }
 
@@ -130,25 +189,40 @@ class DashboardService
         $todayStart = now()->startOfDay();
         $todayEnd = now()->endOfDay();
 
+        return $this->getEmployeeSummaryForPeriod($todayStart, $todayEnd);
+    }
+
+    /**
+     * Get employee summary statistics for specified period.
+     *
+     * Aggregates total employee count, active employees in period, and identifies
+     * the top performer by trip count.
+     *
+     * @param  Carbon  $start  Period start timestamp
+     * @param  Carbon  $end  Period end timestamp
+     * @return array Employee summary with totals and top performer
+     */
+    private function getEmployeeSummaryForPeriod(Carbon $start, Carbon $end): array
+    {
         // Total employees with 'employee' role
         $totalEmployees = User::where('role', 'employee')->count();
 
-        // Active employees today (have at least one trip today)
-        $activeToday = Trip::whereBetween('started_at', [$todayStart, $todayEnd])
+        // Active employees in period (have at least one trip)
+        $activeInPeriod = Trip::whereBetween('started_at', [$start, $end])
             ->distinct('user_id')
             ->count('user_id');
 
-        // Top performer by trip count today
+        // Top performer by trip count in period
         $topPerformer = Trip::selectRaw('user_id, COUNT(*) as trip_count')
             ->with('user:id,name')
-            ->whereBetween('started_at', [$todayStart, $todayEnd])
+            ->whereBetween('started_at', [$start, $end])
             ->groupBy('user_id')
             ->orderByDesc('trip_count')
             ->first();
 
         return [
             'total_employees' => $totalEmployees,
-            'active_today' => $activeToday,
+            'active_today' => $activeInPeriod,
             'top_performer' => $topPerformer ? [
                 'name' => $topPerformer->user->name,
                 'trip_count' => (int) $topPerformer->trip_count,
@@ -232,8 +306,24 @@ class DashboardService
         $todayStart = now()->startOfDay();
         $todayEnd = now()->endOfDay();
 
+        return $this->getTopViolatorsForPeriod($todayStart, $todayEnd, $limit);
+    }
+
+    /**
+     * Get top violators for specified period.
+     *
+     * Returns employees with highest violation counts within the given time range,
+     * ordered by violation count descending.
+     *
+     * @param  Carbon  $start  Period start timestamp
+     * @param  Carbon  $end  Period end timestamp
+     * @param  int  $limit  Number of top violators to return
+     * @return array Array of users with violation counts
+     */
+    private function getTopViolatorsForPeriod(Carbon $start, Carbon $end, int $limit): array
+    {
         return Trip::with('user:id,name,email')
-            ->whereBetween('started_at', [$todayStart, $todayEnd])
+            ->whereBetween('started_at', [$start, $end])
             ->where('violation_count', '>', 0)
             ->orderByDesc('violation_count')
             ->take($limit)
@@ -264,7 +354,22 @@ class DashboardService
         $todayStart = now()->startOfDay();
         $todayEnd = now()->endOfDay();
 
-        $averageSpeed = Trip::whereBetween('started_at', [$todayStart, $todayEnd])
+        return $this->getAverageSpeedForPeriod($todayStart, $todayEnd);
+    }
+
+    /**
+     * Calculate average speed for specified period.
+     *
+     * Computes the average speed from all completed trips within the given
+     * time range for performance monitoring.
+     *
+     * @param  Carbon  $start  Period start timestamp
+     * @param  Carbon  $end  Period end timestamp
+     * @return float Average speed in km/h (rounded to 2 decimals)
+     */
+    private function getAverageSpeedForPeriod(Carbon $start, Carbon $end): float
+    {
+        $averageSpeed = Trip::whereBetween('started_at', [$start, $end])
             ->where('status', TripStatus::Completed)
             ->avg('average_speed');
 

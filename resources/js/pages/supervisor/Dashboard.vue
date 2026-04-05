@@ -20,7 +20,7 @@
 
 import { Link } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import ActiveTripsTable from '@/components/dashboard/ActiveTripsTable.vue';
 import AlertsWidget from '@/components/dashboard/AlertsWidget.vue';
@@ -97,6 +97,13 @@ onBeforeUnmount(() => {
     if (countdownIntervalId !== null) {
         clearInterval(countdownIntervalId);
     }
+});
+
+// Watch for date range changes and refetch data
+watch(selectedDateRange, async () => {
+    isLoading.value = true;
+    await fetchDashboardData();
+    countdown.value = 30; // Reset countdown
 });
 
 // ========================================================================
@@ -191,14 +198,18 @@ const lastUpdatedText = computed(() => {
  * Fetch dashboard data from API.
  *
  * Uses Wayfinder for type-safe route access and handles loading/error states.
- * Data is cached on backend for 5 minutes for optimal performance.
+ * Data is cached on backend for 5 minutes per date range combination.
  */
 async function fetchDashboardData(): Promise<void> {
     try {
         error.value = null;
 
+        // Build URL with date_range query parameter
+        const url = new URL('/api/dashboard/overview', window.location.origin);
+        url.searchParams.set('date_range', selectedDateRange.value);
+
         // Fetch from API endpoint
-        const response = await fetch('/api/dashboard/overview', {
+        const response = await fetch(url.toString(), {
             headers: {
                 Accept: 'application/json',
                 Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
