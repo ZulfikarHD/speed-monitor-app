@@ -3,10 +3,10 @@
  * Bottom Navigation Component
  *
  * Fixed bottom navigation bar optimized for mobile devices.
- * Provides touch-friendly navigation with 4 primary app sections.
+ * Professional design with glassmorphism and subtle tech elements.
  *
  * Features:
- * - 5 navigation items: Dashboard, Speedometer, My Trips, Statistics, Profile
+ * - 5 navigation items with SVG icons
  * - Sync status badge on My Trips icon
  * - Icon + label for each item
  * - Active state with cyan accent color
@@ -17,9 +17,20 @@
  */
 
 import { Link } from '@inertiajs/vue3';
-import { motion } from 'motion-v';
+import type { Component } from 'vue';
 import { computed } from 'vue';
 
+import {
+    IconCar,
+    IconChart,
+    IconClipboard,
+    IconGauge,
+    IconHome,
+    IconSettings,
+    IconTrophy,
+    IconUser,
+    IconUsers,
+} from '@/components/icons';
 import SyncBadge from '@/components/sync/SyncBadge.vue';
 import { useActiveRoute } from '@/composables/useActiveRoute';
 import { useSyncQueue } from '@/composables/useSyncQueue';
@@ -32,7 +43,7 @@ import { useAuthStore } from '@/stores/auth';
 interface NavItem {
     id: string;
     label: string;
-    icon: string;
+    icon: Component;
     href: string;
 }
 
@@ -41,31 +52,31 @@ const employeeNavItems: NavItem[] = [
     {
         id: 'dashboard',
         label: 'Dashboard',
-        icon: '🏠',
+        icon: IconHome,
         href: '/employee/dashboard',
     },
     {
         id: 'speedometer',
         label: 'Speedometer',
-        icon: '🚗',
+        icon: IconGauge,
         href: '/employee/speedometer',
     },
     {
         id: 'trips',
         label: 'My Trips',
-        icon: '📋',
+        icon: IconClipboard,
         href: '/employee/my-trips',
     },
     {
         id: 'statistics',
         label: 'Statistics',
-        icon: '📊',
+        icon: IconChart,
         href: '/employee/statistics',
     },
     {
         id: 'profile',
         label: 'Profile',
-        icon: '👤',
+        icon: IconUser,
         href: '/profile',
     },
 ];
@@ -75,31 +86,31 @@ const supervisorNavItems: NavItem[] = [
     {
         id: 'dashboard',
         label: 'Dashboard',
-        icon: '📊',
+        icon: IconChart,
         href: '/supervisor/dashboard',
     },
     {
         id: 'trips',
         label: 'All Trips',
-        icon: '🚗',
+        icon: IconCar,
         href: '/supervisor/trips',
     },
     {
         id: 'leaderboard',
         label: 'Leaderboard',
-        icon: '🏆',
+        icon: IconTrophy,
         href: '/supervisor/leaderboard',
     },
     {
         id: 'settings',
         label: 'Settings',
-        icon: '⚙️',
+        icon: IconSettings,
         href: '/admin/settings',
     },
     {
         id: 'profile',
         label: 'Profile',
-        icon: '👤',
+        icon: IconUser,
         href: '/profile',
     },
 ];
@@ -109,31 +120,31 @@ const adminNavItems: NavItem[] = [
     {
         id: 'dashboard',
         label: 'Dashboard',
-        icon: '📊',
+        icon: IconChart,
         href: '/supervisor/dashboard',
     },
     {
         id: 'trips',
         label: 'All Trips',
-        icon: '🚗',
+        icon: IconCar,
         href: '/supervisor/trips',
     },
     {
         id: 'employees',
         label: 'Employees',
-        icon: '👥',
+        icon: IconUsers,
         href: '/admin/employees',
     },
     {
         id: 'settings',
         label: 'Settings',
-        icon: '⚙️',
+        icon: IconSettings,
         href: '/admin/settings',
     },
     {
         id: 'profile',
         label: 'Profile',
-        icon: '👤',
+        icon: IconUser,
         href: '/profile',
     },
 ];
@@ -199,24 +210,27 @@ function handleSyncBadgeClick(event: MouseEvent): void {
 <template>
     <!-- ======================================================================
         Bottom Navigation Bar (Mobile)
-        Fixed position navigation with 4 main app sections
+        Theme-aware glassmorphism design with extra dark mode
     ======================================================================= -->
     <nav
-        class="fixed bottom-0 left-0 right-0 z-40 border-t border-[#3E3E3A] bg-[#1a1d23] pb-safe md:hidden"
+        class="fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-200 dark:border-white/5 bg-white/98 dark:bg-black/98 pb-safe backdrop-blur-xl md:hidden"
         role="navigation"
         aria-label="Mobile bottom navigation"
     >
+        <!-- Subtle grid pattern overlay (theme-aware) -->
+        <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(6,182,212,.05)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,.05)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.01)_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+
         <!-- Navigation Items Grid -->
-        <div class="grid grid-cols-5 gap-1">
+        <div class="relative grid grid-cols-5 gap-0">
             <Link
                 v-for="item in navItems"
                 :key="item.id"
                 :href="item.href"
-                class="relative flex min-h-[44px] flex-col items-center justify-center gap-1 px-2 py-3 transition-colors"
+                class="group relative flex min-h-[60px] flex-col items-center justify-center gap-1.5 px-2 py-2.5 transition-all duration-200"
                 :class="
                     isActive(item.href)
-                        ? 'text-cyan-400'
-                        : 'text-[#9ca3af] hover:text-[#e5e7eb]'
+                        ? 'text-cyan-700 dark:text-cyan-300'
+                        : 'text-zinc-500 dark:text-zinc-500 active:bg-zinc-100 dark:active:bg-white/5'
                 "
                 :aria-label="item.label"
                 :aria-current="isActive(item.href) ? 'page' : undefined"
@@ -224,49 +238,56 @@ function handleSyncBadgeClick(event: MouseEvent): void {
                 <!-- Sync Badge (My Trips only, employees only) -->
                 <SyncBadge
                     v-if="item.id === 'trips' && isEmployee"
-                    class="absolute right-1 top-2 z-10"
+                    class="absolute right-2 top-1.5 z-10"
                     size="sm"
                     @click="handleSyncBadgeClick"
                 />
-                <!-- Icon (Emoji) -->
-                <motion.span
-                    :animate="{
-                        scale: isActive(item.href) ? 1.1 : 1,
-                        y: isActive(item.href) ? -2 : 0,
-                    }"
-                    :whileHover="{ scale: 1.15, y: -2 }"
-                    :whilePress="{ scale: 0.95 }"
-                    :transition="{ type: 'spring', bounce: 0.5, duration: 0.5 }"
-                    class="text-2xl"
-                    aria-hidden="true"
+
+                <!-- Icon Container -->
+                <div
+                    class="relative flex items-center justify-center transition-all duration-200"
+                    :class="
+                        isActive(item.href)
+                            ? 'scale-105'
+                            : 'scale-100 group-active:scale-95'
+                    "
                 >
-                    {{ item.icon }}
-                </motion.span>
+                    <!-- Icon Glow Effect (dark mode only) -->
+                    <div
+                        v-if="isActive(item.href)"
+                        class="absolute inset-0 -m-2 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-500/20 blur-md opacity-0 dark:opacity-100"
+                    ></div>
+
+                    <!-- Icon -->
+                    <component
+                        :is="item.icon"
+                        :size="22"
+                        class="relative transition-colors duration-200"
+                        :class="
+                            isActive(item.href)
+                                ? 'text-cyan-600 dark:text-cyan-400'
+                                : 'text-zinc-500 dark:text-zinc-500 group-active:text-zinc-600 dark:group-active:text-zinc-400'
+                        "
+                    />
+                </div>
 
                 <!-- Label -->
-                <motion.span
-                    :animate="{
-                        opacity: isActive(item.href) ? 1 : 0.8,
-                    }"
-                    :transition="{ duration: 0.3 }"
-                    class="text-xs font-medium"
+                <span
+                    class="relative text-[10px] font-medium transition-all duration-200"
                     :class="
-                        isActive(item.href) ? 'font-semibold' : 'font-normal'
+                        isActive(item.href)
+                            ? 'font-semibold tracking-wide'
+                            : 'font-normal tracking-normal'
                     "
                 >
                     {{ item.label }}
-                </motion.span>
+                </span>
 
-                <!-- Active Indicator Bar -->
-                <motion.div
+                <!-- Active Indicator -->
+                <div
                     v-if="isActive(item.href)"
-                    :initial="{ scaleX: 0, opacity: 0 }"
-                    :animate="{ scaleX: 1, opacity: 1 }"
-                    :exit="{ scaleX: 0, opacity: 0 }"
-                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.5 }"
-                    class="absolute bottom-0 left-1/2 h-1 w-12 -translate-x-1/2 rounded-t-full bg-cyan-400"
-                    aria-hidden="true"
-                ></motion.div>
+                    class="absolute top-0 left-1/2 h-0.5 w-10 -translate-x-1/2 rounded-b-full bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-400 dark:to-blue-500 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/50"
+                ></div>
             </Link>
         </div>
     </nav>

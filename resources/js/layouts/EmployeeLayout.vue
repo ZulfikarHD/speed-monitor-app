@@ -14,7 +14,7 @@
  * - Responsive navigation (bottom mobile, top desktop)
  * - Content slot for page content
  * - Proper spacing for fixed navigation
- * - VeloTrack dark theme styling
+ * - SpeedoMontor dark theme styling
  * - Accessible navigation landmarks
  * - Global update notification for PWA updates
  */
@@ -40,7 +40,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    title: 'VeloTrack',
+    title: 'SpeedMonitor',
 });
 
 // ========================================================================
@@ -112,15 +112,21 @@ const handleInstallDismiss = (): void => {
 
     <!-- ======================================================================
         Employee Layout
-        Responsive layout with navigation and content area
+        Theme-aware professional layout with extra dark mode
     ======================================================================= -->
-    <div class="min-h-screen bg-[#0a0c0f]">
+    <div class="relative min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-black dark:via-zinc-950 dark:to-black">
+        <!-- Tech Grid Background (theme-aware) -->
+        <div class="pointer-events-none fixed inset-0 bg-[linear-gradient(rgba(6,182,212,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,.08)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(6,182,212,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,.02)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
+
+        <!-- Radial Gradient Overlay (theme-aware) -->
+        <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(6,182,212,0.05),transparent_40%)] dark:bg-[radial-gradient(ellipse_at_top_right,rgba(6,182,212,0.08),transparent_50%)]"></div>
+
         <!-- Top Navigation (Desktop/Tablet) -->
         <TopNav />
 
         <!-- Main Content Area -->
         <main
-            class="pb-20 md:pb-0"
+            class="relative pb-20 md:pb-0"
             role="main"
         >
             <!-- Page Content Slot -->

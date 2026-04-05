@@ -1,0 +1,9 @@
+export { default as IconHome } from './IconHome.vue';
+export { default as IconGauge } from './IconGauge.vue';
+export { default as IconClipboard } from './IconClipboard.vue';
+export { default as IconChart } from './IconChart.vue';
+export { default as IconCar } from './IconCar.vue';
+export { default as IconTrophy } from './IconTrophy.vue';
+export { default as IconSettings } from './IconSettings.vue';
+export { default as IconUsers } from './IconUsers.vue';
+export { default as IconUser } from './IconUser.vue';
