@@ -164,10 +164,9 @@ function getSyncStatusColor(): string {
     ======================================================================= -->
     <motion.button
         @click="handleClick"
-        :whileHover="{ scale: 1.01, y: -4 }"
-        :whilePress="{ scale: 0.99 }"
-        :transition="{ type: 'spring', bounce: 0.4, duration: 0.4 }"
-        class="w-full rounded-lg border border-zinc-200 bg-white backdrop-blur-sm p-5 text-left transition-all hover:border-cyan-500/50 hover:shadow-lg hover:shadow-zinc-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:border-white/5 dark:bg-zinc-800/50 dark:hover:shadow-cyan-500/10 dark:focus:ring-offset-zinc-900"
+        :whileHover="{ y: -2 }"
+        :transition="{ duration: 0.2 }"
+        class="w-full rounded-lg border border-zinc-200 bg-white p-4 text-left transition-all hover:border-cyan-500/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:border-white/10 dark:bg-zinc-800 dark:focus:ring-offset-zinc-900"
         :aria-label="`View trip details from ${formatDate(trip.started_at)}`"
     >
         <!-- Header: Date and Status -->

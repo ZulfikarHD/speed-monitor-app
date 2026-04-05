@@ -20,7 +20,6 @@
  */
 
 import { Link } from '@inertiajs/vue3';
-import { motion } from 'motion-v';
 import { computed } from 'vue';
 
 import SpeedChart from '@/components/trips/SpeedChart.vue';
@@ -117,15 +116,10 @@ function formatSpeed(speed: number | string | null): string {
     <EmployeeLayout :title="`Trip Detail - ${formatDate(trip.started_at)}`">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- Back Button -->
-            <motion.div
-                :initial="{ opacity: 0, x: -20 }"
-                :animate="{ opacity: 1, x: 0 }"
-                :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
+            <Link
+                href="/employee/my-trips"
+                class="mb-4 inline-flex min-h-[44px] items-center gap-2 px-3 py-2 text-sm font-medium text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300"
             >
-                <Link
-                    href="/employee/my-trips"
-                    class="mb-6 inline-flex min-h-[44px] items-center gap-2 px-4 py-3 text-sm font-medium text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300"
-                >
                     <svg
                         class="h-4 w-4"
                         fill="none"
@@ -142,14 +136,9 @@ function formatSpeed(speed: number | string | null): string {
                     </svg>
                     Back to My Trips
                 </Link>
-            </motion.div>
 
             <!-- Page Header -->
-            <motion.div
-                :initial="{ opacity: 0, y: -20 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.4, duration: 0.6, delay: 0.1 }"
-                class="mb-6 flex items-center gap-3"
+            <div class="mb-4 flex items-center gap-3"
             >
                 <h1
                     class="text-3xl font-bold text-zinc-900 dark:text-white"
@@ -159,45 +148,29 @@ function formatSpeed(speed: number | string | null): string {
                 </h1>
 
                 <!-- Status Badge -->
-                <motion.span
-                    :initial="{ opacity: 0, scale: 0.8 }"
-                    :animate="{ opacity: 1, scale: 1 }"
-                    :transition="{ type: 'spring', bounce: 0.5, duration: 0.5, delay: 0.2 }"
+                <span
                     :class="[
                         'inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium',
                         statusColor,
                     ]"
                 >
                     {{ statusText }}
-                </motion.span>
-            </motion.div>
+                </span>
+            </div>
 
-            <motion.p
-                :initial="{ opacity: 0 }"
-                :animate="{ opacity: 1 }"
-                :transition="{ delay: 0.25, duration: 0.5 }"
-                class="mb-6 text-sm text-zinc-600 dark:text-zinc-400"
+            <p class="mb-4 text-sm text-zinc-600 dark:text-zinc-400"
             >
                 Dimulai: {{ formatTime(trip.started_at) }}
                 <span v-if="trip.ended_at">
                     • Selesai: {{ formatTime(trip.ended_at) }}
                 </span>
-            </motion.p>
+            </p>
 
             <!-- Statistics Grid -->
-            <motion.div
-                :initial="{ opacity: 0, y: 20 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.3 }"
-                class="grid grid-cols-2 gap-4 sm:grid-cols-4"
+            <div class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4"
             >
                 <!-- Duration -->
-                <motion.div
-                    :initial="{ opacity: 0, y: 20 }"
-                    :animate="{ opacity: 1, y: 0 }"
-                    :whileHover="{ scale: 1.02, y: -4 }"
-                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.5, delay: 0.35 }"
-                    class="rounded-lg border border-zinc-200 bg-white backdrop-blur-sm p-4 dark:border-white/5 dark:bg-zinc-800/50"
+                <div class="rounded-lg border border-zinc-200 bg-white p-3 dark:border-white/10 dark:bg-zinc-800"
                 >
                     <div class="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
                         Durasi
@@ -208,63 +181,45 @@ function formatSpeed(speed: number | string | null): string {
                     >
                         {{ formatDuration(trip.duration_seconds) }}
                     </div>
-                </motion.div>
+                </div>
 
                 <!-- Distance -->
-                <motion.div
-                    :initial="{ opacity: 0, y: 20 }"
-                    :animate="{ opacity: 1, y: 0 }"
-                    :whileHover="{ scale: 1.03, y: -4 }"
-                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.5, delay: 0.4 }"
-                    class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-4"
-                >
-                    <div class="mb-2 text-xs text-[#9ca3af]">Jarak</div>
+                <div class="rounded-lg border border-zinc-200 bg-white p-3 dark:border-white/10 dark:bg-zinc-800">
+                    <div class="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">Jarak</div>
                     <div
-                        class="font-mono text-xl font-semibold text-cyan-400"
+                        class="font-mono text-xl font-semibold text-cyan-600 dark:text-cyan-400"
                         style="font-family: 'Share Tech Mono', monospace"
                     >
                         {{ formatDistance(trip.total_distance) }}
                     </div>
-                </motion.div>
+                </div>
 
                 <!-- Max Speed -->
-                <motion.div
-                    :initial="{ opacity: 0, y: 20 }"
-                    :animate="{ opacity: 1, y: 0 }"
-                    :whileHover="{ scale: 1.03, y: -4 }"
-                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.5, delay: 0.45 }"
-                    class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-4"
-                >
-                    <div class="mb-2 text-xs text-[#9ca3af]">
+                <div class="rounded-lg border border-zinc-200 bg-white p-3 dark:border-white/10 dark:bg-zinc-800">
+                    <div class="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
                         Kecepatan Maksimal
                     </div>
                     <div
-                        class="font-mono text-xl font-semibold text-red-400"
+                        class="font-mono text-xl font-semibold text-red-600 dark:text-red-400"
                         style="font-family: 'Share Tech Mono', monospace"
                     >
                         {{ formatSpeed(trip.max_speed) }}
                     </div>
-                </motion.div>
+                </div>
 
                 <!-- Average Speed -->
-                <motion.div
-                    :initial="{ opacity: 0, y: 20 }"
-                    :animate="{ opacity: 1, y: 0 }"
-                    :whileHover="{ scale: 1.03, y: -4 }"
-                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.5, delay: 0.5 }"
-                    class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-4"
-                >
-                    <div class="mb-2 text-xs text-[#9ca3af]">
-                        Kecepatan Rata-rata
+                <div class="rounded-lg border border-zinc-200 bg-white p-3 dark:border-white/10 dark:bg-zinc-800">
+                    <div class="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
+                        Kecepatan Rata-Rata
                     </div>
                     <div
-                        class="font-mono text-xl font-semibold text-green-400"
+                        class="font-mono text-xl font-semibold text-cyan-600 dark:text-cyan-400"
                         style="font-family: 'Share Tech Mono', monospace"
                     >
                         {{ formatSpeed(trip.average_speed) }}
                     </div>
-                </motion.div>
-            </motion.div>
+                </div>
+            </div>
 
             <!-- Speed Chart -->
             <SpeedChart
@@ -275,7 +230,7 @@ function formatSpeed(speed: number | string | null): string {
 
             <!-- Violation Summary -->
             <div
-                class="rounded-lg border border-zinc-200 bg-white backdrop-blur-sm p-6 text-center dark:border-white/5 dark:bg-zinc-800/50"
+                class="mb-6 rounded-lg border border-zinc-200 bg-white p-6 text-center dark:border-white/10 dark:bg-zinc-800"
             >
                 <h3
                     class="mb-3 text-lg font-semibold text-zinc-900 dark:text-white"
@@ -333,7 +288,7 @@ function formatSpeed(speed: number | string | null): string {
 
             <!-- Trip Metadata -->
             <div
-                class="rounded-lg border border-zinc-200 bg-white backdrop-blur-sm p-6 space-y-4 dark:border-white/5 dark:bg-zinc-800/50"
+                class="rounded-lg border border-zinc-200 bg-white p-6 space-y-4 dark:border-white/10 dark:bg-zinc-800"
             >
                 <h3
                     class="text-lg font-semibold text-zinc-900 dark:text-white"

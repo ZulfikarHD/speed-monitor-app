@@ -285,11 +285,7 @@ const updatePendingSyncCount = async (): Promise<void> => {
 
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- Page Header with Sync Button -->
-            <motion.div
-                :initial="{ opacity: 0, y: -20 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.4, duration: 0.6 }"
-                class="mb-6 flex items-start justify-between gap-4"
+            <div class="mb-6 flex items-start justify-between gap-4"
             >
                 <div class="flex-1">
                     <h1
@@ -381,15 +377,10 @@ const updatePendingSyncCount = async (): Promise<void> => {
                         <span v-else>Menyinkronkan...</span>
                     </motion.div>
                 </AnimatePresence>
-            </motion.div>
+            </div>
 
             <!-- Filters Section -->
-            <motion.div
-                :initial="{ opacity: 0, y: 20 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.1 }"
-                class="mb-6"
-            >
+            <div class="mb-4">
                 <TripListFilters
                     v-model:status="localFilters.status"
                     v-model:date-from="localFilters.date_from"
@@ -397,54 +388,44 @@ const updatePendingSyncCount = async (): Promise<void> => {
                     @apply="handleApplyFilters"
                     @reset="handleResetFilters"
                 />
-            </motion.div>
+            </div>
 
             <!-- Trips Grid -->
-            <div class="space-y-6">
+            <div class="space-y-4">
                 <!-- Active Filters Indicator -->
                 <AnimatePresence>
-                    <motion.div
+                    <div
                         v-if="hasActiveFilters"
-                        :initial="{ opacity: 0, x: -20 }"
-                        :animate="{ opacity: 1, x: 0 }"
-                        :exit="{ opacity: 0, x: 20 }"
-                        :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
-                        class="flex items-center justify-between rounded-lg border border-cyan-200 bg-cyan-50 px-4 py-3 dark:border-cyan-500/20 dark:bg-cyan-500/10"
+                        class="flex items-center justify-between rounded-lg border border-cyan-200 bg-cyan-50 px-4 py-2 dark:border-cyan-500/20 dark:bg-cyan-500/10"
                     >
                         <div class="flex items-center gap-2">
                             <span class="text-sm font-medium text-cyan-700 dark:text-cyan-300">
                                 Filter aktif: {{ meta.total }} trip ditemukan
                             </span>
                         </div>
-                        <motion.button
+                        <button
                             @click="handleResetFilters"
-                            :whileHover="{ scale: 1.02, x: 2 }"
-                            :whilePress="{ scale: 0.98 }"
-                            :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
-                            class="inline-flex min-h-[44px] items-center gap-2 px-4 py-3 text-sm font-medium text-cyan-700 transition-colors hover:text-cyan-900 dark:text-cyan-300 dark:hover:text-cyan-100"
+                            class="inline-flex min-h-[44px] items-center gap-2 px-3 py-2 text-sm font-medium text-cyan-700 transition-colors hover:text-cyan-900 dark:text-cyan-300 dark:hover:text-cyan-100"
                         >
                             Reset Filter
-                        </motion.button>
-                    </motion.div>
+                        </button>
+                    </div>
                 </AnimatePresence>
 
                 <!-- Trip Cards -->
-                <motion.div
+                <div
                     v-if="!showEmptyState"
-                    :initial="{ opacity: 0, y: 20 }"
-                    :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.2 }"
-                    class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-1"
+                    class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1"
                 >
                     <TripCard
                         v-for="trip in trips"
                         :key="trip.id"
                         :trip="trip"
                     />
-                </motion.div>
+                </div>
 
                 <!-- Pagination -->
-                <div v-if="meta && meta.last_page > 1" class="mt-8">
+                <div v-if="meta && meta.last_page > 1" class="mt-6">
                     <Pagination
                         :current-page="meta.current_page"
                         :last-page="meta.last_page"

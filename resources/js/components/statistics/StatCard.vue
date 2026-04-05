@@ -91,7 +91,7 @@ const IconComponent = getIconComponent(props.icon);
         Display card for a single statistic metric
     ======================================================================= -->
     <div
-        class="rounded-lg border backdrop-blur-sm p-6 transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-zinc-200 dark:hover:shadow-cyan-500/10"
+        class="rounded-lg border p-5 transition-all hover:-translate-y-1 hover:shadow-md"
         :class="colors.card"
     >
         <div class="flex items-start justify-between">
@@ -119,11 +119,11 @@ const IconComponent = getIconComponent(props.icon);
 
             <!-- Right: Icon Badge -->
             <div
-                class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25"
+                class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br text-white"
                 :class="colors.icon"
                 aria-hidden="true"
             >
-                <component :is="IconComponent" :size="28" />
+                <component :is="IconComponent" :size="24" />
             </div>
         </div>
     </div>

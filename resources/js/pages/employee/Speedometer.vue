@@ -30,7 +30,7 @@ import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
 import { useSettingsStore } from '@/stores/settings';
 import { useTripStore } from '@/stores/trip';
 import { haversineDistance, metersToKm, metersToMiles } from '@/utils/distance';
-import { estimateSatelliteCount, mpsToDisplay } from '@/utils/units';
+import { mpsToDisplay } from '@/utils/units';
 
 // ========================================================================
 // Props (Server-Side Data)
@@ -180,8 +180,6 @@ const currentSpeed = computed(() => mpsToDisplay(speedMps.value, unit.value));
 
 const currentSpeedLimit = computed(() => localSpeedLimit.value);
 
-const satelliteCount = computed(() => estimateSatelliteCount(accuracy.value));
-
 const accuracyPercentage = computed(() => {
     if (!accuracy.value) {
 return 0;
@@ -243,7 +241,6 @@ const tripDistance = computed(() => {
 });
 
 const maxSpeed = computed(() => mpsToDisplay(tripStore.stats.maxSpeed, unit.value));
-const avgSpeed = computed(() => mpsToDisplay(tripStore.stats.averageSpeed, unit.value));
 
 // ========================================================================
 // Speed Unit Controls (km/h or mph)
@@ -348,11 +345,7 @@ onBeforeUnmount(() => {
             </motion.div>
 
             <!-- Speed Limit & Unit Toggle - COMPACT -->
-            <motion.div
-                :initial="{ opacity: 0, y: -10 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :transition="{ duration: 0.3, delay: 0.1 }"
-                class="mb-6 flex items-center justify-between gap-4 rounded-lg border border-zinc-200 bg-white/50 backdrop-blur-sm px-4 py-3 dark:border-white/5 dark:bg-zinc-800/30"
+            <div class="mb-4 flex items-center justify-between gap-4 rounded-lg border border-zinc-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-zinc-800"
             >
                 <div class="flex items-center gap-3">
                     <div class="text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
@@ -386,55 +379,21 @@ onBeforeUnmount(() => {
                         mph
                     </button>
                 </div>
-            </motion.div>
+            </div>
 
-            <!-- Gauge - SMALLER, LIGHTER -->
-            <motion.div
-                v-if="tripStore.hasActiveTrip"
-                :initial="{ opacity: 0, scale: 0.95 }"
-                :animate="{ opacity: 1, scale: 1 }"
-                :exit="{ opacity: 0, scale: 0.95 }"
-                :transition="{ duration: 0.3, delay: 0.15 }"
-                class="mb-6"
-            >
+            <!-- Gauge -->
+            <div v-if="tripStore.hasActiveTrip" class="mb-6">
                 <ProductionGauge
                     :speed="currentSpeed"
                     :speed-limit="currentSpeedLimit"
                     :unit="unit"
                 />
-            </motion.div>
+            </div>
 
             <!-- Active Trip Stats - PROGRESSIVE DISCLOSURE -->
-            <motion.div
-                v-if="tripStore.hasActiveTrip"
-                :initial="{ opacity: 0, y: 10 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :exit="{ opacity: 0, y: 10 }"
-                :transition="{ duration: 0.3, delay: 0.2 }"
-                class="space-y-3"
-            >
-                <!-- Compact Stats Grid -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="rounded-lg border border-red-200 bg-white/50 backdrop-blur-sm p-3 dark:border-red-500/20 dark:bg-red-500/5">
-                        <div class="text-[10px] font-medium uppercase tracking-wide text-red-600 dark:text-red-400">
-                            Max Speed
-                        </div>
-                        <div class="text-2xl font-bold text-red-600 dark:text-red-400" style="font-family: 'Share Tech Mono', monospace">
-                            {{ Math.round(maxSpeed) }}
-                        </div>
-                    </div>
-                    <div class="rounded-lg border border-amber-200 bg-white/50 backdrop-blur-sm p-3 dark:border-amber-500/20 dark:bg-amber-500/5">
-                        <div class="text-[10px] font-medium uppercase tracking-wide text-amber-600 dark:text-amber-400">
-                            Avg Speed
-                        </div>
-                        <div class="text-2xl font-bold text-amber-600 dark:text-amber-400" style="font-family: 'Share Tech Mono', monospace">
-                            {{ Math.round(avgSpeed) }}
-                        </div>
-                    </div>
-                </div>
-
+            <div v-if="tripStore.hasActiveTrip" class="space-y-3">
                 <!-- Compact Trip Bar -->
-                <div class="flex items-center justify-around rounded-lg border border-zinc-200 bg-white/50 backdrop-blur-sm py-3 dark:border-white/5 dark:bg-zinc-800/30">
+                <div class="flex items-center justify-around rounded-lg border border-zinc-200 bg-white py-3 dark:border-white/10 dark:bg-zinc-800">
                     <div class="text-center">
                         <div class="text-lg font-bold text-cyan-600 dark:text-cyan-400" style="font-family: 'Share Tech Mono', monospace">
                             {{ tripDistance.toFixed(2) }}
@@ -443,34 +402,34 @@ onBeforeUnmount(() => {
                             {{ unit === 'kmh' ? 'km' : 'mi' }}
                         </div>
                     </div>
-                    <div class="h-8 w-px bg-zinc-200 dark:bg-white/5" />
+                    <div class="h-8 w-px bg-zinc-200 dark:bg-white/10" />
                     <div class="text-center">
                         <div class="text-lg font-bold text-cyan-600 dark:text-cyan-400" style="font-family: 'Share Tech Mono', monospace">
                             {{ Math.floor(tripStore.stats.duration / 60).toString().padStart(2, '0') }}:{{ (tripStore.stats.duration % 60).toString().padStart(2, '0') }}
                         </div>
                         <div class="text-[10px] font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
-                            Duration
+                            Time
                         </div>
                     </div>
-                    <div class="h-8 w-px bg-zinc-200 dark:bg-white/5" />
+                    <div class="h-8 w-px bg-zinc-200 dark:bg-white/10" />
                     <div class="text-center">
-                        <div class="text-lg font-bold text-cyan-600 dark:text-cyan-400" style="font-family: 'Share Tech Mono', monospace">
-                            {{ satelliteCount || '—' }}
+                        <div class="text-lg font-bold" :class="accuracyPercentage > 60 ? 'text-green-600 dark:text-green-400' : accuracyPercentage > 30 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'" style="font-family: 'Share Tech Mono', monospace">
+                            {{ Math.round(maxSpeed) }}
                         </div>
                         <div class="text-[10px] font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
-                            GPS
+                            Max
                         </div>
                     </div>
                 </div>
 
-                <!-- Compact GPS Accuracy -->
-                <div class="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white/50 backdrop-blur-sm px-3 py-2 dark:border-white/5 dark:bg-zinc-800/30">
+                <!-- GPS Accuracy - INLINE -->
+                <div class="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-zinc-800">
                     <div class="text-[10px] font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
                         GPS
                     </div>
-                    <div class="h-1 flex-1 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+                    <div class="h-1 flex-1 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
                         <div
-                            class="h-full rounded-full transition-all duration-500"
+                            class="h-full rounded-full transition-all duration-300"
                             :style="{ width: accuracyPercentage + '%', background: accuracyColor }"
                         />
                     </div>
@@ -478,25 +437,22 @@ onBeforeUnmount(() => {
                         {{ accuracy !== null ? Math.round(accuracy) + 'm' : '—' }}
                     </div>
                 </div>
-            </motion.div>
+            </div>
 
             <!-- Empty State - When No Active Trip -->
-            <motion.div
+            <div
                 v-else
-                :initial="{ opacity: 0 }"
-                :animate="{ opacity: 1 }"
-                :transition="{ duration: 0.3, delay: 0.2 }"
-                class="rounded-lg border border-zinc-200 bg-white/50 backdrop-blur-sm p-8 text-center dark:border-white/5 dark:bg-zinc-800/30"
+                class="rounded-lg border border-zinc-200 bg-white p-6 text-center dark:border-white/10 dark:bg-zinc-800"
             >
-                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-900">
-                    <svg class="h-8 w-8 text-zinc-400 dark:text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-900">
+                    <svg class="h-6 w-6 text-zinc-400 dark:text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                 </div>
                 <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                    Tap "Start Trip" to begin tracking
+                    Start trip to begin tracking
                 </p>
-            </motion.div>
+            </div>
         </main>
         </div>
     </EmployeeLayout>

@@ -65,7 +65,7 @@ const props = defineProps<EmptyStateProps>();
         Centered empty state with icon, title, message, and optional CTA
     ======================================================================= -->
     <div
-        class="flex flex-col items-center justify-center rounded-lg border border-zinc-200 bg-white backdrop-blur-sm p-12 text-center dark:border-white/5 dark:bg-zinc-800/50"
+        class="flex flex-col items-center justify-center rounded-lg border border-zinc-200 bg-white p-8 text-center dark:border-white/10 dark:bg-zinc-800"
     >
         <!-- Icon -->
         <div

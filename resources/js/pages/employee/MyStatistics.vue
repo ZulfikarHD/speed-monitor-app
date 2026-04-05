@@ -21,7 +21,6 @@
  */
 
 import { router } from '@inertiajs/vue3';
-import { motion } from 'motion-v';
 
 import { IconGauge } from '@/components/icons';
 import PeriodSelector from '@/components/statistics/PeriodSelector.vue';
@@ -68,14 +67,8 @@ const { statistics, currentPeriod } = props;
 <template>
     <EmployeeLayout title="My Statistics">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <!-- ================================================================
-                Page Header with Period Selector
-            ================================================================ -->
-            <motion.div
-                :initial="{ opacity: 0, y: -20 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.4, duration: 0.6 }"
-                class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+            <!-- Page Header with Period Selector -->
+            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
             >
                 <!-- Page Title -->
                 <div>
@@ -95,71 +88,45 @@ const { statistics, currentPeriod } = props;
                     :model-value="currentPeriod"
                     @update:model-value="handlePeriodChange"
                 />
-            </motion.div>
+            </div>
 
-            <!-- ================================================================
-                Summary Statistics Cards Grid
-            ================================================================ -->
-            <div class="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- Summary Statistics Cards Grid -->
+            <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Trips -->
-                <motion.div
-                    :initial="{ opacity: 0, y: 20 }"
-                    :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.1 }"
-                >
-                    <StatCard
-                        title="Total Trips"
-                        :value="statistics.summary.total_trips"
-                        unit="trips completed"
-                        icon="car"
-                        color="blue"
-                    />
-                </motion.div>
+                <StatCard
+                    title="Total Trips"
+                    :value="statistics.summary.total_trips"
+                    unit="trips completed"
+                    icon="car"
+                    color="blue"
+                />
 
                 <!-- Total Distance -->
-                <motion.div
-                    :initial="{ opacity: 0, y: 20 }"
-                    :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.2 }"
-                >
-                    <StatCard
-                        title="Total Distance"
-                        :value="statistics.summary.total_distance"
-                        unit="kilometers"
-                        icon="map"
-                        color="green"
-                    />
-                </motion.div>
+                <StatCard
+                    title="Total Distance"
+                    :value="statistics.summary.total_distance"
+                    unit="kilometers"
+                    icon="map"
+                    color="green"
+                />
 
                 <!-- Average Speed -->
-                <motion.div
-                    :initial="{ opacity: 0, y: 20 }"
-                    :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.3 }"
-                >
-                    <StatCard
-                        title="Average Speed"
-                        :value="statistics.summary.average_speed"
-                        unit="km/h"
-                        icon="zap"
-                        color="purple"
-                    />
-                </motion.div>
+                <StatCard
+                    title="Average Speed"
+                    :value="statistics.summary.average_speed"
+                    unit="km/h"
+                    icon="zap"
+                    color="purple"
+                />
 
                 <!-- Violations -->
-                <motion.div
-                    :initial="{ opacity: 0, y: 20 }"
-                    :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.4 }"
-                >
-                    <StatCard
-                        title="Violations"
-                        :value="statistics.summary.violation_count"
-                        unit="speed limit exceeded"
-                        icon="alert"
-                        :color="statistics.summary.violation_count > 0 ? 'red' : 'green'"
-                    />
-                </motion.div>
+                <StatCard
+                    title="Violations"
+                    :value="statistics.summary.violation_count"
+                    unit="speed limit exceeded"
+                    icon="alert"
+                    :color="statistics.summary.violation_count > 0 ? 'red' : 'green'"
+                />
             </div>
 
             <!-- ================================================================
@@ -179,15 +146,10 @@ const { statistics, currentPeriod } = props;
                 />
             </div>
 
-            <!-- ================================================================
-                Empty State (No Trips)
-            ================================================================ -->
-            <motion.div
+            <!-- Empty State (No Trips) -->
+            <div
                 v-if="statistics.summary.total_trips === 0"
-                :initial="{ opacity: 0, y: 20 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.5 }"
-                class="mt-8 rounded-lg border border-zinc-200 bg-white backdrop-blur-sm p-8 text-center dark:border-white/5 dark:bg-zinc-800/50"
+                class="mt-6 rounded-lg border border-zinc-200 bg-white p-8 text-center dark:border-white/10 dark:bg-zinc-800"
             >
                 <div class="mb-6 flex justify-center">
                     <div class="flex h-20 w-20 items-center justify-center rounded-full bg-zinc-100 text-zinc-400 dark:bg-zinc-900 dark:text-zinc-600">
@@ -222,7 +184,7 @@ const { statistics, currentPeriod } = props;
                         />
                     </svg>
                 </a>
-            </motion.div>
+            </div>
         </div>
     </EmployeeLayout>
 </template>

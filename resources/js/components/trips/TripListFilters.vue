@@ -140,7 +140,7 @@ const hasActiveFilters = computed(() => {
         Responsive filter controls with date range and status
     ======================================================================= -->
     <div
-        class="rounded-lg border border-zinc-200 bg-white backdrop-blur-sm p-4 dark:border-white/5 dark:bg-zinc-800/50"
+        class="rounded-lg border border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-zinc-800"
         role="search"
         aria-label="Filter trips"
     >
