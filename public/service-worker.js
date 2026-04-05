@@ -10,12 +10,12 @@
  * - App Shell (HTML): Network-First (3s timeout, cache fallback)
  * - API Routes: Network-Only (IndexedDB handles offline data)
  *
- * Version: 1.0.0
- * Last Updated: 2026-04-04
+ * Version: 2.0.0
+ * Last Updated: 2026-04-05
  */
 
 // Cache version - increment to force cache refresh
-const CACHE_VERSION = 1;
+const CACHE_VERSION = 2;
 const CACHE_PREFIX = 'SpeedoMontor';
 
 // Cache names
@@ -164,6 +164,9 @@ self.addEventListener('message', (event) => {
  * Cache-First strategy.
  * Returns cached response if available, otherwise fetches from network.
  *
+ * WHY: Cross-origin resources (like fonts from bunny.net) need special handling.
+ * Using mode: 'no-cors' allows caching opaque responses that bypass CORS restrictions.
+ *
  * @param {Request} request - Fetch request
  * @param {string} cacheName - Cache name to use
  * @param {Object} options - Cache options (maxAge, maxEntries)
@@ -181,10 +184,18 @@ async function cacheFirst(request, cacheName, options = {}) {
 
         // Cache miss - fetch from network
         console.log('[SW] Cache miss, fetching:', request.url);
-        const networkResponse = await fetch(request);
+        
+        // Check if this is a cross-origin request
+        const url = new URL(request.url);
+        const isCrossOrigin = url.origin !== location.origin;
+        
+        // For cross-origin requests (like external fonts), use no-cors mode
+        // WHY: This prevents CORS errors and allows caching opaque responses
+        const fetchOptions = isCrossOrigin ? { mode: 'no-cors' } : {};
+        const networkResponse = await fetch(request, fetchOptions);
 
-        // Cache successful responses only
-        if (networkResponse && networkResponse.status === 200) {
+        // Cache successful responses (status 200 for same-origin, type 'opaque' for cross-origin)
+        if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
             const cache = await caches.open(cacheName);
 
             // Clone response before caching (response can only be used once)
