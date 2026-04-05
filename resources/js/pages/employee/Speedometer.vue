@@ -364,38 +364,48 @@ onBeforeUnmount(() => {
 
         <DevGpsSimulator v-if="isDev" />
 
-        <div class="speedometer-page">
+        <div class="speedometer-page bg-white dark:bg-[#0a0c0f] text-zinc-900 dark:text-[#e8eaf0]">
             <!-- Header -->
-            <header class="velo-header">
-                <div class="header-left">
-                    <div class="velo-logo">Speed<span>Monitor</span></div>
+            <header class="velo-header w-full px-7 py-[18px] flex justify-between items-center border-b border-zinc-200 dark:border-[#1e2230] bg-white/95 dark:bg-[rgba(10,12,15,0.95)] backdrop-blur-[10px] sticky top-0 z-10">
+                <div class="header-left flex items-center gap-4">
+                    <div class="velo-logo font-[Bebas_Neue] text-2xl tracking-[3px] text-cyan-600 dark:text-[#00e5ff] [text-shadow:0_0_20px_rgba(6,182,212,0.35)] dark:[text-shadow:0_0_20px_rgba(0,229,255,0.35)]">
+                        Speed<span class="text-zinc-900 dark:text-[#e8eaf0]">Monitor</span>
+                    </div>
                 </div>
-                <div class="status-indicator">
-                    <div :class="['status-dot', gpsStatusClass]" />
+                <div class="status-indicator flex items-center gap-2 text-sm tracking-[1.5px] uppercase text-zinc-400 dark:text-[#4a5068]">
+                    <div :class="['status-dot w-2 h-2 rounded-full bg-zinc-400 dark:bg-[#4a5068] transition-all duration-400', gpsStatusClass]" />
                     <span>{{ gpsStatus }}</span>
                 </div>
             </header>
 
         <!-- Main -->
-        <main class="velo-main">
+        <main class="velo-main w-full max-w-md md:max-w-lg lg:max-w-2xl px-4 py-6 pb-10 mx-auto flex flex-col items-center gap-5">
             <!-- Speed Limit Banner (Read-Only) -->
-            <div class="limit-banner">
-                <div class="limit-info">
-                    <div class="limit-label">Speed Limit</div>
-                    <div class="limit-value">
+            <div class="limit-banner w-full flex flex-wrap items-center justify-between bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-[14px] p-4 px-5 gap-4">
+                <div class="limit-info flex flex-col gap-1">
+                    <div class="limit-label text-xs tracking-[2px] uppercase text-zinc-500 dark:text-[#4a5068]">Speed Limit</div>
+                    <div class="limit-value font-[Bebas_Neue] text-[1.8rem] tracking-[2px] text-cyan-600 dark:text-[#00e5ff] [text-shadow:0_0_10px_rgba(6,182,212,0.3)] dark:[text-shadow:0_0_10px_rgba(0,229,255,0.3)]">
                         {{ currentSpeedLimit }} {{ unit === 'kmh' ? 'km/h' : 'mph' }}
                     </div>
-                    <div class="limit-subtext">Diatur oleh supervisor</div>
+                    <div class="limit-subtext text-[0.7rem] text-zinc-400 dark:text-[#4a5068] italic">Diatur oleh supervisor</div>
                 </div>
-                <div class="unit-toggle">
+                <div class="unit-toggle flex bg-white dark:bg-[#0a0c0f] border border-zinc-200 dark:border-[#1e2230] rounded-lg overflow-hidden">
                     <button
-                        :class="{ active: unit === 'kmh' }"
+                        :class="{ 
+                            'bg-cyan-600 text-white font-semibold': unit === 'kmh', 
+                            'bg-transparent text-zinc-500 dark:text-[#4a5068]': unit !== 'kmh' 
+                        }"
+                        class="min-h-[44px] px-4 py-2.5 border-none text-sm tracking-wider uppercase cursor-pointer transition-all duration-200"
                         @click="setUnit('kmh')"
                     >
                         km/h
                     </button>
                     <button
-                        :class="{ active: unit === 'mph' }"
+                        :class="{ 
+                            'bg-cyan-600 text-white font-semibold': unit === 'mph', 
+                            'bg-transparent text-zinc-500 dark:text-[#4a5068]': unit !== 'mph' 
+                        }"
+                        class="min-h-[44px] px-4 py-2.5 border-none text-sm tracking-wider uppercase cursor-pointer transition-all duration-200"
                         @click="setUnit('mph')"
                     >
                         mph
@@ -411,52 +421,52 @@ onBeforeUnmount(() => {
             />
 
             <!-- Stats Grid -->
-            <div class="stats-grid">
-                <div class="stat-card danger">
-                    <div class="stat-label">Max Speed</div>
-                    <div class="stat-value">{{ Math.round(maxSpeed) }}</div>
-                    <div class="stat-unit">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
+            <div class="stats-grid w-full grid grid-cols-2 gap-3">
+                <div class="stat-card danger relative overflow-hidden bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-[14px] p-4 px-[18px] flex flex-col gap-1.5">
+                    <div class="stat-label text-sm tracking-[2.5px] uppercase text-zinc-500 dark:text-[#4a5068]">Max Speed</div>
+                    <div class="stat-value font-[Share_Tech_Mono] text-[1.7rem] text-zinc-900 dark:text-[#e8eaf0] leading-none">{{ Math.round(maxSpeed) }}</div>
+                    <div class="stat-unit text-[0.65rem] text-zinc-400 dark:text-[#4a5068] tracking-wider">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
                 </div>
-                <div class="stat-card warn">
-                    <div class="stat-label">Avg Speed</div>
-                    <div class="stat-value">{{ Math.round(avgSpeed) }}</div>
-                    <div class="stat-unit">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
+                <div class="stat-card warn relative overflow-hidden bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-[14px] p-4 px-[18px] flex flex-col gap-1.5">
+                    <div class="stat-label text-sm tracking-[2.5px] uppercase text-zinc-500 dark:text-[#4a5068]">Avg Speed</div>
+                    <div class="stat-value font-[Share_Tech_Mono] text-[1.7rem] text-zinc-900 dark:text-[#e8eaf0] leading-none">{{ Math.round(avgSpeed) }}</div>
+                    <div class="stat-unit text-[0.65rem] text-zinc-400 dark:text-[#4a5068] tracking-wider">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
                 </div>
             </div>
 
             <!-- Trip Bar -->
-            <div class="trip-bar">
-                <div class="trip-item">
-                    <div class="trip-val">{{ tripDistance.toFixed(2) }}</div>
-                    <div class="trip-lbl">Distance ({{ unit === 'kmh' ? 'km' : 'mi' }})</div>
+            <div class="trip-bar w-full bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-[14px] p-4 px-[18px] flex justify-between items-center">
+                <div class="trip-item text-center">
+                    <div class="trip-val font-[Share_Tech_Mono] text-[1.3rem] text-cyan-600 dark:text-[#00e5ff]">{{ tripDistance.toFixed(2) }}</div>
+                    <div class="trip-lbl text-sm tracking-[2px] uppercase text-zinc-500 dark:text-[#4a5068] mt-[3px]">Distance ({{ unit === 'kmh' ? 'km' : 'mi' }})</div>
                 </div>
-                <div class="trip-divider" />
-                <div class="trip-item">
-                    <div class="trip-val">
+                <div class="trip-divider w-px h-9 bg-zinc-300 dark:bg-[#1e2230]" />
+                <div class="trip-item text-center">
+                    <div class="trip-val font-[Share_Tech_Mono] text-[1.3rem] text-cyan-600 dark:text-[#00e5ff]">
                         {{ Math.floor(tripStore.stats.duration / 60).toString().padStart(2, '0') }}:{{ (tripStore.stats.duration % 60).toString().padStart(2, '0') }}
                     </div>
-                    <div class="trip-lbl">Duration</div>
+                    <div class="trip-lbl text-sm tracking-[2px] uppercase text-zinc-500 dark:text-[#4a5068] mt-[3px]">Duration</div>
                 </div>
-                <div class="trip-divider" />
-                <div class="trip-item">
-                    <div class="trip-val">{{ tripStore.stats.violationCount }}</div>
-                    <div class="trip-lbl">Violations</div>
+                <div class="trip-divider w-px h-9 bg-zinc-300 dark:bg-[#1e2230]" />
+                <div class="trip-item text-center">
+                    <div class="trip-val font-[Share_Tech_Mono] text-[1.3rem] text-cyan-600 dark:text-[#00e5ff]">{{ tripStore.stats.violationCount }}</div>
+                    <div class="trip-lbl text-sm tracking-[2px] uppercase text-zinc-500 dark:text-[#4a5068] mt-[3px]">Violations</div>
                 </div>
             </div>
 
             <!-- GPS Accuracy -->
-            <div class="accuracy-row">
-                <div class="accuracy-label">GPS Accuracy</div>
-                <div class="accuracy-bar">
+            <div class="accuracy-row w-full flex items-center gap-2.5 px-1">
+                <div class="accuracy-label text-sm tracking-[2px] uppercase text-zinc-500 dark:text-[#4a5068] whitespace-nowrap">GPS Accuracy</div>
+                <div class="accuracy-bar flex-1 h-[3px] bg-zinc-300 dark:bg-[#1e2230] rounded-[2px] overflow-hidden">
                     <div
-                        class="accuracy-fill"
+                        class="accuracy-fill h-full rounded-[2px] transition-all duration-500"
                         :style="{
                             width: accuracyPercentage + '%',
                             background: accuracyColor,
                         }"
                     />
                 </div>
-                <div class="accuracy-text">
+                <div class="accuracy-text font-[Share_Tech_Mono] text-[0.72rem] text-zinc-500 dark:text-[#4a5068] min-w-[50px] text-right">
                     {{ accuracy !== null ? Math.round(accuracy) + ' m' : '— m' }}
                 </div>
             </div>
@@ -470,8 +480,6 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .speedometer-page {
-    background: #0a0c0f;
-    color: #e8eaf0;
     font-family: 'Barlow', sans-serif;
     display: flex;
     flex-direction: column;
@@ -489,89 +497,15 @@ onBeforeUnmount(() => {
     opacity: 0.5;
 }
 
-.velo-header {
-    width: 100%;
-    padding: 18px 28px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #1e2230;
-    background: rgba(10, 12, 15, 0.95);
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.back-button {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    border: 1px solid #1e2230;
-    background: #111318;
-    color: #e8eaf0;
-    transition: all 0.2s;
-    cursor: pointer;
-}
-
-.back-button:hover {
-    border-color: #00e5ff;
-    color: #00e5ff;
-    background: #0a0c0f;
-}
-
-.back-icon {
-    width: 20px;
-    height: 20px;
-}
-
-.velo-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.5rem;
-    letter-spacing: 3px;
-    color: #00e5ff;
-    text-shadow: 0 0 20px rgba(0, 229, 255, 0.35);
-}
-
-.velo-logo span {
-    color: #e8eaf0;
-}
-
-.status-indicator {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.875rem;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: #4a5068;
-}
-
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #4a5068;
-    transition: all 0.4s;
-}
-
+/* Status dot animations */
 .status-dot.active {
-    background: #00e676;
+    background: #00e676 !important;
     box-shadow: 0 0 8px #00e676;
     animation: pulse 2s infinite;
 }
 
 .status-dot.warn {
-    background: #ffab00;
+    background: #ffab00 !important;
     box-shadow: 0 0 8px #ffab00;
 }
 
@@ -580,137 +514,7 @@ onBeforeUnmount(() => {
     50% { opacity: 0.4; }
 }
 
-.velo-main {
-    width: 100%;
-    max-width: 28rem;
-    padding: 24px 16px 40px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-}
-
-@media (min-width: 768px) {
-    .velo-main {
-        max-width: 32rem;
-    }
-}
-
-@media (min-width: 1024px) {
-    .velo-main {
-        max-width: 42rem;
-    }
-}
-
-/* Landscape mode optimizations (short screens) */
-@media (orientation: landscape) and (max-height: 500px) {
-    .velo-main {
-        padding: 16px 16px 20px;
-        gap: 12px;
-    }
-
-    .gauge-container {
-        max-height: 60vh;
-    }
-
-    .stats-grid,
-    .trip-bar,
-    .accuracy-row {
-        transform: scale(0.9);
-    }
-
-    .limit-banner {
-        padding: 8px 12px;
-    }
-}
-
-.limit-banner {
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    background: #111318;
-    border: 1px solid #1e2230;
-    border-radius: 14px;
-    padding: 16px 20px;
-    gap: 16px;
-}
-
-.limit-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.limit-label {
-    font-size: 0.75rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #4a5068;
-}
-
-.limit-value {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.8rem;
-    letter-spacing: 2px;
-    color: #00e5ff;
-    text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
-}
-
-.limit-subtext {
-    font-size: 0.7rem;
-    color: #4a5068;
-    font-style: italic;
-}
-
-.unit-toggle {
-    display: flex;
-    background: #0a0c0f;
-    border: 1px solid #1e2230;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.unit-toggle button {
-    min-height: 44px;
-    padding: 10px 16px;
-    border: none;
-    background: transparent;
-    color: #4a5068;
-    font-size: 0.875rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.unit-toggle button.active {
-    background: #00e5ff;
-    color: #000;
-    font-weight: 600;
-}
-
-.stats-grid {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
-
-.stat-card {
-    background: #111318;
-    border: 1px solid #1e2230;
-    border-radius: 14px;
-    padding: 16px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    position: relative;
-    overflow: hidden;
-}
-
+/* Stat card top indicator bars */
 .stat-card::before {
     content: '';
     position: absolute;
@@ -718,7 +522,7 @@ onBeforeUnmount(() => {
     left: 0;
     right: 0;
     height: 2px;
-    background: #00e5ff;
+    background: linear-gradient(to right, rgb(6 182 212), rgb(59 130 246));
     opacity: 0.4;
 }
 
@@ -732,96 +536,25 @@ onBeforeUnmount(() => {
     opacity: 0.6;
 }
 
-.stat-label {
-    font-size: 0.875rem;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: #4a5068;
-}
+/* Landscape mode optimizations (short screens) */
+@media (orientation: landscape) and (max-height: 500px) {
+    .velo-main {
+        padding: 16px 16px 20px !important;
+        gap: 12px !important;
+    }
 
-.stat-value {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 1.7rem;
-    color: #e8eaf0;
-    line-height: 1;
-}
+    .gauge-container {
+        max-height: 60vh;
+    }
 
-.stat-unit {
-    font-size: 0.65rem;
-    color: #4a5068;
-    letter-spacing: 1px;
-}
+    .stats-grid,
+    .trip-bar,
+    .accuracy-row {
+        transform: scale(0.9);
+    }
 
-.trip-bar {
-    width: 100%;
-    background: #111318;
-    border: 1px solid #1e2230;
-    border-radius: 14px;
-    padding: 16px 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.trip-item {
-    text-align: center;
-}
-
-.trip-val {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 1.3rem;
-    color: #00e5ff;
-}
-
-.trip-lbl {
-    font-size: 0.875rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #4a5068;
-    margin-top: 3px;
-}
-
-.trip-divider {
-    width: 1px;
-    height: 36px;
-    background: #1e2230;
-}
-
-.accuracy-row {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 4px;
-}
-
-.accuracy-label {
-    font-size: 0.875rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #4a5068;
-    white-space: nowrap;
-}
-
-.accuracy-bar {
-    flex: 1;
-    height: 3px;
-    background: #1e2230;
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.accuracy-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width 0.5s, background 0.5s;
-}
-
-.accuracy-text {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.72rem;
-    color: #4a5068;
-    min-width: 50px;
-    text-align: right;
+    .limit-banner {
+        padding: 8px 12px !important;
+    }
 }
 </style>

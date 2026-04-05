@@ -4,6 +4,7 @@ Production Canvas Gauge with Store Integration
 Professional circular gauge with tick marks, labels, and glow effects.
 Integrates with Settings Store for speed limit configuration.
 Responsive sizing support for different viewport widths.
+Supports light/dark mode with theme-aware colors.
 -->
 
 <script setup lang="ts">
@@ -33,6 +34,36 @@ const gaugeSize = computed(() => sizes[props.size] || sizes.md);
 
 const maxSpeedDisplay = () => (props.unit === 'kmh' ? 200 : 125);
 
+/**
+ * Detect current theme (light/dark mode).
+ * 
+ * Checks for 'dark' class on document root element.
+ */
+const isDarkMode = ref(true);
+
+function updateTheme() {
+    isDarkMode.value = document.documentElement.classList.contains('dark');
+}
+
+/**
+ * Get theme-aware colors for canvas drawing.
+ */
+const themeColors = computed(() => {
+    if (isDarkMode.value) {
+        return {
+            bgArc: '#1e2230',
+            tickMark: '#2a3048',
+            tickLabel: '#4a5068',
+        };
+    } else {
+        return {
+            bgArc: '#d4d4d8', // zinc-300
+            tickMark: '#a1a1aa', // zinc-400
+            tickLabel: '#71717a', // zinc-500
+        };
+    }
+});
+
 function drawGauge() {
     const canvas = canvasRef.value;
 
@@ -58,11 +89,12 @@ return;
     const startAngle = Math.PI * 0.75;
     const endAngle = Math.PI * 2.25;
     const arcRange = endAngle - startAngle;
+    const colors = themeColors.value;
 
     // BG arc
     ctx.beginPath();
     ctx.arc(cx, cy, R, startAngle, endAngle);
-    ctx.strokeStyle = '#1e2230';
+    ctx.strokeStyle = colors.bgArc;
     ctx.lineWidth = 14;
     ctx.lineCap = 'round';
     ctx.stroke();
@@ -109,14 +141,14 @@ return;
         ctx.beginPath();
         ctx.moveTo(cx + Math.cos(a) * inner, cy + Math.sin(a) * inner);
         ctx.lineTo(cx + Math.cos(a) * outer, cy + Math.sin(a) * outer);
-        ctx.strokeStyle = '#2a3048';
+        ctx.strokeStyle = colors.tickMark;
         ctx.lineWidth = 2;
         ctx.stroke();
 
         // Labels
         const labelR = R - 34;
         const spVal = Math.round((maxSpeedDisplay() / ticks) * i);
-        ctx.fillStyle = '#4a5068';
+        ctx.fillStyle = colors.tickLabel;
         ctx.font = '500 9px Barlow, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -142,13 +174,31 @@ function animate() {
     animationFrame = requestAnimationFrame(animate);
 }
 
+let themeObserver: MutationObserver | null = null;
+
 onMounted(() => {
+    updateTheme();
     animate();
+    
+    // Watch for theme changes via dark class on html element
+    themeObserver = new MutationObserver(() => {
+        updateTheme();
+        drawGauge();
+    });
+    
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class'],
+    });
 });
 
 onUnmounted(() => {
     if (animationFrame) {
         cancelAnimationFrame(animationFrame);
+    }
+    
+    if (themeObserver) {
+        themeObserver.disconnect();
     }
 });
 
@@ -159,7 +209,7 @@ watch([() => props.speed, () => props.speedLimit, () => props.unit], () => {
 
 <template>
     <div
-        class="gauge-container"
+        class="gauge-container relative"
         :class="{
             'w-60 h-60': size === 'sm',
             'w-[300px] h-[300px]': size === 'md',
@@ -170,18 +220,25 @@ watch([() => props.speed, () => props.speedLimit, () => props.unit], () => {
             ref="canvasRef"
             :width="gaugeSize.width"
             :height="gaugeSize.height"
-            class="gauge-canvas"
+            class="gauge-canvas absolute inset-0"
         />
-        <div class="gauge-overlay">
+        <div class="gauge-overlay absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             <div
-                :class="['speed-display', { violation: speed > speedLimit }]"
+                class="speed-display font-[Bebas_Neue] text-[5.5rem] leading-none transition-colors duration-300"
+                :class="
+                    speed > speedLimit
+                        ? 'text-[#ff3d57] [text-shadow:0_0_20px_rgba(255,61,87,0.5)]'
+                        : 'text-zinc-800 dark:text-[#e8eaf0] [text-shadow:0_0_30px_rgba(39,39,42,0.2)] dark:[text-shadow:0_0_30px_rgba(232,234,240,0.2)]'
+                "
             >
                 {{ Math.round(speed) }}
             </div>
-            <div class="unit-label">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
+            <div class="unit-label text-xs tracking-[3px] uppercase text-zinc-500 dark:text-[#4a5068] -mt-1">
+                {{ unit === 'kmh' ? 'km/h' : 'mph' }}
+            </div>
             <div
                 v-if="speed > speedLimit"
-                class="warning-text"
+                class="warning-text mt-1.5 text-[0.65rem] tracking-[2px] uppercase text-[#ff3d57] animate-blink"
             >
                 ⚠ OVER LIMIT
             </div>
@@ -190,58 +247,12 @@ watch([() => props.speed, () => props.speedLimit, () => props.unit], () => {
 </template>
 
 <style scoped>
-.gauge-container {
-    position: relative;
-}
-
-.gauge-canvas {
-    position: absolute;
-    inset: 0;
-}
-
-.gauge-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-}
-
-.speed-display {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 5.5rem;
-    line-height: 1;
-    color: #e8eaf0;
-    transition: color 0.3s;
-    text-shadow: 0 0 30px rgba(232, 234, 240, 0.2);
-}
-
-.speed-display.violation {
-    color: #ff3d57;
-    text-shadow: 0 0 20px rgba(255, 61, 87, 0.5);
-}
-
-.unit-label {
-    font-size: 0.75rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: #4a5068;
-    margin-top: -4px;
-}
-
-.warning-text {
-    margin-top: 6px;
-    font-size: 0.65rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #ff3d57;
-    animation: blink 0.8s infinite;
-}
-
 @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
+}
+
+.animate-blink {
+    animation: blink 0.8s infinite;
 }
 </style>

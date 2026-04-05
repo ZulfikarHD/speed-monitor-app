@@ -69,13 +69,22 @@ watch(speedSlider, (val) => {
 </script>
 
 <template>
-    <div class="sim-panel" :class="{ expanded: isExpanded }">
+    <div 
+        class="sim-panel fixed bottom-4 left-4 z-[9999] w-60 bg-white/95 dark:bg-[rgba(17,19,24,0.95)] border border-zinc-200 dark:border-[#1e2230] rounded-xl backdrop-blur-xl font-[Barlow] text-xs text-zinc-900 dark:text-[#e8eaf0] overflow-hidden transition-shadow duration-300"
+        :class="{ 'shadow-lg shadow-cyan-200/30 dark:shadow-[0_0_20px_rgba(0,229,255,0.1)]': isExpanded }"
+    >
         <!-- Collapsed bar -->
-        <button class="sim-header" @click="isExpanded = !isExpanded">
-            <div class="sim-header-left">
+        <button 
+            class="sim-header w-full flex items-center justify-between px-3.5 py-2.5 bg-transparent border-none text-zinc-900 dark:text-[#e8eaf0] cursor-pointer text-xs hover:bg-zinc-100/30 dark:hover:bg-white/3"
+            @click="isExpanded = !isExpanded"
+        >
+            <div class="sim-header-left flex items-center gap-2">
                 <Bug :size="14" />
-                <span class="sim-title">GPS Sim</span>
-                <span class="sim-badge" :style="{ background: statusColor }">
+                <span class="sim-title font-semibold tracking-wider uppercase text-cyan-600 dark:text-[#00e5ff]">GPS Sim</span>
+                <span 
+                    class="sim-badge px-1.5 py-0.5 rounded font-[Share_Tech_Mono] text-[0.65rem] text-black font-bold"
+                    :style="{ background: statusColor }"
+                >
                     {{ statusText }}
                 </span>
             </div>
@@ -83,13 +92,15 @@ watch(speedSlider, (val) => {
         </button>
 
         <!-- Expanded content -->
-        <div v-if="isExpanded" class="sim-body">
+        <div v-if="isExpanded" class="sim-body px-3.5 pb-3.5 flex flex-col gap-3">
             <!-- Mock toggle -->
-            <div class="sim-row">
-                <span class="sim-label">Mock GPS</span>
+            <div class="sim-row flex items-center justify-between">
+                <span class="sim-label text-[0.7rem] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068]">Mock GPS</span>
                 <button
-                    class="sim-toggle"
-                    :class="{ active: geo.isMockMode.value }"
+                    class="sim-toggle px-3 py-1 rounded-md border border-zinc-300 dark:border-[#1e2230] bg-white dark:bg-[#0a0c0f] text-zinc-500 dark:text-[#4a5068] text-[0.7rem] font-semibold tracking-wider cursor-pointer transition-all duration-200"
+                    :class="{ 
+                        'bg-cyan-600 dark:bg-[#00e5ff] border-cyan-600 dark:border-[#00e5ff] text-white dark:text-black': geo.isMockMode.value 
+                    }"
                     @click="toggleMock"
                 >
                     {{ geo.isMockMode.value ? 'ON' : 'OFF' }}
@@ -98,10 +109,10 @@ watch(speedSlider, (val) => {
 
             <template v-if="geo.isMockMode.value">
                 <!-- Speed slider -->
-                <div class="sim-section">
-                    <div class="sim-row">
-                        <span class="sim-label">Speed</span>
-                        <span class="sim-value">{{ speedSlider }} km/h</span>
+                <div class="sim-section flex flex-col gap-1.5">
+                    <div class="sim-row flex items-center justify-between">
+                        <span class="sim-label text-[0.7rem] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068]">Speed</span>
+                        <span class="sim-value font-[Share_Tech_Mono] text-cyan-600 dark:text-[#00e5ff]">{{ speedSlider }} km/h</span>
                     </div>
                     <input
                         v-model.number="speedSlider"
@@ -109,29 +120,36 @@ watch(speedSlider, (val) => {
                         min="0"
                         max="150"
                         step="1"
-                        class="sim-slider"
+                        class="sim-slider w-full h-1 appearance-none bg-zinc-300 dark:bg-[#1e2230] rounded-sm outline-none cursor-pointer"
                     />
                 </div>
 
                 <!-- Presets -->
-                <div class="sim-presets">
+                <div class="sim-presets flex gap-1">
                     <button
                         v-for="p in presets"
                         :key="p.label"
-                        class="sim-preset"
-                        :class="{ active: speedSlider === p.speed }"
+                        class="sim-preset flex-1 px-0.5 py-1.5 rounded-md border border-zinc-300 dark:border-[#1e2230] bg-white dark:bg-[#0a0c0f] text-zinc-500 dark:text-[#4a5068] text-[0.6rem] font-semibold text-center cursor-pointer transition-all duration-150 flex flex-col items-center gap-0.5 leading-none hover:border-cyan-600 dark:hover:border-[#00e5ff] hover:text-zinc-900 dark:hover:text-[#e8eaf0]"
+                        :class="{ 
+                            'border-cyan-600 dark:border-[#00e5ff] bg-cyan-50 dark:bg-[rgba(0,229,255,0.1)] text-cyan-600 dark:text-[#00e5ff]': speedSlider === p.speed 
+                        }"
                         @click="applyPreset(p.speed)"
                     >
                         {{ p.label }}
-                        <small>{{ p.speed }}</small>
+                        <small 
+                            class="font-[Share_Tech_Mono] text-[0.55rem]"
+                            :class="speedSlider === p.speed ? 'text-cyan-600 dark:text-[#00e5ff]' : 'text-zinc-400 dark:text-[#4a5068]'"
+                        >
+                            {{ p.speed }}
+                        </small>
                     </button>
                 </div>
 
                 <!-- Accuracy -->
-                <div class="sim-section">
-                    <div class="sim-row">
-                        <span class="sim-label">Accuracy</span>
-                        <span class="sim-value">{{ geo.mockAccuracy.value }}m</span>
+                <div class="sim-section flex flex-col gap-1.5">
+                    <div class="sim-row flex items-center justify-between">
+                        <span class="sim-label text-[0.7rem] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068]">Accuracy</span>
+                        <span class="sim-value font-[Share_Tech_Mono] text-cyan-600 dark:text-[#00e5ff]">{{ geo.mockAccuracy.value }}m</span>
                     </div>
                     <input
                         :value="geo.mockAccuracy.value"
@@ -139,29 +157,29 @@ watch(speedSlider, (val) => {
                         min="1"
                         max="50"
                         step="1"
-                        class="sim-slider"
+                        class="sim-slider w-full h-1 appearance-none bg-zinc-300 dark:bg-[#1e2230] rounded-sm outline-none cursor-pointer"
                         @input="geo.setMockAccuracy(Number(($event.target as HTMLInputElement).value))"
                     />
                 </div>
 
                 <!-- Live readout -->
-                <div class="sim-readout">
-                    <div class="readout-item">
-                        <span class="readout-label">Smoothed</span>
-                        <span class="readout-value">{{ geo.speedKmh.value }} km/h</span>
+                <div class="sim-readout p-2 px-2.5 bg-zinc-50 dark:bg-[#0a0c0f] border border-zinc-200 dark:border-[#1e2230] rounded-lg flex flex-col gap-1">
+                    <div class="readout-item flex justify-between">
+                        <span class="readout-label text-[0.6rem] text-zinc-500 dark:text-[#4a5068] uppercase tracking-wider">Smoothed</span>
+                        <span class="readout-value font-[Share_Tech_Mono] text-[0.65rem] text-zinc-800 dark:text-[#e8eaf0]">{{ geo.speedKmh.value }} km/h</span>
                     </div>
-                    <div class="readout-item">
-                        <span class="readout-label">Raw m/s</span>
-                        <span class="readout-value">{{ geo.speedMps.value.toFixed(2) }}</span>
+                    <div class="readout-item flex justify-between">
+                        <span class="readout-label text-[0.6rem] text-zinc-500 dark:text-[#4a5068] uppercase tracking-wider">Raw m/s</span>
+                        <span class="readout-value font-[Share_Tech_Mono] text-[0.65rem] text-zinc-800 dark:text-[#e8eaf0]">{{ geo.speedMps.value.toFixed(2) }}</span>
                     </div>
-                    <div class="readout-item">
-                        <span class="readout-label">Tracking</span>
-                        <span class="readout-value">{{ geo.isTracking.value ? 'Yes' : 'No' }}</span>
+                    <div class="readout-item flex justify-between">
+                        <span class="readout-label text-[0.6rem] text-zinc-500 dark:text-[#4a5068] uppercase tracking-wider">Tracking</span>
+                        <span class="readout-value font-[Share_Tech_Mono] text-[0.65rem] text-zinc-800 dark:text-[#e8eaf0]">{{ geo.isTracking.value ? 'Yes' : 'No' }}</span>
                     </div>
                 </div>
             </template>
 
-            <p v-else class="sim-hint">
+            <p v-else class="sim-hint text-[0.65rem] text-zinc-500 dark:text-[#4a5068] leading-relaxed p-2 bg-zinc-50 dark:bg-[#0a0c0f] rounded-lg border border-dashed border-zinc-300 dark:border-[#1e2230] text-center">
                 Enable mock mode, then click "Mulai Perjalanan" to test.
             </p>
         </div>
@@ -169,217 +187,34 @@ watch(speedSlider, (val) => {
 </template>
 
 <style scoped>
-.sim-panel {
-    position: fixed;
-    bottom: 16px;
-    left: 16px;
-    z-index: 9999;
-    width: 240px;
-    background: rgba(17, 19, 24, 0.95);
-    border: 1px solid #1e2230;
-    border-radius: 12px;
-    backdrop-filter: blur(12px);
-    font-family: 'Barlow', sans-serif;
-    font-size: 0.75rem;
-    color: #e8eaf0;
-    overflow: hidden;
-    transition: box-shadow 0.3s;
-}
-
-.sim-panel.expanded {
-    box-shadow: 0 0 20px rgba(0, 229, 255, 0.1);
-}
-
-.sim-header {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px;
-    background: transparent;
-    border: none;
-    color: #e8eaf0;
-    cursor: pointer;
-    font-size: 0.75rem;
-}
-
-.sim-header:hover {
-    background: rgba(255, 255, 255, 0.03);
-}
-
-.sim-header-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.sim-title {
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: #00e5ff;
-}
-
-.sim-badge {
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-    color: #000;
-    font-weight: 700;
-}
-
-.sim-body {
-    padding: 0 14px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.sim-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.sim-label {
-    font-size: 0.7rem;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: #4a5068;
-}
-
-.sim-value {
-    font-family: 'Share Tech Mono', monospace;
-    color: #00e5ff;
-}
-
-.sim-toggle {
-    padding: 4px 12px;
-    border-radius: 6px;
-    border: 1px solid #1e2230;
-    background: #0a0c0f;
-    color: #4a5068;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.sim-toggle.active {
-    background: #00e5ff;
-    border-color: #00e5ff;
-    color: #000;
-}
-
-.sim-section {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.sim-slider {
-    width: 100%;
-    height: 4px;
-    appearance: none;
-    background: #1e2230;
-    border-radius: 2px;
-    outline: none;
-    cursor: pointer;
-}
-
+/* Slider thumb styling - not easily replicated with Tailwind */
 .sim-slider::-webkit-slider-thumb {
     appearance: none;
     width: 14px;
     height: 14px;
     border-radius: 50%;
+    background: #0891b2; /* cyan-600 for light mode */
+    box-shadow: 0 0 6px rgba(8, 145, 178, 0.4);
+    cursor: pointer;
+}
+
+.dark .sim-slider::-webkit-slider-thumb {
     background: #00e5ff;
     box-shadow: 0 0 6px rgba(0, 229, 255, 0.4);
+}
+
+.sim-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: #0891b2;
+    box-shadow: 0 0 6px rgba(8, 145, 178, 0.4);
     cursor: pointer;
 }
 
-.sim-presets {
-    display: flex;
-    gap: 4px;
-}
-
-.sim-preset {
-    flex: 1;
-    padding: 6px 2px;
-    border-radius: 6px;
-    border: 1px solid #1e2230;
-    background: #0a0c0f;
-    color: #4a5068;
-    font-size: 0.6rem;
-    font-weight: 600;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    line-height: 1;
-}
-
-.sim-preset small {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.55rem;
-    color: #4a5068;
-}
-
-.sim-preset:hover {
-    border-color: #00e5ff;
-    color: #e8eaf0;
-}
-
-.sim-preset.active {
-    border-color: #00e5ff;
-    background: rgba(0, 229, 255, 0.1);
-    color: #00e5ff;
-}
-
-.sim-preset.active small {
-    color: #00e5ff;
-}
-
-.sim-readout {
-    padding: 8px 10px;
-    background: #0a0c0f;
-    border: 1px solid #1e2230;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.readout-item {
-    display: flex;
-    justify-content: space-between;
-}
-
-.readout-label {
-    font-size: 0.6rem;
-    color: #4a5068;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.readout-value {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-    color: #e8eaf0;
-}
-
-.sim-hint {
-    font-size: 0.65rem;
-    color: #4a5068;
-    line-height: 1.5;
-    padding: 8px;
-    background: #0a0c0f;
-    border-radius: 8px;
-    border: 1px dashed #1e2230;
-    text-align: center;
+.dark .sim-slider::-moz-range-thumb {
+    background: #00e5ff;
+    box-shadow: 0 0 6px rgba(0, 229, 255, 0.4);
 }
 </style>
