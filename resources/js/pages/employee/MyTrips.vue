@@ -19,7 +19,7 @@
 
 import { router } from '@inertiajs/vue3';
 import { AnimatePresence, motion } from 'motion-v';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 import Toast from '@/components/common/Toast.vue';
 import OfflineIndicator from '@/components/offline/OfflineIndicator.vue';
