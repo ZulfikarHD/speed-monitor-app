@@ -11,7 +11,7 @@ Features:
 - Sync queue count badge with spring animation
 - Touch-friendly "Sync Now" button (Fitts's Law: 48px min)
 - Indonesian language messages
-- Dark theme consistent with VeloTrack branding
+- Dark theme consistent with SpeedoMontor branding
 
 UX Laws Applied:
 - Jakob's Law: Familiar cloud-off icon and badge pattern

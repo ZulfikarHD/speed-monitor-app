@@ -13,7 +13,7 @@ Features:
 - Error shake animation
 - Auto-dismiss on success (3 seconds)
 - Manual dismiss and retry buttons
-- VeloTrack dark theme styling
+- SpeedoMontor dark theme styling
 - Touch-friendly (≥44px targets)
 
 UX Laws Applied:

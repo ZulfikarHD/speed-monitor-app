@@ -9,9 +9,9 @@
 
 ## Executive Summary
 
-Successfully implemented complete PWA manifest configuration for VeloTrack, enabling home screen installation on iOS and Android devices. The implementation includes custom app icons, theme colors, iOS-specific meta tags, and an optional custom install prompt with motion-v animations.
+Successfully implemented complete PWA manifest configuration for SpeedoMontor, enabling home screen installation on iOS and Android devices. The implementation includes custom app icons, theme colors, iOS-specific meta tags, and an optional custom install prompt with motion-v animations.
 
-**Key Achievement:** VeloTrack is now a fully installable Progressive Web App, completing the offline-first transformation started in Sprint 5. Users can install VeloTrack directly to their home screens and launch it like a native application, with full offline support powered by Service Worker (US-5.4) and IndexedDB (US-5.1-5.3).
+**Key Achievement:** SpeedoMontor is now a fully installable Progressive Web App, completing the offline-first transformation started in Sprint 5. Users can install SpeedoMontor directly to their home screens and launch it like a native application, with full offline support powered by Service Worker (US-5.4) and IndexedDB (US-5.1-5.3).
 
 ---
 
@@ -22,7 +22,7 @@ Successfully implemented complete PWA manifest configuration for VeloTrack, enab
 | Criteria | Status | Implementation |
 |----------|--------|----------------|
 | `public/manifest.json` created | ✅ | Complete PWA manifest with all required fields |
-| App name, short name configured | ✅ | "VeloTrack - Speed Monitoring System" / "VeloTrack" |
+| App name, short name configured | ✅ | "SpeedoMontor - Speed Monitoring System" / "SpeedoMontor" |
 | Icons for all sizes (192x192, 512x512) | ✅ | 6 icon sizes (48, 72, 96, 144, 192, 512) + Apple touch icon (180) |
 | Theme color, background color set | ✅ | Cyan (#06b6d4) primary, dark (#0a0c0f) background |
 | Display: standalone | ✅ | Full-screen app experience without browser UI |
@@ -37,8 +37,8 @@ Successfully implemented complete PWA manifest configuration for VeloTrack, enab
 
 ```json
 {
-  "name": "VeloTrack - Speed Monitoring System",
-  "short_name": "VeloTrack",
+  "name": "SpeedoMontor - Speed Monitoring System",
+  "short_name": "SpeedoMontor",
   "description": "Monitor perjalanan dan kecepatan kendaraan secara real-time dengan dukungan offline",
   "start_url": "/",
   "display": "standalone",
@@ -55,7 +55,7 @@ Successfully implemented complete PWA manifest configuration for VeloTrack, enab
 
 **Key Design Decisions:**
 
-1. **Theme Color (#06b6d4 - Cyan-500):** Matches VeloTrack's primary brand gradient (`from-cyan-500 to-blue-600`), provides high visibility in Android Chrome status bar
+1. **Theme Color (#06b6d4 - Cyan-500):** Matches SpeedoMontor's primary brand gradient (`from-cyan-500 to-blue-600`), provides high visibility in Android Chrome status bar
 2. **Background Color (#0a0c0f - Dark):** Matches app shell background, ensures seamless loading experience
 3. **Display: standalone:** Full-screen app experience without browser UI (no address bar, navigation buttons)
 4. **Orientation: portrait-primary:** Optimized for vertical mobile use (speedometer view)
@@ -80,7 +80,7 @@ Successfully implemented complete PWA manifest configuration for VeloTrack, enab
 - `180x180` - iOS Apple Touch Icon (separate file)
 
 **Icon Generation Process:**
-1. Created SVG source at `resources/icons/velotrack-logo.svg`
+1. Created SVG source at `resources/icons/SpeedoMontor-logo.svg`
 2. Generated PNG variants using Node.js script with sharp library
 3. Optimized for web delivery (quality: 80-95%)
 
@@ -136,7 +136,7 @@ Added comprehensive meta tags for PWA support:
 <!-- iOS-Specific Meta Tags -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="VeloTrack">
+<meta name="apple-mobile-web-app-title" content="SpeedoMontor">
 
 <!-- Theme Color (Android Chrome) -->
 <meta name="theme-color" content="#06b6d4">
@@ -205,7 +205,7 @@ Beautiful custom install prompt with motion-v spring animations.
 
 **Design Features:**
 - **Slide-up entrance/exit:** Spring animation (`bounce: 0.3, duration: 0.6`)
-- **VeloTrack branding:** Car icon on gradient background matching TopNav
+- **SpeedoMontor branding:** Car icon on gradient background matching TopNav
 - **Dark theme styling:** Gradient border (cyan-to-blue) on dark card
 - **Large touch targets:** Min 44px button height (Fitts's Law)
 - **Only 2 actions:** "Install Sekarang" / "Nanti Saja" (Hick's Law)
@@ -276,7 +276,7 @@ const { showPrompt, isInstalling, install, dismiss } = useInstallPrompt();
 3. **`public/icons/icon-48x48.png`** through **`icon-512x512.png`** - 6 app icon sizes
 4. **`public/apple-touch-icon.png`** - iOS home screen icon (180x180, 4.7KB)
 5. **`public/favicon-32x32.png`** - 32x32 favicon alternative (776 bytes)
-6. **`resources/icons/velotrack-logo.svg`** - Source SVG icon for generation
+6. **`resources/icons/SpeedoMontor-logo.svg`** - Source SVG icon for generation
 7. **`scripts/generate-icons.js`** - Icon generation script (Node.js + sharp)
 8. **`resources/js/composables/useInstallPrompt.ts`** - PWA install prompt composable (248 lines)
 9. **`resources/js/components/pwa/InstallPrompt.vue`** - Custom install prompt UI (233 lines)
@@ -312,7 +312,7 @@ const { showPrompt, isInstalling, install, dismiss } = useInstallPrompt();
 
 **Required Testing:**
 - [ ] Install prompt appears in Chrome for Android
-- [ ] Icon preview shows VeloTrack car icon during installation
+- [ ] Icon preview shows SpeedoMontor car icon during installation
 - [ ] App icon appears on home screen with correct branding
 - [ ] Standalone mode (no browser UI) when launched from home screen
 - [ ] Status bar displays cyan theme color (#06b6d4)
@@ -325,7 +325,7 @@ const { showPrompt, isInstalling, install, dismiss } = useInstallPrompt();
 
 **Required Testing:**
 - [ ] "Add to Home Screen" available in Safari Share menu
-- [ ] Icon preview displays VeloTrack icon (180x180)
+- [ ] Icon preview displays SpeedoMontor icon (180x180)
 - [ ] App icon appears sharp and clear on iOS home screen
 - [ ] Standalone mode (no Safari UI) when launched
 - [ ] Status bar blends with dark theme (black-translucent)
@@ -347,7 +347,7 @@ const { showPrompt, isInstalling, install, dismiss } = useInstallPrompt();
 # Open DevTools → Lighthouse tab → Run PWA audit
 
 # Or via CLI
-npx lighthouse https://your-velotrack-url.com --view --preset=pwa
+npx lighthouse https://your-SpeedoMontor-url.com --view --preset=pwa
 ```
 
 **Key Checks:**
@@ -448,7 +448,7 @@ All animations use spring physics (`type: 'spring'`) for natural, organic motion
 ❌ **IE11** - No PWA support (deprecated)  
 ❌ **Old Android Browser** - No PWA support (deprecated)
 
-**Note:** VeloTrack targets modern browsers with PWA support. Fallback: Web app works normally without installation.
+**Note:** SpeedoMontor targets modern browsers with PWA support. Fallback: Web app works normally without installation.
 
 ---
 
@@ -554,7 +554,7 @@ All animations use spring physics (`type: 'spring'`) for natural, organic motion
 ```
 
 **Share Target API:**
-Enable sharing trip data to VeloTrack from other apps.
+Enable sharing trip data to SpeedoMontor from other apps.
 
 **Push Notifications:**
 Requires backend integration for notifications about violations, sync failures, etc.
@@ -613,16 +613,16 @@ Requires backend integration for notifications about violations, sync failures, 
 
 ## Conclusion
 
-US-5.5 successfully completes VeloTrack's PWA transformation, making it fully installable on iOS and Android devices. Combined with Service Worker (US-5.4), IndexedDB (US-5.1-5.3), and background sync, VeloTrack now provides a native-like app experience with full offline support.
+US-5.5 successfully completes SpeedoMontor's PWA transformation, making it fully installable on iOS and Android devices. Combined with Service Worker (US-5.4), IndexedDB (US-5.1-5.3), and background sync, SpeedoMontor now provides a native-like app experience with full offline support.
 
 **Users can:**
-- Install VeloTrack directly to home screens
+- Install SpeedoMontor directly to home screens
 - Launch like a native app (no browser UI)
 - Track trips offline with automatic sync
 - Receive update notifications when new versions available
 - Experience smooth, delightful animations throughout
 
-**VeloTrack is now ready for production deployment as a Progressive Web App.**
+**SpeedoMontor is now ready for production deployment as a Progressive Web App.**
 
 ---
 
@@ -638,7 +638,7 @@ public/icons/icon-*.png                 # 6 icon sizes
 public/apple-touch-icon.png             # iOS icon (180x180)
 
 # Source files
-resources/icons/velotrack-logo.svg      # Icon source
+resources/icons/SpeedoMontor-logo.svg      # Icon source
 scripts/generate-icons.js               # Generation script
 
 # Components & composables

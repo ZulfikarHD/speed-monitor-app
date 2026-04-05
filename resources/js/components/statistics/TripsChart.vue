@@ -3,11 +3,11 @@
  * TripsChart Component
  *
  * Bar chart displaying trip count over time for the selected period.
- * Built with Chart.js for high-performance rendering with VeloTrack dark theme.
+ * Built with Chart.js for high-performance rendering with SpeedoMontor dark theme.
  *
  * Features:
  * - Bar chart with date (X-axis) and trip count (Y-axis)
- * - Cyan bars matching VeloTrack theme
+ * - Cyan bars matching SpeedoMontor theme
  * - Responsive sizing with proper aspect ratio
  * - Tooltips showing exact count on hover
  * - Loading skeleton state

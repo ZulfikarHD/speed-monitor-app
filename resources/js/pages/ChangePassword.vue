@@ -12,7 +12,7 @@
  * - Success flash messages
  * - Form reset on success
  * - Wayfinder type-safe routes
- * - VeloTrack dark theme styling
+ * - SpeedoMontor dark theme styling
  * - Responsive design (mobile-first)
  * - Proper container with padding and max-width
  *

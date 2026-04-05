@@ -2,7 +2,7 @@
 /**
  * Button Component
  *
- * Reusable button with VeloTrack dark theme styling.
+ * Reusable button with SpeedoMontor dark theme styling.
  * Supports multiple variants, loading states, and disabled states.
  *
  * Features:
@@ -12,7 +12,7 @@
  * - Full width option
  * - Touch-friendly (min 44px height)
  * - ARIA accessibility attributes
- * - VeloTrack dark theme colors with gradient effects
+ * - SpeedoMontor dark theme colors with gradient effects
  */
 
 // ========================================================================

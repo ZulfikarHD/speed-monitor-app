@@ -11,7 +11,7 @@
  * - Server-side validation with error messages
  * - Success flash messages
  * - Wayfinder type-safe routes
- * - VeloTrack dark theme styling
+ * - SpeedoMontor dark theme styling
  * - Responsive design (mobile-first)
  * - Proper container with padding and max-width
  *

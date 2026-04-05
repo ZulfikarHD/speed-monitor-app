@@ -1,5 +1,5 @@
 <!--
-VeloTrack - Production GPS Speedometer
+SpeedoMontor - Production GPS Speedometer
 
 Full production speedometer with backend integration via Trip Store and Settings Store.
 Features professional design from HTML spec while maintaining proper API integration.
@@ -151,7 +151,7 @@ return;
             coords.value.latitude,
             coords.value.longitude,
         );
-        
+
         // Update trip store distance
         tripStore.stats.distance += dist;
     }

@@ -13,7 +13,7 @@
  * - Interactive speed chart with violation markers
  * - Violation summary badge
  * - Trip metadata display (times, notes, sync status)
- * - VeloTrack dark theme design
+ * - SpeedoMontor dark theme design
  * - Mobile-responsive layout
  *
  * @example Route: /employee/trips/{id}

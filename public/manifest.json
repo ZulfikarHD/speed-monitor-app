@@ -1,6 +1,6 @@
 {
-  "name": "VeloTrack - Speed Monitoring System",
-  "short_name": "VeloTrack",
+  "name": "SpeedoMontor - Speed Monitoring System",
+  "short_name": "SpeedoMontor",
   "description": "Monitor perjalanan dan kecepatan kendaraan secara real-time dengan dukungan offline",
   "start_url": "/",
   "display": "standalone",

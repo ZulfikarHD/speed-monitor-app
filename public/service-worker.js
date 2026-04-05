@@ -1,22 +1,22 @@
 /**
- * VeloTrack Service Worker
- * 
+ * SpeedoMontor Service Worker
+ *
  * Progressive Web App service worker for offline support and intelligent caching.
  * Implements cache-first strategy for static assets and network-first for app shell.
- * 
+ *
  * Caching Strategy:
  * - Static Assets (JS/CSS): Cache-First (30 days, 60 entries max)
  * - Fonts (Bunny CDN): Cache-First (90 days, 10 entries max)
  * - App Shell (HTML): Network-First (3s timeout, cache fallback)
  * - API Routes: Network-Only (IndexedDB handles offline data)
- * 
+ *
  * Version: 1.0.0
  * Last Updated: 2026-04-04
  */
 
 // Cache version - increment to force cache refresh
 const CACHE_VERSION = 1;
-const CACHE_PREFIX = 'velotrack';
+const CACHE_PREFIX = 'SpeedoMontor';
 
 // Cache names
 const CACHE_NAMES = {
@@ -163,7 +163,7 @@ self.addEventListener('message', (event) => {
 /**
  * Cache-First strategy.
  * Returns cached response if available, otherwise fetches from network.
- * 
+ *
  * @param {Request} request - Fetch request
  * @param {string} cacheName - Cache name to use
  * @param {Object} options - Cache options (maxAge, maxEntries)
@@ -173,7 +173,7 @@ async function cacheFirst(request, cacheName, options = {}) {
     try {
         // Try cache first
         const cachedResponse = await caches.match(request);
-        
+
         if (cachedResponse) {
             console.log('[SW] Cache hit:', request.url);
             return cachedResponse;
@@ -186,10 +186,10 @@ async function cacheFirst(request, cacheName, options = {}) {
         // Cache successful responses only
         if (networkResponse && networkResponse.status === 200) {
             const cache = await caches.open(cacheName);
-            
+
             // Clone response before caching (response can only be used once)
             cache.put(request, networkResponse.clone());
-            
+
             // Enforce cache limits if specified
             if (options.maxEntries) {
                 await enforceCacheLimit(cacheName, options.maxEntries);
@@ -199,13 +199,13 @@ async function cacheFirst(request, cacheName, options = {}) {
         return networkResponse;
     } catch (error) {
         console.error('[SW] Cache-first failed:', error);
-        
+
         // Try to return cached response as fallback
         const cachedResponse = await caches.match(request);
         if (cachedResponse) {
             return cachedResponse;
         }
-        
+
         throw error;
     }
 }
@@ -213,7 +213,7 @@ async function cacheFirst(request, cacheName, options = {}) {
 /**
  * Network-First strategy.
  * Fetches from network with timeout, falls back to cache if network fails.
- * 
+ *
  * @param {Request} request - Fetch request
  * @param {string} cacheName - Cache name to use
  * @param {number} timeout - Network timeout in milliseconds (default: 3000)
@@ -236,7 +236,7 @@ async function networkFirst(request, cacheName, timeout = 3000) {
 
         // Fallback to cache
         const cachedResponse = await caches.match(request);
-        
+
         if (cachedResponse) {
             console.log('[SW] Serving from cache');
             return cachedResponse;
@@ -258,7 +258,7 @@ async function networkFirst(request, cacheName, timeout = 3000) {
 /**
  * Network-Only strategy.
  * Always fetches from network, no caching.
- * 
+ *
  * @param {Request} request - Fetch request
  * @returns {Promise<Response>} Response from network
  */
@@ -277,7 +277,7 @@ async function networkOnly(request) {
 
 /**
  * Check if request is for API endpoint.
- * 
+ *
  * @param {URL} url - Request URL
  * @returns {boolean} True if API request
  */
@@ -287,14 +287,14 @@ function isApiRequest(url) {
 
 /**
  * Check if request is for static asset (JS/CSS from Vite build).
- * 
+ *
  * @param {URL} url - Request URL
  * @param {Request} request - Fetch request
  * @returns {boolean} True if static asset
  */
 function isStaticAsset(url, request) {
     return url.pathname.startsWith('/build/assets/') &&
-           (request.destination === 'script' || 
+           (request.destination === 'script' ||
             request.destination === 'style' ||
             url.pathname.endsWith('.js') ||
             url.pathname.endsWith('.css'));
@@ -302,7 +302,7 @@ function isStaticAsset(url, request) {
 
 /**
  * Check if request is for font file.
- * 
+ *
  * @param {URL} url - Request URL
  * @returns {boolean} True if font request
  */
@@ -313,7 +313,7 @@ function isFontRequest(url) {
 
 /**
  * Check if request is for image.
- * 
+ *
  * @param {Request} request - Fetch request
  * @returns {boolean} True if image request
  */
@@ -323,7 +323,7 @@ function isImageRequest(request) {
 
 /**
  * Check if request is for navigation (HTML page).
- * 
+ *
  * @param {Request} request - Fetch request
  * @returns {boolean} True if navigation request
  */
@@ -334,7 +334,7 @@ function isNavigationRequest(request) {
 /**
  * Fetch with timeout.
  * Returns promise that rejects if fetch takes longer than timeout.
- * 
+ *
  * @param {Request} request - Fetch request
  * @param {number} timeout - Timeout in milliseconds
  * @returns {Promise<Response>} Fetch response or timeout error
@@ -351,7 +351,7 @@ function fetchWithTimeout(request, timeout) {
 /**
  * Enforce cache entry limit.
  * Removes oldest entries if cache exceeds maxEntries.
- * 
+ *
  * @param {string} cacheName - Cache name
  * @param {number} maxEntries - Maximum number of entries
  */
@@ -363,7 +363,7 @@ async function enforceCacheLimit(cacheName, maxEntries) {
     if (keys.length > maxEntries) {
         const entriesToDelete = keys.length - maxEntries;
         console.log(`[SW] Cache limit exceeded, deleting ${entriesToDelete} oldest entries`);
-        
+
         for (let i = 0; i < entriesToDelete; i++) {
             await cache.delete(keys[i]);
         }
@@ -374,4 +374,4 @@ async function enforceCacheLimit(cacheName, maxEntries) {
 // LOGGING
 // ==============================================================================
 
-console.log('[SW] Service worker loaded - VeloTrack v' + CACHE_VERSION);
+console.log('[SW] Service worker loaded - SpeedoMontor v' + CACHE_VERSION);

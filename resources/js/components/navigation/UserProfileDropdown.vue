@@ -11,7 +11,7 @@
  * - Keyboard navigation (Escape to close)
  * - Click outside to close
  * - ARIA accessibility attributes
- * - VeloTrack dark theme styling
+ * - SpeedoMontor dark theme styling
  */
 
 import { Link } from '@inertiajs/vue3';

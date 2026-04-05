@@ -10,7 +10,7 @@
  * - Icon badge with color variants
  * - Title and unit labels
  * - Gradient background styling
- * - VeloTrack dark theme
+ * - SpeedoMontor dark theme
  */
 
 import type { StatCardProps } from '@/types/statistics';

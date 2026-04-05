@@ -2,12 +2,12 @@
 /**
  * PWA Install Prompt Component
  *
- * Custom install prompt for VeloTrack PWA with motion-v animations.
+ * Custom install prompt for SpeedoMontor PWA with motion-v animations.
  * Displays a slide-up banner encouraging users to install the app.
  *
  * Features:
  * - Spring animation slide-up entrance/exit
- * - VeloTrack dark theme styling with gradient border
+ * - SpeedoMontor dark theme styling with gradient border
  * - Large touch targets (Fitts's Law)
  * - Only 2 actions: Install / Dismiss (Hick's Law)
  * - Auto-dismiss on successful installation
@@ -87,7 +87,7 @@ const handleDismiss = (): void => {
 <template>
     <!-- ======================================================================
         PWA Install Prompt Banner
-        Slide-up animated prompt with VeloTrack branding
+        Slide-up animated prompt with SpeedoMontor branding
     ======================================================================= -->
     <motion.div
         :initial="{ y: 100, opacity: 0 }"
@@ -121,7 +121,7 @@ const handleDismiss = (): void => {
                 <div class="p-6">
                     <!-- Icon & Text -->
                     <div class="mb-6 flex items-start gap-4">
-                        <!-- VeloTrack Icon -->
+                        <!-- SpeedoMontor Icon -->
                         <motion.div
                             :whileHover="{ scale: 1.1, rotate: 5 }"
                             :whilePress="{ scale: 0.95 }"
@@ -142,13 +142,13 @@ const handleDismiss = (): void => {
                                 id="install-prompt-title"
                                 class="mb-1 text-lg font-semibold text-[#e5e7eb]"
                             >
-                                Install VeloTrack
+                                Install SpeedoMontor
                             </h3>
                             <p
                                 id="install-prompt-description"
                                 class="text-sm leading-relaxed text-[#9ca3af]"
                             >
-                                Install VeloTrack ke layar utama untuk akses cepat dan
+                                Install SpeedoMontor ke layar utama untuk akses cepat dan
                                 pengalaman seperti aplikasi native.
                             </p>
                         </div>

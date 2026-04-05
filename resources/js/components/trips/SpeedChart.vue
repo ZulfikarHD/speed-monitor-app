@@ -11,7 +11,7 @@
  * - Speed limit horizontal reference line (red dashed)
  * - Violation markers as red scatter points
  * - Gradient fill under speed line (cyan to transparent)
- * - Dark theme styling matching VeloTrack design
+ * - Dark theme styling matching SpeedoMontor design
  * - Responsive sizing with proper aspect ratio
  * - Tooltips showing exact speed and time on hover
  * - Loading skeleton state
@@ -37,8 +37,8 @@ import {
     Tooltip,
     Legend,
     Filler
-    
-    
+
+
 } from 'chart.js';
 import type {ChartOptions, ChartData} from 'chart.js';
 import { computed } from 'vue';
@@ -103,7 +103,7 @@ const chartData = computed<ChartData<'line'>>(() => {
     const labels = sortedLogs.map((log) => formatChartTime(log.recorded_at));
 
     // Extract speed values for Y-axis (parse to number if string from DB)
-    const speeds = sortedLogs.map((log) => 
+    const speeds = sortedLogs.map((log) =>
         typeof log.speed === 'string' ? parseFloat(log.speed) : log.speed
     );
 
@@ -122,7 +122,7 @@ const chartData = computed<ChartData<'line'>>(() => {
             {
                 label: 'Kecepatan',
                 data: speeds,
-                borderColor: '#22d3ee', // Cyan (VeloTrack theme)
+                borderColor: '#22d3ee', // Cyan (SpeedoMontor theme)
                 backgroundColor: (context) => {
                     // WHY: Gradient fill provides visual depth without overwhelming data
                     const chart = context.chart;

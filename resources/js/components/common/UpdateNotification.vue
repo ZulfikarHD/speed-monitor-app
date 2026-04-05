@@ -13,7 +13,7 @@ Features:
 - Auto-dismiss after 30 seconds (optional)
 - Touch-friendly buttons (≥48px)
 - Safe area padding for iOS notch
-- VeloTrack dark theme styling
+- SpeedoMontor dark theme styling
 
 UX Laws Applied:
 - Jakob's Law: Familiar PWA update pattern (Chrome/Edge style)
