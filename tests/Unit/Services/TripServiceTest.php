@@ -20,7 +20,7 @@ class TripServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tripService = new TripService;
+        $this->tripService = app(TripService::class);
     }
 
     public function test_start_trip_creates_trip_with_correct_user(): void
@@ -100,7 +100,7 @@ class TripServiceTest extends TestCase
 
         $updatedTrip = $this->tripService->endTrip($trip);
 
-        $expectedDuration = now()->diffInSeconds($startedAt);
+        $expectedDuration = (int) abs(now()->diffInSeconds($startedAt));
         $this->assertEqualsWithDelta($expectedDuration, $updatedTrip->duration_seconds, 2);
     }
 

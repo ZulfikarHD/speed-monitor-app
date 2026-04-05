@@ -65,7 +65,7 @@ class TripService
         }
 
         $trip->ended_at = now();
-        $trip->duration_seconds = $trip->ended_at->diffInSeconds($trip->started_at);
+        $trip->duration_seconds = (int) abs($trip->ended_at->diffInSeconds($trip->started_at));
         $trip->status = TripStatus::Completed;
 
         $this->updateTripStats($trip);
@@ -96,7 +96,7 @@ class TripService
         }
 
         $trip->ended_at = now();
-        $trip->duration_seconds = $trip->ended_at->diffInSeconds($trip->started_at);
+        $trip->duration_seconds = (int) abs($trip->ended_at->diffInSeconds($trip->started_at));
         $trip->status = TripStatus::AutoStopped;
 
         $this->updateTripStats($trip);

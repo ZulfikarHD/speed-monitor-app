@@ -72,7 +72,7 @@ class TripControllerTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJson([
-                'message' => 'You already have an active trip',
+                'message' => 'You already have an active trip. Please stop it before starting a new one.',
             ]);
     }
 

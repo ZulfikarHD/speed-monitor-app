@@ -47,7 +47,7 @@ class TripController extends Controller
     {
         $this->authorize('viewAny', Trip::class);
 
-        $query = Trip::query()->with('user:id,name,email');
+        $query = Trip::query()->with('user:id,name,email')->withCount('speedLogs');
 
         // Employees can only see their own trips
         $user = auth()->user();
@@ -115,7 +115,6 @@ class TripController extends Controller
                 'active_trip' => $activeTrip,
             ], 422);
         }
-
 
         $trip = $this->tripService->startTrip(
             auth()->user(),
@@ -250,6 +249,7 @@ class TripController extends Controller
                 'total_distance' => $trip->total_distance,
                 'violation_count' => $trip->violation_count,
                 'synced_at' => $trip->synced_at,
+                'speed_logs_count' => $trip->speedLogs()->count(),
             ],
         ], 200);
     }

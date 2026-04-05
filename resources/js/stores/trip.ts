@@ -135,6 +135,21 @@ export const useTripStore = defineStore('trip', () => {
         violationCount: 0,
     });
 
+    /**
+     * Cumulative backend baseline stats.
+     *
+     * WHY: Prevents stats reset when speedLogs buffer is cleared after sync
+     * or when page reloads. updateStats() merges session data on top of this.
+     * Without this, employees could exploit page refresh to reset violation counts.
+     */
+    const backendStats = ref({
+        maxSpeed: 0,
+        averageSpeed: 0,
+        violationCount: 0,
+        distance: 0,
+        speedLogCount: 0,
+    });
+
     /** Loading state for start trip operation */
     const isStarting = ref<boolean>(false);
 
@@ -155,9 +170,6 @@ export const useTripStore = defineStore('trip', () => {
 
     /** Maximum number of sync retry attempts before giving up */
     const MAX_SYNC_RETRIES = 3;
-
-    /** Speed log interval in seconds (must match backend) */
-    const SPEED_LOG_INTERVAL_SECONDS = 5;
 
     // ========================================================================
     // Computed Properties
@@ -312,7 +324,7 @@ export const useTripStore = defineStore('trip', () => {
             syncRetryCount.value = 0;
             lastSyncAt.value = null;
 
-            // Reset statistics
+            // Reset statistics and backend baseline for fresh trip
             stats.value = {
                 currentSpeed: 0,
                 maxSpeed: 0,
@@ -320,6 +332,13 @@ export const useTripStore = defineStore('trip', () => {
                 distance: 0,
                 duration: 0,
                 violationCount: 0,
+            };
+            backendStats.value = {
+                maxSpeed: 0,
+                averageSpeed: 0,
+                violationCount: 0,
+                distance: 0,
+                speedLogCount: 0,
             };
         } catch (err: any) {
             const errorMessage =
@@ -361,6 +380,17 @@ export const useTripStore = defineStore('trip', () => {
      * });
      * ```
      */
+    /**
+     * Format a Date to 'YYYY-MM-DD HH:mm:ss' for backend validation.
+     *
+     * WHY: Backend expects 'Y-m-d H:i:s' format, not ISO 8601.
+     */
+    function formatDateForApi(date: Date): string {
+        const pad = (n: number) => String(n).padStart(2, '0');
+
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    }
+
     async function addSpeedLog(speed: number, timestamp: number | null): Promise<void> {
         if (!hasActiveTrip.value) {
             console.warn('Cannot add speed log: no active trip');
@@ -368,17 +398,11 @@ export const useTripStore = defineStore('trip', () => {
             return;
         }
 
-        /**
-         * Get speed limit from settings store.
-         *
-         * WHY: Settings are centralized and may be updated by admin.
-         * WHY: Check on every log for accurate violation detection.
-         */
         const speedLimit = settingsStore.settings.speed_limit;
 
-        const recordedAt = timestamp
-            ? new Date(timestamp).toISOString()
-            : new Date().toISOString();
+        const recordedAt = formatDateForApi(
+            timestamp ? new Date(timestamp) : new Date(),
+        );
 
         const isViolation = speed > speedLimit;
 
@@ -435,55 +459,52 @@ export const useTripStore = defineStore('trip', () => {
      *
      * @param currentSpeed - Most recent speed reading in km/h
      */
+    /**
+     * Update real-time trip statistics by merging session buffer with backend baseline.
+     *
+     * WHY: Merging prevents stats from resetting when buffer clears after sync or page reload.
+     * WHY: Backend baseline is the authoritative cumulative state from all previously synced logs.
+     * WHY: Session buffer contains only un-synced logs since last successful sync.
+     */
     function updateStats(currentSpeed: number): void {
-        if (!hasActiveTrip.value || speedLogs.value.length === 0) {
+        if (!hasActiveTrip.value) {
             return;
         }
 
-        // Update current speed
         stats.value.currentSpeed = currentSpeed;
 
-        // Calculate max speed from all logs
-        stats.value.maxSpeed = Math.max(
-            ...speedLogs.value.map((log) => log.speed),
-        );
+        const sessionLogs = speedLogs.value;
+        const bk = backendStats.value;
 
-        // Calculate average speed from all logs
-        const totalSpeed = speedLogs.value.reduce(
-            (sum, log) => sum + log.speed,
-            0,
-        );
-        stats.value.averageSpeed =
-            Math.round((totalSpeed / speedLogs.value.length) * 10) / 10;
+        if (sessionLogs.length === 0) {
+            stats.value.maxSpeed = bk.maxSpeed;
+            stats.value.averageSpeed = bk.averageSpeed;
+            stats.value.violationCount = bk.violationCount;
 
-        /**
-         * Calculate distance from speed logs.
-         *
-         * WHY: Distance = sum of (speed * time_interval).
-         * WHY: speed * 5 seconds / 3600 = km traveled in 5-second interval.
-         * WHY: Assumes logs are recorded every 5 seconds (matches backend).
-         */
-        const totalDistance = speedLogs.value.reduce((sum, log) => {
-            return sum + (log.speed * SPEED_LOG_INTERVAL_SECONDS) / 3600;
-        }, 0);
-        stats.value.distance = Math.round(totalDistance * 100) / 100; // Round to 2 decimals
-
-        /**
-         * Calculate trip duration.
-         *
-         * WHY: Duration = now - started_at.
-         * WHY: Real-time calculation shows live elapsed time.
-         */
-        if (currentTrip.value?.started_at) {
-            const startTime = new Date(currentTrip.value.started_at).getTime();
-            const now = Date.now();
-            stats.value.duration = Math.floor((now - startTime) / 1000);
+            return;
         }
 
-        // Count violations
-        stats.value.violationCount = speedLogs.value.filter(
+        const sessionMax = Math.max(
+            ...sessionLogs.map((log) => Number(log.speed)),
+        );
+        stats.value.maxSpeed = Math.max(bk.maxSpeed, sessionMax);
+
+        const sessionSum = sessionLogs.reduce(
+            (sum, log) => sum + Number(log.speed),
+            0,
+        );
+        const sessionCount = sessionLogs.length;
+        const backendSum = bk.averageSpeed * bk.speedLogCount;
+        const totalCount = bk.speedLogCount + sessionCount;
+        stats.value.averageSpeed =
+            totalCount > 0
+                ? Math.round(((backendSum + sessionSum) / totalCount) * 10) / 10
+                : 0;
+
+        const sessionViolations = sessionLogs.filter(
             (log) => log.is_violation,
         ).length;
+        stats.value.violationCount = bk.violationCount + sessionViolations;
     }
 
     /**
@@ -568,11 +589,19 @@ export const useTripStore = defineStore('trip', () => {
             );
 
             /**
-             * Update trip statistics from backend response.
+             * Update backend baseline from authoritative response.
              *
-             * WHY: Backend stats are authoritative after sync.
-             * WHY: Ensures frontend stats match backend calculations.
+             * WHY: After sync, backend has calculated stats from ALL speed logs.
+             * WHY: This becomes the new baseline so clearing the buffer doesn't lose stats.
              */
+            backendStats.value = {
+                maxSpeed: Number(response.trip.max_speed) || 0,
+                averageSpeed: Number(response.trip.average_speed) || 0,
+                violationCount: Number(response.trip.violation_count) || 0,
+                distance: Number(response.trip.total_distance) || 0,
+                speedLogCount: Number(response.trip.speed_logs_count) || 0,
+            };
+
             if (currentTrip.value) {
                 currentTrip.value.max_speed = response.trip.max_speed;
                 currentTrip.value.average_speed = response.trip.average_speed;
@@ -582,10 +611,10 @@ export const useTripStore = defineStore('trip', () => {
                 currentTrip.value.synced_at = response.trip.synced_at;
             }
 
-            // Clear buffer after successful sync
+            // Clear buffer - stats are preserved in backendStats baseline
             speedLogs.value = [];
             lastSyncAt.value = new Date();
-            syncRetryCount.value = 0; // Reset retry counter
+            syncRetryCount.value = 0;
         } catch (err: any) {
             syncRetryCount.value++;
 
@@ -785,24 +814,26 @@ export const useTripStore = defineStore('trip', () => {
                 currentTrip.value = activeTrip;
                 localTripId.value = null;
                 isOfflineTrip.value = false;
-                
-                // NOTE: Duration will be calculated by TripControls component's interval
-                // Set initial stats from trip if available
-                if (activeTrip.max_speed) {
-                    stats.value.maxSpeed = activeTrip.max_speed;
-                }
 
-                if (activeTrip.average_speed) {
-                    stats.value.averageSpeed = activeTrip.average_speed;
-                }
+                /**
+                 * Initialize backend baseline from the server's cumulative stats.
+                 *
+                 * WHY: On page reload, the backend already has stats from all previous syncs.
+                 * WHY: This baseline ensures new session logs merge correctly instead of overwriting.
+                 * WHY: speed_logs_count enables accurate weighted average calculation.
+                 */
+                backendStats.value = {
+                    maxSpeed: Number(activeTrip.max_speed) || 0,
+                    averageSpeed: Number(activeTrip.average_speed) || 0,
+                    violationCount: Number(activeTrip.violation_count) || 0,
+                    distance: Number(activeTrip.total_distance) || 0,
+                    speedLogCount: Number(activeTrip.speed_logs_count) || 0,
+                };
 
-                if (activeTrip.total_distance) {
-                    stats.value.distance = activeTrip.total_distance;
-                }
-
-                if (activeTrip.violation_count) {
-                    stats.value.violationCount = activeTrip.violation_count;
-                }
+                stats.value.maxSpeed = backendStats.value.maxSpeed;
+                stats.value.averageSpeed = backendStats.value.averageSpeed;
+                stats.value.violationCount = backendStats.value.violationCount;
+                stats.value.distance = backendStats.value.distance;
 
                 return true;
             }
@@ -843,7 +874,6 @@ export const useTripStore = defineStore('trip', () => {
         syncRetryCount.value = 0;
         error.value = null;
 
-        // Reset statistics
         stats.value = {
             currentSpeed: 0,
             maxSpeed: 0,
@@ -851,6 +881,13 @@ export const useTripStore = defineStore('trip', () => {
             distance: 0,
             duration: 0,
             violationCount: 0,
+        };
+        backendStats.value = {
+            maxSpeed: 0,
+            averageSpeed: 0,
+            violationCount: 0,
+            distance: 0,
+            speedLogCount: 0,
         };
     }
 

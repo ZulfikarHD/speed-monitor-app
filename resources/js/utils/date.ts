@@ -111,12 +111,13 @@ export function formatDateTime(date: string): string {
  */
 export function formatDuration(seconds: number | null): string {
     if (seconds === null || seconds === 0) {
-return '00:00';
-}
+        return '00:00';
+    }
 
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
+    const total = Math.abs(Math.round(seconds));
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const secs = total % 60;
 
     if (hours > 0) {
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
@@ -140,12 +141,13 @@ return '00:00';
  */
 export function formatDurationHuman(seconds: number | null): string {
     if (seconds === null || seconds === 0) {
-return '0 detik';
-}
+        return '0 detik';
+    }
 
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
+    const total = Math.abs(Math.round(seconds));
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const secs = total % 60;
 
     const parts: string[] = [];
 

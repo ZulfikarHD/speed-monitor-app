@@ -1,67 +1,20 @@
 /**
- * Geolocation Composable for Speed Tracking
+ * Geolocation Composable for Speed Tracking (Singleton)
  *
- * Provides GPS-based speed tracking functionality with proper error handling,
- * permission management, and km/h conversion. Wraps VueUse's useGeolocation
- * to provide speed-specific features for the speedometer interface.
+ * Shared GPS-based speed tracking instance ensuring all consumers
+ * (Speedometer, TripControls) read from the same GPS data source.
  *
  * Features:
- * - Real-time speed tracking in km/h
- * - Permission request and status management
- * - Error handling with user-friendly messages
- * - Start/stop tracking controls
- * - Reactive state with Vue composition API
- *
- * @example
- * ```ts
- * // Basic usage in a Vue component
- * import { useGeolocation } from '@/composables/useGeolocation';
- *
- * const {
- *   getCurrentSpeed,
- *   watchSpeed,
- *   stopTracking,
- *   state,
- *   requestPermission
- * } = useGeolocation();
- *
- * // Request permission first
- * const result = await requestPermission();
- * if (result.granted) {
- *   // Start tracking with callback
- *   watchSpeed((speed, geoState) => {
- *     console.log(`Current speed: ${speed} km/h`);
- *   });
- * }
- *
- * // Stop tracking when done
- * stopTracking();
- * ```
- *
- * @example
- * ```ts
- * // Integration with trip management
- * const { watchSpeed, stopTracking } = useGeolocation();
- *
- * function startTrip() {
- *   watchSpeed((speed, state) => {
- *     // Log speed to trip store every update
- *     tripStore.addSpeedLog({
- *       speed,
- *       timestamp: state.timestamp,
- *       accuracy: state.accuracy
- *     });
- *   });
- * }
- *
- * function endTrip() {
- *   stopTracking();
- * }
- * ```
+ * - Singleton pattern via effectScope (all components share one GPS watcher)
+ * - EMA smoothing to reduce GPS noise
+ * - Accuracy-based filtering (rejects readings > 25m accuracy)
+ * - Minimum speed threshold (< 0.5 m/s treated as stationary)
+ * - Cross-validation of API speed vs position-derived speed
+ * - DEV: Mock GPS mode for testing without physical movement
  */
 
 import { useGeolocation as useVueGeolocation } from '@vueuse/core';
-import { computed, ref, watch } from 'vue';
+import { computed, effectScope, ref, watch } from 'vue';
 import type { Ref, WatchStopHandle } from 'vue';
 
 import type {
@@ -71,419 +24,445 @@ import type {
     SpeedWatchCallback,
 } from '@/types/geolocation';
 
-/**
- * Composable for GPS-based speed tracking.
- *
- * Provides methods to track user speed using browser Geolocation API,
- * with automatic conversion from m/s to km/h and comprehensive error handling.
- *
- * @returns Object containing tracking methods and reactive state
- */
-export function useGeolocation() {
-    // ========================================================================
-    // VueUse Integration
-    // ========================================================================
+// ========================================================================
+// Singleton Management
+// ========================================================================
 
-    /**
-     * Initialize VueUse geolocation with optimized settings.
-     *
-     * WHY: immediate=false prevents auto-start, allowing explicit permission request.
-     * WHY: enableHighAccuracy=true provides better speed accuracy at cost of battery.
-     * WHY: maximumAge=0 ensures fresh GPS data for real-time tracking.
-     */
-    const {
-        coords,
-        locatedAt,
-        error: geoError,
-        resume,
-        pause,
-    } = useVueGeolocation({
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-        immediate: false,
-    });
+let sharedInstance: ReturnType<typeof createGeolocationInstance> | null = null;
 
-    // ========================================================================
-    // Reactive State
-    // ========================================================================
+function haversineQuick(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371000;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2 +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) ** 2;
 
-    /** Whether GPS tracking is currently active */
-    const isTracking: Ref<boolean> = ref(false);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
-    /** Current error state, null if no error */
-    const error: Ref<GeolocationError | null> = ref(null);
+function createGeolocationInstance() {
+    const scope = effectScope(true);
 
-    /**
-     * Current location permission status.
-     *
-     * WHY: Track permission separately from error state for better UX.
-     * Allows showing permission prompts before attempting to track.
-     */
-    const permissionStatus: Ref<
-        'granted' | 'denied' | 'prompt' | 'unsupported'
-    > = ref('prompt');
+    return scope.run(() => {
+        // ========================================================================
+        // VueUse Integration
+        // ========================================================================
 
-    /** Active speed watch callback, null when not watching */
-    let speedWatchCallback: SpeedWatchCallback | null = null;
+        const {
+            coords,
+            locatedAt,
+            error: geoError,
+            resume,
+            pause,
+        } = useVueGeolocation({
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 1000,
+            immediate: false,
+        });
 
-    /** Watch stop handle for cleanup */
-    let speedWatchStopHandle: WatchStopHandle | null = null;
+        // ========================================================================
+        // Reactive State
+        // ========================================================================
 
-    // ========================================================================
-    // Computed Properties
-    // ========================================================================
+        const isTracking: Ref<boolean> = ref(false);
+        const error: Ref<GeolocationError | null> = ref(null);
+        const permissionStatus: Ref<
+            'granted' | 'denied' | 'prompt' | 'unsupported'
+        > = ref('prompt');
 
-    /**
-     * Current speed in kilometers per hour.
-     *
-     * WHY: Geolocation API returns speed in meters per second (m/s).
-     * WHY: 1 m/s = 3.6 km/h (conversion factor: 60 * 60 / 1000)
-     * WHY: Round to 1 decimal place for display accuracy.
-     */
-    const speedKmh = computed<number>(() => {
-        if (!coords.value.speed || coords.value.speed < 0) {
-            return 0;
-        }
+        let speedWatchCallback: SpeedWatchCallback | null = null;
+        let speedWatchStopHandle: WatchStopHandle | null = null;
 
-        // Convert m/s to km/h and round to 1 decimal
-        return Math.round(coords.value.speed * 3.6 * 10) / 10;
-    });
+        // ========================================================================
+        // Speed Smoothing
+        // ========================================================================
 
-    /**
-     * Current speed in meters per second (raw from GPS).
-     */
-    const speedMps = computed<number>(() => {
-        if (!coords.value.speed || coords.value.speed < 0) {
-            return 0;
-        }
+        const smoothedSpeedMps = ref(0);
 
-        return coords.value.speed;
-    });
+        const EMA_ALPHA = 0.3;
+        const MIN_SPEED_MPS = 0.5;
+        const MAX_ACCURACY_FOR_SPEED = 25;
 
-    /**
-     * GPS accuracy in meters.
-     */
-    const accuracy = computed<number | null>(() => {
-        return coords.value.accuracy ?? null;
-    });
+        let lastGpsTime = 0;
+        let lastGpsLat = 0;
+        let lastGpsLon = 0;
+        let hasLastGpsPosition = false;
 
-    /**
-     * Complete geolocation state object.
-     *
-     * Combines all GPS data, tracking status, and error information
-     * into a single reactive state object for easy access.
-     */
-    const state = computed<GeolocationState>(() => ({
-        speed: speedKmh.value,
-        accuracy: coords.value.accuracy ?? null,
-        latitude: coords.value.latitude,
-        longitude: coords.value.longitude,
-        heading: coords.value.heading ?? null,
-        timestamp: locatedAt.value ?? null,
-        isTracking: isTracking.value,
-        error: error.value,
-        permissionStatus: permissionStatus.value,
-    }));
+        watch(locatedAt, (timestamp) => {
+            if (!isTracking.value || !timestamp) {
+return;
+}
 
-    // ========================================================================
-    // Error Handling
-    // ========================================================================
+            const lat = coords.value.latitude;
+            const lon = coords.value.longitude;
+            const acc = coords.value.accuracy;
+            const rawSpeed = coords.value.speed;
 
-    /**
-     * Map Geolocation API error codes to user-friendly messages.
-     *
-     * WHY: Browser error codes (1, 2, 3) are not user-friendly.
-     * WHY: Provide specific guidance for each error type.
-     *
-     * @param geoErrorCode - GeolocationPositionError code (1=PERMISSION_DENIED, 2=POSITION_UNAVAILABLE, 3=TIMEOUT)
-     * @returns Structured error object with code and message
-     */
-    function mapGeolocationError(
-        geoErrorCode: number,
-    ): GeolocationError | null {
-        switch (geoErrorCode) {
-            case 1: // PERMISSION_DENIED
-                return {
-                    code: 'PERMISSION_DENIED',
-                    message:
-                        'Akses lokasi ditolak. Mohon aktifkan izin lokasi di pengaturan browser Anda.',
-                };
-            case 2: // POSITION_UNAVAILABLE
-                return {
-                    code: 'POSITION_UNAVAILABLE',
-                    message:
-                        'Sinyal GPS tidak tersedia. Pastikan GPS aktif dan Anda berada di area terbuka.',
-                };
-            case 3: // TIMEOUT
-                return {
-                    code: 'TIMEOUT',
-                    message:
-                        'Waktu tunggu habis saat mendapatkan lokasi. Silakan coba lagi.',
-                };
-            default:
-                return null;
-        }
-    }
+            if (lat === Infinity || lon === Infinity) {
+return;
+}
 
-    /**
-     * Watch for VueUse geolocation errors and map them to our error state.
-     *
-     * WHY: VueUse exposes errors reactively, need to transform them for our use case.
-     */
-    watch(
-        geoError,
-        (newError) => {
-            if (newError) {
-                error.value = mapGeolocationError(newError.code);
+            if (acc && acc > MAX_ACCURACY_FOR_SPEED) {
+return;
+}
 
-                // Update permission status if permission denied
-                if (newError.code === 1) {
-                    permissionStatus.value = 'denied';
+            let speedMps = rawSpeed != null && rawSpeed >= 0 ? rawSpeed : 0;
+
+            if (hasLastGpsPosition) {
+                const dt = (timestamp - lastGpsTime) / 1000;
+
+                if (dt > 0.5 && dt < 30) {
+                    const dist = haversineQuick(lastGpsLat, lastGpsLon, lat, lon);
+                    const calcSpeed = dist / dt;
+
+                    if (speedMps > 0 && calcSpeed > 0) {
+                        const ratio = speedMps / calcSpeed;
+
+                        if (ratio > 3 || ratio < 0.33) {
+                            speedMps = Math.min(speedMps, calcSpeed);
+                        }
+                    }
+
+                    if (speedMps === 0 && calcSpeed > MIN_SPEED_MPS) {
+                        speedMps = calcSpeed;
+                    }
+                }
+            }
+
+            lastGpsTime = timestamp;
+            lastGpsLat = lat;
+            lastGpsLon = lon;
+            hasLastGpsPosition = true;
+
+            if (speedMps < MIN_SPEED_MPS) {
+                speedMps = 0;
+            }
+
+            if (smoothedSpeedMps.value === 0 && speedMps > 0) {
+                smoothedSpeedMps.value = speedMps;
+            } else if (speedMps === 0) {
+                smoothedSpeedMps.value *= 0.5;
+
+                if (smoothedSpeedMps.value < 0.1) {
+                    smoothedSpeedMps.value = 0;
                 }
             } else {
-                error.value = null;
+                smoothedSpeedMps.value =
+                    EMA_ALPHA * speedMps + (1 - EMA_ALPHA) * smoothedSpeedMps.value;
             }
-        },
-        { immediate: true },
-    );
+        });
 
-    // ========================================================================
-    // Public Methods
-    // ========================================================================
+        // ========================================================================
+        // Mock GPS (Dev Mode)
+        // ========================================================================
 
-    /**
-     * Get current speed in kilometers per hour.
-     *
-     * Returns the most recent speed reading. If tracking is not active
-     * or GPS data is unavailable, returns 0.
-     *
-     * @returns Current speed in km/h, or 0 if unavailable
-     *
-     * @example
-     * ```ts
-     * const { getCurrentSpeed } = useGeolocation();
-     * const speed = getCurrentSpeed();
-     * console.log(`Current speed: ${speed} km/h`);
-     * ```
-     */
-    function getCurrentSpeed(): number {
-        return speedKmh.value;
-    }
+        const isMockMode = ref(false);
+        const mockSpeedKmh = ref(0);
+        const mockAccuracy = ref(5);
+        let mockInterval: ReturnType<typeof setInterval> | null = null;
+        let mockLat = -6.2088;
+        let mockLon = 106.8456;
+        let mockHeading = 45;
 
-    /**
-     * Start continuous speed tracking with callback.
-     *
-     * Resumes GPS tracking and calls the provided callback function
-     * whenever speed data updates. The callback receives both the
-     * current speed in km/h and the complete geolocation state.
-     *
-     * WHY: Callback pattern allows flexible integration with trip logging,
-     * violation detection, and UI updates.
-     *
-     * @param callback - Function called on each speed update
-     *
-     * @example
-     * ```ts
-     * watchSpeed((speed, state) => {
-     *   console.log(`Speed: ${speed} km/h`);
-     *   console.log(`Accuracy: ${state.accuracy} meters`);
-     *
-     *   // Check for violations
-     *   if (speed > 60) {
-     *     alert('Speed limit exceeded!');
-     *   }
-     * });
-     * ```
-     */
-    function watchSpeed(callback: SpeedWatchCallback): void {
-        // Check browser support
-        if (!('geolocation' in navigator)) {
-            error.value = {
-                code: 'NOT_SUPPORTED',
-                message:
-                    'Geolocation tidak didukung oleh browser Anda. Silakan gunakan browser yang lebih baru.',
+        function injectMockPosition(): void {
+            const speedMps = mockSpeedKmh.value / 3.6;
+            const distance = speedMps * 1;
+
+            const headingRad = mockHeading * Math.PI / 180;
+            mockLat += (distance * Math.cos(headingRad)) / 111320;
+            mockLon += (distance * Math.sin(headingRad)) / (111320 * Math.cos(mockLat * Math.PI / 180));
+
+            // Gentle heading drift for realism
+            mockHeading += (Math.random() - 0.5) * 3;
+
+            const mockCoords = {
+                latitude: mockLat,
+                longitude: mockLon,
+                altitude: null,
+                accuracy: mockAccuracy.value,
+                altitudeAccuracy: null,
+                heading: mockHeading,
+                speed: speedMps,
             };
-            permissionStatus.value = 'unsupported';
 
-            return;
+            // Inject into VueUse refs — triggers the locatedAt watcher
+            (coords as Ref<any>).value = mockCoords;
+            locatedAt.value = Date.now();
         }
 
-        // Store callback for access in watch handler
-        speedWatchCallback = callback;
+        function startMockInterval(): void {
+            if (mockInterval) {
+clearInterval(mockInterval);
+}
 
-        // Clear any existing error
-        error.value = null;
+            mockInterval = setInterval(injectMockPosition, 1000);
+        }
 
-        // Start GPS tracking
-        isTracking.value = true;
-        resume();
+        function stopMockInterval(): void {
+            if (mockInterval) {
+                clearInterval(mockInterval);
+                mockInterval = null;
+            }
+        }
 
-        /**
-         * Watch for speed changes and execute callback.
-         *
-         * WHY: Watch speedKmh instead of coords.speed to automatically
-         * get converted km/h values and proper null handling.
-         */
-        speedWatchStopHandle = watch(
-            speedKmh,
-            (newSpeed) => {
-                if (speedWatchCallback && isTracking.value) {
-                    speedWatchCallback(newSpeed, state.value);
+        function enableMockGps(): void {
+            isMockMode.value = true;
+            mockLat = -6.2088;
+            mockLon = 106.8456;
+            mockHeading = 45;
+        }
+
+        function disableMockGps(): void {
+            isMockMode.value = false;
+            stopMockInterval();
+        }
+
+        function setMockSpeed(kmh: number): void {
+            mockSpeedKmh.value = Math.max(0, kmh);
+        }
+
+        function setMockAccuracy(acc: number): void {
+            mockAccuracy.value = Math.max(1, acc);
+        }
+
+        // ========================================================================
+        // Computed Properties
+        // ========================================================================
+
+        const speedKmh = computed<number>(() => {
+            return Math.round(smoothedSpeedMps.value * 3.6 * 10) / 10;
+        });
+
+        const speedMps = computed<number>(() => {
+            return smoothedSpeedMps.value;
+        });
+
+        const accuracy = computed<number | null>(() => {
+            const acc = coords.value.accuracy;
+
+            return acc !== undefined && acc !== 0 ? acc : null;
+        });
+
+        const state = computed<GeolocationState>(() => ({
+            speed: speedKmh.value,
+            accuracy: accuracy.value,
+            latitude: coords.value.latitude === Infinity ? null : coords.value.latitude,
+            longitude: coords.value.longitude === Infinity ? null : coords.value.longitude,
+            heading: coords.value.heading ?? null,
+            timestamp: locatedAt.value ?? null,
+            isTracking: isTracking.value,
+            error: error.value,
+            permissionStatus: permissionStatus.value,
+        }));
+
+        // ========================================================================
+        // Error Handling
+        // ========================================================================
+
+        function mapGeolocationError(geoErrorCode: number): GeolocationError | null {
+            switch (geoErrorCode) {
+                case 1:
+                    return {
+                        code: 'PERMISSION_DENIED',
+                        message:
+                            'Akses lokasi ditolak. Mohon aktifkan izin lokasi di pengaturan browser Anda.',
+                    };
+                case 2:
+                    return {
+                        code: 'POSITION_UNAVAILABLE',
+                        message:
+                            'Sinyal GPS tidak tersedia. Pastikan GPS aktif dan Anda berada di area terbuka.',
+                    };
+                case 3:
+                    return {
+                        code: 'TIMEOUT',
+                        message:
+                            'Waktu tunggu habis saat mendapatkan lokasi. Silakan coba lagi.',
+                    };
+                default:
+                    return null;
+            }
+        }
+
+        watch(
+            geoError,
+            (newError) => {
+                if (newError) {
+                    error.value = mapGeolocationError(newError.code);
+
+                    if (newError.code === 1) {
+                        permissionStatus.value = 'denied';
+                    }
+                } else {
+                    error.value = null;
                 }
             },
             { immediate: true },
         );
-    }
 
-    /**
-     * Stop GPS tracking and cleanup resources.
-     *
-     * Pauses the geolocation watcher, stops executing callbacks,
-     * and cleans up watch handlers. Does not clear error state
-     * or permission status to allow UI to show last known state.
-     *
-     * WHY: Stopping tracking but preserving state allows users to
-     * see why tracking stopped (e.g., permission denied).
-     *
-     * @example
-     * ```ts
-     * const { watchSpeed, stopTracking } = useGeolocation();
-     *
-     * // Start tracking
-     * watchSpeed((speed) => console.log(speed));
-     *
-     * // Stop tracking when trip ends
-     * setTimeout(() => {
-     *   stopTracking();
-     *   console.log('Tracking stopped');
-     * }, 60000); // Stop after 1 minute
-     * ```
-     */
-    function stopTracking(): void {
-        isTracking.value = false;
-        pause();
+        // ========================================================================
+        // Public Methods
+        // ========================================================================
 
-        // Cleanup watch handler
-        if (speedWatchStopHandle) {
-            speedWatchStopHandle();
-            speedWatchStopHandle = null;
+        function getCurrentSpeed(): number {
+            return speedKmh.value;
         }
 
-        // Clear callback reference
-        speedWatchCallback = null;
-    }
+        function watchSpeed(callback: SpeedWatchCallback): void {
+            if (!('geolocation' in navigator) && !isMockMode.value) {
+                error.value = {
+                    code: 'NOT_SUPPORTED',
+                    message:
+                        'Geolocation tidak didukung oleh browser Anda. Silakan gunakan browser yang lebih baru.',
+                };
+                permissionStatus.value = 'unsupported';
 
-    /**
-     * Request location permission from user.
-     *
-     * Explicitly requests location permission before starting tracking.
-     * This provides better UX than letting permission request happen
-     * automatically on first GPS access.
-     *
-     * WHY: Explicit permission request allows showing explanation UI
-     * before browser's permission prompt appears.
-     *
-     * @returns Promise resolving to permission result
-     *
-     * @example
-     * ```ts
-     * const { requestPermission, watchSpeed } = useGeolocation();
-     *
-     * // Request permission with user context
-     * const result = await requestPermission();
-     *
-     * if (result.granted) {
-     *   console.log('Permission granted, starting tracking');
-     *   watchSpeed((speed) => console.log(speed));
-     * } else {
-     *   console.error('Permission denied:', result.error);
-     *   alert('Tidak dapat melacak kecepatan tanpa izin lokasi');
-     * }
-     * ```
-     */
-    async function requestPermission(): Promise<PermissionResult> {
-        // Check browser support first
-        if (!('geolocation' in navigator)) {
-            error.value = {
-                code: 'NOT_SUPPORTED',
-                message:
-                    'Geolocation tidak didukung oleh browser Anda. Silakan gunakan browser yang lebih baru.',
-            };
-            permissionStatus.value = 'unsupported';
+                return;
+            }
 
-            return {
-                granted: false,
-                status: 'unsupported',
-                error: error.value.message,
-            };
-        }
+            if (speedWatchStopHandle) {
+                speedWatchStopHandle();
+                speedWatchStopHandle = null;
+            }
 
-        /**
-         * Request permission by attempting to get current position.
-         *
-         * WHY: No direct permission request API exists for Geolocation.
-         * WHY: First position request triggers browser permission prompt.
-         */
-        return new Promise((resolve) => {
-            navigator.geolocation.getCurrentPosition(
-                // Success: Permission granted
-                () => {
-                    permissionStatus.value = 'granted';
-                    error.value = null;
+            speedWatchCallback = callback;
+            error.value = null;
+            isTracking.value = true;
 
-                    resolve({
-                        granted: true,
-                        status: 'granted',
-                    });
-                },
-                // Error: Permission denied or other error
-                (positionError) => {
-                    const mappedError = mapGeolocationError(positionError.code);
-                    error.value = mappedError;
+            smoothedSpeedMps.value = 0;
+            hasLastGpsPosition = false;
 
-                    // Update permission status
-                    if (positionError.code === 1) {
-                        permissionStatus.value = 'denied';
+            if (isMockMode.value) {
+                startMockInterval();
+            } else {
+                resume();
+            }
+
+            speedWatchStopHandle = watch(
+                speedKmh,
+                (newSpeed) => {
+                    if (speedWatchCallback && isTracking.value) {
+                        speedWatchCallback(newSpeed, state.value);
                     }
-
-                    resolve({
-                        granted: false,
-                        status: permissionStatus.value,
-                        error: mappedError?.message,
-                    });
                 },
-                // Options for permission request
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0,
-                },
+                { immediate: true },
             );
-        });
+        }
+
+        function stopTracking(): void {
+            isTracking.value = false;
+
+            if (isMockMode.value) {
+                stopMockInterval();
+            } else {
+                pause();
+            }
+
+            smoothedSpeedMps.value = 0;
+            hasLastGpsPosition = false;
+
+            if (speedWatchStopHandle) {
+                speedWatchStopHandle();
+                speedWatchStopHandle = null;
+            }
+
+            speedWatchCallback = null;
+        }
+
+        async function requestPermission(): Promise<PermissionResult> {
+            if (isMockMode.value) {
+                permissionStatus.value = 'granted';
+                error.value = null;
+
+                return { granted: true, status: 'granted' };
+            }
+
+            if (!('geolocation' in navigator)) {
+                error.value = {
+                    code: 'NOT_SUPPORTED',
+                    message:
+                        'Geolocation tidak didukung oleh browser Anda. Silakan gunakan browser yang lebih baru.',
+                };
+                permissionStatus.value = 'unsupported';
+
+                return {
+                    granted: false,
+                    status: 'unsupported',
+                    error: error.value.message,
+                };
+            }
+
+            return new Promise((resolve) => {
+                navigator.geolocation.getCurrentPosition(
+                    () => {
+                        permissionStatus.value = 'granted';
+                        error.value = null;
+                        resolve({ granted: true, status: 'granted' });
+                    },
+                    (positionError) => {
+                        const mappedError = mapGeolocationError(positionError.code);
+                        error.value = mappedError;
+
+                        if (positionError.code === 1) {
+                            permissionStatus.value = 'denied';
+                        }
+
+                        resolve({
+                            granted: false,
+                            status: permissionStatus.value,
+                            error: mappedError?.message,
+                        });
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+                );
+            });
+        }
+
+        // ========================================================================
+        // Return Public API
+        // ========================================================================
+
+        return {
+            getCurrentSpeed,
+            watchSpeed,
+            stopTracking,
+            requestPermission,
+
+            state,
+            isTracking,
+            error,
+            permissionStatus,
+
+            speedKmh,
+            speedMps,
+            accuracy,
+            coords,
+            locatedAt,
+
+            // Mock GPS (dev)
+            isMockMode,
+            mockSpeedKmh,
+            mockAccuracy,
+            enableMockGps,
+            disableMockGps,
+            setMockSpeed,
+            setMockAccuracy,
+        };
+    })!;
+}
+
+/**
+ * Shared geolocation composable (singleton).
+ *
+ * All consumers get the same GPS instance so Speedometer and TripControls
+ * read from a single source of truth.
+ */
+export function useGeolocation() {
+    if (!sharedInstance) {
+        sharedInstance = createGeolocationInstance();
     }
 
-    // ========================================================================
-    // Return Public API
-    // ========================================================================
-
-    return {
-        // Methods
-        getCurrentSpeed,
-        watchSpeed,
-        stopTracking,
-        requestPermission,
-
-        // Reactive State
-        state,
-        isTracking,
-        error,
-        permissionStatus,
-
-        // Computed Values
-        speedKmh,
-        speedMps,
-        accuracy,
-        coords,
-    };
+    return sharedInstance;
 }

@@ -82,6 +82,9 @@ export interface Trip {
     /** Timestamp of last successful sync (for offline sync tracking) */
     synced_at: string | null;
 
+    /** Total number of speed logs for this trip (from withCount) */
+    speed_logs_count?: number;
+
     /** Record creation timestamp */
     created_at: string;
 
@@ -226,6 +229,8 @@ export interface BulkSpeedLogsResponse {
         violation_count: number;
         /** Timestamp of successful sync */
         synced_at: string;
+        /** Total speed logs count after insertion */
+        speed_logs_count: number;
     };
 }
 

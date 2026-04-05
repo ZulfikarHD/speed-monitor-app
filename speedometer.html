@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>VeloTrack — GPS Speedometer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --panel: #111318;
+    --border: #1e2230;
+    --accent: #00e5ff;
+    --accent2: #ff3d57;
+    --warn: #ffab00;
+    --text: #e8eaf0;
+    --muted: #4a5068;
+    --glow: 0 0 20px rgba(0,229,255,0.35);
+    --glow-warn: 0 0 20px rgba(255,61,87,0.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.5;
+  }
+
+  header {
+    width: 100%;
+    padding: 18px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,12,15,0.95);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-shadow: var(--glow);
+  }
+
+  .logo span { color: var(--text); }
+
+  .status-dot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: all 0.4s;
+  }
+  .dot.active { background: #00e676; box-shadow: 0 0 8px #00e676; animation: pulse 2s infinite; }
+  .dot.warn { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  main {
+    width: 100%;
+    max-width: 480px;
+    padding: 24px 16px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  /* ── SPEED LIMIT BANNER ── */
+  .limit-banner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 18px;
+    gap: 12px;
+  }
+
+  .limit-label {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .limit-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .limit-controls button {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .limit-controls button:hover { border-color: var(--accent); color: var(--accent); }
+
+  #limitDisplay {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    color: var(--text);
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .unit-toggle {
+    display: flex;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .unit-toggle button {
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .unit-toggle button.active {
+    background: var(--accent);
+    color: #000;
+    font-weight: 600;
+  }
+
+  /* ── MAIN GAUGE ── */
+  .gauge-wrap {
+    position: relative;
+    width: 300px; height: 300px;
+  }
+
+  #gaugeCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+  }
+
+  .gauge-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  #speedValue {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5.5rem;
+    line-height: 1;
+    color: var(--text);
+    transition: color 0.3s;
+    text-shadow: 0 0 30px rgba(232,234,240,0.2);
+  }
+
+  #speedValue.over-limit { color: var(--accent2); text-shadow: var(--glow-warn); }
+
+  #unitLabel {
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: -4px;
+  }
+
+  #speedWarning {
+    margin-top: 6px;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    opacity: 0;
+    transition: opacity 0.3s;
+    animation: blink 0.8s infinite;
+  }
+
+  #speedWarning.visible { opacity: 1; }
+
+  @keyframes blink {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ── STATS GRID ── */
+  .stats-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    opacity: 0.4;
+  }
+
+  .stat-card.danger::before { background: var(--accent2); opacity: 0.6; }
+  .stat-card.warn::before { background: var(--warn); opacity: 0.6; }
+
+  .stat-label {
+    font-size: 0.65rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .stat-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.7rem;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .stat-unit {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ── TRIP BAR ── */
+  .trip-bar {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .trip-item { text-align: center; }
+
+  .trip-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.3rem;
+    color: var(--accent);
+  }
+
+  .trip-lbl {
+    font-size: 0.62rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  .trip-divider {
+    width: 1px; height: 36px;
+    background: var(--border);
+  }
+
+  /* ── BUTTONS ── */
+  .btn-row {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); }
+  .btn.primary:hover { background: #00c8e0; }
+  .btn.danger { background: var(--accent2); color: #fff; border-color: var(--accent2); }
+  .btn.danger:hover { background: #e0283f; }
+
+  /* ── GPS ACCURACY ── */
+  .accuracy-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 4px;
+  }
+
+  .accuracy-label {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .accuracy-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .accuracy-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--accent);
+    transition: width 0.5s, background 0.5s;
+    width: 0%;
+  }
+
+  #accuracyText {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    min-width: 50px;
+    text-align: right;
+  }
+
+  /* ── NO GPS MESSAGE ── */
+  #noGPS {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,12,15,0.95);
+    z-index: 100;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-align: center;
+    padding: 32px;
+  }
+
+  #noGPS.show { display: flex; }
+
+  .no-gps-icon {
+    font-size: 3rem;
+    opacity: 0.5;
+  }
+
+  #noGPS h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 3px;
+    color: var(--warn);
+  }
+
+  #noGPS p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    max-width: 300px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Velo<span>Track</span></div>
+  <div class="status-dot">
+    <div class="dot" id="gpsDot"></div>
+    <span id="gpsStatus">Waiting for GPS</span>
+  </div>
+</header>
+
+<main>
+  <!-- Speed Limit + Unit -->
+  <div class="limit-banner">
+    <div>
+      <div class="limit-label">Speed Limit</div>
+    </div>
+    <div class="limit-controls">
+      <button onclick="changeLimit(-10)">−</button>
+      <div id="limitDisplay">60 km/h</div>
+      <button onclick="changeLimit(10)">+</button>
+    </div>
+    <div class="unit-toggle">
+      <button id="btnKmh" class="active" onclick="setUnit('kmh')">km/h</button>
+      <button id="btnMph" onclick="setUnit('mph')">mph</button>
+    </div>
+  </div>
+
+  <!-- Gauge -->
+  <div class="gauge-wrap">
+    <canvas id="gaugeCanvas" width="300" height="300"></canvas>
+    <div class="gauge-center">
+      <div id="speedValue">0</div>
+      <div id="unitLabel">km/h</div>
+      <div id="speedWarning">⚠ OVER LIMIT</div>
+    </div>
+  </div>
+
+  <!-- Max / Avg -->
+  <div class="stats-grid">
+    <div class="stat-card danger">
+      <div class="stat-label">Max Speed</div>
+      <div class="stat-value" id="maxSpeed">0</div>
+      <div class="stat-unit" id="maxUnit">km/h</div>
+    </div>
+    <div class="stat-card warn">
+      <div class="stat-label">Avg Speed</div>
+      <div class="stat-value" id="avgSpeed">0</div>
+      <div class="stat-unit" id="avgUnit">km/h</div>
+    </div>
+  </div>
+
+  <!-- Trip Distance & Duration -->
+  <div class="trip-bar">
+    <div class="trip-item">
+      <div class="trip-val" id="tripDist">0.00</div>
+      <div class="trip-lbl">Distance (km)</div>
+    </div>
+    <div class="trip-divider"></div>
+    <div class="trip-item">
+      <div class="trip-val" id="tripDuration">00:00</div>
+      <div class="trip-lbl">Duration</div>
+    </div>
+    <div class="trip-divider"></div>
+    <div class="trip-item">
+      <div class="trip-val" id="tripSamples">0</div>
+      <div class="trip-lbl">Satellites</div>
+    </div>
+  </div>
+
+  <!-- GPS Accuracy -->
+  <div class="accuracy-row">
+    <div class="accuracy-label">GPS Accuracy</div>
+    <div class="accuracy-bar"><div class="accuracy-fill" id="accuracyFill"></div></div>
+    <div id="accuracyText">— m</div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="btn-row">
+    <button class="btn primary" id="startBtn" onclick="toggleTracking()">Start Tracking</button>
+    <button class="btn" onclick="resetTrip()">Reset Trip</button>
+  </div>
+</main>
+
+<!-- No GPS overlay -->
+<div id="noGPS">
+  <div class="no-gps-icon">📡</div>
+  <h2>GPS Denied</h2>
+  <p>VeloTrack needs location permission to measure your speed. Please allow location access in your browser settings and reload.</p>
+  <button class="btn primary" style="max-width:200px" onclick="document.getElementById('noGPS').classList.remove('show')">Dismiss</button>
+</div>
+
+<script>
+  // ── STATE ──
+  let unit = 'kmh';
+  let speedLimit = 60;
+  let tracking = false;
+  let watchId = null;
+  let currentSpeed = 0;
+  let maxSpeed = 0;
+  let totalSpeed = 0;
+  let speedSamples = 0;
+  let tripDistance = 0;
+  let lastPos = null;
+  let tripStart = null;
+  let timerInterval = null;
+  let satellites = 0;
+
+  // ── UNIT HELPERS ──
+  function toDisplay(mps) {
+    return unit === 'kmh' ? mps * 3.6 : mps * 2.23694;
+  }
+
+  function limitInMps() {
+    return unit === 'kmh' ? speedLimit / 3.6 : speedLimit / 2.23694;
+  }
+
+  function setUnit(u) {
+    unit = u;
+    document.getElementById('btnKmh').classList.toggle('active', u === 'kmh');
+    document.getElementById('btnMph').classList.toggle('active', u === 'mph');
+    document.getElementById('unitLabel').textContent = u === 'kmh' ? 'km/h' : 'mph';
+    document.getElementById('maxUnit').textContent = u === 'kmh' ? 'km/h' : 'mph';
+    document.getElementById('avgUnit').textContent = u === 'kmh' ? 'km/h' : 'mph';
+    updateLimitDisplay();
+    updateUI();
+  }
+
+  function changeLimit(delta) {
+    speedLimit = Math.max(10, Math.min(200, speedLimit + delta));
+    updateLimitDisplay();
+    checkWarning();
+  }
+
+  function updateLimitDisplay() {
+    document.getElementById('limitDisplay').textContent = speedLimit + ' ' + (unit === 'kmh' ? 'km/h' : 'mph');
+  }
+
+  // ── TRACKING ──
+  function toggleTracking() {
+    tracking ? stopTracking() : startTracking();
+  }
+
+  function startTracking() {
+    if (!('geolocation' in navigator)) {
+      alert('Geolocation not supported in this browser.');
+      return;
+    }
+    tracking = true;
+    document.getElementById('startBtn').textContent = 'Stop Tracking';
+    document.getElementById('startBtn').classList.add('danger');
+    document.getElementById('startBtn').classList.remove('primary');
+    tripStart = Date.now();
+    timerInterval = setInterval(updateTimer, 1000);
+
+    watchId = navigator.geolocation.watchPosition(onPosition, onError, {
+      enableHighAccuracy: true,
+      maximumAge: 500,
+      timeout: 10000
+    });
+
+    document.getElementById('gpsDot').classList.add('active');
+    document.getElementById('gpsStatus').textContent = 'Acquiring GPS…';
+  }
+
+  function stopTracking() {
+    tracking = false;
+    if (watchId) navigator.geolocation.clearWatch(watchId);
+    if (timerInterval) clearInterval(timerInterval);
+    document.getElementById('startBtn').textContent = 'Start Tracking';
+    document.getElementById('startBtn').classList.remove('danger');
+    document.getElementById('startBtn').classList.add('primary');
+    document.getElementById('gpsDot').classList.remove('active');
+    document.getElementById('gpsStatus').textContent = 'Stopped';
+    currentSpeed = 0;
+    updateUI();
+  }
+
+  function resetTrip() {
+    maxSpeed = 0; totalSpeed = 0; speedSamples = 0;
+    tripDistance = 0; lastPos = null; tripStart = tracking ? Date.now() : null;
+    document.getElementById('tripDist').textContent = '0.00';
+    document.getElementById('tripDuration').textContent = '00:00';
+    document.getElementById('tripSamples').textContent = '0';
+    updateUI();
+  }
+
+  // ── GPS CALLBACKS ──
+  function onPosition(pos) {
+    const spd = Math.max(0, pos.coords.speed || 0);
+    currentSpeed = spd;
+
+    if (spd > maxSpeed) maxSpeed = spd;
+    totalSpeed += spd;
+    speedSamples++;
+
+    // Haversine distance
+    if (lastPos) {
+      tripDistance += haversine(lastPos.lat, lastPos.lon, pos.coords.latitude, pos.coords.longitude);
+    }
+    lastPos = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+
+    // Accuracy
+    const acc = pos.coords.accuracy;
+    const fillPct = Math.max(0, Math.min(100, 100 - (acc / 50 * 100)));
+    document.getElementById('accuracyFill').style.width = fillPct + '%';
+    document.getElementById('accuracyFill').style.background = fillPct > 60 ? '#00e5ff' : fillPct > 30 ? '#ffab00' : '#ff3d57';
+    document.getElementById('accuracyText').textContent = Math.round(acc) + ' m';
+
+    document.getElementById('gpsDot').classList.remove('warn');
+    document.getElementById('gpsDot').classList.add('active');
+    document.getElementById('gpsStatus').textContent = 'GPS Active';
+
+    // satellites (not always available)
+    if (pos.coords.altitudeAccuracy !== null) {
+      satellites = Math.floor(4 + (100 / Math.max(1, acc)));
+      satellites = Math.min(satellites, 16);
+    }
+
+    updateUI();
+  }
+
+  function onError(err) {
+    document.getElementById('gpsDot').classList.remove('active');
+    document.getElementById('gpsDot').classList.add('warn');
+    if (err.code === 1) {
+      document.getElementById('gpsStatus').textContent = 'Permission denied';
+      document.getElementById('noGPS').classList.add('show');
+    } else if (err.code === 2) {
+      document.getElementById('gpsStatus').textContent = 'Position unavailable';
+    } else {
+      document.getElementById('gpsStatus').textContent = 'GPS timeout';
+    }
+  }
+
+  // ── HAVERSINE ──
+  function haversine(lat1, lon1, lat2, lon2) {
+    const R = 6371000;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  // ── UI UPDATE ──
+  function updateUI() {
+    const spd = toDisplay(currentSpeed);
+    const mx = toDisplay(maxSpeed);
+    const avg = speedSamples > 0 ? toDisplay(totalSpeed / speedSamples) : 0;
+    const dist = unit === 'kmh' ? (tripDistance / 1000) : (tripDistance / 1609.34);
+
+    document.getElementById('speedValue').textContent = Math.round(spd);
+    document.getElementById('maxSpeed').textContent = Math.round(mx);
+    document.getElementById('avgSpeed').textContent = Math.round(avg);
+    document.getElementById('tripDist').textContent = dist.toFixed(2);
+    document.getElementById('tripSamples').textContent = satellites || '—';
+    document.getElementById('tripDist').parentElement.querySelector('.trip-lbl').textContent =
+      unit === 'kmh' ? 'Distance (km)' : 'Distance (mi)';
+
+    checkWarning();
+    drawGauge(spd);
+  }
+
+  function checkWarning() {
+    const over = currentSpeed > limitInMps();
+    document.getElementById('speedValue').classList.toggle('over-limit', over);
+    document.getElementById('speedWarning').classList.toggle('visible', over);
+  }
+
+  function updateTimer() {
+    if (!tripStart) return;
+    const elapsed = Math.floor((Date.now() - tripStart) / 1000);
+    const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    const s = String(elapsed % 60).padStart(2, '0');
+    document.getElementById('tripDuration').textContent = m + ':' + s;
+  }
+
+  // ── CANVAS GAUGE ──
+  function drawGauge(speedDisplay) {
+    const canvas = document.getElementById('gaugeCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const cx = W / 2, cy = H / 2;
+    const R = W * 0.42;
+    ctx.clearRect(0, 0, W, H);
+
+    const maxSpeedDisplay = unit === 'kmh' ? 200 : 125;
+    const ratio = Math.min(1, speedDisplay / maxSpeedDisplay);
+
+    const startAngle = Math.PI * 0.75;
+    const endAngle = Math.PI * 2.25;
+    const arcRange = endAngle - startAngle;
+
+    // BG arc
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, startAngle, endAngle);
+    ctx.strokeStyle = '#1e2230';
+    ctx.lineWidth = 14;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    // Speed arc
+    const speedEnd = startAngle + arcRange * ratio;
+    const over = currentSpeed > limitInMps();
+    const grad = ctx.createLinearGradient(cx - R, cy, cx + R, cy);
+    grad.addColorStop(0, over ? '#ff3d57' : '#00e5ff');
+    grad.addColorStop(1, over ? '#ff8a80' : '#00bcd4');
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, startAngle, speedEnd);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 14;
+    ctx.lineCap = 'round';
+    ctx.shadowColor = over ? '#ff3d57' : '#00e5ff';
+    ctx.shadowBlur = 18;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Limit marker
+    const limitRatio = Math.min(1, speedLimit / maxSpeedDisplay);
+    const limitAngle = startAngle + arcRange * limitRatio;
+    const lx = cx + Math.cos(limitAngle) * R;
+    const ly = cy + Math.sin(limitAngle) * R;
+    ctx.beginPath();
+    ctx.arc(lx, ly, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffab00';
+    ctx.shadowColor = '#ffab00';
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Tick marks
+    const ticks = 10;
+    for (let i = 0; i <= ticks; i++) {
+      const a = startAngle + (arcRange / ticks) * i;
+      const inner = R - 22;
+      const outer = R - 10;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(a) * inner, cy + Math.sin(a) * inner);
+      ctx.lineTo(cx + Math.cos(a) * outer, cy + Math.sin(a) * outer);
+      ctx.strokeStyle = '#2a3048';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Tick labels
+      const labelR = R - 34;
+      const spVal = Math.round((maxSpeedDisplay / ticks) * i);
+      ctx.fillStyle = '#4a5068';
+      ctx.font = '500 9px Barlow';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(spVal, cx + Math.cos(a) * labelR, cy + Math.sin(a) * labelR);
+    }
+
+    // Needle dot
+    ctx.beginPath();
+    ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+    ctx.fillStyle = over ? '#ff3d57' : '#00e5ff';
+    ctx.shadowColor = over ? '#ff3d57' : '#00e5ff';
+    ctx.shadowBlur = 12;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  // Init
+  drawGauge(0);
+  updateLimitDisplay();
+</script>
+</body>
+</html>

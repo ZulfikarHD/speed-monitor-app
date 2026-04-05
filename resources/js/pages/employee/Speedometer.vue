@@ -10,8 +10,11 @@ Uses EmployeeLayout for consistent navigation across all employee pages.
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import OfflineIndicator from '@/components/offline/OfflineIndicator.vue';
+import DevGpsSimulator from '@/components/speedometer/DevGpsSimulator.vue';
 import ProductionGauge from '@/components/speedometer/ProductionGauge.vue';
 import TripControls from '@/components/speedometer/TripControls.vue';
+
+const isDev = import.meta.env.DEV;
 import { useAutoStop } from '@/composables/useAutoStop';
 import { useBackgroundSync } from '@/composables/useBackgroundSync';
 import { useGeolocation } from '@/composables/useGeolocation';
@@ -20,6 +23,8 @@ import { useSettingsStore } from '@/stores/settings';
 import { useTripStore } from '@/stores/trip';
 import { haversineDistance, metersToKm, metersToMiles } from '@/utils/distance';
 import { mpsToDisplay } from '@/utils/units';
+
+const KMH_TO_MPH = 0.621371;
 
 // ========================================================================
 // Props (Server-Side Data)
@@ -40,7 +45,7 @@ const props = defineProps<Props>();
 
 const tripStore = useTripStore();
 const settingsStore = useSettingsStore();
-const { speedKmh, speedMps, accuracy, coords, stopTracking } = useGeolocation();
+const { speedKmh, speedMps, accuracy, coords, locatedAt, stopTracking } = useGeolocation();
 
 // Duration update interval
 let durationInterval: ReturnType<typeof setInterval> | null = null;
@@ -143,12 +148,27 @@ const handleManualSync = async (): Promise<void> => {
 // Distance Calculation (Haversine)
 // ========================================================================
 
-watch([coords], () => {
+/**
+ * Accumulate trip distance via Haversine on each GPS update.
+ *
+ * WHY: Watch locatedAt (timestamp) as trigger — fires exactly once per GPS callback.
+ * WHY: Filter by accuracy to avoid GPS drift inflating distance.
+ * WHY: Reject jumps > 200m per update (unrealistic GPS teleport).
+ */
+watch(locatedAt, () => {
     if (!tripStore.hasActiveTrip) {
 return;
 }
 
-    if (!coords.value.latitude || !coords.value.longitude) {
+    const lat = coords.value.latitude;
+    const lon = coords.value.longitude;
+    const acc = coords.value.accuracy;
+
+    if (lat === Infinity || lon === Infinity) {
+return;
+}
+
+    if (acc && acc > 30) {
 return;
 }
 
@@ -156,18 +176,16 @@ return;
         const dist = haversineDistance(
             lastPosition.value.lat,
             lastPosition.value.lon,
-            coords.value.latitude,
-            coords.value.longitude,
+            lat,
+            lon,
         );
 
-        // Update trip store distance
-        tripStore.stats.distance += dist;
+        if (dist < 200) {
+            tripStore.stats.distance += dist;
+        }
     }
 
-    lastPosition.value = {
-        lat: coords.value.latitude,
-        lon: coords.value.longitude,
-    };
+    lastPosition.value = { lat, lon };
 });
 
 // ========================================================================
@@ -238,8 +256,20 @@ const tripDistance = computed(() => {
         : metersToMiles(tripStore.stats.distance);
 });
 
-const maxSpeed = computed(() => mpsToDisplay(tripStore.stats.maxSpeed, unit.value));
-const avgSpeed = computed(() => mpsToDisplay(tripStore.stats.averageSpeed, unit.value));
+/**
+ * WHY: Stats store max/avg in km/h (from speed logs). Convert to mph if needed.
+ * Previous bug: mpsToDisplay treated km/h as m/s, inflating values by 3.6×.
+ */
+const maxSpeed = computed(() => {
+    const kmh = tripStore.stats.maxSpeed;
+
+    return unit.value === 'kmh' ? kmh : kmh * KMH_TO_MPH;
+});
+const avgSpeed = computed(() => {
+    const kmh = tripStore.stats.averageSpeed;
+
+    return unit.value === 'kmh' ? kmh : kmh * KMH_TO_MPH;
+});
 
 // ========================================================================
 // Speed Unit Controls (km/h or mph)
@@ -331,6 +361,8 @@ onBeforeUnmount(() => {
             :is-auto-sync-enabled="isAutoSyncEnabled"
             @sync="handleManualSync"
         />
+
+        <DevGpsSimulator v-if="isDev" />
 
         <div class="speedometer-page">
             <!-- Header -->

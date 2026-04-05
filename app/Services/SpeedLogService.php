@@ -57,8 +57,7 @@ class SpeedLogService
             ->orderBy('recorded_at')
             ->get();
 
-        $tripService = new TripService;
-        $tripService->updateTripStats($trip);
+        app(TripService::class)->updateTripStats($trip);
         $trip->save();
 
         return $createdLogs;
