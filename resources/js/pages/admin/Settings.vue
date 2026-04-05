@@ -12,26 +12,36 @@
  *
  * Features:
  * - Admin-only access (policy enforced)
- * - Form validation (client + server)
- * - Real-time preview cards
- * - Motion-v animations following Law of UX
- * - Success/error feedback
- * - Responsive design
+ * - Client + server form validation
+ * - Real-time preview cards showing current values
+ * - Lucide SVG icons
+ * - Minimal motion-v entry animations
+ * - Success/error feedback with flash messages
+ * - Full light/dark mode (extra dark base)
+ *
+ * UX Principles:
+ * - Error Prevention: Warning banner about global impact
+ * - Feedback: Flash messages and real-time preview cards
+ * - Recognition over Recall: Clear labels with descriptions
+ * - Fitts's Law: Large touch targets (>=44px)
+ * - Hick's Law: Two clear form actions (save/cancel)
  *
  * @example Route: /admin/settings
  */
 
 import { router, useForm, usePage } from '@inertiajs/vue3';
+import {
+    Activity,
+    CircleCheck,
+    Gauge,
+    Save,
+    Timer,
+    TriangleAlert,
+} from '@lucide/vue';
 import { motion } from 'motion-v';
 import { computed } from 'vue';
 
 import { update } from '@/actions/App/Http/Controllers/Admin/SettingsController';
-import IconAlert from '@/components/icons/IconAlert.vue';
-import IconCheck from '@/components/icons/IconCheck.vue';
-import IconClipboard from '@/components/icons/IconClipboard.vue';
-import IconGauge from '@/components/icons/IconGauge.vue';
-import IconSave from '@/components/icons/IconSave.vue';
-import IconSettings from '@/components/icons/IconSettings.vue';
 import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
 import { dashboard } from '@/routes/supervisor';
 import { useSettingsStore } from '@/stores/settings';
@@ -91,9 +101,7 @@ const autoStopMinutes = computed({
     },
 });
 
-/**
- * Flash message from server (success notification).
- */
+/** Flash message from server (success notification). */
 const flashMessage = computed(() => page.props.flash?.success as string | undefined);
 
 // ========================================================================
@@ -110,7 +118,6 @@ function handleSubmit(): void {
     form.put(update.url(), {
         preserveScroll: true,
         onSuccess: () => {
-            // Update global settings store with new values
             // WHY: Ensures all components use new settings without page reload
             settingsStore.setSettings({
                 speed_limit: form.speed_limit,
@@ -133,15 +140,15 @@ function handleCancel(): void {
 
 <template>
     <SupervisorLayout title="Pengaturan Aplikasi">
-        <div class="min-h-screen p-4 md:p-6 lg:p-8">
+        <div class="p-4 md:p-6 lg:p-8">
             <div class="mx-auto max-w-4xl space-y-6">
                 <!-- Header Section -->
                 <motion.div
-                    :initial="{ opacity: 0, y: -20 }"
+                    :initial="{ opacity: 0, y: -10 }"
                     :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ duration: 0.3 }"
+                    :transition="{ duration: 0.25 }"
                 >
-                    <h1 class="text-3xl font-bold text-zinc-900 dark:text-white md:text-4xl">
+                    <h1 class="text-2xl font-semibold text-zinc-900 dark:text-white md:text-3xl">
                         Pengaturan Aplikasi
                     </h1>
                     <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
@@ -154,14 +161,13 @@ function handleCancel(): void {
                     v-if="flashMessage"
                     :initial="{ opacity: 0, scale: 0.95 }"
                     :animate="{ opacity: 1, scale: 1 }"
-                    :exit="{ opacity: 0, scale: 0.95 }"
                     :transition="{ duration: 0.2 }"
-                    class="rounded-lg border border-emerald-500/30 dark:border-emerald-500/30 bg-emerald-100 dark:bg-emerald-500/10 p-4"
+                    class="rounded-lg border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10 p-4"
                 >
                     <div class="flex items-start gap-3">
-                        <IconCheck
+                        <CircleCheck
                             :size="20"
-                            class="text-emerald-600 dark:text-emerald-400"
+                            class="shrink-0 text-emerald-600 dark:text-emerald-400"
                         />
                         <p class="flex-1 text-sm text-emerald-800 dark:text-emerald-300">
                             {{ flashMessage }}
@@ -171,19 +177,23 @@ function handleCancel(): void {
 
                 <!-- Settings Form Card -->
                 <motion.form
-                    @submit.prevent="handleSubmit"
-                    :initial="{ opacity: 0, y: 20 }"
+                    :initial="{ opacity: 0, y: 15 }"
                     :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ delay: 0.1, duration: 0.3 }"
-                    class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/90 dark:bg-zinc-800/50 backdrop-blur-sm p-6 md:p-8 shadow-lg shadow-zinc-200 dark:shadow-none"
+                    :transition="{ delay: 0.05, duration: 0.25 }"
+                    class="rounded-lg bg-white/95 dark:bg-zinc-800/95 border border-zinc-200/80 dark:border-white/10 ring-1 ring-white/20 dark:ring-white/5 p-6 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5 md:p-8"
+                    @submit.prevent="handleSubmit"
                 >
                     <div class="space-y-8">
                         <!-- Speed Limit Setting -->
                         <div class="space-y-2">
                             <label
                                 for="speed_limit"
-                                class="block text-sm font-semibold text-zinc-900 dark:text-white"
+                                class="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white"
                             >
+                                <Gauge
+                                    :size="16"
+                                    class="text-cyan-600 dark:text-cyan-400"
+                                />
                                 Batas Kecepatan
                             </label>
                             <div class="space-y-1">
@@ -195,13 +205,13 @@ function handleCancel(): void {
                                         min="1"
                                         max="200"
                                         step="1"
-                                        class="w-full rounded-lg border px-4 py-3 pr-16 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                        class="w-full rounded-lg border px-4 py-3 pr-16 text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900"
                                         :class="{
-                                            'border-red-400 bg-red-950/20 text-red-100 dark:bg-red-950/20 dark:text-red-100 focus:border-red-400 focus:ring-red-500 dark:focus:ring-red-400/50': form.errors.speed_limit,
-                                            'border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 focus:border-cyan-500 focus:ring-cyan-500 dark:focus:ring-cyan-400/50': !form.errors.speed_limit
+                                            'border-red-400 bg-red-50 dark:bg-red-950/20 text-red-900 dark:text-red-100 focus:ring-red-500 dark:focus:ring-red-400/50': form.errors.speed_limit,
+                                            'border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-900/50 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:ring-cyan-500 dark:focus:ring-cyan-400/50': !form.errors.speed_limit,
                                         }"
                                     />
-                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-500 dark:text-zinc-400">
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
                                         km/h
                                     </span>
                                 </div>
@@ -221,8 +231,12 @@ function handleCancel(): void {
                         <div class="space-y-2">
                             <label
                                 for="auto_stop_duration"
-                                class="block text-sm font-semibold text-zinc-900 dark:text-white"
+                                class="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white"
                             >
+                                <Timer
+                                    :size="16"
+                                    class="text-blue-600 dark:text-blue-400"
+                                />
                                 Durasi Auto-Stop
                             </label>
                             <div class="space-y-1">
@@ -234,13 +248,13 @@ function handleCancel(): void {
                                         min="1"
                                         max="120"
                                         step="1"
-                                        class="w-full rounded-lg border px-4 py-3 pr-20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                        class="w-full rounded-lg border px-4 py-3 pr-20 text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900"
                                         :class="{
-                                            'border-red-400 bg-red-950/20 text-red-100 dark:bg-red-950/20 dark:text-red-100 focus:border-red-400 focus:ring-red-500 dark:focus:ring-red-400/50': form.errors.auto_stop_duration,
-                                            'border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 focus:border-cyan-500 focus:ring-cyan-500 dark:focus:ring-cyan-400/50': !form.errors.auto_stop_duration
+                                            'border-red-400 bg-red-50 dark:bg-red-950/20 text-red-900 dark:text-red-100 focus:ring-red-500 dark:focus:ring-red-400/50': form.errors.auto_stop_duration,
+                                            'border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-900/50 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:ring-cyan-500 dark:focus:ring-cyan-400/50': !form.errors.auto_stop_duration,
                                         }"
                                     />
-                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-500 dark:text-zinc-400">
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
                                         menit
                                     </span>
                                 </div>
@@ -260,8 +274,12 @@ function handleCancel(): void {
                         <div class="space-y-2">
                             <label
                                 for="speed_log_interval"
-                                class="block text-sm font-semibold text-zinc-900 dark:text-white"
+                                class="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-white"
                             >
+                                <Activity
+                                    :size="16"
+                                    class="text-emerald-600 dark:text-emerald-400"
+                                />
                                 Interval Logging
                             </label>
                             <div class="space-y-1">
@@ -273,13 +291,13 @@ function handleCancel(): void {
                                         min="1"
                                         max="60"
                                         step="1"
-                                        class="w-full rounded-lg border px-4 py-3 pr-20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                        class="w-full rounded-lg border px-4 py-3 pr-20 text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900"
                                         :class="{
-                                            'border-red-400 bg-red-950/20 text-red-100 dark:bg-red-950/20 dark:text-red-100 focus:border-red-400 focus:ring-red-500 dark:focus:ring-red-400/50': form.errors.speed_log_interval,
-                                            'border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 focus:border-cyan-500 focus:ring-cyan-500 dark:focus:ring-cyan-400/50': !form.errors.speed_log_interval
+                                            'border-red-400 bg-red-50 dark:bg-red-950/20 text-red-900 dark:text-red-100 focus:ring-red-500 dark:focus:ring-red-400/50': form.errors.speed_log_interval,
+                                            'border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-900/50 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:ring-cyan-500 dark:focus:ring-cyan-400/50': !form.errors.speed_log_interval,
                                         }"
                                     />
-                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-zinc-500 dark:text-zinc-400">
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
                                         detik
                                     </span>
                                 </div>
@@ -296,11 +314,11 @@ function handleCancel(): void {
                         </div>
 
                         <!-- Warning Box -->
-                        <div class="rounded-lg border border-amber-500/30 dark:border-amber-500/30 bg-amber-100 dark:bg-amber-500/10 p-4">
+                        <div class="rounded-lg border border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-4">
                             <div class="flex gap-3">
-                                <IconAlert
+                                <TriangleAlert
                                     :size="20"
-                                    class="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5"
+                                    class="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400"
                                 />
                                 <div class="flex-1 space-y-1">
                                     <p class="text-sm font-medium text-amber-800 dark:text-amber-300">
@@ -314,32 +332,26 @@ function handleCancel(): void {
                             </div>
                         </div>
 
-                        <!-- Submit Button -->
+                        <!-- Form Actions -->
                         <div class="flex justify-end gap-3 pt-4">
-                            <motion.button
+                            <button
                                 type="button"
+                                class="min-h-[44px] rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-6 py-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300 transition-colors duration-200 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-cyan-400/50 dark:focus:ring-offset-zinc-900"
                                 @click="handleCancel"
-                                :whileHover="{ scale: 1.02 }"
-                                :whilePress="{ scale: 0.98 }"
-                                :transition="{ duration: 0.2 }"
-                                class="rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-6 py-3 text-sm font-semibold text-zinc-900 dark:text-zinc-200 transition-all duration-200 hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
                             >
                                 Batal
-                            </motion.button>
-                            <motion.button
+                            </button>
+                            <button
                                 type="submit"
                                 :disabled="form.processing"
-                                :whileHover="{ scale: 1.02 }"
-                                :whilePress="{ scale: 0.98 }"
-                                :transition="{ duration: 0.2 }"
-                                class="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2"
+                                class="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-linear-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-cyan-400/50"
                             >
-                                <IconSave
+                                <Save
                                     v-if="!form.processing"
                                     :size="18"
                                 />
                                 <span>{{ form.processing ? 'Menyimpan...' : 'Simpan Pengaturan' }}</span>
-                            </motion.button>
+                            </button>
                         </div>
                     </div>
                 </motion.form>
@@ -348,22 +360,29 @@ function handleCancel(): void {
                 <div class="grid gap-4 md:grid-cols-3">
                     <!-- Speed Limit Card -->
                     <motion.div
-                        :initial="{ opacity: 0, y: 20 }"
+                        :initial="{ opacity: 0, y: 15 }"
                         :animate="{ opacity: 1, y: 0 }"
-                        :transition="{ delay: 0.2, duration: 0.3 }"
-                        class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/90 dark:bg-zinc-800/50 backdrop-blur-sm p-4 shadow-lg shadow-zinc-200 dark:shadow-none"
+                        :transition="{ delay: 0.1, duration: 0.25 }"
+                        class="rounded-lg bg-white/95 dark:bg-zinc-800/95 border border-zinc-200/80 dark:border-white/10 ring-1 ring-white/20 dark:ring-white/5 p-4 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
                     >
                         <div class="flex items-start gap-3">
-                            <IconGauge
-                                :size="24"
-                                class="text-cyan-600 dark:text-cyan-400 flex-shrink-0"
-                            />
+                            <div
+                                class="flex size-9 items-center justify-center rounded-lg border border-cyan-200 dark:border-cyan-500/20 bg-cyan-100 dark:bg-cyan-500/15"
+                            >
+                                <Gauge
+                                    :size="18"
+                                    class="text-cyan-600 dark:text-cyan-400"
+                                />
+                            </div>
                             <div>
                                 <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">
                                     Batas Kecepatan
                                 </h3>
                                 <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
-                                    Nilai saat ini: <span class="font-mono text-cyan-600 dark:text-cyan-400">{{ form.speed_limit }} km/h</span>
+                                    Nilai saat ini:
+                                    <span class="font-mono text-cyan-600 dark:text-cyan-400">
+                                        {{ form.speed_limit }} km/h
+                                    </span>
                                 </p>
                             </div>
                         </div>
@@ -371,22 +390,29 @@ function handleCancel(): void {
 
                     <!-- Auto-Stop Card -->
                     <motion.div
-                        :initial="{ opacity: 0, y: 20 }"
+                        :initial="{ opacity: 0, y: 15 }"
                         :animate="{ opacity: 1, y: 0 }"
-                        :transition="{ delay: 0.25, duration: 0.3 }"
-                        class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/90 dark:bg-zinc-800/50 backdrop-blur-sm p-4 shadow-lg shadow-zinc-200 dark:shadow-none"
+                        :transition="{ delay: 0.15, duration: 0.25 }"
+                        class="rounded-lg bg-white/95 dark:bg-zinc-800/95 border border-zinc-200/80 dark:border-white/10 ring-1 ring-white/20 dark:ring-white/5 p-4 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
                     >
                         <div class="flex items-start gap-3">
-                            <IconSettings
-                                :size="24"
-                                class="text-blue-600 dark:text-blue-400 flex-shrink-0"
-                            />
+                            <div
+                                class="flex size-9 items-center justify-center rounded-lg border border-blue-200 dark:border-blue-500/20 bg-blue-100 dark:bg-blue-500/15"
+                            >
+                                <Timer
+                                    :size="18"
+                                    class="text-blue-600 dark:text-blue-400"
+                                />
+                            </div>
                             <div>
                                 <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">
                                     Auto-Stop
                                 </h3>
                                 <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
-                                    Nilai saat ini: <span class="font-mono text-blue-600 dark:text-blue-400">{{ autoStopMinutes }} menit</span>
+                                    Nilai saat ini:
+                                    <span class="font-mono text-blue-600 dark:text-blue-400">
+                                        {{ autoStopMinutes }} menit
+                                    </span>
                                 </p>
                             </div>
                         </div>
@@ -394,22 +420,29 @@ function handleCancel(): void {
 
                     <!-- Logging Interval Card -->
                     <motion.div
-                        :initial="{ opacity: 0, y: 20 }"
+                        :initial="{ opacity: 0, y: 15 }"
                         :animate="{ opacity: 1, y: 0 }"
-                        :transition="{ delay: 0.3, duration: 0.3 }"
-                        class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/90 dark:bg-zinc-800/50 backdrop-blur-sm p-4 shadow-lg shadow-zinc-200 dark:shadow-none"
+                        :transition="{ delay: 0.2, duration: 0.25 }"
+                        class="rounded-lg bg-white/95 dark:bg-zinc-800/95 border border-zinc-200/80 dark:border-white/10 ring-1 ring-white/20 dark:ring-white/5 p-4 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
                     >
                         <div class="flex items-start gap-3">
-                            <IconClipboard
-                                :size="24"
-                                class="text-emerald-600 dark:text-emerald-400 flex-shrink-0"
-                            />
+                            <div
+                                class="flex size-9 items-center justify-center rounded-lg border border-emerald-200 dark:border-emerald-500/20 bg-emerald-100 dark:bg-emerald-500/15"
+                            >
+                                <Activity
+                                    :size="18"
+                                    class="text-emerald-600 dark:text-emerald-400"
+                                />
+                            </div>
                             <div>
                                 <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">
                                     Logging
                                 </h3>
                                 <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
-                                    Nilai saat ini: <span class="font-mono text-emerald-600 dark:text-emerald-400">{{ form.speed_log_interval }} detik</span>
+                                    Nilai saat ini:
+                                    <span class="font-mono text-emerald-600 dark:text-emerald-400">
+                                        {{ form.speed_log_interval }} detik
+                                    </span>
                                 </p>
                             </div>
                         </div>
