@@ -23,6 +23,19 @@ import { haversineDistance, metersToKm, metersToMiles } from '@/utils/distance';
 import { estimateSatelliteCount, mpsToDisplay } from '@/utils/units';
 
 // ========================================================================
+// Props (Server-Side Data)
+// ========================================================================
+
+interface Props {
+    /** Speed limit from backend settings (km/h) */
+    speedLimit: number;
+    /** Auto-stop duration from backend settings (seconds) */
+    autoStopDuration: number;
+}
+
+const props = defineProps<Props>();
+
+// ========================================================================
 // Store Integration
 // ========================================================================
 
@@ -55,7 +68,7 @@ const pendingSyncCount = ref<number>(0);
 // ========================================================================
 
 const autoStop = useAutoStop({
-    inactivityDuration: settingsStore.auto_stop_duration,
+    inactivityDuration: props.autoStopDuration,
     speedThreshold: 5,
     onWarning: () => {
         alert('⚠️ Peringatan: Trip akan berhenti otomatis dalam 5 menit karena tidak ada pergerakan.');
@@ -68,17 +81,20 @@ const autoStop = useAutoStop({
 });
 
 // ========================================================================
-// Fetch Settings on Mount
+// Initialize Settings on Mount
 // ========================================================================
 
 onMounted(async () => {
-    // Fetch settings from backend if not loaded
-    if (!settingsStore.isLoaded) {
-        // Settings will be loaded via API in settings store
-        localSpeedLimit.value = settingsStore.speed_limit;
-    } else {
-        localSpeedLimit.value = settingsStore.speed_limit;
-    }
+    // Initialize settings store with backend values
+    // WHY: Ensures speedometer uses supervisor-configured limits, not defaults
+    settingsStore.setSettings({
+        speed_limit: props.speedLimit,
+        auto_stop_duration: props.autoStopDuration,
+        violation_threshold: props.speedLimit, // Violation occurs when exceeding limit
+    });
+
+    // Set local speed limit from initialized store
+    localSpeedLimit.value = props.speedLimit;
 
     // Load pending sync count
     await updatePendingSyncCount();
@@ -220,16 +236,35 @@ const maxSpeed = computed(() => mpsToDisplay(tripStore.stats.maxSpeed, unit.valu
 const avgSpeed = computed(() => mpsToDisplay(tripStore.stats.averageSpeed, unit.value));
 
 // ========================================================================
-// Speed Limit Controls
+// Speed Unit Controls (km/h or mph)
 // ========================================================================
 
-function changeLimit(delta: number) {
-    localSpeedLimit.value = Math.max(10, Math.min(200, localSpeedLimit.value + delta));
-}
-
+/**
+ * Change speed display unit between km/h and mph.
+ *
+ * WHY: Allow users to view speed in their preferred unit.
+ * WHY: Speed limit enforcement still uses backend km/h value.
+ */
 function setUnit(newUnit: 'kmh' | 'mph') {
     unit.value = newUnit;
 }
+
+// ========================================================================
+// Settings Sync Watcher
+// ========================================================================
+
+/**
+ * Watch for settings updates from store.
+ *
+ * WHY: When supervisor changes settings, all employees should immediately
+ * use the new limits without page reload. This ensures consistent enforcement.
+ */
+watch(
+    () => settingsStore.settings.speed_limit,
+    (newLimit) => {
+        localSpeedLimit.value = newLimit;
+    }
+);
 
 // ========================================================================
 // Auto-Stop Integration
@@ -280,25 +315,15 @@ onBeforeUnmount(() => {
 
         <!-- Main -->
         <main class="velo-main">
-            <!-- Speed Limit Banner -->
+            <!-- Speed Limit Banner (Read-Only) -->
             <motion.div
                 :initial="{ opacity: 0, y: -20 }"
                 :animate="{ opacity: 1, y: 0 }"
                 :transition="{ type: 'spring', bounce: 0.4, duration: 0.6 }"
                 class="limit-banner"
             >
-                <div>
+                <div class="limit-info">
                     <div class="limit-label">Speed Limit</div>
-                </div>
-                <div class="limit-controls">
-                    <motion.button
-                        @click="changeLimit(-10)"
-                        :whilePress="{ scale: 0.9 }"
-                        :whileHover="{ scale: 1.05 }"
-                        :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
-                    >
-                        −
-                    </motion.button>
                     <motion.div
                         :animate="{ scale: [1, 1.05, 1] }"
                         :transition="{ duration: 0.3 }"
@@ -307,14 +332,7 @@ onBeforeUnmount(() => {
                     >
                         {{ speedLimit }} {{ unit === 'kmh' ? 'km/h' : 'mph' }}
                     </motion.div>
-                    <motion.button
-                        @click="changeLimit(10)"
-                        :whilePress="{ scale: 0.9 }"
-                        :whileHover="{ scale: 1.05 }"
-                        :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
-                    >
-                        +
-                    </motion.button>
+                    <div class="limit-subtext">Diatur oleh supervisor</div>
                 </div>
                 <div class="unit-toggle">
                     <motion.button
@@ -636,50 +654,35 @@ onBeforeUnmount(() => {
     background: #111318;
     border: 1px solid #1e2230;
     border-radius: 14px;
-    padding: 12px 18px;
-    gap: 12px;
+    padding: 16px 20px;
+    gap: 16px;
+}
+
+.limit-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .limit-label {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     letter-spacing: 2px;
     text-transform: uppercase;
     color: #4a5068;
 }
 
-.limit-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.limit-controls button {
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
-    border: 1px solid #1e2230;
-    background: #0a0c0f;
-    color: #e8eaf0;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.limit-controls button:hover {
-    border-color: #00e5ff;
-    color: #00e5ff;
-}
-
 .limit-value {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.4rem;
+    font-size: 1.8rem;
     letter-spacing: 2px;
-    color: #e8eaf0;
-    min-width: 80px;
-    text-align: center;
+    color: #00e5ff;
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+}
+
+.limit-subtext {
+    font-size: 0.7rem;
+    color: #4a5068;
+    font-style: italic;
 }
 
 .unit-toggle {
