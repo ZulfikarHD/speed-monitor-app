@@ -54,7 +54,6 @@
  * ```
  */
 
-import { useHttp } from '@inertiajs/vue3';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
@@ -69,6 +68,7 @@ import type {
     Trip,
     TripStats,
 } from '@/types/trip';
+import { http } from '@/utils/http';
 import { useAuthStore } from './auth';
 import { useSettingsStore } from './settings';
 
@@ -83,7 +83,6 @@ export const useTripStore = defineStore('trip', () => {
     // Dependencies
     // ========================================================================
 
-    const http = useHttp();
     const settingsStore = useSettingsStore();
 
     // ========================================================================
@@ -232,7 +231,7 @@ export const useTripStore = defineStore('trip', () => {
                  * ONLINE: POST to /api/trips to create new trip.
                  *
                  * WHY: Use Wayfinder store() for type-safe route generation.
-                 * WHY: useHttp provides automatic CSRF token handling.
+                 * WHY: http client provides automatic CSRF token handling.
                  */
                 const response = await http.post<StartTripResponse>(
                     TripController.store().url,
@@ -748,6 +747,72 @@ export const useTripStore = defineStore('trip', () => {
     }
 
     /**
+     * Load active trip from backend if one exists.
+     *
+     * WHY: When user reloads the page or navigates back to speedometer,
+     * we need to restore their active trip session instead of showing "Start Trip".
+     *
+     * @returns Promise resolving to true if active trip was loaded, false if none found
+     *
+     * @example
+     * ```ts
+     * // On Speedometer page mount
+     * onMounted(async () => {
+     *   await tripStore.loadActiveTrip();
+     *   if (tripStore.hasActiveTrip) {
+     *     // Show trip with "Stop Trip" button
+     *   }
+     * });
+     * ```
+     */
+    async function loadActiveTrip(): Promise<boolean> {
+        try {
+            error.value = null;
+
+            // Fetch active trips (in_progress status)
+            const response = await http.get<{ data: Trip[]; meta: any }>(
+                TripController.index.url(),
+                {
+                    params: {
+                        status: 'in_progress',
+                        per_page: 1,
+                    },
+                }
+            );
+
+            if (response.data && response.data.length > 0) {
+                const activeTrip = response.data[0];
+                currentTrip.value = activeTrip;
+                localTripId.value = null;
+                isOfflineTrip.value = false;
+                
+                // NOTE: Duration will be calculated by TripControls component's interval
+                // Set initial stats from trip if available
+                if (activeTrip.max_speed) {
+                    stats.value.maxSpeed = activeTrip.max_speed;
+                }
+                if (activeTrip.average_speed) {
+                    stats.value.averageSpeed = activeTrip.average_speed;
+                }
+                if (activeTrip.total_distance) {
+                    stats.value.distance = activeTrip.total_distance;
+                }
+                if (activeTrip.violation_count) {
+                    stats.value.violationCount = activeTrip.violation_count;
+                }
+
+                return true;
+            }
+
+            return false;
+        } catch (err: any) {
+            console.error('[Trip Store] Failed to load active trip:', err);
+            error.value = err.message || 'Failed to load active trip';
+            return false;
+        }
+    }
+
+    /**
      * Clear trip state and reset tracking.
      *
      * Resets all trip-related state to initial values. Should be called
@@ -835,6 +900,7 @@ export const useTripStore = defineStore('trip', () => {
         needsSync,
 
         // Actions
+        loadActiveTrip,
         startTrip,
         addSpeedLog,
         syncSpeedLogs,

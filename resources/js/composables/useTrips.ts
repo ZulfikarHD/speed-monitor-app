@@ -25,11 +25,11 @@
  * ```
  */
 
-import { useHttp } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 import { index as listTripsAction } from '@/actions/App/Http/Controllers/TripController';
 import type { Trip, TripListParams, TripListResponse } from '@/types/trip';
+import { http } from '@/utils/http';
 
 /**
  * Trips list composable for fetching trip history.
@@ -40,11 +40,6 @@ import type { Trip, TripListParams, TripListResponse } from '@/types/trip';
  * @returns Object containing trips data, loading state, and fetch method
  */
 export function useTrips() {
-    // ========================================================================
-    // Dependencies
-    // ========================================================================
-
-    const http = useHttp();
 
     // ========================================================================
     // State
@@ -115,8 +110,8 @@ export function useTrips() {
             );
 
             if (response.data) {
-                trips.value = response.data.data;
-                meta.value = response.data.meta;
+                trips.value = response.data;
+                meta.value = response.meta;
             }
         } catch (err) {
             error.value =

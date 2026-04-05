@@ -47,37 +47,11 @@ const showStopConfirmation = ref<boolean>(false);
 /** Local error message for geolocation permission issues */
 const localError = ref<string | null>(null);
 
-/** Interval handle for duration updates */
-let durationUpdateInterval: ReturnType<typeof setInterval> | null = null;
-
-/** Local duration in seconds for real-time display updates */
-const localDuration = ref<number>(0);
 
 // ========================================================================
 // Computed Properties
 // ========================================================================
 
-/**
- * Formatted trip duration for display.
- *
- * WHY: Display HH:MM:SS for trips over 1 hour, MM:SS otherwise.
- * WHY: Real-time display provides user feedback during active trip.
- * WHY: Uses localDuration which updates every second for smooth display.
- *
- * @returns Formatted duration string
- */
-const durationFormatted = computed<string>(() => {
-    const seconds = localDuration.value;
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-
-    if (hours > 0) {
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-});
 
 /**
  * Whether any operation is in progress.
@@ -184,13 +158,6 @@ async function handleStartTrip(): Promise<void> {
             }
         });
 
-        /**
-         * Step 4: Start duration update interval.
-         *
-         * WHY: Trip store calculates duration, but UI needs to update every second.
-         * WHY: setInterval triggers reactive duration display updates.
-         */
-        startDurationUpdates();
     } catch (error: any) {
         localError.value = error.message || 'Gagal memulai perjalanan. Silakan coba lagi.';
     }
@@ -261,12 +228,6 @@ async function handleStopTrip(): Promise<void> {
          */
         stopTracking();
 
-        /**
-         * Step 3: Stop duration updates.
-         *
-         * WHY: No longer tracking active trip duration.
-         */
-        stopDurationUpdates();
     } catch (error: any) {
         localError.value = error.message || 'Gagal mengakhiri perjalanan. Silakan coba lagi.';
     }
@@ -276,82 +237,10 @@ async function handleStopTrip(): Promise<void> {
 // Duration Update Management
 // ========================================================================
 
-/**
- * Start interval to update trip duration display.
- *
- * WHY: Calculate duration every second for real-time display.
- * WHY: Trip store only updates duration when speed logs added.
- * WHY: Local calculation provides smooth second-by-second display.
- */
-function startDurationUpdates(): void {
-    // Clear any existing interval
-    if (durationUpdateInterval) {
-        clearInterval(durationUpdateInterval);
-    }
-
-    // Initialize duration
-    updateLocalDuration();
-
-    /**
-     * Update every second.
-     *
-     * WHY: 1000ms interval provides smooth second-by-second display.
-     * WHY: Calculates duration from trip start time to current time.
-     */
-    durationUpdateInterval = setInterval(() => {
-        updateLocalDuration();
-    }, 1000);
-}
-
-/**
- * Calculate and update local duration value.
- *
- * WHY: Calculates duration from trip start time for real-time display.
- * WHY: Independent of trip store's duration calculation.
- */
-function updateLocalDuration(): void {
-    if (tripStore.currentTrip?.started_at) {
-        const startTime = new Date(tripStore.currentTrip.started_at).getTime();
-        const now = Date.now();
-        localDuration.value = Math.floor((now - startTime) / 1000);
-    } else {
-        localDuration.value = 0;
-    }
-}
-
-/**
- * Stop duration update interval.
- *
- * WHY: Clean up interval when trip ends or component unmounts.
- * WHY: Prevents memory leaks from running intervals.
- */
-function stopDurationUpdates(): void {
-    if (durationUpdateInterval) {
-        clearInterval(durationUpdateInterval);
-        durationUpdateInterval = null;
-    }
-
-    localDuration.value = 0;
-}
-
 // ========================================================================
 // Watchers
 // ========================================================================
 
-/**
- * Watch for trip ending and clean up resources.
- *
- * WHY: Ensure resources cleaned up even if endTrip() fails.
- * WHY: Handle edge cases like network errors during trip end.
- */
-watch(
-    () => tripStore.hasActiveTrip,
-    (hasActive) => {
-        if (!hasActive) {
-            stopDurationUpdates();
-        }
-    }
-);
 
 // ========================================================================
 // Lifecycle Hooks
@@ -361,53 +250,16 @@ watch(
  * Clean up resources on component unmount.
  *
  * WHY: Stop GPS tracking if component unmounted during active trip.
- * WHY: Clear interval to prevent memory leaks.
  */
 onBeforeUnmount(() => {
     if (tripStore.hasActiveTrip) {
         stopTracking();
     }
-
-    stopDurationUpdates();
 });
 </script>
 
 <template>
     <div class="w-full max-w-md mx-auto space-y-4">
-        <!-- ============================================================
-             Duration Display (Active Trip Only)
-             ============================================================ -->
-        <AnimatePresence>
-            <motion.div
-                v-if="tripStore.hasActiveTrip"
-                :initial="{ opacity: 0, y: -20, scale: 0.9 }"
-                :animate="{ opacity: 1, y: 0, scale: 1 }"
-                :exit="{ opacity: 0, y: -20, scale: 0.9 }"
-                :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
-                class="bg-white rounded-lg shadow-md p-4"
-            >
-                <div class="text-center">
-                    <p class="text-sm text-gray-600 mb-1">Durasi Perjalanan</p>
-                    <motion.p
-                        :animate="{ scale: [1, 1.02, 1] }"
-                        :transition="{ duration: 0.5 }"
-                        :key="durationFormatted"
-                        class="text-3xl font-bold text-gray-900 font-mono"
-                    >
-                        {{ durationFormatted }}
-                    </motion.p>
-                    <motion.p
-                        v-if="tripStore.isSyncing"
-                        :initial="{ opacity: 0 }"
-                        :animate="{ opacity: 1 }"
-                        :exit="{ opacity: 0 }"
-                        class="text-xs text-blue-600 mt-2"
-                    >
-                        Menyinkronkan data...
-                    </motion.p>
-                </div>
-            </motion.div>
-        </AnimatePresence>
 
         <!-- ============================================================
              Control Buttons

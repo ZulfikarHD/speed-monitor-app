@@ -45,12 +45,15 @@ class Trip extends Model
             'started_at' => 'datetime',
             'ended_at' => 'datetime',
             'synced_at' => 'datetime',
+            'flagged_at' => 'datetime',
             'status' => TripStatus::class,
             'total_distance' => 'decimal:2',
             'max_speed' => 'decimal:2',
             'average_speed' => 'decimal:2',
             'violation_count' => 'integer',
             'duration_seconds' => 'integer',
+            'is_suspicious' => 'boolean',
+            'suspicious_reasons' => 'array',
         ];
     }
 

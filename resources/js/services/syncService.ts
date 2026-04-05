@@ -22,13 +22,12 @@
  * ```
  */
 
-import { useHttp } from '@inertiajs/vue3';
-
 import TripController from '@/actions/App/Http/Controllers/TripController';
 import { indexedDBService } from '@/services/indexeddb';
 import type { IDBSyncQueueItem, IDBTrip } from '@/types/indexeddb';
 import type { SyncProgress, SyncResult } from '@/types/sync';
 import type { StartTripResponse, BulkSpeedLogsResponse } from '@/types/trip';
+import { http } from '@/utils/http';
 
 /**
  * SyncService class for managing offline trip synchronization.
@@ -71,8 +70,6 @@ export class SyncService {
      * ```
      */
     async syncOfflineTrip(syncQueueItem: IDBSyncQueueItem): Promise<void> {
-        const http = useHttp();
-
         // Step 1: Get trip from IndexedDB
         const trip = await indexedDBService.getTrip(syncQueueItem.tripId);
 

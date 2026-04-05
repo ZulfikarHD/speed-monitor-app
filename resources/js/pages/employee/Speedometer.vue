@@ -20,7 +20,7 @@ import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
 import { useSettingsStore } from '@/stores/settings';
 import { useTripStore } from '@/stores/trip';
 import { haversineDistance, metersToKm, metersToMiles } from '@/utils/distance';
-import { estimateSatelliteCount, mpsToDisplay } from '@/utils/units';
+import { mpsToDisplay } from '@/utils/units';
 
 // ========================================================================
 // Props (Server-Side Data)
@@ -42,6 +42,9 @@ const props = defineProps<Props>();
 const tripStore = useTripStore();
 const settingsStore = useSettingsStore();
 const { speedKmh, speedMps, accuracy, coords, stopTracking } = useGeolocation();
+
+// Duration update interval
+let durationInterval: ReturnType<typeof setInterval> | null = null;
 
 /**
  * Background sync composable for automatic synchronization.
@@ -96,8 +99,33 @@ onMounted(async () => {
     // Set local speed limit from initialized store
     localSpeedLimit.value = props.speedLimit;
 
+    // Load active trip if exists
+    // WHY: User might have a stuck/forgotten trip from a previous session
+    // WHY: Show it with "Stop Trip" button so they can properly end it
+    // WHY: Don't auto-resume GPS - user should explicitly restart tracking if needed
+    await tripStore.loadActiveTrip();
+
     // Load pending sync count
     await updatePendingSyncCount();
+
+    // Start duration update interval
+    // WHY: Update duration display every second for smooth counting
+    durationInterval = setInterval(() => {
+        // Stop interval if trip is no longer active
+        if (!tripStore.hasActiveTrip) {
+            if (durationInterval) {
+                clearInterval(durationInterval);
+                durationInterval = null;
+            }
+            return;
+        }
+
+        if (tripStore.currentTrip?.started_at) {
+            const startTime = new Date(tripStore.currentTrip.started_at).getTime();
+            const now = Date.now();
+            tripStore.stats.duration = Math.floor((now - startTime) / 1000);
+        }
+    }, 1000);
 });
 
 // ========================================================================
@@ -169,8 +197,6 @@ return;
 const currentSpeed = computed(() => mpsToDisplay(speedMps.value, unit.value));
 
 const currentSpeedLimit = computed(() => localSpeedLimit.value);
-
-const satelliteCount = computed(() => estimateSatelliteCount(accuracy.value));
 
 const accuracyPercentage = computed(() => {
     if (!accuracy.value) {
@@ -276,6 +302,12 @@ watch(() => tripStore.hasActiveTrip, (isActive) => {
     } else {
         autoStop.stopMonitoring();
         lastPosition.value = null;
+        
+        // Clear duration interval when trip ends
+        if (durationInterval) {
+            clearInterval(durationInterval);
+            durationInterval = null;
+        }
     }
 });
 
@@ -286,6 +318,12 @@ watch(() => tripStore.hasActiveTrip, (isActive) => {
 onBeforeUnmount(() => {
     autoStop.stopMonitoring();
     lastPosition.value = null;
+    
+    // Clear duration interval
+    if (durationInterval) {
+        clearInterval(durationInterval);
+        durationInterval = null;
+    }
 });
 </script>
 
@@ -447,12 +485,12 @@ onBeforeUnmount(() => {
                     <motion.div
                         :animate="{ scale: [1, 1.08, 1] }"
                         :transition="{ duration: 0.4 }"
-                        :key="satelliteCount"
+                        :key="tripStore.stats.violationCount"
                         class="trip-val"
                     >
-                        {{ satelliteCount || '—' }}
+                        {{ tripStore.stats.violationCount }}
                     </motion.div>
-                    <div class="trip-lbl">Satellites</div>
+                    <div class="trip-lbl">Violations</div>
                 </div>
             </motion.div>
 

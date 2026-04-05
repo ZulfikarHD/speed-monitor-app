@@ -22,6 +22,10 @@ class TripService
      */
     private const SPEED_LOG_INTERVAL_SECONDS = 5;
 
+    public function __construct(
+        private TripAnalysisService $analysisService
+    ) {}
+
     /**
      * Start a new trip for the specified user.
      *
@@ -67,6 +71,9 @@ class TripService
         $this->updateTripStats($trip);
 
         $trip->save();
+
+        // Analyze trip for suspicious patterns
+        $this->analysisService->analyzeTripOnEnd($trip);
 
         return $trip->fresh();
     }

@@ -107,13 +107,15 @@ class TripController extends Controller
         // Check if user already has an active trip
         $activeTrip = Trip::where('user_id', auth()->id())
             ->where('status', TripStatus::InProgress)
-            ->exists();
+            ->first();
 
         if ($activeTrip) {
             return response()->json([
-                'message' => 'You already have an active trip',
+                'message' => 'You already have an active trip. Please stop it before starting a new one.',
+                'active_trip' => $activeTrip,
             ], 422);
         }
+
 
         $trip = $this->tripService->startTrip(
             auth()->user(),
