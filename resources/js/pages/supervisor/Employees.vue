@@ -12,24 +12,20 @@
  * - Edit user details with modal form
  * - Deactivate user with confirmation modal
  * - Responsive design (table on desktop, cards on mobile)
- * - motion-v animations following Law of UX
+ * - Lightweight opacity/y animations
  * - Pagination (20 per page)
- * - Empty states
- * - Loading states
- * - Success/error flash messages
+ * - Empty states and success flash messages
+ * - Full light/dark theme support
  *
  * @example Route: /supervisor/employees
  */
 
 import { router, usePage } from '@inertiajs/vue3';
+import { Ban, CheckCircle, Pencil, Plus } from '@lucide/vue';
 import { motion } from 'motion-v';
 import { computed, ref, watch } from 'vue';
 
 import { index } from '@/actions/App/Http/Controllers/Supervisor/EmployeesController';
-import IconBan from '@/components/icons/IconBan.vue';
-import IconCheck from '@/components/icons/IconCheck.vue';
-import IconEdit from '@/components/icons/IconEdit.vue';
-import IconPlus from '@/components/icons/IconPlus.vue';
 import ConfirmDeactivateModal from '@/components/supervisor/ConfirmDeactivateModal.vue';
 import UserFormModal from '@/components/supervisor/UserFormModal.vue';
 import Pagination from '@/components/trips/Pagination.vue';
@@ -99,16 +95,12 @@ let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 // Computed
 // ========================================================================
 
-/**
- * Check if there are any active filters.
- */
+/** Check if there are any active filters. */
 const hasActiveFilters = computed(() => {
     return !!(localFilters.value.search || localFilters.value.role || localFilters.value.status);
 });
 
-/**
- * Flash message from server.
- */
+/** Flash message from server. */
 const flashMessage = computed(() => {
     return page.props.flash?.success as string | undefined;
 });
@@ -117,9 +109,6 @@ const flashMessage = computed(() => {
 // Watchers
 // ========================================================================
 
-/**
- * Watch for search input changes and debounce.
- */
 watch(
     () => localFilters.value.search,
     () => {
@@ -133,9 +122,6 @@ watch(
     }
 );
 
-/**
- * Watch for role filter changes.
- */
 watch(
     () => localFilters.value.role,
     () => {
@@ -143,9 +129,6 @@ watch(
     }
 );
 
-/**
- * Watch for status filter changes.
- */
 watch(
     () => localFilters.value.status,
     () => {
@@ -160,8 +143,8 @@ watch(
 /**
  * Apply filters by navigating with query parameters.
  *
- * WHY: Uses Wayfinder for type-safe routing with query parameter support.
- * Query parameters are properly encoded and preserve filter state across navigation.
+ * WHY: Uses Wayfinder for type-safe routing. Query parameters are properly
+ * encoded and preserve filter state across navigation.
  */
 function applyFilters(): void {
     const query: Record<string, string> = {};
@@ -184,9 +167,7 @@ function applyFilters(): void {
     });
 }
 
-/**
- * Clear all filters.
- */
+/** Clear all filters. */
 function clearFilters(): void {
     localFilters.value = {
         search: '',
@@ -200,31 +181,27 @@ function clearFilters(): void {
     });
 }
 
-/**
- * Open add user modal.
- */
+/** Open add user modal. */
 function openAddModal(): void {
     showAddModal.value = true;
 }
 
-/**
- * Close add user modal.
- */
+/** Close add user modal. */
 function closeAddModal(): void {
     showAddModal.value = false;
 }
 
 /**
  * Open edit user modal.
+ *
+ * @param user - User to edit
  */
 function openEditModal(user: User): void {
     editingUser.value = user;
     showEditModal.value = true;
 }
 
-/**
- * Close edit user modal.
- */
+/** Close edit user modal. */
 function closeEditModal(): void {
     showEditModal.value = false;
     editingUser.value = null;
@@ -232,15 +209,15 @@ function closeEditModal(): void {
 
 /**
  * Open deactivate confirmation modal.
+ *
+ * @param user - User to deactivate
  */
 function openDeactivateModal(user: User): void {
     deactivatingUser.value = user;
     showDeactivateModal.value = true;
 }
 
-/**
- * Close deactivate confirmation modal.
- */
+/** Close deactivate confirmation modal. */
 function closeDeactivateModal(): void {
     showDeactivateModal.value = false;
     deactivatingUser.value = null;
@@ -248,6 +225,8 @@ function closeDeactivateModal(): void {
 
 /**
  * Handle page change from pagination.
+ *
+ * @param page - New page number
  */
 function handlePageChange(page: number): void {
     const query: Record<string, string | number> = { page };
@@ -271,6 +250,9 @@ function handlePageChange(page: number): void {
 
 /**
  * Get role badge color classes (theme-aware).
+ *
+ * @param role - User role string
+ * @returns Tailwind CSS classes
  */
 function getRoleBadgeColor(role: string): string {
     switch (role) {
@@ -287,6 +269,9 @@ function getRoleBadgeColor(role: string): string {
 
 /**
  * Get role display label.
+ *
+ * @param role - User role string
+ * @returns Display label
  */
 function getRoleLabel(role: string): string {
     switch (role) {
@@ -303,6 +288,9 @@ function getRoleLabel(role: string): string {
 
 /**
  * Get status badge color classes (theme-aware).
+ *
+ * @param isActive - Whether user account is active
+ * @returns Tailwind CSS classes
  */
 function getStatusBadgeColor(isActive: boolean): string {
     return isActive
@@ -312,6 +300,9 @@ function getStatusBadgeColor(isActive: boolean): string {
 
 /**
  * Get status display label.
+ *
+ * @param isActive - Whether user account is active
+ * @returns Display label
  */
 function getStatusLabel(isActive: boolean): string {
     return isActive ? 'Aktif' : 'Nonaktif';
@@ -324,7 +315,7 @@ function getStatusLabel(isActive: boolean): string {
             <div class="mx-auto max-w-7xl space-y-6">
                 <!-- Header Section -->
                 <motion.div
-                    :initial="{ opacity: 0, y: -20 }"
+                    :initial="{ opacity: 0, y: -12 }"
                     :animate="{ opacity: 1, y: 0 }"
                     :transition="{ duration: 0.3 }"
                     class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
@@ -340,31 +331,30 @@ function getStatusLabel(isActive: boolean): string {
                     </div>
 
                     <!-- Add Button -->
-                    <motion.button
-                        @click="openAddModal"
-                        :whileHover="{ scale: 1.05 }"
-                        :whilePress="{ scale: 0.95 }"
-                        :transition="{ duration: 0.2 }"
+                    <button
                         class="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl active:scale-95 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900"
+                        @click="openAddModal"
                     >
-                        <IconPlus :size="18" />
+                        <Plus :size="18" :stroke-width="2" aria-hidden="true" />
                         <span>Tambah Karyawan</span>
-                    </motion.button>
+                    </button>
                 </motion.div>
 
                 <!-- Success Message -->
                 <motion.div
                     v-if="flashMessage"
-                    :initial="{ opacity: 0, scale: 0.95 }"
-                    :animate="{ opacity: 1, scale: 1 }"
-                    :exit="{ opacity: 0, scale: 0.95 }"
+                    :initial="{ opacity: 0 }"
+                    :animate="{ opacity: 1 }"
+                    :exit="{ opacity: 0 }"
                     :transition="{ duration: 0.2 }"
-                    class="rounded-lg border border-emerald-500/30 dark:border-emerald-500/30 bg-emerald-100 dark:bg-emerald-500/10 p-4"
+                    class="rounded-lg border border-emerald-500/30 bg-emerald-100 dark:bg-emerald-500/10 p-4"
                 >
                     <div class="flex items-start gap-3">
-                        <IconCheck
+                        <CheckCircle
                             :size="20"
+                            :stroke-width="2"
                             class="text-emerald-600 dark:text-emerald-400"
+                            aria-hidden="true"
                         />
                         <p class="flex-1 text-sm text-emerald-800 dark:text-emerald-300">
                             {{ flashMessage }}
@@ -374,10 +364,10 @@ function getStatusLabel(isActive: boolean): string {
 
                 <!-- Filters Section -->
                 <motion.div
-                    :initial="{ opacity: 0, y: 20 }"
+                    :initial="{ opacity: 0, y: 12 }"
                     :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ delay: 0.1, duration: 0.3 }"
-                    class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/90 dark:bg-zinc-800/50 backdrop-blur-sm p-4 md:p-6 shadow-lg shadow-zinc-200 dark:shadow-none"
+                    :transition="{ delay: 0.05, duration: 0.3 }"
+                    class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-4 md:p-6 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
                 >
                     <div class="grid gap-4 md:grid-cols-3">
                         <!-- Search Input -->
@@ -393,7 +383,7 @@ function getStatusLabel(isActive: boolean): string {
                                 v-model="localFilters.search"
                                 type="text"
                                 placeholder="Nama atau email..."
-                                class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 transition-all duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-800"
+                                class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-800"
                             />
                         </div>
 
@@ -408,7 +398,7 @@ function getStatusLabel(isActive: boolean): string {
                             <select
                                 id="role-filter"
                                 v-model="localFilters.role"
-                                class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100 transition-all duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-800"
+                                class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100 transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-800"
                             >
                                 <option value="">Semua Role</option>
                                 <option value="employee">Karyawan</option>
@@ -428,7 +418,7 @@ function getStatusLabel(isActive: boolean): string {
                             <select
                                 id="status-filter"
                                 v-model="localFilters.status"
-                                class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100 transition-all duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-800"
+                                class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-4 py-2 text-sm text-zinc-900 dark:text-zinc-100 transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-800"
                             >
                                 <option value="">Semua Status</option>
                                 <option value="active">Aktif</option>
@@ -443,8 +433,8 @@ function getStatusLabel(isActive: boolean): string {
                         class="mt-4 flex justify-end"
                     >
                         <button
-                            @click="clearFilters"
                             class="text-sm text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors duration-200"
+                            @click="clearFilters"
                         >
                             Hapus Filter
                         </button>
@@ -453,47 +443,33 @@ function getStatusLabel(isActive: boolean): string {
 
                 <!-- Users Table (Desktop) -->
                 <motion.div
-                    :initial="{ opacity: 0, y: 20 }"
+                    :initial="{ opacity: 0, y: 12 }"
                     :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ delay: 0.2, duration: 0.3 }"
-                    class="hidden md:block overflow-hidden rounded-lg border border-zinc-200 dark:border-white/5 bg-white/90 dark:bg-zinc-800/50 backdrop-blur-sm shadow-lg shadow-zinc-200 dark:shadow-none"
+                    :transition="{ delay: 0.1, duration: 0.3 }"
+                    class="hidden overflow-hidden rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5 md:block"
                 >
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead class="border-b border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                                        Nama
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                                        Email
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                                        Role
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">
-                                        Status
-                                    </th>
-                                    <th class="px-6 py-4 text-right text-sm font-semibold text-zinc-900 dark:text-white">
-                                        Aksi
-                                    </th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">Nama</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">Email</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">Role</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold text-zinc-900 dark:text-white">Status</th>
+                                    <th class="px-6 py-4 text-right text-sm font-semibold text-zinc-900 dark:text-white">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <motion.tr
-                                    v-for="(user, index) in users"
+                                    v-for="(user, idx) in users"
                                     :key="user.id"
-                                    :initial="{ opacity: 0, x: -20 }"
-                                    :animate="{ opacity: 1, x: 0 }"
-                                    :transition="{ delay: index * 0.05, duration: 0.2 }"
-                                    class="border-b border-zinc-200 dark:border-white/5 last:border-b-0 hover:bg-zinc-50 dark:hover:bg-white/5 transition-all duration-200"
+                                    :initial="{ opacity: 0, y: 8 }"
+                                    :animate="{ opacity: 1, y: 0 }"
+                                    :transition="{ delay: idx * 0.03, duration: 0.2 }"
+                                    class="border-b border-zinc-200 dark:border-white/5 last:border-b-0 hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors duration-200"
                                 >
-                                    <td class="px-6 py-4 text-sm text-zinc-900 dark:text-white">
-                                        {{ user.name }}
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-zinc-500 dark:text-zinc-400">
-                                        {{ user.email }}
-                                    </td>
+                                    <td class="px-6 py-4 text-sm text-zinc-900 dark:text-white">{{ user.name }}</td>
+                                    <td class="px-6 py-4 text-sm text-zinc-500 dark:text-zinc-400">{{ user.email }}</td>
                                     <td class="px-6 py-4">
                                         <span
                                             :class="getRoleBadgeColor(user.role)"
@@ -513,35 +489,29 @@ function getStatusLabel(isActive: boolean): string {
                                     <td class="px-6 py-4 text-right">
                                         <div class="flex items-center justify-end gap-2">
                                             <!-- Edit Button -->
-                                            <motion.button
+                                            <button
                                                 v-if="user.id !== authStore.user?.id"
-                                                @click="openEditModal(user)"
-                                                :whileHover="{ scale: 1.1 }"
-                                                :whilePress="{ scale: 0.9 }"
-                                                :transition="{ duration: 0.2 }"
-                                                class="rounded-lg bg-blue-500/20 dark:bg-blue-500/15 p-2 text-blue-600 dark:text-blue-400 transition-all duration-200 hover:bg-blue-500/30 dark:hover:bg-blue-500/25"
+                                                class="rounded-lg bg-blue-500/20 dark:bg-blue-500/15 p-2 text-blue-600 dark:text-blue-400 transition-colors duration-200 hover:bg-blue-500/30 dark:hover:bg-blue-500/25"
                                                 title="Edit"
+                                                @click="openEditModal(user)"
                                             >
-                                                <IconEdit :size="18" />
-                                            </motion.button>
+                                                <Pencil :size="18" :stroke-width="2" aria-hidden="true" />
+                                            </button>
 
                                             <!-- Deactivate Button -->
-                                            <motion.button
+                                            <button
                                                 v-if="user.id !== authStore.user?.id && user.is_active"
-                                                @click="openDeactivateModal(user)"
-                                                :whileHover="{ scale: 1.1 }"
-                                                :whilePress="{ scale: 0.9 }"
-                                                :transition="{ duration: 0.2 }"
-                                                class="rounded-lg bg-red-500/20 dark:bg-red-500/15 p-2 text-red-600 dark:text-red-400 transition-all duration-200 hover:bg-red-500/30 dark:hover:bg-red-500/25"
+                                                class="rounded-lg bg-red-500/20 dark:bg-red-500/15 p-2 text-red-600 dark:text-red-400 transition-colors duration-200 hover:bg-red-500/30 dark:hover:bg-red-500/25"
                                                 title="Nonaktifkan"
+                                                @click="openDeactivateModal(user)"
                                             >
-                                                <IconBan :size="18" />
-                                            </motion.button>
+                                                <Ban :size="18" :stroke-width="2" aria-hidden="true" />
+                                            </button>
 
                                             <!-- Self Indicator -->
                                             <span
                                                 v-if="user.id === authStore.user?.id"
-                                                class="text-xs text-zinc-500 dark:text-zinc-400"
+                                                class="text-xs text-zinc-400 dark:text-zinc-500"
                                             >
                                                 (Anda)
                                             </span>
@@ -564,24 +534,20 @@ function getStatusLabel(isActive: boolean): string {
                 </motion.div>
 
                 <!-- Users Cards (Mobile) -->
-                <div class="md:hidden space-y-4">
+                <div class="space-y-4 md:hidden">
                     <motion.div
-                        v-for="(user, index) in users"
+                        v-for="(user, idx) in users"
                         :key="user.id"
-                        :initial="{ opacity: 0, y: 20 }"
+                        :initial="{ opacity: 0, y: 8 }"
                         :animate="{ opacity: 1, y: 0 }"
-                        :transition="{ delay: index * 0.05, duration: 0.2 }"
-                        class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/90 dark:bg-zinc-800/50 backdrop-blur-sm p-4 shadow-lg shadow-zinc-200 dark:shadow-none"
+                        :transition="{ delay: idx * 0.03, duration: 0.2 }"
+                        class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-4 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
                     >
                         <div class="space-y-3">
                             <!-- Name & Email -->
                             <div>
-                                <p class="font-semibold text-zinc-900 dark:text-white">
-                                    {{ user.name }}
-                                </p>
-                                <p class="text-sm text-zinc-500 dark:text-zinc-400">
-                                    {{ user.email }}
-                                </p>
+                                <p class="font-semibold text-zinc-900 dark:text-white">{{ user.name }}</p>
+                                <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ user.email }}</p>
                             </div>
 
                             <!-- Badges -->
@@ -606,15 +572,15 @@ function getStatusLabel(isActive: boolean): string {
                                 class="flex items-center gap-2 pt-2"
                             >
                                 <button
+                                    class="flex-1 rounded-lg bg-blue-500/20 dark:bg-blue-500/15 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 transition-colors duration-200 hover:bg-blue-500/30 dark:hover:bg-blue-500/25"
                                     @click="openEditModal(user)"
-                                    class="flex-1 rounded-lg bg-blue-500/20 dark:bg-blue-500/15 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 transition-all duration-200 hover:bg-blue-500/30 dark:hover:bg-blue-500/25"
                                 >
                                     Edit
                                 </button>
                                 <button
                                     v-if="user.is_active"
+                                    class="flex-1 rounded-lg bg-red-500/20 dark:bg-red-500/15 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 transition-colors duration-200 hover:bg-red-500/30 dark:hover:bg-red-500/25"
                                     @click="openDeactivateModal(user)"
-                                    class="flex-1 rounded-lg bg-red-500/20 dark:bg-red-500/15 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 transition-all duration-200 hover:bg-red-500/30 dark:hover:bg-red-500/25"
                                 >
                                     Nonaktifkan
                                 </button>
@@ -623,7 +589,7 @@ function getStatusLabel(isActive: boolean): string {
                             <!-- Self Indicator -->
                             <p
                                 v-else
-                                class="text-center text-xs text-zinc-500 dark:text-zinc-400 pt-2"
+                                class="pt-2 text-center text-xs text-zinc-400 dark:text-zinc-500"
                             >
                                 (Akun Anda)
                             </p>
@@ -633,7 +599,7 @@ function getStatusLabel(isActive: boolean): string {
                     <!-- Empty State -->
                     <div
                         v-if="users.length === 0"
-                        class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/90 dark:bg-zinc-800/50 backdrop-blur-sm py-12 text-center shadow-lg shadow-zinc-200 dark:shadow-none"
+                        class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 py-12 text-center shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
                     >
                         <p class="text-sm text-zinc-500 dark:text-zinc-400">
                             Tidak ada karyawan ditemukan.
@@ -644,9 +610,9 @@ function getStatusLabel(isActive: boolean): string {
                 <!-- Pagination -->
                 <motion.div
                     v-if="meta.last_page > 1"
-                    :initial="{ opacity: 0, y: 20 }"
+                    :initial="{ opacity: 0, y: 12 }"
                     :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ delay: 0.3, duration: 0.3 }"
+                    :transition="{ delay: 0.15, duration: 0.3 }"
                 >
                     <Pagination
                         :current-page="meta.current_page"
@@ -658,9 +624,7 @@ function getStatusLabel(isActive: boolean): string {
             </div>
         </div>
 
-        <!-- ======================================================================
-            Modals
-        ======================================================================= -->
+        <!-- Modals -->
         <UserFormModal
             :show="showAddModal"
             @close="closeAddModal"

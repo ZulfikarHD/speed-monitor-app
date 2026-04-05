@@ -2,7 +2,7 @@
 /**
  * Button Component
  *
- * Reusable button with SpeedoMontor dark theme styling.
+ * Reusable button with SpeedMonitor design system styling.
  * Supports multiple variants, loading states, and disabled states.
  *
  * Features:
@@ -12,7 +12,7 @@
  * - Full width option
  * - Touch-friendly (min 44px height)
  * - ARIA accessibility attributes
- * - SpeedoMontor dark theme colors with gradient effects
+ * - Full light/dark theme support with gradient effects
  */
 
 // ========================================================================
@@ -46,15 +46,17 @@ const props = withDefaults(defineProps<Props>(), {
 
 /**
  * Get variant-specific classes for button styling.
+ *
+ * @returns Tailwind CSS classes for the active variant
  */
 function getVariantClasses(): string {
     switch (props.variant) {
         case 'primary':
-            return 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-600 hover:to-blue-700 focus:ring-cyan-500';
+            return 'bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25 hover:shadow-xl focus:ring-cyan-500 dark:focus:ring-cyan-400/50';
         case 'secondary':
-            return 'border-2 border-[#3E3E3A] bg-transparent text-[#e5e7eb] hover:bg-[#1a1d23] focus:ring-[#3E3E3A]';
+            return 'border-2 border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 focus:ring-zinc-400 dark:focus:ring-zinc-500';
         case 'danger':
-            return 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 focus:ring-red-500';
+            return 'bg-gradient-to-r from-red-500 to-red-600 dark:from-red-600 dark:to-red-700 text-white shadow-lg shadow-red-200 dark:shadow-red-500/25 hover:shadow-xl focus:ring-red-500 dark:focus:ring-red-400/50';
         default:
             return '';
     }
@@ -62,14 +64,11 @@ function getVariantClasses(): string {
 </script>
 
 <template>
-    <!-- ======================================================================
-        Button
-        Touch-friendly button with loading states and variant styling
-    ======================================================================= -->
+    <!-- Button with touch-friendly sizing and variant styling -->
     <button
         :type="type"
         :disabled="disabled || loading"
-        class="inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0a0c0f] disabled:cursor-not-allowed disabled:opacity-60"
+        class="inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900 disabled:cursor-not-allowed disabled:opacity-60"
         :class="[getVariantClasses(), fullWidth ? 'w-full' : '']"
         :aria-busy="loading"
     >

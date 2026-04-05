@@ -10,22 +10,19 @@
  * - Reusable UI components (Input, Label, Button)
  * - Client-side validation with error display
  * - Inertia form submission with useForm()
- * - Teleport modal overlay with backdrop click to close
- * - motion-v entrance/exit animations
+ * - Teleport modal overlay
+ * - Lightweight entrance/exit animations
  * - Indonesian labels and messages
  * - Wayfinder type-safe routing
- *
- * Props:
- * - show: boolean - Modal visibility
- * - user?: User - For editing (null/undefined for create)
+ * - Full light/dark theme support
  */
 
 import { useForm } from '@inertiajs/vue3';
+import { X } from '@lucide/vue';
 import { AnimatePresence, motion } from 'motion-v';
 import { computed, watch } from 'vue';
 
 import { store, update } from '@/actions/App/Http/Controllers/Supervisor/EmployeesController';
-import IconClose from '@/components/icons/IconClose.vue';
 import Button from '@/components/ui/Button.vue';
 import Input from '@/components/ui/Input.vue';
 import Label from '@/components/ui/Label.vue';
@@ -52,21 +49,15 @@ const emit = defineEmits<{
 // Computed
 // ========================================================================
 
-/**
- * Check if in edit mode.
- */
+/** Check if in edit mode. */
 const isEditMode = computed(() => !!props.user);
 
-/**
- * Modal title based on mode.
- */
+/** Modal title based on mode. */
 const modalTitle = computed(() => {
     return isEditMode.value ? 'Edit Karyawan' : 'Tambah Karyawan Baru';
 });
 
-/**
- * Submit button text based on mode.
- */
+/** Submit button text based on mode. */
 const submitButtonText = computed(() => {
     return isEditMode.value ? 'Perbarui' : 'Tambah';
 });
@@ -75,9 +66,7 @@ const submitButtonText = computed(() => {
 // Form Setup
 // ========================================================================
 
-/**
- * Inertia form instance.
- */
+/** Inertia form instance. */
 const form = useForm<UserFormData>({
     name: props.user?.name ?? '',
     email: props.user?.email ?? '',
@@ -86,9 +75,7 @@ const form = useForm<UserFormData>({
     is_active: props.user?.is_active ?? true,
 });
 
-/**
- * Watch for user prop changes to reset form.
- */
+/** Watch for user prop changes to reset form. */
 watch(
     () => props.user,
     (newUser) => {
@@ -104,9 +91,7 @@ watch(
     }
 );
 
-/**
- * Watch for show prop changes to reset form when closed.
- */
+/** Watch for show prop changes to reset form when closed. */
 watch(
     () => props.show,
     (isShowing) => {
@@ -125,12 +110,10 @@ watch(
  * Handle form submission.
  *
  * WHY: Uses Wayfinder for type-safe routing with automatic method spoofing.
- * PUT requests for updates, POST for creation. Wayfinder handles route
- * generation and ensures correct endpoints are used.
+ * PUT requests for updates, POST for creation.
  */
 function handleSubmit(): void {
     if (isEditMode.value && props.user) {
-        // Update existing user
         form.put(update.url({ user: props.user.id }), {
             preserveScroll: true,
             onSuccess: () => {
@@ -138,7 +121,6 @@ function handleSubmit(): void {
             },
         });
     } else {
-        // Create new user
         form.post(store.url(), {
             preserveScroll: true,
             onSuccess: () => {
@@ -150,6 +132,8 @@ function handleSubmit(): void {
 
 /**
  * Handle backdrop click to close modal.
+ *
+ * @param event - Mouse click event
  */
 function handleBackdropClick(event: MouseEvent): void {
     if (event.target === event.currentTarget) {
@@ -159,6 +143,8 @@ function handleBackdropClick(event: MouseEvent): void {
 
 /**
  * Handle escape key to close modal.
+ *
+ * @param event - Keyboard event
  */
 function handleEscapeKey(event: KeyboardEvent): void {
     if (event.key === 'Escape' && props.show) {
@@ -166,7 +152,6 @@ function handleEscapeKey(event: KeyboardEvent): void {
     }
 }
 
-// Setup escape key listener
 if (typeof window !== 'undefined') {
     window.addEventListener('keydown', handleEscapeKey);
 }
@@ -178,23 +163,23 @@ if (typeof window !== 'undefined') {
         <AnimatePresence>
             <motion.div
                 v-if="show"
-                @click="handleBackdropClick"
                 :initial="{ opacity: 0 }"
                 :animate="{ opacity: 1 }"
                 :exit="{ opacity: 0 }"
                 :transition="{ duration: 0.2 }"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
                 role="dialog"
                 aria-modal="true"
                 :aria-labelledby="'user-form-modal-title'"
+                @click="handleBackdropClick"
             >
                 <!-- Modal Content -->
                 <motion.div
-                    :initial="{ opacity: 0, scale: 0.95, y: 20 }"
+                    :initial="{ opacity: 0, scale: 0.95, y: 12 }"
                     :animate="{ opacity: 1, scale: 1, y: 0 }"
-                    :exit="{ opacity: 0, scale: 0.95, y: 20 }"
-                    :transition="{ duration: 0.3 }"
-                    class="w-full max-w-lg rounded-lg border border-zinc-200 dark:border-white/5 bg-white dark:bg-zinc-800/50 backdrop-blur-xl shadow-xl"
+                    :exit="{ opacity: 0, scale: 0.95, y: 12 }"
+                    :transition="{ duration: 0.2 }"
+                    class="w-full max-w-lg rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-900/98 ring-1 ring-white/20 dark:ring-white/5 shadow-xl shadow-zinc-900/10 dark:shadow-cyan-500/5"
                     @click.stop
                 >
                     <!-- Modal Header -->
@@ -206,18 +191,18 @@ if (typeof window !== 'undefined') {
                             {{ modalTitle }}
                         </h2>
                         <button
-                            @click="emit('close')"
-                            class="rounded-lg p-2 text-zinc-500 dark:text-zinc-400 transition-all duration-200 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white"
+                            class="rounded-lg p-2 text-zinc-500 dark:text-zinc-400 transition-colors duration-200 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white"
                             aria-label="Tutup"
+                            @click="emit('close')"
                         >
-                            <IconClose :size="20" />
+                            <X :size="20" :stroke-width="2" aria-hidden="true" />
                         </button>
                     </div>
 
                     <!-- Modal Body -->
                     <form
+                        class="space-y-4 p-6"
                         @submit.prevent="handleSubmit"
-                        class="p-6 space-y-4"
                     >
                         <!-- Name Field -->
                         <div>
@@ -258,7 +243,7 @@ if (typeof window !== 'undefined') {
                                 Password
                                 <span
                                     v-if="isEditMode"
-                                    class="ml-1 text-xs text-[#6b7280]"
+                                    class="ml-1 text-xs text-zinc-500 dark:text-zinc-500"
                                 >
                                     (Kosongkan jika tidak ingin mengubah)
                                 </span>
@@ -281,11 +266,11 @@ if (typeof window !== 'undefined') {
                             <select
                                 id="role"
                                 v-model="form.role"
-                                class="w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                class="w-full rounded-lg border px-4 py-3 text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
                                 :class="[
                                     form.errors.role
-                                        ? 'border-red-400 bg-red-950/20 text-red-100 dark:bg-red-950/20 dark:text-red-100 focus:border-red-400 focus:ring-red-500 dark:focus:ring-red-400/50'
-                                        : 'border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 focus:border-cyan-500 focus:ring-cyan-500 dark:focus:ring-cyan-400/50',
+                                        ? 'border-red-400 bg-red-50 dark:bg-red-950/20 text-red-900 dark:text-red-100 focus:border-red-400 focus:ring-red-500 dark:focus:ring-red-400/50 focus:ring-offset-white dark:focus:ring-offset-zinc-900'
+                                        : 'border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 focus:border-cyan-500 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-white dark:focus:ring-offset-zinc-900',
                                 ]"
                             >
                                 <option value="employee">Karyawan</option>
@@ -306,7 +291,7 @@ if (typeof window !== 'undefined') {
                             <Label for="is-active">
                                 Status Akun
                             </Label>
-                            <div class="flex items-center gap-3 mt-2">
+                            <div class="mt-2 flex items-center gap-3">
                                 <label class="relative inline-flex cursor-pointer items-center">
                                     <input
                                         id="is-active"
@@ -315,7 +300,7 @@ if (typeof window !== 'undefined') {
                                         class="peer sr-only"
                                     />
                                     <div
-                                        class="peer h-6 w-11 rounded-full bg-zinc-300 dark:bg-zinc-700 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-zinc-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-cyan-500 dark:peer-checked:bg-cyan-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-cyan-500 dark:peer-focus:ring-cyan-400/50 peer-focus:ring-offset-2 peer-focus:ring-offset-white dark:peer-focus:ring-offset-zinc-800"
+                                        class="peer h-6 w-11 rounded-full bg-zinc-300 dark:bg-zinc-700 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-zinc-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-cyan-500 dark:peer-checked:bg-cyan-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-cyan-500 dark:peer-focus:ring-cyan-400/50 peer-focus:ring-offset-2 peer-focus:ring-offset-white dark:peer-focus:ring-offset-zinc-900"
                                     ></div>
                                 </label>
                                 <span class="text-sm text-zinc-900 dark:text-white">

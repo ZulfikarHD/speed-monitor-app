@@ -12,20 +12,18 @@
  * - SVG medal icons for top 3 with color-coded badges
  * - Gradient rank badges matching design system
  * - Click "View Trips" to navigate to filtered All Trips page
- * - motion-v animations (stagger, hover, page entry)
- * - Empty state when no violations in period
- * - Responsive design (mobile/tablet/desktop)
+ * - Lightweight opacity/y animations
+ * - Empty state with SVG icon
+ * - Full light/dark theme support
  *
  * @example Route: /supervisor/leaderboard?date_from=2026-03-01&date_to=2026-04-01
  */
 
 import { router } from '@inertiajs/vue3';
+import { AlertTriangle, Medal, Trophy } from '@lucide/vue';
 import { motion } from 'motion-v';
 import { computed, ref } from 'vue';
 
-import IconAlert from '@/components/icons/IconAlert.vue';
-import IconMedal from '@/components/icons/IconMedal.vue';
-import IconTrophy from '@/components/icons/IconTrophy.vue';
 import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
 import type {
     LeaderboardFilters,
@@ -60,14 +58,10 @@ const localFilters = ref({
 // Computed
 // ========================================================================
 
-/**
- * Check if leaderboard has entries.
- */
+/** Check if leaderboard has entries. */
 const hasEntries = computed(() => props.leaderboard.length > 0);
 
-/**
- * Check if filters have been modified.
- */
+/** Check if filters have been modified. */
 const filtersModified = computed(() => {
     return (
         localFilters.value.date_from !== props.filters.date_from ||
@@ -82,8 +76,6 @@ const filtersModified = computed(() => {
 /**
  * Check if rank gets a medal icon.
  *
- * Top 3 positions get medal icons with color-coded styling.
- *
  * @param rank - Position in leaderboard (1-indexed)
  * @returns True if rank is in top 3
  */
@@ -94,16 +86,14 @@ function hasMedal(rank: number): boolean {
 /**
  * Get medal icon color class for ranking position.
  *
- * Returns appropriate color class for gold/silver/bronze medals.
- *
  * @param rank - Position in leaderboard (1-indexed)
  * @returns Tailwind color class for medal
  */
 function getMedalColor(rank: number): string {
     const colorMap: Record<number, string> = {
-        1: 'text-yellow-500 dark:text-yellow-400', // Gold
-        2: 'text-zinc-400 dark:text-zinc-300', // Silver
-        3: 'text-amber-700 dark:text-amber-600', // Bronze
+        1: 'text-yellow-500 dark:text-yellow-400',
+        2: 'text-zinc-400 dark:text-zinc-300',
+        3: 'text-amber-700 dark:text-amber-600',
     };
 
     return colorMap[rank] || '';
@@ -111,8 +101,6 @@ function getMedalColor(rank: number): string {
 
 /**
  * Get color classes for rank badge.
- *
- * Higher ranks get stronger red gradients to indicate severity.
  *
  * @param rank - Position in leaderboard (1-indexed)
  * @returns Tailwind color classes
@@ -124,14 +112,14 @@ function getRankColorClasses(rank: number): string {
         3: 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white',
     };
 
-    return colorMap[rank] || 'bg-[#3E3E3A] text-[#EDEDEC]';
+    return colorMap[rank] || 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-200';
 }
 
 /**
  * Format violation rate for display.
  *
  * @param rate - Violation rate (violations per trip)
- * @returns Formatted string (e.g., "2.5 / trip")
+ * @returns Formatted string (e.g., "2.50 / trip")
  */
 function formatRate(rate: number): string {
     return `${rate.toFixed(2)} / trip`;
@@ -140,18 +128,15 @@ function formatRate(rate: number): string {
 /**
  * Apply date filters.
  *
- * Navigates to leaderboard page with new filter query parameters.
- * Uses Inertia visit to preserve SPA behavior.
+ * WHY: Validates date range before navigating to prevent invalid queries.
  */
 function applyFilters(): void {
-    // Validate date range
     if (localFilters.value.date_from > localFilters.value.date_to) {
         alert('Start date must be before or equal to end date');
 
         return;
     }
 
-    // Navigate with new filters
     router.visit('/supervisor/leaderboard', {
         data: {
             date_from: localFilters.value.date_from,
@@ -164,8 +149,6 @@ function applyFilters(): void {
 
 /**
  * Reset filters to default (last 30 days).
- *
- * Sets date range to last 30 days and applies filters immediately.
  */
 function resetFilters(): void {
     const today = new Date();
@@ -180,9 +163,6 @@ function resetFilters(): void {
 
 /**
  * Navigate to employee's trips with filters.
- *
- * Opens All Trips page pre-filtered to show only this employee's
- * violation trips within the current date range.
  *
  * @param userId - Employee user ID
  */
@@ -206,9 +186,9 @@ function viewEmployeeTrips(userId: number): void {
             <div class="mx-auto max-w-7xl space-y-6">
                 <!-- Header Section -->
                 <motion.div
-                    :initial="{ opacity: 0, y: -20 }"
+                    :initial="{ opacity: 0, y: -12 }"
                     :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6 }"
+                    :transition="{ duration: 0.3 }"
                 >
                     <div class="flex flex-col gap-4">
                         <!-- Title -->
@@ -216,17 +196,14 @@ function viewEmployeeTrips(userId: number): void {
                             <h1 class="text-3xl font-bold text-zinc-900 dark:text-white md:text-4xl">
                                 Violation Leaderboard
                             </h1>
-                            <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                                 Employees ranked by speed violations
                             </p>
                         </div>
 
                         <!-- Date Range Filters -->
-                        <motion.div
-                            :initial="{ opacity: 0, x: 20 }"
-                            :animate="{ opacity: 1, x: 0 }"
-                            :transition="{ delay: 0.2, duration: 0.4 }"
-                            class="flex flex-col gap-3 rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-4 sm:flex-row sm:items-end shadow-lg shadow-zinc-200 dark:shadow-cyan-500/5"
+                        <div
+                            class="flex flex-col gap-3 rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-4 sm:flex-row sm:items-end shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
                         >
                             <!-- From Date -->
                             <div class="flex-1">
@@ -240,7 +217,7 @@ function viewEmployeeTrips(userId: number): void {
                                     id="date-from"
                                     v-model="localFilters.date_from"
                                     type="date"
-                                    class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-zinc-900 dark:text-white transition-all duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-800"
+                                    class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-zinc-900 dark:text-white transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-800"
                                 />
                             </div>
 
@@ -256,55 +233,47 @@ function viewEmployeeTrips(userId: number): void {
                                     id="date-to"
                                     v-model="localFilters.date_to"
                                     type="date"
-                                    class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-zinc-900 dark:text-white transition-all duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-800"
+                                    class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-zinc-900 dark:text-white transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-800"
                                 />
                             </div>
 
                             <!-- Action Buttons -->
                             <div class="flex gap-2">
-                                <!-- Apply Button -->
-                                <motion.button
-                                    @click="applyFilters"
+                                <button
                                     :disabled="!filtersModified"
-                                    :whileHover="{ scale: filtersModified ? 1.02 : 1 }"
-                                    :whilePress="{ scale: filtersModified ? 0.98 : 1 }"
-                                    :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
                                     class="rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 px-4 py-2 font-medium text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
-                                    :aria-label="'Apply filters'"
+                                    aria-label="Apply filters"
+                                    @click="applyFilters"
                                 >
                                     Apply
-                                </motion.button>
+                                </button>
 
-                                <!-- Reset Button -->
-                                <motion.button
+                                <button
+                                    class="rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-4 py-2 font-medium text-zinc-900 dark:text-zinc-200 transition-colors duration-200 hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
+                                    aria-label="Reset filters"
                                     @click="resetFilters"
-                                    :whileHover="{ scale: 1.02 }"
-                                    :whilePress="{ scale: 0.98 }"
-                                    :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
-                                    class="rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-4 py-2 font-medium text-zinc-900 dark:text-zinc-200 transition-all duration-200 hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
-                                    :aria-label="'Reset filters'"
                                 >
                                     Reset
-                                </motion.button>
+                                </button>
                             </div>
-                        </motion.div>
+                        </div>
                     </div>
                 </motion.div>
 
                 <!-- Empty State -->
                 <motion.div
                     v-if="!hasEntries"
-                    :initial="{ opacity: 0, scale: 0.95 }"
-                    :animate="{ opacity: 1, scale: 1 }"
-                    :transition="{ delay: 0.3, duration: 0.4 }"
-                    class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-12 text-center shadow-lg shadow-zinc-200 dark:shadow-cyan-500/5"
+                    :initial="{ opacity: 0 }"
+                    :animate="{ opacity: 1 }"
+                    :transition="{ delay: 0.1, duration: 0.3 }"
+                    class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-12 text-center shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
                 >
                     <div class="mx-auto max-w-md">
-                        <IconTrophy :size="64" class="mx-auto text-zinc-400 dark:text-zinc-600" />
+                        <Trophy :size="64" :stroke-width="1.5" class="mx-auto text-zinc-400 dark:text-zinc-600" aria-hidden="true" />
                         <h3 class="mt-4 text-xl font-semibold text-zinc-900 dark:text-white">
                             No Violations Recorded
                         </h3>
-                        <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                        <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
                             No speed violations were recorded in the selected period.
                             All employees are driving safely!
                         </p>
@@ -314,45 +283,21 @@ function viewEmployeeTrips(userId: number): void {
                 <!-- Desktop Table View -->
                 <motion.div
                     v-if="hasEntries"
-                    :initial="{ opacity: 0, y: 20 }"
+                    :initial="{ opacity: 0, y: 12 }"
                     :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ delay: 0.3, duration: 0.5 }"
-                    class="hidden overflow-hidden rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 shadow-lg shadow-zinc-200 dark:shadow-cyan-500/5 md:block"
+                    :transition="{ delay: 0.1, duration: 0.3 }"
+                    class="hidden overflow-hidden rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5 md:block"
                 >
                     <table class="w-full">
                         <!-- Table Header -->
                         <thead class="border-b border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
                             <tr>
-                                <th
-                                    class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-900 dark:text-white"
-                                >
-                                    Rank
-                                </th>
-                                <th
-                                    class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-900 dark:text-white"
-                                >
-                                    Employee
-                                </th>
-                                <th
-                                    class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-900 dark:text-white"
-                                >
-                                    Violations
-                                </th>
-                                <th
-                                    class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-900 dark:text-white"
-                                >
-                                    Total Trips
-                                </th>
-                                <th
-                                    class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-900 dark:text-white"
-                                >
-                                    Violation Rate
-                                </th>
-                                <th
-                                    class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide text-zinc-900 dark:text-white"
-                                >
-                                    Actions
-                                </th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Rank</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Employee</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Violations</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Total Trips</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Violation Rate</th>
+                                <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Actions</th>
                             </tr>
                         </thead>
 
@@ -361,15 +306,10 @@ function viewEmployeeTrips(userId: number): void {
                             <motion.tr
                                 v-for="(entry, index) in leaderboard"
                                 :key="entry.user.id"
-                                :initial="{ opacity: 0, x: -20 }"
-                                :animate="{ opacity: 1, x: 0 }"
-                                :transition="{
-                                    delay: index * 0.05,
-                                    duration: 0.4,
-                                    type: 'spring',
-                                    bounce: 0.3,
-                                }"
-                                class="group border-b border-zinc-200 dark:border-white/5 last:border-b-0 transition-all duration-200 hover:bg-zinc-50 dark:hover:bg-white/5"
+                                :initial="{ opacity: 0, y: 8 }"
+                                :animate="{ opacity: 1, y: 0 }"
+                                :transition="{ delay: index * 0.03, duration: 0.25 }"
+                                class="group border-b border-zinc-200 dark:border-white/5 last:border-b-0 transition-colors duration-200 hover:bg-zinc-50 dark:hover:bg-white/5"
                             >
                                 <!-- Rank -->
                                 <td class="px-6 py-4">
@@ -380,10 +320,12 @@ function viewEmployeeTrips(userId: number): void {
                                         >
                                             {{ entry.rank }}
                                         </span>
-                                        <IconMedal
+                                        <Medal
                                             v-if="hasMedal(entry.rank)"
                                             :size="20"
+                                            :stroke-width="2"
                                             :class="getMedalColor(entry.rank)"
+                                            aria-hidden="true"
                                         />
                                     </div>
                                 </td>
@@ -391,51 +333,40 @@ function viewEmployeeTrips(userId: number): void {
                                 <!-- Employee -->
                                 <td class="px-6 py-4">
                                     <div>
-                                        <div class="font-medium text-zinc-900 dark:text-white">
-                                            {{ entry.user.name }}
-                                        </div>
-                                        <div class="text-sm text-zinc-600 dark:text-zinc-400">
-                                            {{ entry.user.email }}
-                                        </div>
+                                        <div class="font-medium text-zinc-900 dark:text-white">{{ entry.user.name }}</div>
+                                        <div class="text-sm text-zinc-500 dark:text-zinc-400">{{ entry.user.email }}</div>
                                     </div>
                                 </td>
 
                                 <!-- Violations -->
                                 <td class="px-6 py-4">
                                     <span
-                                        class="inline-flex items-center gap-1 rounded-full bg-red-500/20 dark:bg-red-500/15 px-3 py-1 text-sm font-semibold text-red-700 dark:text-red-400 border border-red-500/30"
+                                        class="inline-flex items-center gap-1 rounded-full border border-red-500/30 bg-red-500/20 dark:bg-red-500/15 px-3 py-1 text-sm font-semibold text-red-700 dark:text-red-400"
                                     >
-                                        <IconAlert :size="14" />
+                                        <AlertTriangle :size="14" :stroke-width="2" aria-hidden="true" />
                                         {{ entry.violation_count }}
                                     </span>
                                 </td>
 
                                 <!-- Total Trips -->
                                 <td class="px-6 py-4">
-                                    <span class="text-zinc-900 dark:text-white">
-                                        {{ entry.total_trips }}
-                                    </span>
+                                    <span class="text-zinc-900 dark:text-white">{{ entry.total_trips }}</span>
                                 </td>
 
                                 <!-- Violation Rate -->
                                 <td class="px-6 py-4">
-                                    <span class="text-zinc-600 dark:text-zinc-400">
-                                        {{ formatRate(entry.violation_rate) }}
-                                    </span>
+                                    <span class="text-zinc-500 dark:text-zinc-400">{{ formatRate(entry.violation_rate) }}</span>
                                 </td>
 
                                 <!-- Actions -->
                                 <td class="px-6 py-4 text-center">
-                                    <motion.button
-                                        @click="viewEmployeeTrips(entry.user.id)"
-                                        :whileHover="{ scale: 1.05 }"
-                                        :whilePress="{ scale: 0.95 }"
-                                        :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
-                                        class="rounded-lg bg-cyan-500/20 dark:bg-cyan-500/15 px-4 py-2 text-sm font-medium text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 transition-all duration-200 hover:bg-cyan-500/30 dark:hover:bg-cyan-500/25"
+                                    <button
+                                        class="rounded-lg border border-cyan-500/30 bg-cyan-500/20 dark:bg-cyan-500/15 px-4 py-2 text-sm font-medium text-cyan-600 dark:text-cyan-400 transition-all duration-200 hover:bg-cyan-500/30 dark:hover:bg-cyan-500/25"
                                         :aria-label="`View trips for ${entry.user.name}`"
+                                        @click="viewEmployeeTrips(entry.user.id)"
                                     >
                                         View Trips
-                                    </motion.button>
+                                    </button>
                                 </td>
                             </motion.tr>
                         </tbody>
@@ -450,15 +381,10 @@ function viewEmployeeTrips(userId: number): void {
                     <motion.div
                         v-for="(entry, index) in leaderboard"
                         :key="entry.user.id"
-                        :initial="{ opacity: 0, scale: 0.95 }"
-                        :animate="{ opacity: 1, scale: 1 }"
-                        :transition="{
-                            delay: index * 0.05,
-                            duration: 0.4,
-                            type: 'spring',
-                            bounce: 0.3,
-                        }"
-                        class="overflow-hidden rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 shadow-lg shadow-zinc-200 dark:shadow-cyan-500/5"
+                        :initial="{ opacity: 0, y: 8 }"
+                        :animate="{ opacity: 1, y: 0 }"
+                        :transition="{ delay: index * 0.03, duration: 0.25 }"
+                        class="overflow-hidden rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
                     >
                         <!-- Rank Badge -->
                         <div
@@ -469,69 +395,48 @@ function viewEmployeeTrips(userId: number): void {
                                 <span class="text-lg font-bold">
                                     Rank #{{ entry.rank }}
                                 </span>
-                                <IconMedal
+                                <Medal
                                     v-if="hasMedal(entry.rank)"
-                                    :size="24"
+                                    :size="20"
+                                    :stroke-width="2"
                                     :class="getMedalColor(entry.rank)"
+                                    aria-hidden="true"
                                 />
                             </div>
                         </div>
 
                         <!-- Card Content -->
-                        <div class="p-4 space-y-4">
+                        <div class="space-y-4 p-4">
                             <!-- Employee Info -->
                             <div>
-                                <div class="text-lg font-semibold text-zinc-900 dark:text-white">
-                                    {{ entry.user.name }}
-                                </div>
-                                <div class="text-sm text-zinc-600 dark:text-zinc-400">
-                                    {{ entry.user.email }}
-                                </div>
+                                <div class="text-lg font-semibold text-zinc-900 dark:text-white">{{ entry.user.name }}</div>
+                                <div class="text-sm text-zinc-500 dark:text-zinc-400">{{ entry.user.email }}</div>
                             </div>
 
                             <!-- Stats Grid -->
                             <div class="grid grid-cols-3 gap-4">
-                                <!-- Violations -->
                                 <div class="text-center">
-                                    <div class="text-2xl font-bold text-red-600 dark:text-red-400">
-                                        {{ entry.violation_count }}
-                                    </div>
-                                    <div class="text-xs text-zinc-600 dark:text-zinc-400">
-                                        Violations
-                                    </div>
+                                    <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ entry.violation_count }}</div>
+                                    <div class="text-xs text-zinc-500 dark:text-zinc-400">Violations</div>
                                 </div>
-
-                                <!-- Trips -->
                                 <div class="text-center">
-                                    <div class="text-2xl font-bold text-zinc-900 dark:text-white">
-                                        {{ entry.total_trips }}
-                                    </div>
-                                    <div class="text-xs text-zinc-600 dark:text-zinc-400">
-                                        Trips
-                                    </div>
+                                    <div class="text-2xl font-bold text-zinc-900 dark:text-white">{{ entry.total_trips }}</div>
+                                    <div class="text-xs text-zinc-500 dark:text-zinc-400">Trips</div>
                                 </div>
-
-                                <!-- Rate -->
                                 <div class="text-center">
-                                    <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                                        {{ entry.violation_rate.toFixed(2) }}
-                                    </div>
-                                    <div class="text-xs text-zinc-600 dark:text-zinc-400">
-                                        Rate
-                                    </div>
+                                    <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ entry.violation_rate.toFixed(2) }}</div>
+                                    <div class="text-xs text-zinc-500 dark:text-zinc-400">Rate</div>
                                 </div>
                             </div>
 
                             <!-- View Trips Button -->
-                            <motion.button
-                                @click="viewEmployeeTrips(entry.user.id)"
-                                :whilePress="{ scale: 0.98 }"
-                                :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
+                            <button
                                 class="w-full rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 py-3 font-medium text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl active:scale-95"
                                 :aria-label="`View trips for ${entry.user.name}`"
+                                @click="viewEmployeeTrips(entry.user.id)"
                             >
                                 View Trips
-                            </motion.button>
+                            </button>
                         </div>
                     </motion.div>
                 </div>

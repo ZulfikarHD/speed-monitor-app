@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
- * Supervisor Dashboard Page (Redesigned)
+ * Supervisor Dashboard Page
  *
- * Enhanced dashboard with comprehensive employee monitoring, trend analysis,
- * quick actions, and real-time alerts for supervisors and admins.
+ * Central monitoring hub for supervisors with real-time employee tracking,
+ * trend analysis, quick actions, and violation alerts.
  *
  * Features:
  * - Quick action buttons for common tasks
@@ -15,10 +15,12 @@
  * - Auto-refresh every 30 seconds
  * - Date range filter (UI-only in v1)
  * - Responsive two-column layout
- * - motion-v animations
+ * - Lightweight opacity/y animations
+ * - Full light/dark theme support
  */
 
 import { Link } from '@inertiajs/vue3';
+import { AlertTriangle, RefreshCw } from '@lucide/vue';
 import { motion } from 'motion-v';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
@@ -31,8 +33,6 @@ import EmployeeSummaryWidget from '@/components/dashboard/EmployeeSummaryWidget.
 import QuickActionsBar from '@/components/dashboard/QuickActionsBar.vue';
 import RecentViolationsList from '@/components/dashboard/RecentViolationsList.vue';
 import TrendStatCard from '@/components/dashboard/TrendStatCard.vue';
-import IconAlert from '@/components/icons/IconAlert.vue';
-import IconRefresh from '@/components/icons/IconRefresh.vue';
 import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
 import type { DashboardOverview } from '@/types/dashboard';
 
@@ -74,16 +74,13 @@ let countdownIntervalId: number | null = null;
 // ========================================================================
 
 onMounted(async () => {
-    // Initial data fetch
     await fetchDashboardData();
 
-    // Setup auto-refresh every 30 seconds
     refreshIntervalId = window.setInterval(async () => {
         await fetchDashboardData();
-        countdown.value = 30; // Reset countdown
+        countdown.value = 30;
     }, REFRESH_INTERVAL);
 
-    // Setup countdown timer (updates every second)
     countdownIntervalId = window.setInterval(() => {
         if (countdown.value > 0) {
             countdown.value--;
@@ -92,7 +89,6 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
-    // Cleanup intervals to prevent memory leaks
     if (refreshIntervalId !== null) {
         clearInterval(refreshIntervalId);
     }
@@ -102,55 +98,42 @@ onBeforeUnmount(() => {
     }
 });
 
-// Watch for date range changes and refetch data
 watch(selectedDateRange, async () => {
     isLoading.value = true;
     await fetchDashboardData();
-    countdown.value = 30; // Reset countdown
+    countdown.value = 30;
 });
 
 // ========================================================================
 // Computed
 // ========================================================================
 
-/**
- * Get total trips today.
- */
+/** Get total trips today. */
 const totalTripsToday = computed(() => {
     return dashboardData.value?.today_summary.total_trips ?? 0;
 });
 
-/**
- * Get violations count today.
- */
+/** Get violations count today. */
 const violationsCount = computed(() => {
     return dashboardData.value?.today_summary.violations_count ?? 0;
 });
 
-/**
- * Get active trips count.
- */
+/** Get active trips count. */
 const activeTripsCount = computed(() => {
     return dashboardData.value?.active_trips.length ?? 0;
 });
 
-/**
- * Get average speed.
- */
+/** Get average speed. */
 const averageSpeed = computed(() => {
     return dashboardData.value?.average_speed ?? 0;
 });
 
-/**
- * Get trend indicators.
- */
+/** Get trend indicators. */
 const trends = computed(() => {
     return dashboardData.value?.trends ?? { trips_change: 0, violations_change: 0 };
 });
 
-/**
- * Get employee summary.
- */
+/** Get employee summary. */
 const employeeSummary = computed(() => {
     return (
         dashboardData.value?.employee_summary ?? {
@@ -161,16 +144,12 @@ const employeeSummary = computed(() => {
     );
 });
 
-/**
- * Get recent alerts.
- */
+/** Get recent alerts. */
 const recentAlerts = computed(() => {
     return dashboardData.value?.recent_alerts ?? [];
 });
 
-/**
- * Format last updated time.
- */
+/** Format last updated time. */
 const lastUpdatedText = computed(() => {
     if (!lastUpdated.value) {
         return 'Never';
@@ -200,18 +179,16 @@ const lastUpdatedText = computed(() => {
 /**
  * Fetch dashboard data from API.
  *
- * Uses Wayfinder for type-safe route access and handles loading/error states.
- * Data is cached on backend for 5 minutes per date range combination.
+ * WHY: Uses native fetch instead of Inertia to allow background refresh
+ * without full page re-render. Data is cached on backend for 5 minutes.
  */
 async function fetchDashboardData(): Promise<void> {
     try {
         error.value = null;
 
-        // Build URL with date_range query parameter
         const url = new URL('/api/dashboard/overview', window.location.origin);
         url.searchParams.set('date_range', selectedDateRange.value);
 
-        // Fetch from API endpoint
         const response = await fetch(url.toString(), {
             headers: {
                 Accept: 'application/json',
@@ -238,12 +215,11 @@ async function fetchDashboardData(): Promise<void> {
  * Manual refresh handler.
  *
  * Allows user to force refresh instead of waiting for auto-refresh.
- * Resets countdown timer after successful refresh.
  */
 async function handleManualRefresh(): Promise<void> {
     isLoading.value = true;
     await fetchDashboardData();
-    countdown.value = 30; // Reset countdown
+    countdown.value = 30;
 }
 </script>
 
@@ -253,9 +229,9 @@ async function handleManualRefresh(): Promise<void> {
             <div class="mx-auto max-w-7xl space-y-6">
                 <!-- Header Section with Date Filter -->
                 <motion.div
-                    :initial="{ opacity: 0, y: -20 }"
+                    :initial="{ opacity: 0, y: -12 }"
                     :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6 }"
+                    :transition="{ duration: 0.3 }"
                     class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
                 >
                     <!-- Title -->
@@ -263,7 +239,7 @@ async function handleManualRefresh(): Promise<void> {
                         <h1 class="text-3xl font-bold text-zinc-900 dark:text-white md:text-4xl">
                             Dashboard Overview
                         </h1>
-                        <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                             Real-time monitoring of employee trip compliance
                         </p>
                     </div>
@@ -274,49 +250,44 @@ async function handleManualRefresh(): Promise<void> {
                         <DateRangeFilter v-model="selectedDateRange" />
 
                         <!-- Last Updated -->
-                        <div class="text-sm text-zinc-600 dark:text-zinc-400">Updated: {{ lastUpdatedText }}</div>
+                        <div class="text-sm text-zinc-500 dark:text-zinc-400">Updated: {{ lastUpdatedText }}</div>
 
                         <!-- Auto-refresh Badge -->
-                        <motion.div
-                            :animate="{ scale: countdown <= 5 ? [1, 1.05, 1] : 1 }"
-                            :transition="{ duration: 0.5, repeat: countdown <= 5 ? Infinity : 0 }"
-                            class="rounded-full bg-cyan-500/10 dark:bg-cyan-500/15 px-3 py-1 text-xs font-medium text-cyan-600 dark:text-cyan-400 border border-cyan-500/20"
+                        <div
+                            class="rounded-full border border-cyan-500/20 bg-cyan-500/10 dark:bg-cyan-500/15 px-3 py-1 text-xs font-medium text-cyan-600 dark:text-cyan-400"
                         >
                             Next in {{ countdown }}s
-                        </motion.div>
+                        </div>
 
                         <!-- Manual Refresh Button -->
-                        <motion.button
+                        <button
                             :disabled="isLoading"
-                            :whileHover="{ scale: 1.05, rotate: 180 }"
-                            :whilePress="{ scale: 0.95 }"
-                            :transition="{ type: 'spring', bounce: 0.5, duration: 0.4 }"
-                            class="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors hover:bg-zinc-300 dark:hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50 border border-zinc-300 dark:border-white/10"
-                            :aria-label="'Refresh dashboard'"
+                            class="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white transition-colors duration-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            aria-label="Refresh dashboard"
                             @click="handleManualRefresh"
                         >
-                            <IconRefresh :size="20" />
-                        </motion.button>
+                            <RefreshCw :size="18" :stroke-width="2" aria-hidden="true" />
+                        </button>
                     </div>
                 </motion.div>
 
                 <!-- Error State -->
                 <motion.div
                     v-if="error && !isLoading"
-                    :initial="{ opacity: 0, scale: 0.95 }"
-                    :animate="{ opacity: 1, scale: 1 }"
-                    :transition="{ duration: 0.4 }"
+                    :initial="{ opacity: 0 }"
+                    :animate="{ opacity: 1 }"
+                    :transition="{ duration: 0.3 }"
                     class="rounded-lg border border-red-500/30 bg-red-100 dark:bg-red-500/10 p-6"
                 >
                     <div class="flex items-start gap-3">
-                        <IconAlert :size="24" class="text-red-600 dark:text-red-400" />
+                        <AlertTriangle :size="24" :stroke-width="2" class="text-red-600 dark:text-red-400" aria-hidden="true" />
                         <div class="flex-1">
                             <h3 class="font-semibold text-red-800 dark:text-red-400">Failed to Load Dashboard Data</h3>
                             <p class="mt-1 text-sm text-red-700 dark:text-red-300">
                                 {{ error }}
                             </p>
                             <button
-                                class="mt-3 rounded-lg bg-red-500/20 dark:bg-red-500/20 px-4 py-2 text-sm font-medium text-red-700 dark:text-red-400 transition-colors hover:bg-red-500/30 dark:hover:bg-red-500/30 border border-red-500/30"
+                                class="mt-3 rounded-lg border border-red-500/30 bg-red-500/20 px-4 py-2 text-sm font-medium text-red-700 dark:text-red-400 transition-colors duration-200 hover:bg-red-500/30"
                                 @click="handleManualRefresh"
                             >
                                 Try Again
@@ -327,20 +298,19 @@ async function handleManualRefresh(): Promise<void> {
 
                 <!-- Quick Actions Bar -->
                 <motion.div
-                    :initial="{ opacity: 0, y: 20 }"
+                    :initial="{ opacity: 0, y: 12 }"
                     :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ delay: 0.1, duration: 0.4 }"
+                    :transition="{ delay: 0.05, duration: 0.3 }"
                 >
                     <QuickActionsBar />
                 </motion.div>
 
                 <!-- Trend Stats Cards Grid -->
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <!-- Active Trips Trend -->
                     <motion.div
-                        :initial="{ opacity: 0, scale: 0.95 }"
-                        :animate="{ opacity: 1, scale: 1 }"
-                        :transition="{ delay: 0.2, duration: 0.4, type: 'spring', bounce: 0.3 }"
+                        :initial="{ opacity: 0, y: 12 }"
+                        :animate="{ opacity: 1, y: 0 }"
+                        :transition="{ delay: 0.1, duration: 0.3 }"
                     >
                         <TrendStatCard
                             title="Active Trips"
@@ -350,11 +320,10 @@ async function handleManualRefresh(): Promise<void> {
                         />
                     </motion.div>
 
-                    <!-- Total Trips Trend -->
                     <motion.div
-                        :initial="{ opacity: 0, scale: 0.95 }"
-                        :animate="{ opacity: 1, scale: 1 }"
-                        :transition="{ delay: 0.3, duration: 0.4, type: 'spring', bounce: 0.3 }"
+                        :initial="{ opacity: 0, y: 12 }"
+                        :animate="{ opacity: 1, y: 0 }"
+                        :transition="{ delay: 0.15, duration: 0.3 }"
                     >
                         <TrendStatCard
                             title="Total Trips Today"
@@ -364,11 +333,10 @@ async function handleManualRefresh(): Promise<void> {
                         />
                     </motion.div>
 
-                    <!-- Violations Trend -->
                     <motion.div
-                        :initial="{ opacity: 0, scale: 0.95 }"
-                        :animate="{ opacity: 1, scale: 1 }"
-                        :transition="{ delay: 0.4, duration: 0.4, type: 'spring', bounce: 0.3 }"
+                        :initial="{ opacity: 0, y: 12 }"
+                        :animate="{ opacity: 1, y: 0 }"
+                        :transition="{ delay: 0.2, duration: 0.3 }"
                     >
                         <TrendStatCard
                             title="Violations Today"
@@ -378,11 +346,10 @@ async function handleManualRefresh(): Promise<void> {
                         />
                     </motion.div>
 
-                    <!-- Average Speed -->
                     <motion.div
-                        :initial="{ opacity: 0, scale: 0.95 }"
-                        :animate="{ opacity: 1, scale: 1 }"
-                        :transition="{ delay: 0.5, duration: 0.4, type: 'spring', bounce: 0.3 }"
+                        :initial="{ opacity: 0, y: 12 }"
+                        :animate="{ opacity: 1, y: 0 }"
+                        :transition="{ delay: 0.25, duration: 0.3 }"
                     >
                         <TrendStatCard
                             title="Average Speed"
@@ -395,9 +362,9 @@ async function handleManualRefresh(): Promise<void> {
 
                 <!-- Employee Summary Widget -->
                 <motion.div
-                    :initial="{ opacity: 0, y: 20 }"
+                    :initial="{ opacity: 0, y: 12 }"
                     :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ delay: 0.6, duration: 0.4 }"
+                    :transition="{ delay: 0.3, duration: 0.3 }"
                 >
                     <EmployeeSummaryWidget :summary="employeeSummary" :is-loading="isLoading" />
                 </motion.div>
@@ -406,9 +373,9 @@ async function handleManualRefresh(): Promise<void> {
                 <div class="grid gap-6 lg:grid-cols-2">
                     <!-- Left Column: Active Trips Table -->
                     <motion.div
-                        :initial="{ opacity: 0, x: -20 }"
-                        :animate="{ opacity: 1, x: 0 }"
-                        :transition="{ delay: 0.7, duration: 0.5 }"
+                        :initial="{ opacity: 0, y: 12 }"
+                        :animate="{ opacity: 1, y: 0 }"
+                        :transition="{ delay: 0.35, duration: 0.3 }"
                     >
                         <ActiveTripsTable
                             :trips="dashboardData?.active_trips ?? []"
@@ -417,7 +384,7 @@ async function handleManualRefresh(): Promise<void> {
                             <template #actions>
                                 <Link
                                     :href="tripsIndex.url()"
-                                    class="text-sm font-medium text-cyan-400 transition-colors hover:text-cyan-300"
+                                    class="text-sm font-medium text-cyan-600 dark:text-cyan-400 transition-colors duration-200 hover:text-cyan-700 dark:hover:text-cyan-300"
                                 >
                                     View All →
                                 </Link>
@@ -427,11 +394,10 @@ async function handleManualRefresh(): Promise<void> {
 
                     <!-- Right Column: Violations + Alerts -->
                     <div class="space-y-6">
-                        <!-- Recent Violations List -->
                         <motion.div
-                            :initial="{ opacity: 0, x: 20 }"
-                            :animate="{ opacity: 1, x: 0 }"
-                            :transition="{ delay: 0.8, duration: 0.5 }"
+                            :initial="{ opacity: 0, y: 12 }"
+                            :animate="{ opacity: 1, y: 0 }"
+                            :transition="{ delay: 0.4, duration: 0.3 }"
                         >
                             <RecentViolationsList
                                 :violators="dashboardData?.top_violators ?? []"
@@ -440,7 +406,7 @@ async function handleManualRefresh(): Promise<void> {
                                 <template #actions>
                                     <Link
                                         :href="leaderboardIndex.url()"
-                                        class="text-sm font-medium text-cyan-400 transition-colors hover:text-cyan-300"
+                                        class="text-sm font-medium text-cyan-600 dark:text-cyan-400 transition-colors duration-200 hover:text-cyan-700 dark:hover:text-cyan-300"
                                     >
                                         View All →
                                     </Link>
@@ -448,11 +414,10 @@ async function handleManualRefresh(): Promise<void> {
                             </RecentViolationsList>
                         </motion.div>
 
-                        <!-- Recent Alerts Widget -->
                         <motion.div
-                            :initial="{ opacity: 0, x: 20 }"
-                            :animate="{ opacity: 1, x: 0 }"
-                            :transition="{ delay: 0.9, duration: 0.5 }"
+                            :initial="{ opacity: 0, y: 12 }"
+                            :animate="{ opacity: 1, y: 0 }"
+                            :transition="{ delay: 0.45, duration: 0.3 }"
                         >
                             <AlertsWidget :alerts="recentAlerts" :is-loading="isLoading" />
                         </motion.div>

@@ -12,26 +12,12 @@
  * - Violations-only checkbox
  * - Sort by dropdown (date, violations, distance, duration)
  * - Sort order toggle (asc/desc)
- * - Apply/Reset buttons
+ * - Apply/Reset buttons with lucide icons
  * - Active filter count badge
- *
- * @example
- * ```vue
- * <SupervisorTripFilters
- *   :employees="employeesList"
- *   v-model:employee="filters.employee"
- *   v-model:date-from="filters.dateFrom"
- *   v-model:date-to="filters.dateTo"
- *   v-model:status="filters.status"
- *   v-model:violations-only="filters.violationsOnly"
- *   v-model:sort-by="sort.by"
- *   v-model:sort-order="sort.order"
- *   @apply="handleApplyFilters"
- *   @reset="handleResetFilters"
- * />
- * ```
+ * - Full light/dark theme support
  */
 
+import { ChevronDown, ChevronUp, Filter, X } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 
 import type { EmployeeSummary, TripStatus } from '@/types/trip';
@@ -164,9 +150,7 @@ watch(
 // Computed
 // ========================================================================
 
-/**
- * Today's date in YYYY-MM-DD format for input max attribute.
- */
+/** Today's date in YYYY-MM-DD format for input max attribute. */
 const todayDate = getTodayDate();
 
 /**
@@ -211,9 +195,7 @@ count++;
     return count;
 });
 
-/**
- * Sort options for dropdown.
- */
+/** Sort options for dropdown. */
 const sortOptions = [
     { value: 'started_at', label: 'Tanggal' },
     { value: 'violation_count', label: 'Pelanggaran' },
@@ -270,20 +252,17 @@ function toggleSortOrder(): void {
 </script>
 
 <template>
-    <!-- ======================================================================
-        Filters Container
-        Responsive filter controls with employee, date, status, and sort
-    ======================================================================= -->
+    <!-- Filters Container -->
     <div
-        class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-4"
+        class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-4 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
         role="search"
         aria-label="Filter employee trips"
     >
         <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-sm font-medium text-[#e5e7eb]">Filter & Sort</h3>
+            <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-200">Filter & Sort</h3>
             <span
                 v-if="activeFilterCount > 0"
-                class="inline-flex items-center rounded-full bg-cyan-500/20 px-2 py-0.5 text-xs font-medium text-cyan-400"
+                class="inline-flex items-center rounded-full border border-cyan-500/30 bg-cyan-500/20 dark:bg-cyan-500/15 px-2 py-0.5 text-xs font-medium text-cyan-700 dark:text-cyan-400"
             >
                 {{ activeFilterCount }} aktif
             </span>
@@ -295,14 +274,14 @@ function toggleSortOrder(): void {
             <div>
                 <label
                     for="filter-employee"
-                    class="mb-2 block text-xs font-medium text-[#9ca3af]"
+                    class="mb-2 block text-xs font-medium text-zinc-500 dark:text-zinc-400"
                 >
                     Karyawan
                 </label>
                 <select
                     id="filter-employee"
                     v-model="localEmployee"
-                    class="w-full rounded-lg border border-[#3E3E3A] bg-[#0a0c0f] px-3 py-2 text-sm text-[#e5e7eb] transition-colors focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                    class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50"
                     aria-label="Filter by employee"
                 >
                     <option :value="null">Semua Karyawan</option>
@@ -320,7 +299,7 @@ function toggleSortOrder(): void {
             <div>
                 <label
                     for="filter-date-from"
-                    class="mb-2 block text-xs font-medium text-[#9ca3af]"
+                    class="mb-2 block text-xs font-medium text-zinc-500 dark:text-zinc-400"
                 >
                     Dari Tanggal
                 </label>
@@ -329,7 +308,7 @@ function toggleSortOrder(): void {
                     v-model="localDateFrom"
                     type="date"
                     :max="localDateTo || todayDate"
-                    class="w-full rounded-lg border border-[#3E3E3A] bg-[#0a0c0f] px-3 py-2 text-sm text-[#e5e7eb] transition-colors focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                    class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50"
                     aria-label="Filter from date"
                 />
             </div>
@@ -338,7 +317,7 @@ function toggleSortOrder(): void {
             <div>
                 <label
                     for="filter-date-to"
-                    class="mb-2 block text-xs font-medium text-[#9ca3af]"
+                    class="mb-2 block text-xs font-medium text-zinc-500 dark:text-zinc-400"
                 >
                     Sampai Tanggal
                 </label>
@@ -348,7 +327,7 @@ function toggleSortOrder(): void {
                     type="date"
                     :min="localDateFrom"
                     :max="todayDate"
-                    class="w-full rounded-lg border border-[#3E3E3A] bg-[#0a0c0f] px-3 py-2 text-sm text-[#e5e7eb] transition-colors focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                    class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50"
                     aria-label="Filter to date"
                 />
             </div>
@@ -357,14 +336,14 @@ function toggleSortOrder(): void {
             <div>
                 <label
                     for="filter-status"
-                    class="mb-2 block text-xs font-medium text-[#9ca3af]"
+                    class="mb-2 block text-xs font-medium text-zinc-500 dark:text-zinc-400"
                 >
                     Status
                 </label>
                 <select
                     id="filter-status"
                     v-model="localStatus"
-                    class="w-full rounded-lg border border-[#3E3E3A] bg-[#0a0c0f] px-3 py-2 text-sm text-[#e5e7eb] transition-colors focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                    class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50"
                     aria-label="Filter by status"
                 >
                     <option value="">Semua Status</option>
@@ -378,7 +357,7 @@ function toggleSortOrder(): void {
             <div>
                 <label
                     for="filter-sort"
-                    class="mb-2 block text-xs font-medium text-[#9ca3af]"
+                    class="mb-2 block text-xs font-medium text-zinc-500 dark:text-zinc-400"
                 >
                     Urutkan
                 </label>
@@ -386,7 +365,7 @@ function toggleSortOrder(): void {
                     <select
                         id="filter-sort"
                         v-model="localSortBy"
-                        class="flex-1 rounded-lg border border-[#3E3E3A] bg-[#0a0c0f] px-3 py-2 text-sm text-[#e5e7eb] transition-colors focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                        class="flex-1 rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50"
                         aria-label="Sort by field"
                     >
                         <option
@@ -400,45 +379,24 @@ function toggleSortOrder(): void {
 
                     <!-- Sort Order Toggle Button -->
                     <button
-                        @click="toggleSortOrder"
                         type="button"
-                        class="flex items-center justify-center rounded-lg border border-[#3E3E3A] bg-[#0a0c0f] px-3 py-2 text-[#e5e7eb] transition-colors hover:bg-[#1a1d23] focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                        class="flex items-center justify-center rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-zinc-700 dark:text-zinc-300 transition-colors duration-200 hover:bg-zinc-100 dark:hover:bg-zinc-700/50 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50"
                         :title="localSortOrder === 'asc' ? 'Ascending' : 'Descending'"
                         :aria-label="`Sort order: ${localSortOrder}`"
+                        @click="toggleSortOrder"
                     >
-                        <!-- Ascending Icon -->
-                        <svg
+                        <ChevronUp
                             v-if="localSortOrder === 'asc'"
-                            class="h-4 w-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                            :size="16"
+                            :stroke-width="2"
                             aria-hidden="true"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M5 15l7-7 7 7"
-                            />
-                        </svg>
-
-                        <!-- Descending Icon -->
-                        <svg
+                        />
+                        <ChevronDown
                             v-else
-                            class="h-4 w-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                            :size="16"
+                            :stroke-width="2"
                             aria-hidden="true"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M19 9l-7 7-7-7"
-                            />
-                        </svg>
+                        />
                     </button>
                 </div>
             </div>
@@ -446,11 +404,11 @@ function toggleSortOrder(): void {
 
         <!-- Violations Only Checkbox -->
         <div class="mt-4">
-            <label class="inline-flex items-center gap-2 text-sm text-[#e5e7eb]">
+            <label class="inline-flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
                 <input
                     v-model="localViolationsOnly"
                     type="checkbox"
-                    class="h-4 w-4 rounded border-[#3E3E3A] bg-[#0a0c0f] text-cyan-500 transition-colors focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#1a1d23]"
+                    class="h-4 w-4 rounded border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-cyan-500 transition-colors focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900"
                     aria-label="Show only trips with violations"
                 />
                 <span>Hanya tampilkan perjalanan dengan pelanggaran</span>
@@ -460,48 +418,22 @@ function toggleSortOrder(): void {
         <!-- Action Buttons -->
         <div class="mt-4 flex items-center gap-2">
             <button
-                @click="handleApply"
-                class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#1a1d23]"
+                class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900"
                 aria-label="Apply filters"
+                @click="handleApply"
             >
-                <svg
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                    />
-                </svg>
+                <Filter :size="16" :stroke-width="2" aria-hidden="true" />
                 <span>Terapkan</span>
             </button>
 
             <button
                 v-if="hasActiveFilters"
-                @click="handleReset"
-                class="flex items-center justify-center rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-4 py-2 text-sm font-medium text-[#e5e7eb] transition-colors hover:bg-[#2a2d33] focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#1a1d23]"
+                class="flex items-center justify-center rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-200 transition-colors duration-200 hover:bg-zinc-100 dark:hover:bg-zinc-700/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900"
                 title="Reset filters"
                 aria-label="Reset filters"
+                @click="handleReset"
             >
-                <svg
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12"
-                    />
-                </svg>
+                <X :size="16" :stroke-width="2" aria-hidden="true" />
             </button>
         </div>
     </div>

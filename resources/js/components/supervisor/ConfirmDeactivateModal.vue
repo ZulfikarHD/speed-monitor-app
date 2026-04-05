@@ -9,23 +9,19 @@
  * - Clear warning message with user details
  * - Danger-styled primary action button
  * - Secondary cancel button
- * - Teleport modal overlay with backdrop click to close
- * - motion-v entrance/exit animations
+ * - Teleport modal overlay
+ * - Lightweight entrance/exit animations
  * - Inertia router DELETE request with Wayfinder
  * - Loading state during submission
- *
- * Props:
- * - show: boolean - Modal visibility
- * - user: User - User to deactivate
+ * - Full light/dark theme support
  */
 
 import { router } from '@inertiajs/vue3';
+import { AlertTriangle, X } from '@lucide/vue';
 import { AnimatePresence, motion } from 'motion-v';
 import { ref } from 'vue';
 
 import { deactivate } from '@/actions/App/Http/Controllers/Supervisor/EmployeesController';
-import IconAlert from '@/components/icons/IconAlert.vue';
-import IconClose from '@/components/icons/IconClose.vue';
 import Button from '@/components/ui/Button.vue';
 import type { User } from '@/types/auth';
 
@@ -61,7 +57,6 @@ const isSubmitting = ref(false);
  * Handle deactivate confirmation.
  *
  * WHY: Uses Wayfinder for type-safe DELETE request to deactivate endpoint.
- * Ensures correct route is used with proper HTTP method.
  */
 function handleConfirm(): void {
     isSubmitting.value = true;
@@ -80,6 +75,8 @@ function handleConfirm(): void {
 
 /**
  * Handle backdrop click to close modal.
+ *
+ * @param event - Mouse click event
  */
 function handleBackdropClick(event: MouseEvent): void {
     if (event.target === event.currentTarget && !isSubmitting.value) {
@@ -89,6 +86,8 @@ function handleBackdropClick(event: MouseEvent): void {
 
 /**
  * Handle escape key to close modal.
+ *
+ * @param event - Keyboard event
  */
 function handleEscapeKey(event: KeyboardEvent): void {
     if (event.key === 'Escape' && props.show && !isSubmitting.value) {
@@ -96,7 +95,6 @@ function handleEscapeKey(event: KeyboardEvent): void {
     }
 }
 
-// Setup escape key listener
 if (typeof window !== 'undefined') {
     window.addEventListener('keydown', handleEscapeKey);
 }
@@ -108,31 +106,33 @@ if (typeof window !== 'undefined') {
         <AnimatePresence>
             <motion.div
                 v-if="show"
-                @click="handleBackdropClick"
                 :initial="{ opacity: 0 }"
                 :animate="{ opacity: 1 }"
                 :exit="{ opacity: 0 }"
                 :transition="{ duration: 0.2 }"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
                 role="dialog"
                 aria-modal="true"
                 :aria-labelledby="'confirm-deactivate-modal-title'"
+                @click="handleBackdropClick"
             >
                 <!-- Modal Content -->
                 <motion.div
-                    :initial="{ opacity: 0, scale: 0.95, y: 20 }"
+                    :initial="{ opacity: 0, scale: 0.95, y: 12 }"
                     :animate="{ opacity: 1, scale: 1, y: 0 }"
-                    :exit="{ opacity: 0, scale: 0.95, y: 20 }"
-                    :transition="{ duration: 0.3 }"
-                    class="w-full max-w-md rounded-lg border border-zinc-200 dark:border-white/5 bg-white dark:bg-zinc-800/50 backdrop-blur-xl shadow-xl"
+                    :exit="{ opacity: 0, scale: 0.95, y: 12 }"
+                    :transition="{ duration: 0.2 }"
+                    class="w-full max-w-md rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-900/98 ring-1 ring-white/20 dark:ring-white/5 shadow-xl shadow-zinc-900/10 dark:shadow-cyan-500/5"
                     @click.stop
                 >
                     <!-- Modal Header -->
                     <div class="flex items-center justify-between border-b border-zinc-200 dark:border-white/5 p-6">
                         <div class="flex items-center gap-3">
-                            <IconAlert
+                            <AlertTriangle
                                 :size="24"
+                                :stroke-width="2"
                                 class="text-red-600 dark:text-red-400"
+                                aria-hidden="true"
                             />
                             <h2
                                 id="confirm-deactivate-modal-title"
@@ -142,47 +142,37 @@ if (typeof window !== 'undefined') {
                             </h2>
                         </div>
                         <button
-                            @click="emit('close')"
                             :disabled="isSubmitting"
-                            class="rounded-lg p-2 text-zinc-500 dark:text-zinc-400 transition-all duration-200 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                            class="rounded-lg p-2 text-zinc-500 dark:text-zinc-400 transition-colors duration-200 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                             aria-label="Tutup"
+                            @click="emit('close')"
                         >
-                            <IconClose :size="20" />
+                            <X :size="20" :stroke-width="2" aria-hidden="true" />
                         </button>
                     </div>
 
                     <!-- Modal Body -->
-                    <div class="p-6 space-y-4">
+                    <div class="space-y-4 p-6">
                         <!-- Warning Message -->
-                        <div class="rounded-lg border border-red-500/30 dark:border-red-500/30 bg-red-100 dark:bg-red-500/10 p-4">
+                        <div class="rounded-lg border border-red-500/30 bg-red-100 dark:bg-red-500/10 p-4">
                             <p class="text-sm text-red-800 dark:text-red-300">
                                 Anda yakin ingin menonaktifkan akun karyawan berikut?
                             </p>
                         </div>
 
                         <!-- User Details -->
-                        <div class="rounded-lg border border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50 p-4">
+                        <div class="rounded-lg border border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-800/50 p-4">
                             <dl class="space-y-2">
                                 <div>
-                                    <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                                        Nama
-                                    </dt>
-                                    <dd class="mt-1 text-sm font-semibold text-zinc-900 dark:text-white">
-                                        {{ user.name }}
-                                    </dd>
+                                    <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Nama</dt>
+                                    <dd class="mt-1 text-sm font-semibold text-zinc-900 dark:text-white">{{ user.name }}</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                                        Email
-                                    </dt>
-                                    <dd class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                                        {{ user.email }}
-                                    </dd>
+                                    <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Email</dt>
+                                    <dd class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{{ user.email }}</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                                        Role
-                                    </dt>
+                                    <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Role</dt>
                                     <dd class="mt-1">
                                         <span
                                             class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium"
@@ -208,7 +198,7 @@ if (typeof window !== 'undefined') {
                         </div>
 
                         <!-- Info Message -->
-                        <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                        <p class="text-sm text-zinc-500 dark:text-zinc-400">
                             Akun yang dinonaktifkan tidak dapat login ke sistem.
                             Anda dapat mengaktifkan kembali akun ini nanti jika diperlukan.
                         </p>
