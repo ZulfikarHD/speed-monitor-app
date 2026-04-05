@@ -336,64 +336,66 @@ onBeforeUnmount(() => {
             </header>
 
         <!-- Main Content -->
-        <main class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <!-- Speed Limit Banner (Read-Only) -->
+        <main class="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6">
+            <!-- Trip Controls - PRIMARY ACTION AT TOP (Fitts's Law) -->
             <motion.div
                 :initial="{ opacity: 0, y: -20 }"
                 :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.4, duration: 0.6 }"
-                class="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-zinc-200 bg-white backdrop-blur-sm px-5 py-4 dark:border-white/5 dark:bg-zinc-800/50"
+                :transition="{ duration: 0.3 }"
+                class="mb-6"
             >
-                <div class="flex flex-col gap-1">
+                <TripControls />
+            </motion.div>
+
+            <!-- Speed Limit & Unit Toggle - COMPACT -->
+            <motion.div
+                :initial="{ opacity: 0, y: -10 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ duration: 0.3, delay: 0.1 }"
+                class="mb-6 flex items-center justify-between gap-4 rounded-lg border border-zinc-200 bg-white/50 backdrop-blur-sm px-4 py-3 dark:border-white/5 dark:bg-zinc-800/30"
+            >
+                <div class="flex items-center gap-3">
                     <div class="text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
-                        Speed Limit
+                        Limit:
                     </div>
-                    <motion.div
-                        :animate="{ scale: [1, 1.05, 1] }"
-                        :transition="{ duration: 0.3 }"
-                        :key="currentSpeedLimit"
-                        class="text-3xl font-bold text-cyan-600 dark:text-cyan-400"
-                        style="font-family: 'Bebas Neue', sans-serif"
-                    >
+                    <div class="text-xl font-bold text-cyan-600 dark:text-cyan-400" style="font-family: 'Bebas Neue', sans-serif">
                         {{ currentSpeedLimit }} {{ unit === 'kmh' ? 'km/h' : 'mph' }}
-                    </motion.div>
-                    <div class="text-xs italic text-zinc-500 dark:text-zinc-500">
-                        Diatur oleh supervisor
                     </div>
                 </div>
-                <div class="flex rounded-lg border border-zinc-200 bg-zinc-100 p-1 dark:border-white/5 dark:bg-zinc-900">
-                    <motion.button
+                <div class="flex rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 dark:border-white/10 dark:bg-zinc-900/50">
+                    <button
                         :class="[
-                            'min-h-[44px] rounded-md px-4 py-2 text-sm font-medium transition-all active:scale-95',
+                            'min-h-[36px] rounded-md px-3 py-1 text-xs font-medium transition-all',
                             unit === 'kmh'
-                                ? 'bg-gradient-to-r from-cyan-600 to-blue-700 text-white shadow-lg shadow-cyan-200 dark:from-cyan-500 dark:to-blue-600 dark:shadow-cyan-500/25'
-                                : 'text-zinc-600 hover:bg-white hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
+                                ? 'bg-gradient-to-r from-cyan-600 to-blue-700 text-white dark:from-cyan-500 dark:to-blue-600'
+                                : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100'
                         ]"
                         @click="setUnit('kmh')"
-                        :whilePress="{ scale: 0.95 }"
                     >
                         km/h
-                    </motion.button>
-                    <motion.button
+                    </button>
+                    <button
                         :class="[
-                            'min-h-[44px] rounded-md px-4 py-2 text-sm font-medium transition-all active:scale-95',
+                            'min-h-[36px] rounded-md px-3 py-1 text-xs font-medium transition-all',
                             unit === 'mph'
-                                ? 'bg-gradient-to-r from-cyan-600 to-blue-700 text-white shadow-lg shadow-cyan-200 dark:from-cyan-500 dark:to-blue-600 dark:shadow-cyan-500/25'
-                                : 'text-zinc-600 hover:bg-white hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
+                                ? 'bg-gradient-to-r from-cyan-600 to-blue-700 text-white dark:from-cyan-500 dark:to-blue-600'
+                                : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100'
                         ]"
                         @click="setUnit('mph')"
-                        :whilePress="{ scale: 0.95 }"
                     >
                         mph
-                    </motion.button>
+                    </button>
                 </div>
             </motion.div>
 
-            <!-- Gauge -->
+            <!-- Gauge - SMALLER, LIGHTER -->
             <motion.div
-                :initial="{ opacity: 0, scale: 0.9 }"
+                v-if="tripStore.hasActiveTrip"
+                :initial="{ opacity: 0, scale: 0.95 }"
                 :animate="{ opacity: 1, scale: 1 }"
-                :transition="{ type: 'spring', bounce: 0.3, duration: 0.7, delay: 0.1 }"
+                :exit="{ opacity: 0, scale: 0.95 }"
+                :transition="{ duration: 0.3, delay: 0.15 }"
+                class="mb-6"
             >
                 <ProductionGauge
                     :speed="currentSpeed"
@@ -402,135 +404,99 @@ onBeforeUnmount(() => {
                 />
             </motion.div>
 
-            <!-- Stats Grid -->
+            <!-- Active Trip Stats - PROGRESSIVE DISCLOSURE -->
             <motion.div
-                :initial="{ opacity: 0, y: 20 }"
+                v-if="tripStore.hasActiveTrip"
+                :initial="{ opacity: 0, y: 10 }"
                 :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.2 }"
-                class="mb-6 grid grid-cols-2 gap-4"
+                :exit="{ opacity: 0, y: 10 }"
+                :transition="{ duration: 0.3, delay: 0.2 }"
+                class="space-y-3"
             >
-                <motion.div
-                    :whileHover="{ scale: 1.02, y: -4 }"
-                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.4 }"
-                    class="rounded-lg border border-red-200 bg-white backdrop-blur-sm p-4 dark:border-red-500/20 dark:bg-red-500/5"
-                >
-                    <div class="mb-1 text-xs font-medium uppercase tracking-wide text-red-600 dark:text-red-400">
-                        Max Speed
+                <!-- Compact Stats Grid -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="rounded-lg border border-red-200 bg-white/50 backdrop-blur-sm p-3 dark:border-red-500/20 dark:bg-red-500/5">
+                        <div class="text-[10px] font-medium uppercase tracking-wide text-red-600 dark:text-red-400">
+                            Max Speed
+                        </div>
+                        <div class="text-2xl font-bold text-red-600 dark:text-red-400" style="font-family: 'Share Tech Mono', monospace">
+                            {{ Math.round(maxSpeed) }}
+                        </div>
                     </div>
-                    <motion.div
-                        :animate="{ scale: [1, 1.05, 1] }"
-                        :transition="{ duration: 0.3 }"
-                        :key="Math.round(maxSpeed)"
-                        class="text-3xl font-bold text-red-600 dark:text-red-400"
-                        style="font-family: 'Share Tech Mono', monospace"
-                    >
-                        {{ Math.round(maxSpeed) }}
-                    </motion.div>
-                    <div class="text-xs text-zinc-500 dark:text-zinc-500">
-                        {{ unit === 'kmh' ? 'km/h' : 'mph' }}
+                    <div class="rounded-lg border border-amber-200 bg-white/50 backdrop-blur-sm p-3 dark:border-amber-500/20 dark:bg-amber-500/5">
+                        <div class="text-[10px] font-medium uppercase tracking-wide text-amber-600 dark:text-amber-400">
+                            Avg Speed
+                        </div>
+                        <div class="text-2xl font-bold text-amber-600 dark:text-amber-400" style="font-family: 'Share Tech Mono', monospace">
+                            {{ Math.round(avgSpeed) }}
+                        </div>
                     </div>
-                </motion.div>
-                <motion.div
-                    :whileHover="{ scale: 1.02, y: -4 }"
-                    :transition="{ type: 'spring', bounce: 0.4, duration: 0.4 }"
-                    class="rounded-lg border border-amber-200 bg-white backdrop-blur-sm p-4 dark:border-amber-500/20 dark:bg-amber-500/5"
-                >
-                    <div class="mb-1 text-xs font-medium uppercase tracking-wide text-amber-600 dark:text-amber-400">
-                        Avg Speed
-                    </div>
-                    <motion.div
-                        :animate="{ scale: [1, 1.05, 1] }"
-                        :transition="{ duration: 0.3 }"
-                        :key="Math.round(avgSpeed)"
-                        class="text-3xl font-bold text-amber-600 dark:text-amber-400"
-                        style="font-family: 'Share Tech Mono', monospace"
-                    >
-                        {{ Math.round(avgSpeed) }}
-                    </motion.div>
-                    <div class="text-xs text-zinc-500 dark:text-zinc-500">
-                        {{ unit === 'kmh' ? 'km/h' : 'mph' }}
-                    </div>
-                </motion.div>
-            </motion.div>
+                </div>
 
-            <!-- Trip Bar -->
-            <motion.div
-                :initial="{ opacity: 0, y: 20 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.3 }"
-                class="mb-6 flex items-center justify-between rounded-lg border border-zinc-200 bg-white backdrop-blur-sm px-5 py-4 dark:border-white/5 dark:bg-zinc-800/50"
-            >
-                <div class="text-center">
-                    <motion.div
-                        :animate="{ scale: [1, 1.05, 1] }"
-                        :transition="{ duration: 0.4 }"
-                        :key="tripDistance.toFixed(2)"
-                        class="text-2xl font-bold text-cyan-600 dark:text-cyan-400"
-                        style="font-family: 'Share Tech Mono', monospace"
-                    >
-                        {{ tripDistance.toFixed(2) }}
-                    </motion.div>
-                    <div class="mt-1 text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
-                        Distance ({{ unit === 'kmh' ? 'km' : 'mi' }})
+                <!-- Compact Trip Bar -->
+                <div class="flex items-center justify-around rounded-lg border border-zinc-200 bg-white/50 backdrop-blur-sm py-3 dark:border-white/5 dark:bg-zinc-800/30">
+                    <div class="text-center">
+                        <div class="text-lg font-bold text-cyan-600 dark:text-cyan-400" style="font-family: 'Share Tech Mono', monospace">
+                            {{ tripDistance.toFixed(2) }}
+                        </div>
+                        <div class="text-[10px] font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
+                            {{ unit === 'kmh' ? 'km' : 'mi' }}
+                        </div>
+                    </div>
+                    <div class="h-8 w-px bg-zinc-200 dark:bg-white/5" />
+                    <div class="text-center">
+                        <div class="text-lg font-bold text-cyan-600 dark:text-cyan-400" style="font-family: 'Share Tech Mono', monospace">
+                            {{ Math.floor(tripStore.stats.duration / 60).toString().padStart(2, '0') }}:{{ (tripStore.stats.duration % 60).toString().padStart(2, '0') }}
+                        </div>
+                        <div class="text-[10px] font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
+                            Duration
+                        </div>
+                    </div>
+                    <div class="h-8 w-px bg-zinc-200 dark:bg-white/5" />
+                    <div class="text-center">
+                        <div class="text-lg font-bold text-cyan-600 dark:text-cyan-400" style="font-family: 'Share Tech Mono', monospace">
+                            {{ satelliteCount || '—' }}
+                        </div>
+                        <div class="text-[10px] font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
+                            GPS
+                        </div>
                     </div>
                 </div>
-                <div class="h-9 w-px bg-zinc-200 dark:bg-white/5" />
-                <div class="text-center">
-                    <motion.div
-                        :animate="{ scale: [1, 1.05, 1] }"
-                        :transition="{ duration: 0.4 }"
-                        :key="tripStore.stats.duration"
-                        class="text-2xl font-bold text-cyan-600 dark:text-cyan-400"
-                        style="font-family: 'Share Tech Mono', monospace"
-                    >
-                        {{ Math.floor(tripStore.stats.duration / 60).toString().padStart(2, '0') }}:{{ (tripStore.stats.duration % 60).toString().padStart(2, '0') }}
-                    </motion.div>
-                    <div class="mt-1 text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
-                        Duration
+
+                <!-- Compact GPS Accuracy -->
+                <div class="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white/50 backdrop-blur-sm px-3 py-2 dark:border-white/5 dark:bg-zinc-800/30">
+                    <div class="text-[10px] font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
+                        GPS
                     </div>
-                </div>
-                <div class="h-9 w-px bg-zinc-200 dark:bg-white/5" />
-                <div class="text-center">
-                    <motion.div
-                        :animate="{ scale: [1, 1.05, 1] }"
-                        :transition="{ duration: 0.4 }"
-                        :key="satelliteCount"
-                        class="text-2xl font-bold text-cyan-600 dark:text-cyan-400"
-                        style="font-family: 'Share Tech Mono', monospace"
-                    >
-                        {{ satelliteCount || '—' }}
-                    </motion.div>
-                    <div class="mt-1 text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
-                        Satellites
+                    <div class="h-1 flex-1 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+                        <div
+                            class="h-full rounded-full transition-all duration-500"
+                            :style="{ width: accuracyPercentage + '%', background: accuracyColor }"
+                        />
+                    </div>
+                    <div class="text-[10px] font-medium text-zinc-700 dark:text-zinc-300" style="font-family: 'Share Tech Mono', monospace">
+                        {{ accuracy !== null ? Math.round(accuracy) + 'm' : '—' }}
                     </div>
                 </div>
             </motion.div>
 
-            <!-- GPS Accuracy -->
+            <!-- Empty State - When No Active Trip -->
             <motion.div
-                :initial="{ opacity: 0, y: 20 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.4 }"
-                class="mb-6 flex items-center gap-3 px-1"
+                v-else
+                :initial="{ opacity: 0 }"
+                :animate="{ opacity: 1 }"
+                :transition="{ duration: 0.3, delay: 0.2 }"
+                class="rounded-lg border border-zinc-200 bg-white/50 backdrop-blur-sm p-8 text-center dark:border-white/5 dark:bg-zinc-800/30"
             >
-                <div class="text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
-                    GPS Accuracy
+                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-900">
+                    <svg class="h-8 w-8 text-zinc-400 dark:text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
                 </div>
-                <div class="h-1 flex-1 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
-                    <motion.div
-                        :animate="{ width: accuracyPercentage + '%' }"
-                        :transition="{ type: 'spring', bounce: 0.2, duration: 0.8 }"
-                        class="h-full rounded-full transition-colors"
-                        :style="{ background: accuracyColor }"
-                    />
-                </div>
-                <div class="text-xs font-medium text-zinc-700 dark:text-zinc-300" style="font-family: 'Share Tech Mono', monospace">
-                    {{ accuracy !== null ? Math.round(accuracy) + ' m' : '— m' }}
-                </div>
+                <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                    Tap "Start Trip" to begin tracking
+                </p>
             </motion.div>
-
-            <!-- Trip Controls -->
-            <TripControls />
         </main>
         </div>
     </EmployeeLayout>
