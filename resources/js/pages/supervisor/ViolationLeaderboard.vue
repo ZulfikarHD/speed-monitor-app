@@ -23,6 +23,7 @@ import { router } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
 import { computed, ref } from 'vue';
 
+import { index as allTripsIndex } from '@/actions/App/Http/Controllers/Supervisor/AllTripsController';
 import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
 import type {
     LeaderboardFilters,
@@ -172,16 +173,14 @@ function resetFilters(): void {
  * @param userId - Employee user ID
  */
 function viewEmployeeTrips(userId: number): void {
-    router.visit('/supervisor/trips', {
-        data: {
+    router.visit(allTripsIndex.url({
+        query: {
             user_id: userId,
             date_from: props.filters.date_from,
             date_to: props.filters.date_to,
             violations_only: true,
         },
-        preserveState: false,
-        preserveScroll: false,
-    });
+    }));
 }
 </script>
 
