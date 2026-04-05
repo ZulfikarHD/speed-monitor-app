@@ -34,6 +34,7 @@ import {
     LinearScale,
     PointElement,
     LineElement,
+    ScatterController,
     Title,
     Tooltip,
     Legend,
@@ -49,12 +50,13 @@ import { formatChartTime } from '@/utils/date';
 // Chart.js Registration
 // ========================================================================
 
-// Register Chart.js components needed for line charts
+// Register Chart.js components needed for line charts with scatter overlay
 ChartJS.register(
     CategoryScale,
     LinearScale,
     PointElement,
     LineElement,
+    ScatterController,
     Title,
     Tooltip,
     Legend,
