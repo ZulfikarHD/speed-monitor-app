@@ -9,7 +9,7 @@
  * - Desktop table view with rank, employee, violations, trips, rate columns
  * - Mobile card view with vertical layout
  * - Date range filtering (from/to)
- * - Medal emojis for top 3 (🥇🥈🥉)
+ * - SVG medal icons for top 3 with color-coded badges
  * - Gradient rank badges matching design system
  * - Click "View Trips" to navigate to filtered All Trips page
  * - motion-v animations (stagger, hover, page entry)
@@ -24,6 +24,7 @@ import { motion } from 'motion-v';
 import { computed, ref } from 'vue';
 
 import IconAlert from '@/components/icons/IconAlert.vue';
+import IconMedal from '@/components/icons/IconMedal.vue';
 import IconTrophy from '@/components/icons/IconTrophy.vue';
 import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
 import type {
@@ -79,21 +80,33 @@ const filtersModified = computed(() => {
 // ========================================================================
 
 /**
- * Get medal emoji for ranking position.
+ * Check if rank gets a medal icon.
  *
- * Awards gold/silver/bronze medals for top 3 positions.
+ * Top 3 positions get medal icons with color-coded styling.
  *
  * @param rank - Position in leaderboard (1-indexed)
- * @returns Medal emoji or empty string
+ * @returns True if rank is in top 3
  */
-function getMedal(rank: number): string {
-    const medals: Record<number, string> = {
-        1: '🥇',
-        2: '🥈',
-        3: '🥉',
+function hasMedal(rank: number): boolean {
+    return rank >= 1 && rank <= 3;
+}
+
+/**
+ * Get medal icon color class for ranking position.
+ *
+ * Returns appropriate color class for gold/silver/bronze medals.
+ *
+ * @param rank - Position in leaderboard (1-indexed)
+ * @returns Tailwind color class for medal
+ */
+function getMedalColor(rank: number): string {
+    const colorMap: Record<number, string> = {
+        1: 'text-yellow-500 dark:text-yellow-400', // Gold
+        2: 'text-zinc-400 dark:text-zinc-300', // Silver
+        3: 'text-amber-700 dark:text-amber-600', // Bronze
     };
 
-    return medals[rank] || '';
+    return colorMap[rank] || '';
 }
 
 /**
@@ -367,13 +380,11 @@ function viewEmployeeTrips(userId: number): void {
                                         >
                                             {{ entry.rank }}
                                         </span>
-                                        <span
-                                            v-if="getMedal(entry.rank)"
-                                            class="text-2xl"
-                                            aria-hidden="true"
-                                        >
-                                            {{ getMedal(entry.rank) }}
-                                        </span>
+                                        <IconMedal
+                                            v-if="hasMedal(entry.rank)"
+                                            :size="20"
+                                            :class="getMedalColor(entry.rank)"
+                                        />
                                     </div>
                                 </td>
 
@@ -458,13 +469,11 @@ function viewEmployeeTrips(userId: number): void {
                                 <span class="text-lg font-bold">
                                     Rank #{{ entry.rank }}
                                 </span>
-                                <span
-                                    v-if="getMedal(entry.rank)"
-                                    class="text-2xl"
-                                    aria-hidden="true"
-                                >
-                                    {{ getMedal(entry.rank) }}
-                                </span>
+                                <IconMedal
+                                    v-if="hasMedal(entry.rank)"
+                                    :size="24"
+                                    :class="getMedalColor(entry.rank)"
+                                />
                             </div>
                         </div>
 
