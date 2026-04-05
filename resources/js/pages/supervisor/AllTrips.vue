@@ -23,6 +23,7 @@ import { router } from '@inertiajs/vue3';
 import { AnimatePresence, motion } from 'motion-v';
 import { computed, ref } from 'vue';
 
+import IconCar from '@/components/icons/IconCar.vue';
 import Pagination from '@/components/trips/Pagination.vue';
 import SupervisorTripFilters from '@/components/trips/SupervisorTripFilters.vue';
 import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
@@ -313,27 +314,27 @@ function getStatusText(status: string): string {
 }
 
 /**
- * Get status badge color classes.
+ * Get status badge color classes (theme-aware).
  */
 function getStatusColor(status: string): string {
     const colorMap: Record<string, string> = {
-        in_progress: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-        completed: 'bg-green-500/10 text-green-400 border-green-500/20',
-        auto_stopped: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+        in_progress: 'bg-blue-500/20 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30',
+        completed: 'bg-emerald-500/20 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30',
+        auto_stopped: 'bg-amber-500/20 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30',
     };
 
-    return colorMap[status] || 'bg-gray-500/10 text-gray-400 border-gray-500/20';
+    return colorMap[status] || 'bg-zinc-500/20 dark:bg-zinc-500/15 text-zinc-700 dark:text-zinc-400 border-zinc-500/30';
 }
 
 /**
- * Get violation badge color.
+ * Get violation badge color (theme-aware).
  */
 function getViolationColor(count: number): string {
     if (count === 0) {
-        return 'bg-green-500/10 text-green-400 border-green-500/20';
+        return 'bg-emerald-500/20 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30';
     }
 
-    return 'bg-red-500/10 text-red-400 border-red-500/20';
+    return 'bg-red-500/20 dark:bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30';
 }
 </script>
 
@@ -348,13 +349,10 @@ function getViolationColor(count: number): string {
                 class="mb-6 flex items-start justify-between gap-4"
             >
                 <div class="flex-1">
-                    <h1
-                        class="text-3xl font-bold text-[#e5e7eb]"
-                        style="font-family: 'Bebas Neue', sans-serif"
-                    >
+                    <h1 class="text-3xl font-bold text-zinc-900 dark:text-white md:text-4xl">
                         All Trips
                     </h1>
-                    <p class="mt-1 text-sm text-[#9ca3af]">
+                    <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                         Monitor all employee trips with advanced filtering
                     </p>
                 </div>
@@ -369,10 +367,10 @@ function getViolationColor(count: number): string {
                     }"
                     :transition="{ type: 'spring', bounce: 0.4, duration: 0.3 }"
                     :class="[
-                        'flex h-12 items-center gap-2 rounded-lg border px-4 text-sm font-medium transition-all',
+                        'flex h-12 items-center gap-2 rounded-lg border px-4 text-sm font-medium transition-all duration-200',
                         isExporting || showEmptyState
-                            ? 'cursor-not-allowed border-[#3E3E3A] bg-[#1a1d23] text-[#9ca3af] opacity-50'
-                            : 'border-cyan-500/30 bg-cyan-500/10 text-cyan-400 hover:border-cyan-500/50 hover:bg-cyan-500/20',
+                            ? 'cursor-not-allowed border-zinc-300 dark:border-white/10 bg-zinc-100 dark:bg-zinc-800/50 text-zinc-400 dark:text-zinc-600 opacity-50'
+                            : 'border-cyan-500/30 bg-cyan-500/20 dark:bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 hover:border-cyan-500/50 hover:bg-cyan-500/30 dark:hover:bg-cyan-500/25 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/10',
                     ]"
                     :title="
                         showEmptyState
@@ -456,9 +454,9 @@ function getViolationColor(count: number): string {
                     :animate="{ opacity: 1, x: 0 }"
                     :exit="{ opacity: 0, x: 20 }"
                     :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
-                    class="mb-4 flex items-center justify-between rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-4 py-3"
+                    class="mb-4 flex items-center justify-between rounded-lg border border-cyan-500/30 bg-cyan-100 dark:bg-cyan-500/10 px-4 py-3"
                 >
-                    <span class="text-sm text-cyan-400">
+                    <span class="text-sm text-cyan-700 dark:text-cyan-400">
                         Ditemukan {{ meta.total }} perjalanan
                     </span>
                 </motion.div>
@@ -472,19 +470,19 @@ function getViolationColor(count: number): string {
                     :initial="{ opacity: 0, scale: 0.95 }"
                     :animate="{ opacity: 1, scale: 1 }"
                     :transition="{ duration: 0.4 }"
-                    class="rounded-lg border border-[#3E3E3A] bg-[#161615] px-6 py-12 text-center"
+                    class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 px-6 py-12 text-center shadow-lg shadow-zinc-200 dark:shadow-cyan-500/5"
                 >
-                    <div class="mb-4 text-5xl">🚗</div>
-                    <p class="text-lg font-medium text-[#EDEDEC]">
+                    <IconCar :size="64" class="mx-auto mb-4 text-zinc-400 dark:text-zinc-600" />
+                    <p class="text-lg font-medium text-zinc-900 dark:text-white">
                         Tidak Ada Perjalanan
                     </p>
-                    <p class="mt-2 text-sm text-[#A1A09A]">
+                    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
                         {{ hasActiveFilters ? 'Tidak ada perjalanan yang sesuai dengan filter' : 'Belum ada perjalanan tercatat' }}
                     </p>
                     <button
                         v-if="hasActiveFilters"
                         @click="handleResetFilters"
-                        class="mt-4 inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-cyan-500"
+                        class="mt-4 inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl active:scale-95"
                     >
                         Reset Filter
                     </button>
@@ -493,7 +491,7 @@ function getViolationColor(count: number): string {
                 <!-- Desktop Table View (≥768px) -->
                 <div
                     v-if="!showEmptyState"
-                    class="hidden overflow-hidden rounded-lg border border-[#3E3E3A] bg-[#161615] md:block"
+                    class="hidden overflow-hidden rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 shadow-lg shadow-zinc-200 dark:shadow-cyan-500/5 md:block"
                 >
                     <table
                         class="w-full"
@@ -501,52 +499,52 @@ function getViolationColor(count: number): string {
                         aria-label="All employee trips"
                     >
                         <thead>
-                            <tr class="border-b border-[#3E3E3A] bg-[#0a0a0a]">
+                            <tr class="border-b border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
                                 <th
-                                    class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#A1A09A]"
+                                    class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-900 dark:text-white"
                                     scope="col"
                                 >
                                     Karyawan
                                 </th>
                                 <th
-                                    class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#A1A09A]"
+                                    class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-900 dark:text-white"
                                     scope="col"
                                 >
                                     Tanggal/Waktu
                                 </th>
                                 <th
-                                    class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#A1A09A]"
+                                    class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-900 dark:text-white"
                                     scope="col"
                                 >
                                     Durasi
                                 </th>
                                 <th
-                                    class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#A1A09A]"
+                                    class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-900 dark:text-white"
                                     scope="col"
                                 >
                                     Jarak
                                 </th>
                                 <th
-                                    class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#A1A09A]"
+                                    class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-900 dark:text-white"
                                     scope="col"
                                 >
                                     Kec. Maks
                                 </th>
                                 <th
-                                    class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#A1A09A]"
+                                    class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-900 dark:text-white"
                                     scope="col"
                                 >
                                     Pelanggaran
                                 </th>
                                 <th
-                                    class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#A1A09A]"
+                                    class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-900 dark:text-white"
                                     scope="col"
                                 >
                                     Status
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-[#3E3E3A]">
+                        <tbody class="divide-y divide-zinc-200 dark:divide-white/5">
                             <motion.tr
                                 v-for="(trip, index) in trips"
                                 :key="trip.id"
@@ -559,15 +557,15 @@ function getViolationColor(count: number): string {
                                     bounce: 0.3,
                                 }"
                                 @click="navigateToTrip(trip.id)"
-                                class="cursor-pointer transition-colors hover:bg-[#1a1a19]"
+                                class="cursor-pointer transition-all duration-200 hover:bg-zinc-50 dark:hover:bg-white/5"
                             >
                                 <!-- Employee -->
                                 <td class="px-6 py-4">
                                     <div>
-                                        <p class="font-medium text-[#EDEDEC]">
+                                        <p class="font-medium text-zinc-900 dark:text-white">
                                             {{ getEmployeeName(trip.user_id) }}
                                         </p>
-                                        <p class="mt-1 text-xs text-[#A1A09A]">
+                                        <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
                                             {{ getEmployeeEmail(trip.user_id) }}
                                         </p>
                                     </div>
@@ -576,10 +574,10 @@ function getViolationColor(count: number): string {
                                 <!-- Date/Time -->
                                 <td class="px-6 py-4">
                                     <div>
-                                        <p class="text-sm text-[#EDEDEC]">
+                                        <p class="text-sm text-zinc-900 dark:text-white">
                                             {{ formatShortDate(trip.started_at) }}
                                         </p>
-                                        <p class="mt-1 text-xs text-[#A1A09A]">
+                                        <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
                                             {{ formatTime(trip.started_at) }}
                                         </p>
                                     </div>
@@ -587,30 +585,21 @@ function getViolationColor(count: number): string {
 
                                 <!-- Duration -->
                                 <td class="px-6 py-4">
-                                    <span
-                                        class="font-mono text-sm text-[#EDEDEC]"
-                                        style="font-family: 'Share Tech Mono', monospace"
-                                    >
+                                    <span class="font-mono text-sm text-zinc-900 dark:text-white">
                                         {{ formatDuration(trip.duration_seconds) }}
                                     </span>
                                 </td>
 
                                 <!-- Distance -->
                                 <td class="px-6 py-4">
-                                    <span
-                                        class="font-mono text-sm text-cyan-400"
-                                        style="font-family: 'Share Tech Mono', monospace"
-                                    >
+                                    <span class="font-mono text-sm text-cyan-600 dark:text-cyan-400">
                                         {{ formatDistance(trip.total_distance) }}
                                     </span>
                                 </td>
 
                                 <!-- Max Speed -->
                                 <td class="px-6 py-4">
-                                    <span
-                                        class="font-mono text-sm text-red-400"
-                                        style="font-family: 'Share Tech Mono', monospace"
-                                    >
+                                    <span class="font-mono text-sm text-red-600 dark:text-red-400">
                                         {{ formatSpeed(trip.max_speed) }}
                                     </span>
                                 </td>
@@ -622,7 +611,6 @@ function getViolationColor(count: number): string {
                                             'inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-xs font-semibold',
                                             getViolationColor(trip.violation_count),
                                         ]"
-                                        style="font-family: 'Share Tech Mono', monospace"
                                     >
                                         {{ trip.violation_count }}
                                     </span>
@@ -661,15 +649,15 @@ function getViolationColor(count: number): string {
                             bounce: 0.3,
                         }"
                         @click="navigateToTrip(trip.id)"
-                        class="cursor-pointer rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-4 transition-all hover:border-cyan-500/50 hover:bg-[#2a2d33]"
+                        class="cursor-pointer rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-4 shadow-lg shadow-zinc-200 dark:shadow-cyan-500/5 transition-all duration-200 hover:border-cyan-500/50 dark:hover:border-cyan-500/50 hover:shadow-xl"
                     >
                         <!-- Employee Info -->
                         <div class="mb-3 flex items-start justify-between">
                             <div class="flex-1">
-                                <h3 class="font-medium text-[#e5e7eb]">
+                                <h3 class="font-medium text-zinc-900 dark:text-white">
                                     {{ getEmployeeName(trip.user_id) }}
                                 </h3>
-                                <p class="mt-1 text-xs text-[#9ca3af]">
+                                <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
                                     {{ getEmployeeEmail(trip.user_id) }}
                                 </p>
                             </div>
@@ -684,50 +672,40 @@ function getViolationColor(count: number): string {
                         </div>
 
                         <!-- Date/Time -->
-                        <div class="mb-3 text-sm text-[#9ca3af]">
+                        <div class="mb-3 text-sm text-zinc-600 dark:text-zinc-400">
                             {{ formatDate(trip.started_at) }}, {{ formatTime(trip.started_at) }}
                         </div>
 
                         <!-- Stats Grid -->
                         <div class="grid grid-cols-2 gap-3">
-                            <div class="rounded-lg bg-[#0a0c0f] p-2">
-                                <div class="mb-1 text-xs text-[#9ca3af]">Durasi</div>
-                                <div
-                                    class="font-mono text-sm font-semibold text-[#e5e7eb]"
-                                    style="font-family: 'Share Tech Mono', monospace"
-                                >
+                            <div class="rounded-lg bg-zinc-100 dark:bg-zinc-900/50 p-2 border border-zinc-200 dark:border-white/5">
+                                <div class="mb-1 text-xs text-zinc-600 dark:text-zinc-400">Durasi</div>
+                                <div class="font-mono text-sm font-semibold text-zinc-900 dark:text-white">
                                     {{ formatDuration(trip.duration_seconds) }}
                                 </div>
                             </div>
 
-                            <div class="rounded-lg bg-[#0a0c0f] p-2">
-                                <div class="mb-1 text-xs text-[#9ca3af]">Jarak</div>
-                                <div
-                                    class="font-mono text-sm font-semibold text-cyan-400"
-                                    style="font-family: 'Share Tech Mono', monospace"
-                                >
+                            <div class="rounded-lg bg-zinc-100 dark:bg-zinc-900/50 p-2 border border-zinc-200 dark:border-white/5">
+                                <div class="mb-1 text-xs text-zinc-600 dark:text-zinc-400">Jarak</div>
+                                <div class="font-mono text-sm font-semibold text-cyan-600 dark:text-cyan-400">
                                     {{ formatDistance(trip.total_distance) }}
                                 </div>
                             </div>
 
-                            <div class="rounded-lg bg-[#0a0c0f] p-2">
-                                <div class="mb-1 text-xs text-[#9ca3af]">Kec. Maks</div>
-                                <div
-                                    class="font-mono text-sm font-semibold text-red-400"
-                                    style="font-family: 'Share Tech Mono', monospace"
-                                >
+                            <div class="rounded-lg bg-zinc-100 dark:bg-zinc-900/50 p-2 border border-zinc-200 dark:border-white/5">
+                                <div class="mb-1 text-xs text-zinc-600 dark:text-zinc-400">Kec. Maks</div>
+                                <div class="font-mono text-sm font-semibold text-red-600 dark:text-red-400">
                                     {{ formatSpeed(trip.max_speed) }}
                                 </div>
                             </div>
 
-                            <div class="rounded-lg bg-[#0a0c0f] p-2">
-                                <div class="mb-1 text-xs text-[#9ca3af]">Pelanggaran</div>
+                            <div class="rounded-lg bg-zinc-100 dark:bg-zinc-900/50 p-2 border border-zinc-200 dark:border-white/5">
+                                <div class="mb-1 text-xs text-zinc-600 dark:text-zinc-400">Pelanggaran</div>
                                 <span
                                     :class="[
                                         'inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-xs font-semibold',
                                         getViolationColor(trip.violation_count),
                                     ]"
-                                    style="font-family: 'Share Tech Mono', monospace"
                                 >
                                     {{ trip.violation_count }}
                                 </span>

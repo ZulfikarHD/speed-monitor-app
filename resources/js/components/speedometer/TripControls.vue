@@ -25,7 +25,7 @@ Integration:
 
 <script setup lang="ts">
 import { AnimatePresence, motion } from 'motion-v';
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref } from 'vue';
 
 import { useGeolocation } from '@/composables/useGeolocation';
 import { useTripStore } from '@/stores/trip';

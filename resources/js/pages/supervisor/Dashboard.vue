@@ -31,6 +31,8 @@ import EmployeeSummaryWidget from '@/components/dashboard/EmployeeSummaryWidget.
 import QuickActionsBar from '@/components/dashboard/QuickActionsBar.vue';
 import RecentViolationsList from '@/components/dashboard/RecentViolationsList.vue';
 import TrendStatCard from '@/components/dashboard/TrendStatCard.vue';
+import IconAlert from '@/components/icons/IconAlert.vue';
+import IconRefresh from '@/components/icons/IconRefresh.vue';
 import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
 import type { DashboardOverview } from '@/types/dashboard';
 
@@ -247,7 +249,7 @@ async function handleManualRefresh(): Promise<void> {
 
 <template>
     <SupervisorLayout title="Dashboard Overview">
-        <div class="min-h-screen bg-[#0a0c0f] p-4 md:p-6 lg:p-8">
+        <div class="min-h-screen p-4 md:p-6 lg:p-8">
             <div class="mx-auto max-w-7xl space-y-6">
                 <!-- Header Section with Date Filter -->
                 <motion.div
@@ -258,10 +260,10 @@ async function handleManualRefresh(): Promise<void> {
                 >
                     <!-- Title -->
                     <div class="flex-1">
-                        <h1 class="text-3xl font-bold text-[#EDEDEC] md:text-4xl">
+                        <h1 class="text-3xl font-bold text-zinc-900 dark:text-white md:text-4xl">
                             Dashboard Overview
                         </h1>
-                        <p class="mt-1 text-sm text-[#A1A09A]">
+                        <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                             Real-time monitoring of employee trip compliance
                         </p>
                     </div>
@@ -272,13 +274,13 @@ async function handleManualRefresh(): Promise<void> {
                         <DateRangeFilter v-model="selectedDateRange" />
 
                         <!-- Last Updated -->
-                        <div class="text-sm text-[#A1A09A]">Updated: {{ lastUpdatedText }}</div>
+                        <div class="text-sm text-zinc-600 dark:text-zinc-400">Updated: {{ lastUpdatedText }}</div>
 
                         <!-- Auto-refresh Badge -->
                         <motion.div
                             :animate="{ scale: countdown <= 5 ? [1, 1.05, 1] : 1 }"
                             :transition="{ duration: 0.5, repeat: countdown <= 5 ? Infinity : 0 }"
-                            class="rounded-full bg-cyan-500/10 px-3 py-1 text-xs font-medium text-cyan-400"
+                            class="rounded-full bg-cyan-500/10 dark:bg-cyan-500/15 px-3 py-1 text-xs font-medium text-cyan-600 dark:text-cyan-400 border border-cyan-500/20"
                         >
                             Next in {{ countdown }}s
                         </motion.div>
@@ -289,11 +291,11 @@ async function handleManualRefresh(): Promise<void> {
                             :whileHover="{ scale: 1.05, rotate: 180 }"
                             :whilePress="{ scale: 0.95 }"
                             :transition="{ type: 'spring', bounce: 0.5, duration: 0.4 }"
-                            class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#3E3E3A] text-[#EDEDEC] transition-colors hover:bg-[#4a4a46] disabled:cursor-not-allowed disabled:opacity-50"
+                            class="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white transition-colors hover:bg-zinc-300 dark:hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50 border border-zinc-300 dark:border-white/10"
                             :aria-label="'Refresh dashboard'"
                             @click="handleManualRefresh"
                         >
-                            <span class="text-lg" aria-hidden="true">🔄</span>
+                            <IconRefresh :size="20" />
                         </motion.button>
                     </div>
                 </motion.div>
@@ -304,17 +306,17 @@ async function handleManualRefresh(): Promise<void> {
                     :initial="{ opacity: 0, scale: 0.95 }"
                     :animate="{ opacity: 1, scale: 1 }"
                     :transition="{ duration: 0.4 }"
-                    class="rounded-lg border border-red-500/30 bg-red-500/10 p-6"
+                    class="rounded-lg border border-red-500/30 bg-red-100 dark:bg-red-500/10 p-6"
                 >
                     <div class="flex items-start gap-3">
-                        <span class="text-2xl" aria-hidden="true">⚠️</span>
+                        <IconAlert :size="24" class="text-red-600 dark:text-red-400" />
                         <div class="flex-1">
-                            <h3 class="font-semibold text-red-400">Failed to Load Dashboard Data</h3>
-                            <p class="mt-1 text-sm text-red-300">
+                            <h3 class="font-semibold text-red-800 dark:text-red-400">Failed to Load Dashboard Data</h3>
+                            <p class="mt-1 text-sm text-red-700 dark:text-red-300">
                                 {{ error }}
                             </p>
                             <button
-                                class="mt-3 rounded-lg bg-red-500/20 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/30"
+                                class="mt-3 rounded-lg bg-red-500/20 dark:bg-red-500/20 px-4 py-2 text-sm font-medium text-red-700 dark:text-red-400 transition-colors hover:bg-red-500/30 dark:hover:bg-red-500/30 border border-red-500/30"
                                 @click="handleManualRefresh"
                             >
                                 Try Again
