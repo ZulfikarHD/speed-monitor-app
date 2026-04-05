@@ -3,20 +3,20 @@
  * Supervisor Layout Component
  *
  * Reusable layout wrapper for all supervisor/admin pages with responsive navigation.
- * Provides consistent navigation structure across mobile and desktop.
+ * Provides consistent navigation structure and global overlays.
  *
  * Navigation Structure:
- * - Mobile (≤768px): Bottom navigation bar with 4 items
+ * - Mobile (<=768px): Bottom navigation bar with 5 items
  * - Desktop (>768px): Top navigation bar with horizontal menu
- * - Profile dropdown accessible on both layouts
  *
  * Features:
  * - Responsive navigation (bottom mobile, top desktop)
  * - Content slot for page content
  * - Proper spacing for fixed navigation
- * - SpeedoMontor dark theme styling
+ * - SpeedMonitor design system styling (extra dark mode)
+ * - Global PWA install prompt
+ * - Global service worker update notification
  * - Accessible navigation landmarks
- * - Global update notification for PWA updates
  */
 
 import { Head } from '@inertiajs/vue3';
@@ -47,27 +47,17 @@ const props = withDefaults(defineProps<Props>(), {
 
 const { hasUpdate, applyUpdate } = useServiceWorker();
 
-/**
- * Handle update button click.
- * Applies pending Service Worker update.
- */
+/** Apply pending Service Worker update. */
 const handleUpdate = async (): Promise<void> => {
     try {
         await applyUpdate();
-        // Page will reload automatically after SW activation
     } catch (error) {
         console.error('[SupervisorLayout] Failed to apply update:', error);
     }
 };
 
-/**
- * Handle dismiss button click.
- * User will get update on next page load.
- */
-const handleDismiss = (): void => {
-    // Update notification will be hidden
-    // Update will be applied on next page load automatically
-};
+/** Dismiss update notification — update applies on next page load. */
+const handleDismiss = (): void => {};
 
 // ========================================================================
 // PWA Install Prompt Management
@@ -75,11 +65,7 @@ const handleDismiss = (): void => {
 
 const { showPrompt: showInstallPrompt, isInstalling, install, dismiss } = useInstallPrompt();
 
-/**
- * Handle PWA install button click.
- *
- * Triggers native browser install prompt.
- */
+/** Trigger native browser install prompt. */
 const handleInstall = async (): Promise<void> => {
     try {
         await install();
@@ -88,30 +74,29 @@ const handleInstall = async (): Promise<void> => {
     }
 };
 
-/**
- * Handle PWA install prompt dismiss.
- *
- * Hides prompt and stores dismissal preference.
- */
+/** Dismiss install prompt and store preference. */
 const handleInstallDismiss = (): void => {
     dismiss();
 };
 </script>
 
 <template>
-    <!-- Document Head -->
     <Head :title="props.title" />
 
     <!-- ======================================================================
         Supervisor Layout
-        Theme-aware professional layout with extra dark mode
+        Theme-aware with extra dark mode (black/zinc-950 base)
     ======================================================================= -->
     <div class="relative min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-black dark:via-zinc-950 dark:to-black">
-        <!-- Tech Grid Background (theme-aware) -->
-        <div class="pointer-events-none fixed inset-0 bg-[linear-gradient(rgba(6,182,212,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,.08)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(6,182,212,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,.02)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
+        <!-- Tech Grid Background (64px, theme-aware) -->
+        <div
+            class="pointer-events-none fixed inset-0 bg-[linear-gradient(rgba(6,182,212,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,.08)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(6,182,212,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,.02)_1px,transparent_1px)] bg-[size:64px_64px]"
+        ></div>
 
-        <!-- Radial Gradient Overlay (theme-aware) -->
-        <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(6,182,212,0.05),transparent_40%)] dark:bg-[radial-gradient(ellipse_at_top_right,rgba(6,182,212,0.08),transparent_50%)]"></div>
+        <!-- Radial Gradient Overlay -->
+        <div
+            class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(6,182,212,0.05),transparent_40%)] dark:bg-[radial-gradient(ellipse_at_top_right,rgba(6,182,212,0.08),transparent_50%)]"
+        ></div>
 
         <!-- Top Navigation (Desktop/Tablet) -->
         <TopNav />
@@ -121,14 +106,13 @@ const handleInstallDismiss = (): void => {
             class="relative z-0 pt-0 pb-20 md:pt-16 md:pb-0"
             role="main"
         >
-            <!-- Page Content Slot -->
             <slot />
         </main>
 
         <!-- Bottom Navigation (Mobile) -->
         <BottomNav />
 
-        <!-- PWA Install Prompt (Optional Enhancement) -->
+        <!-- PWA Install Prompt -->
         <InstallPrompt
             v-if="showInstallPrompt"
             :is-installing="isInstalling"
@@ -136,7 +120,7 @@ const handleInstallDismiss = (): void => {
             @dismiss="handleInstallDismiss"
         />
 
-        <!-- Service Worker Update Notification (Global) -->
+        <!-- Service Worker Update Notification -->
         <UpdateNotification
             :show="hasUpdate"
             @update="handleUpdate"
@@ -147,16 +131,12 @@ const handleInstallDismiss = (): void => {
 
 <style>
 /**
- * Global styles for supervisor layout.
+ * Mobile: bottom padding for fixed bottom nav.
  *
- * Ensures proper spacing and prevents content from being
- * hidden behind fixed navigation elements.
+ * WHY: Prevents content from being hidden behind the fixed bottom navigation.
  */
-
-/* Mobile: Add bottom padding for fixed bottom nav */
 @media (max-width: 767px) {
     main {
-        /* 80px = bottom nav height + safe area buffer */
         padding-bottom: calc(80px + env(safe-area-inset-bottom));
     }
 }

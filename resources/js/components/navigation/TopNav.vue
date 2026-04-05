@@ -2,33 +2,38 @@
 /**
  * Top Navigation Component
  *
- * Horizontal navigation bar for desktop and tablet devices.
- * Professional design with glassmorphism and subtle animations.
+ * Horizontal navigation bar for desktop/tablet with fake glass effect.
+ * Follows SpeedMonitor design system with lucide icons and theme-aware styling.
  *
  * Features:
- * - SpeedoMontor logo/branding on left
- * - Horizontal navigation links with SVG icons
+ * - SpeedMonitor logo/branding on left
+ * - Horizontal navigation links with lucide icons
  * - Sync status badge on My Trips link
  * - User profile dropdown on right
- * - Active state indicators
- * - Responsive design (hidden on mobile)
- * - ARIA accessibility
+ * - Active state indicators with gradient accent
+ * - Responsive: hidden on mobile (BottomNav takes over)
+ * - ARIA accessibility landmarks
+ *
+ * UX Principles:
+ * - Fitts's Law: Adequate click targets for nav items
+ * - Jakob's Law: Familiar horizontal top navigation pattern
+ * - Law of Proximity: Icon + label grouped per nav item
  */
 
 import { Link } from '@inertiajs/vue3';
+import {
+    BarChart3,
+    Car,
+    ClipboardList,
+    Gauge,
+    Home,
+    Settings,
+    Trophy,
+    Users,
+} from '@lucide/vue';
 import type { Component } from 'vue';
 import { computed } from 'vue';
 
-import {
-    IconCar,
-    IconChart,
-    IconClipboard,
-    IconGauge,
-    IconHome,
-    IconSettings,
-    IconTrophy,
-    IconUsers,
-} from '@/components/icons';
 import UserProfileDropdown from '@/components/navigation/UserProfileDropdown.vue';
 import SyncBadge from '@/components/sync/SyncBadge.vue';
 import { useActiveRoute } from '@/composables/useActiveRoute';
@@ -48,64 +53,19 @@ interface NavItem {
 
 /** Employee navigation items */
 const employeeNavItems: NavItem[] = [
-    {
-        id: 'dashboard',
-        label: 'Dashboard',
-        icon: IconHome,
-        href: '/employee/dashboard',
-    },
-    {
-        id: 'speedometer',
-        label: 'Speedometer',
-        icon: IconGauge,
-        href: '/employee/speedometer',
-    },
-    {
-        id: 'trips',
-        label: 'My Trips',
-        icon: IconClipboard,
-        href: '/employee/my-trips',
-    },
-    {
-        id: 'statistics',
-        label: 'Statistics',
-        icon: IconChart,
-        href: '/employee/statistics',
-    },
+    { id: 'dashboard', label: 'Dashboard', icon: Home, href: '/employee/dashboard' },
+    { id: 'speedometer', label: 'Speedometer', icon: Gauge, href: '/employee/speedometer' },
+    { id: 'trips', label: 'My Trips', icon: ClipboardList, href: '/employee/my-trips' },
+    { id: 'statistics', label: 'Statistics', icon: BarChart3, href: '/employee/statistics' },
 ];
 
 /** Supervisor/Admin navigation items */
 const supervisorNavItems: NavItem[] = [
-    {
-        id: 'dashboard',
-        label: 'Dashboard',
-        icon: IconChart,
-        href: '/supervisor/dashboard',
-    },
-    {
-        id: 'trips',
-        label: 'All Trips',
-        icon: IconCar,
-        href: '/supervisor/trips',
-    },
-    {
-        id: 'leaderboard',
-        label: 'Leaderboard',
-        icon: IconTrophy,
-        href: '/supervisor/leaderboard',
-    },
-    {
-        id: 'employees',
-        label: 'Employees',
-        icon: IconUsers,
-        href: '/supervisor/employees',
-    },
-    {
-        id: 'settings',
-        label: 'Settings',
-        icon: IconSettings,
-        href: '/admin/settings',
-    },
+    { id: 'dashboard', label: 'Dashboard', icon: BarChart3, href: '/supervisor/dashboard' },
+    { id: 'trips', label: 'All Trips', icon: Car, href: '/supervisor/trips' },
+    { id: 'leaderboard', label: 'Leaderboard', icon: Trophy, href: '/supervisor/leaderboard' },
+    { id: 'employees', label: 'Employees', icon: Users, href: '/supervisor/employees' },
+    { id: 'settings', label: 'Settings', icon: Settings, href: '/admin/settings' },
 ];
 
 // ========================================================================
@@ -123,9 +83,7 @@ const { openModal } = useSyncQueue();
 /**
  * Get navigation items based on user role.
  *
- * WHY: Supervisors and admins see different navigation than employees.
- * Employees see speedometer and trip tracking, supervisors see monitoring tools
- * including employee management.
+ * WHY: Supervisors/admins see monitoring tools while employees see trip tracking.
  */
 const navItems = computed((): NavItem[] => {
     const role = authStore.role;
@@ -138,10 +96,7 @@ const navItems = computed((): NavItem[] => {
 });
 
 /**
- * Check if user is employee.
- *
- * WHY: Only employees need sync badge (they track trips offline).
- * Supervisors don't track trips, so no sync functionality needed.
+ * WHY: Only employees need sync badge — they track trips offline.
  */
 const isEmployee = computed(() => authStore.role === 'employee');
 
@@ -150,10 +105,7 @@ const isEmployee = computed(() => authStore.role === 'employee');
 // ========================================================================
 
 /**
- * Handle sync badge click.
- *
- * WHY: Opens sync queue modal without navigating to My Trips page.
- * Allows quick access to sync status from any page.
+ * Handle sync badge click — opens sync queue modal without navigating.
  */
 function handleSyncBadgeClick(event: MouseEvent): void {
     event.preventDefault();
@@ -165,31 +117,34 @@ function handleSyncBadgeClick(event: MouseEvent): void {
 <template>
     <!-- ======================================================================
         Top Navigation Bar (Desktop/Tablet)
-        Theme-aware glassmorphism design with extra dark mode
+        Fake glass effect — no backdrop-blur, uses semi-transparent bg + borders
     ======================================================================= -->
     <nav
-        class="fixed top-0 left-0 right-0 z-50 hidden border-b border-zinc-200 dark:border-white/5 bg-white/90 dark:bg-black/98 backdrop-blur-xl md:block"
+        class="fixed top-0 left-0 right-0 z-50 hidden md:block bg-white/95 dark:bg-zinc-900/98 border-b border-zinc-200/80 dark:border-white/10 ring-1 ring-white/20 dark:ring-white/5 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
         role="navigation"
         aria-label="Main navigation"
     >
-        <!-- Subtle grid pattern overlay (theme-aware) -->
-        <div class="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(rgba(6,182,212,.05)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,.05)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.01)_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+        <!-- Grid pattern overlay (32px, theme-aware) -->
+        <div
+            class="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(rgba(6,182,212,.05)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,.05)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.01)_1px,transparent_1px)] bg-[size:32px_32px]"
+        ></div>
 
         <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-16 items-center justify-between">
-                <!-- Left: Logo/Branding -->
+                <!-- Left: Logo + Nav Links -->
                 <div class="flex items-center gap-8">
                     <!-- SpeedMonitor Logo -->
                     <Link
                         href="/employee/dashboard"
-                        class="group flex items-center gap-3 transition-all duration-300"
+                        class="group flex items-center gap-3 transition-colors duration-200"
                     >
-                        <div class="relative flex h-10 w-10 items-center justify-center rounded-lg border border-cyan-200 dark:border-cyan-500/20 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-500/10 dark:to-blue-600/10 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/5 transition-all duration-300 group-hover:border-cyan-300 dark:group-hover:border-cyan-400/40 group-hover:shadow-cyan-300 dark:group-hover:shadow-cyan-500/20">
-                            <IconCar
+                        <div
+                            class="relative flex h-10 w-10 items-center justify-center rounded-lg border border-cyan-200 dark:border-cyan-500/20 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-500/10 dark:to-blue-600/10 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/5 transition-colors duration-200 group-hover:border-cyan-300 dark:group-hover:border-cyan-400/40"
+                        >
+                            <Car
                                 :size="20"
-                                class="text-cyan-600 dark:text-cyan-400 transition-transform duration-300 group-hover:scale-110"
+                                class="text-cyan-600 dark:text-cyan-400"
                             />
-                            <div class="absolute inset-0 rounded-lg bg-gradient-to-br from-cyan-400/0 to-blue-500/0 opacity-0 transition-opacity duration-300 group-hover:opacity-20"></div>
                         </div>
                         <div class="flex flex-col">
                             <span class="font-mono text-base font-semibold tracking-wider text-zinc-900 dark:text-zinc-50">
@@ -222,11 +177,11 @@ function handleSyncBadgeClick(event: MouseEvent): void {
                                 size="sm"
                                 @click="handleSyncBadgeClick"
                             />
-                            <!-- Icon -->
+
                             <component
                                 :is="item.icon"
                                 :size="18"
-                                class="transition-all duration-200"
+                                class="transition-colors duration-200"
                                 :class="
                                     isActive(item.href)
                                         ? 'text-cyan-600 dark:text-white'
@@ -234,7 +189,6 @@ function handleSyncBadgeClick(event: MouseEvent): void {
                                 "
                             />
 
-                            <!-- Label -->
                             <span class="font-medium">{{ item.label }}</span>
 
                             <!-- Active indicator line -->

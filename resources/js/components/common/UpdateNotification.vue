@@ -1,68 +1,48 @@
-<!--
-==============================================================================
-UPDATE NOTIFICATION COMPONENT
-==============================================================================
-
-Service Worker update notification with motion-v animations.
-Displays a slide-in notification when a new app version is available.
-
-Features:
-- Slide-in from bottom with spring animation
-- Two action buttons: "Nanti Saja" (dismiss) and "Perbarui Sekarang" (update)
-- Loading state on update button
-- Auto-dismiss after 30 seconds (optional)
-- Touch-friendly buttons (≥48px)
-- Safe area padding for iOS notch
-- SpeedoMontor dark theme styling
-
-UX Laws Applied:
-- Jakob's Law: Familiar PWA update pattern (Chrome/Edge style)
-- Fitts's Law: Large touch targets (≥48px buttons)
-- Miller's Law: Two clear choices (Update / Later)
-- Aesthetic-Usability: Smooth spring animations for polish
-
-@example
-```vue
-<template>
-  <UpdateNotification
-    :show="hasUpdate"
-    @update="handleUpdate"
-    @dismiss="handleDismiss"
-  />
-</template>
-```
-==============================================================================
--->
-
 <script setup lang="ts">
+/**
+ * Update Notification Component
+ *
+ * Service Worker update notification with slide-in animation.
+ * Displays when a new app version is available with update/dismiss actions.
+ *
+ * Features:
+ * - Slide-in from bottom with motion-v
+ * - Two actions: "Nanti Saja" (dismiss) and "Perbarui Sekarang" (update)
+ * - Loading state on update button
+ * - Auto-dismiss after configurable seconds
+ * - Touch-friendly buttons (>=44px)
+ * - Safe area padding for iOS
+ * - Theme-aware design with fake glass effect
+ *
+ * UX Principles:
+ * - Jakob's Law: Familiar PWA update pattern (Chrome/Edge style)
+ * - Fitts's Law: Large touch targets (>=44px buttons)
+ * - Hick's Law: Two clear choices (Update / Later)
+ */
+
+import { RefreshCw, Rocket } from '@lucide/vue';
 import { AnimatePresence, motion } from 'motion-v';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-/**
- * Component props.
- */
+// ========================================================================
+// Props & Emits
+// ========================================================================
+
 interface Props {
     /** Whether to show the notification */
     show?: boolean;
-
     /** Auto-reload after update (default: true) */
     autoReload?: boolean;
-
     /** Allow dismissing notification (default: true) */
     dismissible?: boolean;
-
     /** Auto-dismiss after N seconds (0 = never, default: 30) */
     autoDismissSeconds?: number;
 }
 
-/**
- * Component emits.
- */
 interface Emits {
-    /** Emitted when user clicks "Perbarui Sekarang" */
+    /** User clicks "Perbarui Sekarang" */
     (e: 'update'): void;
-
-    /** Emitted when user clicks "Nanti Saja" or auto-dismiss triggers */
+    /** User clicks "Nanti Saja" or auto-dismiss triggers */
     (e: 'dismiss'): void;
 }
 
@@ -75,83 +55,56 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-// ==============================================================================
+// ========================================================================
 // State
-// ==============================================================================
+// ========================================================================
 
-/**
- * Whether update is being applied.
- */
 const isUpdating = ref(false);
-
-/**
- * Auto-dismiss timer reference.
- */
 let autoDismissTimer: ReturnType<typeof setTimeout> | null = null;
 
-// ==============================================================================
+// ========================================================================
 // Computed
-// ==============================================================================
+// ========================================================================
 
-/**
- * Button text for update action.
- */
 const updateButtonText = computed(() => {
     return isUpdating.value ? 'Memperbarui...' : 'Perbarui Sekarang';
 });
 
-// ==============================================================================
+// ========================================================================
 // Methods
-// ==============================================================================
+// ========================================================================
 
-/**
- * Handle update button click.
- * Triggers update and shows loading state.
- */
+/** Trigger update and show loading state. */
 const handleUpdate = (): void => {
     if (isUpdating.value) {
-        return;
-    }
+return;
+}
 
     isUpdating.value = true;
     emit('update');
-
-    // Note: Page will reload automatically after SW activation
-    // Loading state kept until reload happens
 };
 
-/**
- * Handle dismiss button click.
- * Closes notification without updating.
- */
+/** Dismiss notification. */
 const handleDismiss = (): void => {
     if (!props.dismissible) {
-        return;
-    }
+return;
+}
 
     clearAutoDismissTimer();
     emit('dismiss');
 };
 
-/**
- * Start auto-dismiss timer.
- * Automatically dismisses notification after specified seconds.
- */
 const startAutoDismissTimer = (): void => {
     if (!props.autoDismissSeconds || props.autoDismissSeconds <= 0) {
-        return;
-    }
+return;
+}
 
     clearAutoDismissTimer();
-
     autoDismissTimer = setTimeout(() => {
         handleDismiss();
     }, props.autoDismissSeconds * 1000);
 };
 
-/**
- * Clear auto-dismiss timer.
- */
 const clearAutoDismissTimer = (): void => {
     if (autoDismissTimer) {
         clearTimeout(autoDismissTimer);
@@ -159,22 +112,16 @@ const clearAutoDismissTimer = (): void => {
     }
 };
 
-// ==============================================================================
+// ========================================================================
 // Lifecycle
-// ==============================================================================
+// ========================================================================
 
-/**
- * Start auto-dismiss timer when notification shown.
- */
 onMounted(() => {
     if (props.show) {
-        startAutoDismissTimer();
-    }
+startAutoDismissTimer();
+}
 });
 
-/**
- * Clean up timer on unmount.
- */
 onUnmounted(() => {
     clearAutoDismissTimer();
 });
@@ -188,49 +135,31 @@ onUnmounted(() => {
             :initial="{ y: 100, opacity: 0 }"
             :animate="{ y: 0, opacity: 1 }"
             :exit="{ y: 100, opacity: 0 }"
-            :transition="{
-                type: 'spring',
-                stiffness: 300,
-                damping: 30,
-                mass: 0.8,
-            }"
+            :transition="{ duration: 0.3 }"
             class="fixed bottom-0 left-0 right-0 z-50 pb-safe md:bottom-6 md:left-auto md:right-6"
         >
-            <!-- Notification Card -->
+            <!-- Notification Card (fake glass) -->
             <div
-                class="mx-4 rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-4 shadow-2xl backdrop-blur-xl md:mx-0 md:w-96"
+                class="mx-4 rounded-2xl p-4 shadow-2xl md:mx-0 md:w-96 bg-white/95 dark:bg-zinc-900/98 border border-zinc-200/80 dark:border-white/10 ring-1 ring-white/20 dark:ring-white/5 shadow-zinc-900/5 dark:shadow-cyan-500/5"
             >
                 <!-- Header Section -->
                 <div class="mb-3 flex items-start gap-3">
                     <!-- Icon -->
-                    <motion.div
-                        :initial="{ scale: 0, rotate: -180 }"
-                        :animate="{ scale: 1, rotate: 0 }"
-                        :transition="{ delay: 0.1, type: 'spring', stiffness: 200 }"
-                        class="flex size-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600"
+                    <div
+                        class="flex size-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25"
                     >
-                        <svg
-                            class="size-5 text-white"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                            />
-                        </svg>
-                    </motion.div>
+                        <RefreshCw
+                            :size="20"
+                            class="text-white"
+                        />
+                    </div>
 
                     <!-- Title and Description -->
                     <div class="flex-1">
-                        <h3 class="mb-1 text-base font-semibold text-slate-100">
+                        <h3 class="mb-1 text-base font-semibold text-zinc-900 dark:text-white">
                             Pembaruan Tersedia
                         </h3>
-                        <p class="text-sm leading-relaxed text-slate-400">
+                        <p class="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
                             Versi baru aplikasi siap diinstal. Perbarui sekarang untuk mendapatkan fitur terbaru.
                         </p>
                     </div>
@@ -238,11 +167,11 @@ onUnmounted(() => {
 
                 <!-- Action Buttons -->
                 <div class="flex gap-2">
-                    <!-- Dismiss Button (if dismissible) -->
+                    <!-- Dismiss Button -->
                     <button
                         v-if="dismissible"
                         type="button"
-                        class="flex-1 rounded-xl border border-slate-600 bg-slate-800/50 px-4 py-3 text-sm font-medium text-slate-300 transition-all hover:border-slate-500 hover:bg-slate-700/50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                        class="flex-1 rounded-xl px-4 py-3 text-sm font-medium transition-colors duration-200 border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
                         :disabled="isUpdating"
                         @click="handleDismiss"
                     >
@@ -252,59 +181,36 @@ onUnmounted(() => {
                     <!-- Update Button -->
                     <button
                         type="button"
-                        class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-900/30 transition-all hover:from-blue-500 hover:to-blue-600 active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
+                        class="flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25 hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
                         :disabled="isUpdating"
                         @click="handleUpdate"
                     >
-                        <!-- Loading Spinner -->
-                        <motion.svg
+                        <RefreshCw
                             v-if="isUpdating"
-                            :animate="{ rotate: 360 }"
-                            :transition="{ duration: 1, repeat: Infinity, ease: 'linear' }"
-                            class="size-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                        >
-                            <circle
-                                class="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                stroke-width="4"
-                            />
-                            <path
-                                class="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            />
-                        </motion.svg>
-
-                        <!-- Button Text -->
+                            :size="16"
+                            class="animate-spin"
+                        />
                         <span>{{ updateButtonText }}</span>
-
-                        <!-- Rocket Icon (when not loading) -->
-                        <span v-if="!isUpdating">🚀</span>
+                        <Rocket
+                            v-if="!isUpdating"
+                            :size="16"
+                        />
                     </button>
                 </div>
 
-                <!-- Auto-dismiss indicator (optional) -->
-                <motion.div
+                <!-- Auto-dismiss indicator -->
+                <div
                     v-if="autoDismissSeconds > 0 && dismissible"
-                    :initial="{ opacity: 0 }"
-                    :animate="{ opacity: 1 }"
-                    :transition="{ delay: 0.3 }"
-                    class="mt-3 text-center text-xs text-slate-500"
+                    class="mt-3 text-center text-xs text-zinc-500 dark:text-zinc-500"
                 >
                     Otomatis tertutup dalam {{ autoDismissSeconds }} detik
-                </motion.div>
+                </div>
             </div>
         </motion.div>
     </AnimatePresence>
 </template>
 
 <style scoped>
-/* Safe area padding for iOS notch */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
     .pb-safe {
         padding-bottom: calc(1rem + env(safe-area-inset-bottom));
