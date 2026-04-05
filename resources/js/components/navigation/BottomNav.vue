@@ -255,7 +255,7 @@ function handleSyncBadgeClick(event: MouseEvent): void {
                     <!-- Icon Glow Effect (dark mode only) -->
                     <div
                         v-if="isActive(item.href)"
-                        class="absolute inset-0 -m-2 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-500/20 blur-md opacity-0 dark:opacity-100"
+                        class="absolute inset-0 -m-2 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-md opacity-0 dark:opacity-100"
                     ></div>
 
                     <!-- Icon -->
