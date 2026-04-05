@@ -305,8 +305,6 @@ export const useTripStore = defineStore('trip', () => {
                     errorMessage: null,
                     createdAt: new Date().toISOString(),
                 });
-
-                console.log(`Trip started offline with local ID: ${tripId}`);
             }
 
             // Reset tracking state for new session
@@ -537,8 +535,6 @@ export const useTripStore = defineStore('trip', () => {
         const isOnline = navigator.onLine;
 
         if (!isOnline) {
-            console.log('Offline - speed logs saved to IndexedDB, will sync when online');
-
             return;
         }
 
@@ -549,8 +545,6 @@ export const useTripStore = defineStore('trip', () => {
          * WHY: Full trip sync happens when connection restored.
          */
         if (isOfflineTrip.value) {
-            console.log('Offline trip - speed logs will sync with trip later');
-
             return;
         }
 
@@ -593,10 +587,6 @@ export const useTripStore = defineStore('trip', () => {
             speedLogs.value = [];
             lastSyncAt.value = new Date();
             syncRetryCount.value = 0; // Reset retry counter
-
-            console.log(
-                `Successfully synced ${response.created_count} speed logs`,
-            );
         } catch (err: any) {
             syncRetryCount.value++;
 
@@ -737,8 +727,6 @@ export const useTripStore = defineStore('trip', () => {
                     currentTrip.value.duration_seconds = durationSeconds;
                     currentTrip.value.notes = notes || currentTrip.value.notes;
                 }
-
-                console.log(`Trip ended offline with local ID: ${localTripId.value}`);
             }
 
             // Stop tracking

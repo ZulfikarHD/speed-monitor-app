@@ -413,11 +413,6 @@ function triggerAlert(speed: number, speedLimit: number): void {
     // Trigger all alert channels
     showNotification(speed, speedLimit);
     playBeep();
-
-    // Log for debugging
-    console.log(
-        `Speed violation alert: ${Math.round(speed)} km/h (limit: ${speedLimit} km/h)`,
-    );
 }
 
 /**

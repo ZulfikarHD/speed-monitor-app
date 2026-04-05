@@ -145,7 +145,6 @@ const startAutoDismissTimer = (): void => {
     clearAutoDismissTimer();
 
     autoDismissTimer = setTimeout(() => {
-        console.log('[UpdateNotification] Auto-dismiss triggered');
         handleDismiss();
     }, props.autoDismissSeconds * 1000);
 };

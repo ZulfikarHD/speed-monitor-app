@@ -168,9 +168,6 @@ export function useOnlineStatus(): UseOnlineStatusReturn {
     const handleOnline = (): void => {
         isOnline.value = true;
         updateConnectionInfo();
-
-        // Log for debugging (can be removed in production)
-        console.log('[useOnlineStatus] Connection restored');
     };
 
     /**
@@ -182,9 +179,6 @@ export function useOnlineStatus(): UseOnlineStatusReturn {
     const handleOffline = (): void => {
         isOnline.value = false;
         updateConnectionInfo();
-
-        // Log for debugging (can be removed in production)
-        console.log('[useOnlineStatus] Connection lost');
     };
 
     /**
@@ -195,11 +189,6 @@ export function useOnlineStatus(): UseOnlineStatusReturn {
      */
     const handleConnectionChange = (): void => {
         updateConnectionInfo();
-
-        // Log for debugging (can be removed in production)
-        console.log(
-            `[useOnlineStatus] Connection changed: ${connectionType.value} (${effectiveType.value})`
-        );
     };
 
     /**

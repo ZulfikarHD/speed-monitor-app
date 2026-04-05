@@ -29,7 +29,7 @@ const handleUpdate = async (): Promise<void> => {
 };
 
 const handleDismiss = (): void => {
-    console.log('[Admin Dashboard] Update notification dismissed');
+    // Update notification dismissed
 };
 </script>
 

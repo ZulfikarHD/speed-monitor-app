@@ -252,8 +252,6 @@ export function useBackgroundSync(): UseBackgroundSyncReturn {
     ): Promise<void> {
         // Step 1: Check sync lock
         if (syncLock) {
-            console.log('[useBackgroundSync] Sync already in progress, skipping');
-
             return;
         }
 
@@ -261,8 +259,6 @@ export function useBackgroundSync(): UseBackgroundSyncReturn {
         const pendingCount = await syncService.getPendingTripCount();
 
         if (pendingCount === 0) {
-            console.log('[useBackgroundSync] No pending trips to sync');
-
             return;
         }
 
@@ -383,9 +379,6 @@ export function useBackgroundSync(): UseBackgroundSyncReturn {
     function scheduleRetry(): void {
         // Check if max retries reached
         if (state.value.retryCount >= MAX_RETRY_ATTEMPTS) {
-            console.log(
-                '[useBackgroundSync] Max retry attempts reached, giving up',
-            );
             state.value.retryCount = 0;
             state.value.nextRetryAt = null;
 
@@ -400,10 +393,6 @@ export function useBackgroundSync(): UseBackgroundSyncReturn {
         // Calculate delay based on retry count
         const delay = RETRY_DELAYS_MS[state.value.retryCount];
         state.value.nextRetryAt = new Date(Date.now() + delay);
-
-        console.log(
-            `[useBackgroundSync] Scheduling retry #${state.value.retryCount + 1} in ${delay / 1000}s`,
-        );
 
         // Schedule retry
         retryTimeoutId = setTimeout(() => {
@@ -443,9 +432,6 @@ export function useBackgroundSync(): UseBackgroundSyncReturn {
     function isNetworkQualityAcceptable(): boolean {
         // Skip on slow-2g
         if (effectiveType.value === 'slow-2g') {
-            console.log(
-                '[useBackgroundSync] Network quality too slow (slow-2g), skipping sync',
-            );
             showWarning(
                 'Koneksi terlalu lambat untuk sinkronisasi. Tunggu koneksi lebih baik.',
             );
@@ -455,9 +441,6 @@ export function useBackgroundSync(): UseBackgroundSyncReturn {
 
         // Delay on 2g
         if (effectiveType.value === '2g') {
-            console.log(
-                '[useBackgroundSync] Network quality slow (2g), delaying sync 5s',
-            );
             setTimeout(() => {
                 if (isOnline.value) {
                     performSync('auto');
@@ -488,10 +471,6 @@ export function useBackgroundSync(): UseBackgroundSyncReturn {
     async function shouldTriggerSync(): Promise<boolean> {
         // Check auto-sync setting
         if (!isAutoSyncEnabled.value) {
-            console.log(
-                '[useBackgroundSync] Auto-sync disabled in settings',
-            );
-
             return false;
         }
 
@@ -507,10 +486,6 @@ export function useBackgroundSync(): UseBackgroundSyncReturn {
 
         // Check if active trip in progress
         if (tripStore.hasActiveTrip) {
-            console.log(
-                '[useBackgroundSync] Active trip in progress, skipping sync',
-            );
-
             return false;
         }
 
@@ -533,10 +508,7 @@ export function useBackgroundSync(): UseBackgroundSyncReturn {
      * WHY: Debounced to handle rapid online/offline toggles gracefully.
      */
     const triggerAutoSync = useDebounceFn(async () => {
-        console.log('[useBackgroundSync] Online event detected, checking sync eligibility');
-
         if (await shouldTriggerSync()) {
-            console.log('[useBackgroundSync] Triggering auto-sync');
             performSync('auto');
         }
     }, ONLINE_DEBOUNCE_MS);
@@ -589,7 +561,6 @@ export function useBackgroundSync(): UseBackgroundSyncReturn {
     watch(isOnline, (newOnline, oldOnline) => {
         // Only trigger on offline → online transition
         if (newOnline && !oldOnline) {
-            console.log('[useBackgroundSync] Online transition detected');
             triggerAutoSync();
         }
     });
@@ -607,9 +578,6 @@ export function useBackgroundSync(): UseBackgroundSyncReturn {
      */
     function handleVisibilityChange(): void {
         if (document.visibilityState === 'visible' && isOnline.value) {
-            console.log(
-                '[useBackgroundSync] App visible, checking for pending syncs',
-            );
             triggerAutoSync();
         }
     }

@@ -109,8 +109,6 @@ class ServiceWorkerManager {
         }
 
         try {
-            console.log('[SW Manager] Registering service worker...');
-
             // Register SW at root scope
             const registration = await navigator.serviceWorker.register(
                 '/service-worker.js',
@@ -119,8 +117,6 @@ class ServiceWorkerManager {
 
             this.state.isRegistered = true;
             this.state.registration = registration;
-
-            console.log('[SW Manager] Service worker registered:', registration.scope);
 
             // Set up update listeners
             this.setupUpdateListeners(registration);
@@ -133,7 +129,6 @@ class ServiceWorkerManager {
 
             // Listen for controller change (new SW activated)
             navigator.serviceWorker.addEventListener('controllerchange', () => {
-                console.log('[SW Manager] New service worker activated');
                 this.emitEvent('sw:update-applied', { registration });
             });
 
@@ -166,15 +161,10 @@ class ServiceWorkerManager {
                 return;
             }
 
-            console.log('[SW Manager] New service worker found, installing...');
-
             // Listen for state changes on new SW
             newWorker.addEventListener('statechange', () => {
-                console.log('[SW Manager] New SW state:', newWorker.state);
-
                 // New SW installed and waiting to activate
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    console.log('[SW Manager] New service worker installed, waiting to activate');
 
                     this.state.hasUpdate = true;
 
@@ -189,7 +179,6 @@ class ServiceWorkerManager {
 
         // Check if there's already a waiting SW
         if (registration.waiting) {
-            console.log('[SW Manager] Service worker already waiting');
             this.state.hasUpdate = true;
 
             this.emitEvent('sw:update-available', {
@@ -214,8 +203,6 @@ class ServiceWorkerManager {
 
         try {
             this.state.isUpdating = true;
-
-            console.log('[SW Manager] Applying service worker update...');
 
             // Send SKIP_WAITING message to new SW
             this.state.registration.waiting.postMessage({
@@ -245,8 +232,6 @@ class ServiceWorkerManager {
         }
 
         try {
-            console.log('[SW Manager] Checking for updates...');
-
             await this.state.registration.update();
 
             // Update detection happens via updatefound event
@@ -277,15 +262,12 @@ class ServiceWorkerManager {
         }
 
         try {
-            console.log('[SW Manager] Unregistering service worker...');
-
             const result = await this.state.registration.unregister();
 
             if (result) {
                 this.state.isRegistered = false;
                 this.state.registration = null;
                 this.state.hasUpdate = false;
-                console.log('[SW Manager] Service worker unregistered');
             }
 
             return result;

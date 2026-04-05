@@ -108,7 +108,6 @@ export function useServiceWorker(): UseServiceWorkerReturn {
      * Updates reactive state when SW is registered.
      */
     const handleRegistered = (): void => {
-        console.log('[useServiceWorker] SW registered');
         isRegistered.value = true;
     };
 
@@ -117,7 +116,6 @@ export function useServiceWorker(): UseServiceWorkerReturn {
      * Updates reactive state when new SW version detected.
      */
     const handleUpdateAvailable = (): void => {
-        console.log('[useServiceWorker] SW update available');
         hasUpdate.value = true;
     };
 
@@ -126,8 +124,6 @@ export function useServiceWorker(): UseServiceWorkerReturn {
      * Reloads page when new SW is activated.
      */
     const handleUpdateApplied = (): void => {
-        console.log('[useServiceWorker] SW update applied, reloading...');
-
         // Reload page to use new service worker
         window.location.reload();
     };
@@ -222,8 +218,6 @@ export function useServiceWorker(): UseServiceWorkerReturn {
         window.addEventListener('sw:update-available', handleUpdateAvailable);
         window.addEventListener('sw:update-applied', handleUpdateApplied);
         window.addEventListener('sw:error', handleError);
-
-        console.log('[useServiceWorker] Composable initialized');
     });
 
     /**
@@ -234,8 +228,6 @@ export function useServiceWorker(): UseServiceWorkerReturn {
         window.removeEventListener('sw:update-available', handleUpdateAvailable);
         window.removeEventListener('sw:update-applied', handleUpdateApplied);
         window.removeEventListener('sw:error', handleError);
-
-        console.log('[useServiceWorker] Composable unmounted');
     });
 
     // ==============================================================================

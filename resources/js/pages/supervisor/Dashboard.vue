@@ -22,6 +22,8 @@ import { Link } from '@inertiajs/vue3';
 import { motion } from 'motion-v';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
+import { index as tripsIndex } from '@/actions/App/Http/Controllers/Supervisor/AllTripsController';
+import { violations as leaderboardIndex } from '@/actions/App/Http/Controllers/Supervisor/DashboardController';
 import ActiveTripsTable from '@/components/dashboard/ActiveTripsTable.vue';
 import AlertsWidget from '@/components/dashboard/AlertsWidget.vue';
 import DateRangeFilter from '@/components/dashboard/DateRangeFilter.vue';
@@ -31,8 +33,6 @@ import RecentViolationsList from '@/components/dashboard/RecentViolationsList.vu
 import TrendStatCard from '@/components/dashboard/TrendStatCard.vue';
 import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
 import type { DashboardOverview } from '@/types/dashboard';
-import { index as tripsIndex } from '@/actions/App/Http/Controllers/Supervisor/AllTripsController';
-import { violations as leaderboardIndex } from '@/actions/App/Http/Controllers/Supervisor/DashboardController';
 
 // ========================================================================
 // Local State

@@ -100,18 +100,12 @@ export function useInstallPrompt() {
                 (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24);
 
             if (daysSinceDismissed < 7) {
-                console.log(
-                    '[useInstallPrompt] User dismissed prompt recently, not showing again',
-                );
-
                 return;
             }
         }
 
         // Show custom install prompt
         showPrompt.value = true;
-
-        console.log('[useInstallPrompt] Install prompt ready');
     };
 
     /**
@@ -120,8 +114,6 @@ export function useInstallPrompt() {
      * Hides prompt when app is successfully installed.
      */
     const handleAppInstalled = (): void => {
-        console.log('[useInstallPrompt] App installed successfully');
-
         // Hide prompt
         showPrompt.value = false;
         deferredPrompt.value = null;
@@ -152,14 +144,9 @@ export function useInstallPrompt() {
             // Wait for user choice
             const { outcome } = await deferredPrompt.value.userChoice;
 
-            console.log('[useInstallPrompt] User choice:', outcome);
-
             if (outcome === 'accepted') {
                 // User accepted installation
                 showPrompt.value = false;
-            } else {
-                // User dismissed native prompt (but keep custom prompt visible)
-                console.log('[useInstallPrompt] User dismissed native prompt');
             }
         } catch (error) {
             console.error('[useInstallPrompt] Installation failed:', error);
@@ -180,8 +167,6 @@ export function useInstallPrompt() {
         // Store dismissal with timestamp
         localStorage.setItem('pwa-install-dismissed', 'true');
         localStorage.setItem('pwa-install-dismissed-at', new Date().toISOString());
-
-        console.log('[useInstallPrompt] Install prompt dismissed by user');
     };
 
     // ========================================================================
@@ -194,16 +179,12 @@ export function useInstallPrompt() {
 
         // Listen for appinstalled event
         window.addEventListener('appinstalled', handleAppInstalled);
-
-        console.log('[useInstallPrompt] Event listeners registered');
     });
 
     onUnmounted(() => {
         // Clean up event listeners
         window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
         window.removeEventListener('appinstalled', handleAppInstalled);
-
-        console.log('[useInstallPrompt] Event listeners removed');
     });
 
     // ========================================================================

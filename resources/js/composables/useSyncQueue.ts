@@ -597,8 +597,6 @@ return 'syncing';
 
             // Add ESC key listener
             window.addEventListener('keydown', handleEscKey);
-
-            console.log('[useSyncQueue] Composable initialized');
         } catch (error) {
             console.error('[useSyncQueue] Failed to initialize:', error);
         } finally {
@@ -612,8 +610,6 @@ return 'syncing';
     onUnmounted(() => {
         // Remove ESC key listener
         window.removeEventListener('keydown', handleEscKey);
-
-        console.log('[useSyncQueue] Composable unmounted');
     });
 
     // ==============================================================================

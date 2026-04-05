@@ -67,7 +67,6 @@ const handleUpdate = async (): Promise<void> => {
 const handleDismiss = (): void => {
     // Update notification will be hidden
     // Update will be applied on next page load automatically
-    console.log('[SupervisorLayout] Update notification dismissed');
 };
 
 // ========================================================================
@@ -84,7 +83,6 @@ const { showPrompt: showInstallPrompt, isInstalling, install, dismiss } = useIns
 const handleInstall = async (): Promise<void> => {
     try {
         await install();
-        console.log('[SupervisorLayout] PWA installation triggered');
     } catch (error) {
         console.error('[SupervisorLayout] PWA installation failed:', error);
     }
@@ -97,7 +95,6 @@ const handleInstall = async (): Promise<void> => {
  */
 const handleInstallDismiss = (): void => {
     dismiss();
-    console.log('[SupervisorLayout] PWA install prompt dismissed');
 };
 </script>
 
