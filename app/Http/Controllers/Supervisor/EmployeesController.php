@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Supervisor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ListUsersRequest;
@@ -14,11 +14,11 @@ use Inertia\Response;
 
 /*
 |--------------------------------------------------------------------------
-| Employees Controller (Admin)
+| Employees Controller (Supervisor)
 |--------------------------------------------------------------------------
 |
 | Handles employee management page with CRUD operations for user accounts.
-| Admins can create, update, deactivate users and manage roles.
+| Supervisors can create, update, deactivate users and manage roles.
 | Supports search, filtering, and pagination for effective user management.
 |
 */
@@ -32,7 +32,7 @@ class EmployeesController extends Controller
     ) {}
 
     /**
-     * Display paginated list of all users for admins.
+     * Display paginated list of all users for supervisors.
      *
      * Provides comprehensive user management with search by name/email,
      * filtering by role and status, and pagination for performance.
@@ -53,7 +53,7 @@ class EmployeesController extends Controller
 
         $users = $this->userService->getAllUsers($filters);
 
-        return Inertia::render('admin/Employees', [
+        return Inertia::render('supervisor/Employees', [
             'users' => $users->items(),
             'meta' => [
                 'current_page' => $users->currentPage(),
@@ -91,7 +91,7 @@ class EmployeesController extends Controller
      * Update the specified user in the database.
      *
      * Updates user information including profile, role, status,
-     * and optionally password. Prevents admin from updating themselves.
+     * and optionally password. Prevents supervisor from updating themselves.
      *
      * @param  UpdateUserRequest  $request  Validated update data
      * @param  User  $user  User instance to update
@@ -110,7 +110,7 @@ class EmployeesController extends Controller
      * Deactivate the specified user account.
      *
      * Soft deactivation by setting is_active to false.
-     * Prevents admin from deactivating themselves.
+     * Prevents supervisor from deactivating themselves.
      *
      * @param  User  $user  User instance to deactivate
      * @return RedirectResponse Redirect back with success message

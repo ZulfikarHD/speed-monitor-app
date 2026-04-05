@@ -285,16 +285,20 @@ const updatePendingSyncCount = async (): Promise<void> => {
 
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- Page Header with Sync Button -->
-            <div class="mb-6 flex items-start justify-between gap-4"
+            <motion.div
+                :initial="{ opacity: 0, y: -20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.4, duration: 0.6 }"
+                class="mb-6 flex items-start justify-between gap-4"
             >
                 <div class="flex-1">
                     <h1
-                        class="text-3xl font-bold text-zinc-900 dark:text-white"
+                        class="text-3xl font-bold text-[#e5e7eb]"
                         style="font-family: 'Bebas Neue', sans-serif"
                     >
                         My Trips
                     </h1>
-                    <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                    <p class="mt-1 text-sm text-[#9ca3af]">
                         View and filter your trip history
                     </p>
                 </div>
@@ -311,7 +315,7 @@ const updatePendingSyncCount = async (): Promise<void> => {
                         :whileHover="{ scale: 1.05 }"
                         :whilePress="{ scale: 0.95 }"
                         :transition="{ type: 'spring', stiffness: 400, damping: 20 }"
-                        class="flex h-12 items-center gap-2 rounded-lg border border-cyan-500/50 bg-cyan-100 px-4 text-sm font-medium text-cyan-700 shadow-lg shadow-cyan-200 transition-all hover:bg-cyan-200 hover:shadow-xl hover:shadow-cyan-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:border-cyan-500/30 dark:bg-cyan-500/15 dark:text-cyan-300 dark:shadow-cyan-500/20 dark:hover:bg-cyan-500/25 dark:hover:shadow-cyan-500/40 dark:focus:ring-offset-zinc-900"
+                        class="flex h-12 items-center gap-2 rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-4 text-sm font-medium text-cyan-400 shadow-lg shadow-cyan-500/20 transition-colors hover:bg-cyan-500/20 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
                         aria-label="Sinkronkan perjalanan offline sekarang"
                     >
                         <!-- Cloud Upload Icon -->
@@ -343,7 +347,7 @@ const updatePendingSyncCount = async (): Promise<void> => {
                         :initial="{ opacity: 0, scale: 0.8 }"
                         :animate="{ opacity: 1, scale: 1 }"
                         :exit="{ opacity: 0, scale: 0.8 }"
-                        class="flex h-12 items-center gap-3 rounded-lg border border-cyan-500/50 bg-cyan-100 px-4 text-sm font-medium text-cyan-700 dark:border-cyan-500/30 dark:bg-cyan-500/15 dark:text-cyan-300"
+                        class="flex h-12 items-center gap-3 rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-4 text-sm font-medium text-cyan-400"
                     >
                         <!-- Rotating Spinner Icon -->
                         <motion.div
@@ -377,10 +381,15 @@ const updatePendingSyncCount = async (): Promise<void> => {
                         <span v-else>Menyinkronkan...</span>
                     </motion.div>
                 </AnimatePresence>
-            </div>
+            </motion.div>
 
             <!-- Filters Section -->
-            <div class="mb-4">
+            <motion.div
+                :initial="{ opacity: 0, y: 20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.1 }"
+                class="mb-6"
+            >
                 <TripListFilters
                     v-model:status="localFilters.status"
                     v-model:date-from="localFilters.date_from"
@@ -388,44 +397,54 @@ const updatePendingSyncCount = async (): Promise<void> => {
                     @apply="handleApplyFilters"
                     @reset="handleResetFilters"
                 />
-            </div>
+            </motion.div>
 
             <!-- Trips Grid -->
-            <div class="space-y-4">
+            <div class="space-y-6">
                 <!-- Active Filters Indicator -->
                 <AnimatePresence>
-                    <div
+                    <motion.div
                         v-if="hasActiveFilters"
-                        class="flex items-center justify-between rounded-lg border border-cyan-200 bg-cyan-50 px-4 py-2 dark:border-cyan-500/20 dark:bg-cyan-500/10"
+                        :initial="{ opacity: 0, x: -20 }"
+                        :animate="{ opacity: 1, x: 0 }"
+                        :exit="{ opacity: 0, x: 20 }"
+                        :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
+                        class="flex items-center justify-between rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-4 py-3"
                     >
                         <div class="flex items-center gap-2">
-                            <span class="text-sm font-medium text-cyan-700 dark:text-cyan-300">
+                            <span class="text-sm text-cyan-400">
                                 Filter aktif: {{ meta.total }} trip ditemukan
                             </span>
                         </div>
-                        <button
+                        <motion.button
                             @click="handleResetFilters"
-                            class="inline-flex min-h-[44px] items-center gap-2 px-3 py-2 text-sm font-medium text-cyan-700 transition-colors hover:text-cyan-900 dark:text-cyan-300 dark:hover:text-cyan-100"
+                            :whileHover="{ scale: 1.05, x: 2 }"
+                            :whilePress="{ scale: 0.95 }"
+                            :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
+                            class="inline-flex min-h-[44px] items-center gap-2 px-4 py-3 text-sm text-cyan-400 hover:text-cyan-300"
                         >
                             Reset Filter
-                        </button>
-                    </div>
+                        </motion.button>
+                    </motion.div>
                 </AnimatePresence>
 
                 <!-- Trip Cards -->
-                <div
+                <motion.div
                     v-if="!showEmptyState"
-                    class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1"
+                    :initial="{ opacity: 0, y: 20 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.2 }"
+                    class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-1"
                 >
                     <TripCard
                         v-for="trip in trips"
                         :key="trip.id"
                         :trip="trip"
                     />
-                </div>
+                </motion.div>
 
                 <!-- Pagination -->
-                <div v-if="meta && meta.last_page > 1" class="mt-6">
+                <div v-if="meta && meta.last_page > 1" class="mt-8">
                     <Pagination
                         :current-page="meta.current_page"
                         :last-page="meta.last_page"

@@ -25,4 +25,26 @@ export default defineConfig({
             formVariants: true,
         }),
     ],
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    // Vue core and Inertia (changes rarely)
+                    'vue-vendor': ['vue', '@inertiajs/vue3'],
+                    // Chart libraries (large, changes rarely)
+                    'charts-vendor': ['chart.js', 'vue-chartjs'],
+                    // Utilities and composables
+                    'utils-vendor': [
+                        '@vueuse/core',
+                        'date-fns',
+                        'clsx',
+                        'class-variance-authority',
+                        'tailwind-merge',
+                    ],
+                    // State management and animations
+                    'vendor': ['pinia', 'motion-v'],
+                },
+            },
+        },
+    },
 });

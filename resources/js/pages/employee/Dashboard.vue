@@ -4,19 +4,12 @@
  *
  * Main dashboard showing quick actions and profile information.
  * Uses EmployeeLayout for consistent navigation across all employee pages.
- *
- * Features:
- * - Quick action cards for Speedometer, Trip History, and Statistics
- * - User profile information display
- * - Full theme support (light/dark)
- * - SVG icons following design system
- * - Motion animations for interactivity
- * - Responsive grid layout
  */
 
 import { Link } from '@inertiajs/vue3';
+import { motion } from 'motion-v';
 
-import { IconGauge, IconClipboard, IconChart, IconUser } from '@/components/icons';
+import { IconCar, IconChart, IconClipboard } from '@/components/icons';
 import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
 import { useAuthStore } from '@/stores/auth';
 
@@ -29,40 +22,37 @@ const authStore = useAuthStore();
             <!-- Page Header -->
             <div class="mb-6">
                 <h1
-                    class="text-3xl font-bold text-zinc-900 dark:text-white"
+                    class="text-3xl font-bold text-[#e5e7eb]"
                     style="font-family: 'Bebas Neue', sans-serif"
                 >
                     Dashboard
                 </h1>
-                <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                <p class="mt-1 text-sm text-[#9ca3af]">
                     Welcome back, {{ authStore.user?.name }}!
                 </p>
             </div>
 
             <!-- Quick Actions Grid -->
-            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 <!-- Speedometer Card -->
                 <Link
                     href="/employee/speedometer"
-                    class="group block rounded-lg border border-zinc-200 bg-white p-5 transition-all hover:-translate-y-1 hover:border-cyan-500/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:border-white/10 dark:bg-zinc-800 dark:hover:border-cyan-500/30 dark:focus:ring-offset-zinc-900"
+                    class="group block rounded-lg border border-[#3E3E3A] bg-gradient-to-br from-blue-500/10 to-indigo-500/10 p-6 transition-all hover:scale-[1.02] hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/20"
                 >
                     <div class="flex items-start gap-4">
-                        <!-- Icon -->
                         <div
-                            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-600 to-blue-700 text-white dark:from-cyan-500 dark:to-blue-600"
+                            class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-2xl shadow-lg"
                         >
-                            <IconGauge :size="24" />
+                            🚗
                         </div>
-                        
-                        <!-- Content -->
                         <div class="flex-1">
                             <h3
-                                class="mb-1 text-base font-semibold text-zinc-900 transition-colors group-hover:text-cyan-600 dark:text-white dark:group-hover:text-cyan-400"
+                                class="mb-1 text-lg font-semibold text-[#e5e7eb] group-hover:text-blue-400"
                             >
                                 Start Speedometer
                             </h3>
-                            <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                                Track your trip in real-time
+                            <p class="text-sm text-[#9ca3af]">
+                                Track your trip speed and distance in real-time
                             </p>
                         </div>
                     </div>
@@ -71,25 +61,22 @@ const authStore = useAuthStore();
                 <!-- Trip History Card -->
                 <Link
                     href="/employee/my-trips"
-                    class="group block rounded-lg border border-zinc-200 bg-white p-5 transition-all hover:-translate-y-1 hover:border-cyan-500/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:border-white/10 dark:bg-zinc-800 dark:hover:border-cyan-500/30 dark:focus:ring-offset-zinc-900"
+                    class="group block rounded-lg border border-[#3E3E3A] bg-gradient-to-br from-cyan-500/10 to-teal-500/10 p-6 transition-all hover:scale-[1.02] hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20"
                 >
                     <div class="flex items-start gap-4">
-                        <!-- Icon -->
                         <div
-                            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-600 to-blue-700 text-white dark:from-cyan-500 dark:to-blue-600"
+                            class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-teal-600 text-2xl shadow-lg"
                         >
-                            <IconClipboard :size="24" />
+                            📋
                         </div>
-                        
-                        <!-- Content -->
                         <div class="flex-1">
                             <h3
-                                class="mb-1 text-base font-semibold text-zinc-900 transition-colors group-hover:text-cyan-600 dark:text-white dark:group-hover:text-cyan-400"
+                                class="mb-1 text-lg font-semibold text-[#e5e7eb] group-hover:text-cyan-400"
                             >
                                 Trip History
                             </h3>
-                            <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                                View your past trips
+                            <p class="text-sm text-[#9ca3af]">
+                                View your past trips and detailed statistics
                             </p>
                         </div>
                     </div>
@@ -98,25 +85,22 @@ const authStore = useAuthStore();
                 <!-- Statistics Card -->
                 <Link
                     href="/employee/statistics"
-                    class="group block rounded-lg border border-zinc-200 bg-white p-5 transition-all hover:-translate-y-1 hover:border-cyan-500/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:border-white/10 dark:bg-zinc-800 dark:hover:border-cyan-500/30 dark:focus:ring-offset-zinc-900"
+                    class="group block rounded-lg border border-[#3E3E3A] bg-gradient-to-br from-purple-500/10 to-pink-500/10 p-6 transition-all hover:scale-[1.02] hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20"
                 >
                     <div class="flex items-start gap-4">
-                        <!-- Icon -->
                         <div
-                            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-600 to-blue-700 text-white dark:from-cyan-500 dark:to-blue-600"
+                            class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-2xl shadow-lg"
                         >
-                            <IconChart :size="24" />
+                            📊
                         </div>
-                        
-                        <!-- Content -->
                         <div class="flex-1">
                             <h3
-                                class="mb-1 text-base font-semibold text-zinc-900 transition-colors group-hover:text-cyan-600 dark:text-white dark:group-hover:text-cyan-400"
+                                class="mb-1 text-lg font-semibold text-[#e5e7eb] group-hover:text-purple-400"
                             >
                                 My Statistics
                             </h3>
-                            <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                                Track your performance
+                            <p class="text-sm text-[#9ca3af]">
+                                Track your performance and driving metrics
                             </p>
                         </div>
                     </div>
@@ -124,44 +108,28 @@ const authStore = useAuthStore();
             </div>
 
             <!-- Profile Info Card -->
-            <div class="mt-6 rounded-lg border border-zinc-200 bg-white p-5 dark:border-white/10 dark:bg-zinc-800"
-            >
-                <div class="mb-4 flex items-center gap-2">
-                    <IconUser :size="18" class="text-zinc-600 dark:text-zinc-400" />
-                    <h2 class="text-base font-semibold text-zinc-900 dark:text-white">
-                        Your Profile
-                    </h2>
-                </div>
-                
-                <div class="grid gap-3 sm:grid-cols-3">
-                    <!-- Name -->
-                    <div class="rounded-lg bg-zinc-50 p-3 dark:bg-zinc-900">
-                        <p class="text-[10px] font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
-                            Name
-                        </p>
-                        <p class="mt-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            <div class="mt-8 rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-6">
+                <h2 class="mb-4 text-lg font-semibold text-[#e5e7eb]">
+                    Your Profile
+                </h2>
+                <div class="grid gap-3 sm:grid-cols-2">
+                    <div class="rounded-lg bg-[#0a0c0f] p-4">
+                        <p class="text-xs text-[#9ca3af]">Name</p>
+                        <p class="mt-1 text-sm font-medium text-[#e5e7eb]">
                             {{ authStore.user?.name }}
                         </p>
                     </div>
-                    
-                    <!-- Email -->
-                    <div class="rounded-lg bg-zinc-50 p-3 dark:bg-zinc-900">
-                        <p class="text-[10px] font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
-                            Email
-                        </p>
-                        <p class="mt-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                    <div class="rounded-lg bg-[#0a0c0f] p-4">
+                        <p class="text-xs text-[#9ca3af]">Email</p>
+                        <p class="mt-1 text-sm font-medium text-[#e5e7eb]">
                             {{ authStore.user?.email }}
                         </p>
                     </div>
-                    
-                    <!-- Role -->
-                    <div class="rounded-lg bg-zinc-50 p-3 dark:bg-zinc-900">
-                        <p class="text-[10px] font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
-                            Role
-                        </p>
+                    <div class="rounded-lg bg-[#0a0c0f] p-4">
+                        <p class="text-xs text-[#9ca3af]">Role</p>
                         <p class="mt-1">
                             <span
-                                class="inline-flex items-center rounded-full bg-cyan-100 px-2.5 py-0.5 text-xs font-medium text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-300"
+                                class="inline-flex items-center rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400"
                             >
                                 {{ authStore.user?.role }}
                             </span>

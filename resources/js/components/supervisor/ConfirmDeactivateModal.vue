@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Confirm Deactivate Modal Component
+ * Confirm Deactivate Modal Component (Supervisor)
  *
  * Confirmation dialog for deactivating user accounts.
  * Prevents accidental deactivation with explicit user confirmation.
@@ -11,7 +11,7 @@
  * - Secondary cancel button
  * - Teleport modal overlay with backdrop click to close
  * - motion-v entrance/exit animations
- * - Inertia router DELETE request
+ * - Inertia router DELETE request with Wayfinder
  * - Loading state during submission
  *
  * Props:
@@ -23,6 +23,7 @@ import { router } from '@inertiajs/vue3';
 import { AnimatePresence, motion } from 'motion-v';
 import { ref } from 'vue';
 
+import { deactivate } from '@/actions/App/Http/Controllers/Supervisor/EmployeesController';
 import IconAlert from '@/components/icons/IconAlert.vue';
 import IconClose from '@/components/icons/IconClose.vue';
 import Button from '@/components/ui/Button.vue';
@@ -58,11 +59,14 @@ const isSubmitting = ref(false);
 
 /**
  * Handle deactivate confirmation.
+ *
+ * WHY: Uses Wayfinder for type-safe DELETE request to deactivate endpoint.
+ * Ensures correct route is used with proper HTTP method.
  */
 function handleConfirm(): void {
     isSubmitting.value = true;
 
-    router.delete(route('admin.employees.deactivate', { user: props.user.id }), {
+    router.delete(deactivate.url({ user: props.user.id }), {
         preserveScroll: true,
         onSuccess: () => {
             emit('close');

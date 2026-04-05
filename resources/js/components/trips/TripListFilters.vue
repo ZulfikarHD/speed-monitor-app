@@ -140,12 +140,12 @@ const hasActiveFilters = computed(() => {
         Responsive filter controls with date range and status
     ======================================================================= -->
     <div
-        class="rounded-lg border border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-zinc-800"
+        class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-4"
         role="search"
         aria-label="Filter trips"
     >
         <div class="mb-4">
-            <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Filter</h3>
+            <h3 class="text-sm font-medium text-[#e5e7eb]">Filter</h3>
         </div>
 
         <!-- Filter Controls Grid -->
@@ -154,7 +154,7 @@ const hasActiveFilters = computed(() => {
             <div>
                 <label
                     for="filter-date-from"
-                    class="mb-2 block text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400"
+                    class="mb-2 block text-xs font-medium text-[#9ca3af]"
                 >
                     Dari Tanggal
                 </label>
@@ -163,7 +163,7 @@ const hasActiveFilters = computed(() => {
                     v-model="localDateFrom"
                     type="date"
                     :max="localDateTo || todayDate"
-                    class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 transition-colors focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:ring-cyan-400/50"
+                    class="w-full rounded-lg border border-[#3E3E3A] bg-[#0a0c0f] px-3 py-2 text-sm text-[#e5e7eb] transition-colors focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
                     aria-label="Filter from date"
                 />
             </div>
@@ -172,7 +172,7 @@ const hasActiveFilters = computed(() => {
             <div>
                 <label
                     for="filter-date-to"
-                    class="mb-2 block text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400"
+                    class="mb-2 block text-xs font-medium text-[#9ca3af]"
                 >
                     Sampai Tanggal
                 </label>
@@ -182,7 +182,7 @@ const hasActiveFilters = computed(() => {
                     type="date"
                     :min="localDateFrom"
                     :max="todayDate"
-                    class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 transition-colors focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:ring-cyan-400/50"
+                    class="w-full rounded-lg border border-[#3E3E3A] bg-[#0a0c0f] px-3 py-2 text-sm text-[#e5e7eb] transition-colors focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
                     aria-label="Filter to date"
                 />
             </div>
@@ -191,14 +191,14 @@ const hasActiveFilters = computed(() => {
             <div>
                 <label
                     for="filter-status"
-                    class="mb-2 block text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400"
+                    class="mb-2 block text-xs font-medium text-[#9ca3af]"
                 >
                     Status
                 </label>
                 <select
                     id="filter-status"
                     v-model="localStatus"
-                    class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 transition-colors focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:ring-cyan-400/50"
+                    class="w-full rounded-lg border border-[#3E3E3A] bg-[#0a0c0f] px-3 py-2 text-sm text-[#e5e7eb] transition-colors focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
                     aria-label="Filter by status"
                 >
                     <option value="">Semua Status</option>
@@ -212,7 +212,7 @@ const hasActiveFilters = computed(() => {
             <div class="flex items-end gap-2 sm:col-span-2 lg:col-span-1">
                 <button
                     @click="handleApply"
-                    class="flex flex-1 min-h-[44px] items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-cyan-200 transition-all hover:shadow-xl hover:shadow-cyan-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:from-cyan-500 dark:to-blue-600 dark:shadow-cyan-500/25 dark:hover:shadow-cyan-500/40 dark:focus:ring-offset-zinc-900"
+                    class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
                     aria-label="Apply filters"
                 >
                     <svg
@@ -235,7 +235,7 @@ const hasActiveFilters = computed(() => {
                 <button
                     v-if="hasActiveFilters"
                     @click="handleReset"
-                    class="flex min-h-[44px] items-center justify-center rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition-all hover:bg-zinc-50 active:scale-95 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700/50 dark:focus:ring-offset-zinc-900"
+                    class="flex items-center justify-center rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-4 py-2 text-sm font-medium text-[#e5e7eb] transition-colors hover:bg-[#2a2d33] focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
                     title="Reset filters"
                     aria-label="Reset filters"
                 >

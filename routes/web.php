@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\EmployeesController;
 use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
@@ -10,6 +9,7 @@ use App\Http\Controllers\Employee\StatisticsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Supervisor\AllTripsController;
 use App\Http\Controllers\Supervisor\DashboardController as SupervisorDashboardController;
+use App\Http\Controllers\Supervisor\EmployeesController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
@@ -43,20 +43,20 @@ Route::middleware(['auth', 'role:employee'])->group(function () {
     Route::get('/employee/statistics', [StatisticsController::class, 'index'])->name('employee.statistics');
 });
 
-// Supervisor routes (auth + supervisor role required)
-Route::middleware(['auth', 'role:supervisor'])->group(function () {
+// Supervisor routes (auth + supervisor or admin role required)
+Route::middleware(['auth', 'role:supervisor,admin'])->group(function () {
     Route::get('/supervisor/dashboard', [SupervisorDashboardController::class, 'index'])->name('supervisor.dashboard');
     Route::get('/supervisor/trips', [AllTripsController::class, 'index'])->name('supervisor.trips');
     Route::get('/supervisor/trips/export', [AllTripsController::class, 'export'])->name('supervisor.trips.export');
     Route::get('/supervisor/leaderboard', [SupervisorDashboardController::class, 'violations'])->name('supervisor.leaderboard');
+    Route::get('/supervisor/employees', [EmployeesController::class, 'index'])->name('supervisor.employees');
+    Route::post('/supervisor/employees', [EmployeesController::class, 'store'])->name('supervisor.employees.store');
+    Route::put('/supervisor/employees/{user}', [EmployeesController::class, 'update'])->name('supervisor.employees.update');
+    Route::delete('/supervisor/employees/{user}', [EmployeesController::class, 'deactivate'])->name('supervisor.employees.deactivate');
 });
 
 // Supervisor/Admin shared routes (auth + supervisor or admin role required)
 Route::middleware(['auth', 'role:supervisor,admin'])->group(function () {
-    Route::get('/admin/employees', [EmployeesController::class, 'index'])->name('admin.employees');
-    Route::post('/admin/employees', [EmployeesController::class, 'store'])->name('admin.employees.store');
-    Route::put('/admin/employees/{user}', [EmployeesController::class, 'update'])->name('admin.employees.update');
-    Route::delete('/admin/employees/{user}', [EmployeesController::class, 'deactivate'])->name('admin.employees.deactivate');
     Route::get('/admin/settings', [AdminSettingsController::class, 'index'])->name('admin.settings');
     Route::put('/admin/settings', [AdminSettingsController::class, 'update'])->name('admin.settings.update');
 });

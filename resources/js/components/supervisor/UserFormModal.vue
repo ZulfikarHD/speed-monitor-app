@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * User Form Modal Component
+ * User Form Modal Component (Supervisor)
  *
  * Modal form for creating new users or editing existing users.
  * Supports validation, role assignment, and account status management.
@@ -13,6 +13,7 @@
  * - Teleport modal overlay with backdrop click to close
  * - motion-v entrance/exit animations
  * - Indonesian labels and messages
+ * - Wayfinder type-safe routing
  *
  * Props:
  * - show: boolean - Modal visibility
@@ -23,6 +24,7 @@ import { useForm } from '@inertiajs/vue3';
 import { AnimatePresence, motion } from 'motion-v';
 import { computed, watch } from 'vue';
 
+import { store, update } from '@/actions/App/Http/Controllers/Supervisor/EmployeesController';
 import IconClose from '@/components/icons/IconClose.vue';
 import Button from '@/components/ui/Button.vue';
 import Input from '@/components/ui/Input.vue';
@@ -121,11 +123,15 @@ watch(
 
 /**
  * Handle form submission.
+ *
+ * WHY: Uses Wayfinder for type-safe routing with automatic method spoofing.
+ * PUT requests for updates, POST for creation. Wayfinder handles route
+ * generation and ensures correct endpoints are used.
  */
 function handleSubmit(): void {
     if (isEditMode.value && props.user) {
         // Update existing user
-        form.put(route('admin.employees.update', { user: props.user.id }), {
+        form.put(update.url({ user: props.user.id }), {
             preserveScroll: true,
             onSuccess: () => {
                 emit('close');
@@ -133,7 +139,7 @@ function handleSubmit(): void {
         });
     } else {
         // Create new user
-        form.post(route('admin.employees.store'), {
+        form.post(store.url(), {
             preserveScroll: true,
             onSuccess: () => {
                 emit('close');

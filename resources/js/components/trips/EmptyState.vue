@@ -5,18 +5,11 @@
  * Displays a friendly empty state message with optional icon and call-to-action.
  * Reusable across different pages where data might be empty.
  *
- * Features:
- * - Theme-aware styling with full light/dark support
- * - Optional SVG icon or icon component
- * - Optional CTA button with proper styling
- * - Professional empty state design
- * - Responsive layout
- *
  * @example
  * ```vue
  * <!-- No trips at all -->
  * <EmptyState
- *   icon-name="clipboard"
+ *   icon="📋"
  *   title="Belum Ada Perjalanan"
  *   message="Anda belum memiliki riwayat perjalanan. Mulai perjalanan pertama Anda dengan menggunakan speedometer."
  *   cta-text="Mulai Perjalanan"
@@ -25,7 +18,7 @@
  *
  * <!-- No results from filters -->
  * <EmptyState
- *   icon-name="search"
+ *   icon="🔍"
  *   title="Tidak Ada Hasil"
  *   message="Tidak ada perjalanan yang cocok dengan filter Anda."
  * />
@@ -34,14 +27,12 @@
 
 import { Link } from '@inertiajs/vue3';
 
-import { IconClipboard, IconAlert } from '@/components/icons';
-
 /**
  * EmptyState component props.
  */
 interface EmptyStateProps {
-    /** Icon name to display */
-    iconName?: 'clipboard' | 'search' | 'alert';
+    /** Icon to display (emoji or unicode character) */
+    icon?: string;
 
     /** Title text for empty state */
     title: string;
@@ -65,45 +56,24 @@ const props = defineProps<EmptyStateProps>();
         Centered empty state with icon, title, message, and optional CTA
     ======================================================================= -->
     <div
-        class="flex flex-col items-center justify-center rounded-lg border border-zinc-200 bg-white p-8 text-center dark:border-white/10 dark:bg-zinc-800"
+        class="flex flex-col items-center justify-center rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-12 text-center"
     >
         <!-- Icon -->
         <div
-            v-if="props.iconName"
-            class="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-zinc-100 text-zinc-400 dark:bg-zinc-900 dark:text-zinc-600"
+            v-if="props.icon"
+            class="mb-4 text-6xl opacity-50"
             aria-hidden="true"
         >
-            <IconClipboard
-                v-if="props.iconName === 'clipboard'"
-                :size="40"
-            />
-            <IconAlert
-                v-else-if="props.iconName === 'alert'"
-                :size="40"
-            />
-            <svg
-                v-else-if="props.iconName === 'search'"
-                class="h-10 w-10"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-            </svg>
+            {{ props.icon }}
         </div>
 
         <!-- Title -->
-        <h3 class="mb-2 text-xl font-semibold text-zinc-900 dark:text-white">
+        <h3 class="mb-2 text-xl font-semibold text-[#e5e7eb]">
             {{ props.title }}
         </h3>
 
         <!-- Message -->
-        <p class="mb-6 max-w-md text-sm text-zinc-600 dark:text-zinc-400">
+        <p class="mb-6 max-w-md text-sm text-[#9ca3af]">
             {{ props.message }}
         </p>
 
@@ -111,7 +81,7 @@ const props = defineProps<EmptyStateProps>();
         <Link
             v-if="props.ctaText && props.ctaHref"
             :href="props.ctaHref"
-            class="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 px-6 py-3 font-medium text-white shadow-lg shadow-cyan-200 transition-all hover:shadow-xl hover:shadow-cyan-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:from-cyan-500 dark:to-blue-600 dark:shadow-cyan-500/25 dark:hover:shadow-cyan-500/40 dark:focus:ring-offset-zinc-900"
+            class="inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-6 py-3 font-medium text-white transition-all hover:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
         >
             {{ props.ctaText }}
             <svg

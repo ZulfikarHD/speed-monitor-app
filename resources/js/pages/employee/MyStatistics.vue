@@ -7,22 +7,18 @@
  * Uses EmployeeLayout for consistent navigation across all employee pages.
  *
  * Features:
- * - Period selector (week/month/year) with theme support
- * - Summary statistics cards with SVG icons
+ * - Period selector (week/month/year)
+ * - Summary statistics cards (trips, distance, speed, violations)
  * - Trips over time bar chart
  * - Violations over time line chart
  * - Server-side data fetching with Inertia
  * - Responsive design (mobile-first)
- * - Full theme support (light/dark)
- * - Motion animations for smooth UX
- * - Empty state for no data
  *
  * @example Route: /employee/statistics
  */
 
 import { router } from '@inertiajs/vue3';
 
-import { IconGauge } from '@/components/icons';
 import PeriodSelector from '@/components/statistics/PeriodSelector.vue';
 import StatCard from '@/components/statistics/StatCard.vue';
 import TripsChart from '@/components/statistics/TripsChart.vue';
@@ -67,18 +63,19 @@ const { statistics, currentPeriod } = props;
 <template>
     <EmployeeLayout title="My Statistics">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <!-- Page Header with Period Selector -->
-            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-            >
+            <!-- ================================================================
+                Page Header with Period Selector
+            ================================================================ -->
+            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <!-- Page Title -->
                 <div>
                     <h1
-                        class="text-3xl font-bold text-zinc-900 dark:text-white"
+                        class="text-3xl font-bold text-[#e5e7eb]"
                         style="font-family: 'Bebas Neue', sans-serif"
                     >
                         My Statistics
                     </h1>
-                    <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                    <p class="mt-1 text-sm text-[#9ca3af]">
                         Your driving performance for {{ statistics.period.label }}
                     </p>
                 </div>
@@ -90,14 +87,16 @@ const { statistics, currentPeriod } = props;
                 />
             </div>
 
-            <!-- Summary Statistics Cards Grid -->
-            <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- ================================================================
+                Summary Statistics Cards Grid
+            ================================================================ -->
+            <div class="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Trips -->
                 <StatCard
                     title="Total Trips"
                     :value="statistics.summary.total_trips"
                     unit="trips completed"
-                    icon="car"
+                    icon="🚗"
                     color="blue"
                 />
 
@@ -106,7 +105,7 @@ const { statistics, currentPeriod } = props;
                     title="Total Distance"
                     :value="statistics.summary.total_distance"
                     unit="kilometers"
-                    icon="map"
+                    icon="📍"
                     color="green"
                 />
 
@@ -115,7 +114,7 @@ const { statistics, currentPeriod } = props;
                     title="Average Speed"
                     :value="statistics.summary.average_speed"
                     unit="km/h"
-                    icon="zap"
+                    icon="⚡"
                     color="purple"
                 />
 
@@ -124,7 +123,7 @@ const { statistics, currentPeriod } = props;
                     title="Violations"
                     :value="statistics.summary.violation_count"
                     unit="speed limit exceeded"
-                    icon="alert"
+                    icon="⚠️"
                     :color="statistics.summary.violation_count > 0 ? 'red' : 'green'"
                 />
             </div>
@@ -146,28 +145,26 @@ const { statistics, currentPeriod } = props;
                 />
             </div>
 
-            <!-- Empty State (No Trips) -->
+            <!-- ================================================================
+                Empty State (No Trips)
+            ================================================================ -->
             <div
                 v-if="statistics.summary.total_trips === 0"
-                class="mt-6 rounded-lg border border-zinc-200 bg-white p-8 text-center dark:border-white/10 dark:bg-zinc-800"
+                class="mt-8 rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-8 text-center"
             >
-                <div class="mb-6 flex justify-center">
-                    <div class="flex h-20 w-20 items-center justify-center rounded-full bg-zinc-100 text-zinc-400 dark:bg-zinc-900 dark:text-zinc-600">
-                        <IconGauge :size="40" />
-                    </div>
-                </div>
+                <div class="mb-4 text-6xl" aria-hidden="true">📊</div>
                 <h3
-                    class="mb-2 text-xl font-semibold text-zinc-900 dark:text-white"
+                    class="mb-2 text-xl font-semibold text-[#e5e7eb]"
                     style="font-family: 'Bebas Neue', sans-serif"
                 >
                     No Trip Data Yet
                 </h3>
-                <p class="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
+                <p class="mb-6 text-sm text-[#9ca3af]">
                     Start tracking your trips with the speedometer to see your statistics here.
                 </p>
                 <a
                     href="/employee/speedometer"
-                    class="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-200 transition-all hover:shadow-xl hover:shadow-cyan-200 active:scale-95 dark:from-cyan-500 dark:to-blue-600 dark:shadow-cyan-500/25 dark:hover:shadow-cyan-500/40"
+                    class="inline-flex items-center gap-2 rounded-lg bg-cyan-500 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-cyan-600"
                 >
                     <span>Start Speedometer</span>
                     <svg

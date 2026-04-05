@@ -26,7 +26,6 @@ import {
     IconClipboard,
     IconGauge,
     IconHome,
-    IconSettings,
     IconTrophy,
     IconUser,
     IconUsers,
@@ -81,7 +80,7 @@ const employeeNavItems: NavItem[] = [
     },
 ];
 
-/** Supervisor navigation items (mobile) */
+/** Supervisor/Admin navigation items (mobile) */
 const supervisorNavItems: NavItem[] = [
     {
         id: 'dashboard',
@@ -102,44 +101,10 @@ const supervisorNavItems: NavItem[] = [
         href: '/supervisor/leaderboard',
     },
     {
-        id: 'settings',
-        label: 'Settings',
-        icon: IconSettings,
-        href: '/admin/settings',
-    },
-    {
-        id: 'profile',
-        label: 'Profile',
-        icon: IconUser,
-        href: '/profile',
-    },
-];
-
-/** Admin navigation items (mobile) */
-const adminNavItems: NavItem[] = [
-    {
-        id: 'dashboard',
-        label: 'Dashboard',
-        icon: IconChart,
-        href: '/supervisor/dashboard',
-    },
-    {
-        id: 'trips',
-        label: 'All Trips',
-        icon: IconCar,
-        href: '/supervisor/trips',
-    },
-    {
         id: 'employees',
         label: 'Employees',
         icon: IconUsers,
-        href: '/admin/employees',
-    },
-    {
-        id: 'settings',
-        label: 'Settings',
-        icon: IconSettings,
-        href: '/admin/settings',
+        href: '/supervisor/employees',
     },
     {
         id: 'profile',
@@ -165,17 +130,13 @@ const { openModal } = useSyncQueue();
  * Get navigation items based on user role.
  *
  * WHY: Supervisors and admins see different navigation than employees.
- * Employees see speedometer and trip tracking, supervisors see monitoring tools.
- * Admins get employee management instead of leaderboard on mobile (limited space).
+ * Employees see speedometer and trip tracking, supervisors see monitoring tools
+ * including employee management.
  */
 const navItems = computed((): NavItem[] => {
     const role = authStore.role;
 
-    if (role === 'admin') {
-        return adminNavItems;
-    }
-
-    if (role === 'supervisor') {
+    if (role === 'supervisor' || role === 'admin') {
         return supervisorNavItems;
     }
 

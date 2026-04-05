@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Admin;
+namespace Tests\Feature\Supervisor;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -8,9 +8,9 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 /**
- * Employee Management Feature Tests
+ * Employee Management Feature Tests (Supervisor)
  *
- * Tests admin user management functionality including authorization,
+ * Tests supervisor user management functionality including authorization,
  * CRUD operations, search, filtering, and validation.
  */
 class EmployeeManagementTest extends TestCase
@@ -18,37 +18,24 @@ class EmployeeManagementTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Test admin can view employees list page.
+     * Test supervisor can view employees list page.
      */
-    public function test_admin_can_view_employees_list(): void
+    public function test_supervisor_can_view_employees_list(): void
     {
-        $admin = User::factory()->admin()->create();
+        $supervisor = User::factory()->supervisor()->create();
         $employees = User::factory()->employee()->count(5)->create();
 
-        $response = $this->actingAs($admin)
-            ->get(route('admin.employees'));
+        $response = $this->actingAs($supervisor)
+            ->get(route('supervisor.employees'));
 
         $response->assertOk();
         $response->assertInertia(
             fn (Assert $page) => $page
-                ->component('admin/Employees')
+                ->component('supervisor/Employees')
                 ->has('users', 6)
                 ->has('meta')
                 ->has('filters')
         );
-    }
-
-    /**
-     * Test supervisor cannot access employees page.
-     */
-    public function test_supervisor_cannot_access_employees_page(): void
-    {
-        $supervisor = User::factory()->supervisor()->create();
-
-        $response = $this->actingAs($supervisor)
-            ->get(route('admin.employees'));
-
-        $response->assertRedirect();
     }
 
     /**
@@ -59,17 +46,17 @@ class EmployeeManagementTest extends TestCase
         $employee = User::factory()->employee()->create();
 
         $response = $this->actingAs($employee)
-            ->get(route('admin.employees'));
+            ->get(route('supervisor.employees'));
 
         $response->assertRedirect();
     }
 
     /**
-     * Test admin can create new user.
+     * Test supervisor can create new user.
      */
-    public function test_admin_can_create_new_user(): void
+    public function test_supervisor_can_create_new_user(): void
     {
-        $admin = User::factory()->admin()->create();
+        $supervisor = User::factory()->supervisor()->create();
 
         $userData = [
             'name' => 'John Doe',
@@ -79,8 +66,8 @@ class EmployeeManagementTest extends TestCase
             'is_active' => true,
         ];
 
-        $response = $this->actingAs($admin)
-            ->post(route('admin.employees.store'), $userData);
+        $response = $this->actingAs($supervisor)
+            ->post(route('supervisor.employees.store'), $userData);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -94,11 +81,11 @@ class EmployeeManagementTest extends TestCase
     }
 
     /**
-     * Test admin can update user details.
+     * Test supervisor can update user details.
      */
-    public function test_admin_can_update_user_details(): void
+    public function test_supervisor_can_update_user_details(): void
     {
-        $admin = User::factory()->admin()->create();
+        $supervisor = User::factory()->supervisor()->create();
         $employee = User::factory()->employee()->create();
 
         $updateData = [
@@ -108,8 +95,8 @@ class EmployeeManagementTest extends TestCase
             'is_active' => true,
         ];
 
-        $response = $this->actingAs($admin)
-            ->put(route('admin.employees.update', $employee), $updateData);
+        $response = $this->actingAs($supervisor)
+            ->put(route('supervisor.employees.update', $employee), $updateData);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -123,34 +110,34 @@ class EmployeeManagementTest extends TestCase
     }
 
     /**
-     * Test admin cannot update themselves.
+     * Test supervisor cannot update themselves.
      */
-    public function test_admin_cannot_update_themselves(): void
+    public function test_supervisor_cannot_update_themselves(): void
     {
-        $admin = User::factory()->admin()->create();
+        $supervisor = User::factory()->supervisor()->create();
 
         $updateData = [
-            'name' => 'Updated Admin Name',
+            'name' => 'Updated Supervisor Name',
             'email' => 'updated@example.com',
-            'role' => 'admin',
+            'role' => 'supervisor',
         ];
 
-        $response = $this->actingAs($admin)
-            ->put(route('admin.employees.update', $admin), $updateData);
+        $response = $this->actingAs($supervisor)
+            ->put(route('supervisor.employees.update', $supervisor), $updateData);
 
         $response->assertForbidden();
     }
 
     /**
-     * Test admin can deactivate user.
+     * Test supervisor can deactivate user.
      */
-    public function test_admin_can_deactivate_user(): void
+    public function test_supervisor_can_deactivate_user(): void
     {
-        $admin = User::factory()->admin()->create();
+        $supervisor = User::factory()->supervisor()->create();
         $employee = User::factory()->employee()->create();
 
-        $response = $this->actingAs($admin)
-            ->delete(route('admin.employees.deactivate', $employee));
+        $response = $this->actingAs($supervisor)
+            ->delete(route('supervisor.employees.deactivate', $employee));
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -162,19 +149,19 @@ class EmployeeManagementTest extends TestCase
     }
 
     /**
-     * Test admin cannot deactivate themselves.
+     * Test supervisor cannot deactivate themselves.
      */
-    public function test_admin_cannot_deactivate_themselves(): void
+    public function test_supervisor_cannot_deactivate_themselves(): void
     {
-        $admin = User::factory()->admin()->create();
+        $supervisor = User::factory()->supervisor()->create();
 
-        $response = $this->actingAs($admin)
-            ->delete(route('admin.employees.deactivate', $admin));
+        $response = $this->actingAs($supervisor)
+            ->delete(route('supervisor.employees.deactivate', $supervisor));
 
         $response->assertForbidden();
 
         $this->assertDatabaseHas('users', [
-            'id' => $admin->id,
+            'id' => $supervisor->id,
             'is_active' => true,
         ]);
     }
@@ -184,18 +171,18 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_search_filters_users_correctly(): void
     {
-        $admin = User::factory()->admin()->create();
+        $supervisor = User::factory()->supervisor()->create();
         User::factory()->create(['name' => 'John Smith', 'email' => 'john@example.com']);
         User::factory()->create(['name' => 'Jane Doe', 'email' => 'jane@example.com']);
         User::factory()->create(['name' => 'Bob Wilson', 'email' => 'bob@example.com']);
 
-        $response = $this->actingAs($admin)
-            ->get(route('admin.employees', ['search' => 'john']));
+        $response = $this->actingAs($supervisor)
+            ->get(route('supervisor.employees', ['search' => 'john']));
 
         $response->assertOk();
         $response->assertInertia(
             fn (Assert $page) => $page
-                ->component('admin/Employees')
+                ->component('supervisor/Employees')
                 ->has('users', 1)
                 ->where('users.0.name', 'John Smith')
         );
@@ -206,18 +193,18 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_role_filter_works_correctly(): void
     {
-        $admin = User::factory()->admin()->create();
+        $supervisor = User::factory()->supervisor()->create();
         User::factory()->employee()->count(3)->create();
         User::factory()->supervisor()->count(2)->create();
 
-        $response = $this->actingAs($admin)
-            ->get(route('admin.employees', ['role' => 'supervisor']));
+        $response = $this->actingAs($supervisor)
+            ->get(route('supervisor.employees', ['role' => 'supervisor']));
 
         $response->assertOk();
         $response->assertInertia(
             fn (Assert $page) => $page
-                ->component('admin/Employees')
-                ->has('users', 2)
+                ->component('supervisor/Employees')
+                ->has('users', 3)
         );
     }
 
@@ -226,17 +213,17 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_status_filter_works_correctly(): void
     {
-        $admin = User::factory()->admin()->create();
+        $supervisor = User::factory()->supervisor()->create();
         User::factory()->employee()->count(3)->create();
         User::factory()->employee()->inactive()->count(2)->create();
 
-        $response = $this->actingAs($admin)
-            ->get(route('admin.employees', ['status' => 'inactive']));
+        $response = $this->actingAs($supervisor)
+            ->get(route('supervisor.employees', ['status' => 'inactive']));
 
         $response->assertOk();
         $response->assertInertia(
             fn (Assert $page) => $page
-                ->component('admin/Employees')
+                ->component('supervisor/Employees')
                 ->has('users', 2)
         );
     }
@@ -246,10 +233,10 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_validation_errors_for_user_creation(): void
     {
-        $admin = User::factory()->admin()->create();
+        $supervisor = User::factory()->supervisor()->create();
 
-        $response = $this->actingAs($admin)
-            ->post(route('admin.employees.store'), [
+        $response = $this->actingAs($supervisor)
+            ->post(route('supervisor.employees.store'), [
                 'name' => '',
                 'email' => 'invalid-email',
                 'password' => '123',
@@ -264,11 +251,11 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_email_must_be_unique(): void
     {
-        $admin = User::factory()->admin()->create();
+        $supervisor = User::factory()->supervisor()->create();
         $existingUser = User::factory()->create(['email' => 'existing@example.com']);
 
-        $response = $this->actingAs($admin)
-            ->post(route('admin.employees.store'), [
+        $response = $this->actingAs($supervisor)
+            ->post(route('supervisor.employees.store'), [
                 'name' => 'New User',
                 'email' => 'existing@example.com',
                 'password' => 'password123',
@@ -283,12 +270,12 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_password_is_optional_when_updating_user(): void
     {
-        $admin = User::factory()->admin()->create();
+        $supervisor = User::factory()->supervisor()->create();
         $employee = User::factory()->employee()->create();
         $originalPassword = $employee->password;
 
-        $response = $this->actingAs($admin)
-            ->put(route('admin.employees.update', $employee), [
+        $response = $this->actingAs($supervisor)
+            ->put(route('supervisor.employees.update', $employee), [
                 'name' => 'Updated Name',
                 'email' => $employee->email,
                 'role' => 'employee',
@@ -306,10 +293,10 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_password_is_hashed_when_provided(): void
     {
-        $admin = User::factory()->admin()->create();
+        $supervisor = User::factory()->supervisor()->create();
 
-        $response = $this->actingAs($admin)
-            ->post(route('admin.employees.store'), [
+        $response = $this->actingAs($supervisor)
+            ->post(route('supervisor.employees.store'), [
                 'name' => 'Test User',
                 'email' => 'test@example.com',
                 'password' => 'plaintext123',
@@ -328,16 +315,16 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_pagination_works_correctly(): void
     {
-        $admin = User::factory()->admin()->create();
+        $supervisor = User::factory()->supervisor()->create();
         User::factory()->employee()->count(25)->create();
 
-        $response = $this->actingAs($admin)
-            ->get(route('admin.employees'));
+        $response = $this->actingAs($supervisor)
+            ->get(route('supervisor.employees'));
 
         $response->assertOk();
         $response->assertInertia(
             fn (Assert $page) => $page
-                ->component('admin/Employees')
+                ->component('supervisor/Employees')
                 ->has('users', 20)
                 ->where('meta.total', 26)
                 ->where('meta.last_page', 2)

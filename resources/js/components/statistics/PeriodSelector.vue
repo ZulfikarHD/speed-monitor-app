@@ -66,17 +66,17 @@ function isActive(period: Period): boolean {
         Period Selector
         Segmented control for time period selection
     ======================================================================= -->
-    <div class="flex flex-wrap rounded-lg border border-zinc-200 bg-zinc-100 p-1 dark:border-white/5 dark:bg-zinc-900">
+    <div class="flex flex-wrap rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-1">
         <button
             v-for="option in periodOptions"
             :key="option.value"
             @click="selectPeriod(option.value)"
             type="button"
-            class="min-h-[44px] min-w-[80px] rounded-md px-4 py-3 text-sm font-medium transition-all active:scale-95 sm:min-w-[100px]"
+            class="min-h-[44px] min-w-[80px] rounded-md px-4 py-3 text-sm font-medium transition-all sm:min-w-[100px]"
             :class="
                 isActive(option.value)
-                    ? 'bg-gradient-to-r from-cyan-600 to-blue-700 text-white shadow-lg shadow-cyan-200 dark:from-cyan-500 dark:to-blue-600 dark:shadow-cyan-500/25'
-                    : 'text-zinc-600 hover:bg-white hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
+                    ? 'bg-cyan-500 text-white shadow-lg'
+                    : 'text-[#9ca3af] hover:text-[#e5e7eb]'
             "
             :aria-pressed="isActive(option.value)"
         >

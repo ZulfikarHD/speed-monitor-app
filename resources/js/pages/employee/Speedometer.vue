@@ -1,19 +1,9 @@
 <!--
-SpeedMonitor - Production GPS Speedometer
+SpeedoMontor - Production GPS Speedometer
 
 Full production speedometer with backend integration via Trip Store and Settings Store.
-Redesigned with SpeedMonitor design system featuring theme-aware styling and modern UX.
+Features professional design from HTML spec while maintaining proper API integration.
 Uses EmployeeLayout for consistent navigation across all employee pages.
-
-Features:
-- Theme-aware styling with full light/dark mode support
-- SpeedMonitor branding and professional design
-- Real-time GPS tracking with accuracy indicators
-- Speed limit monitoring with visual violations
-- Trip statistics and duration tracking
-- Auto-stop functionality for safety
-- Offline sync support with background sync
-- Responsive design with proper layout containment
 -->
 
 <script setup lang="ts">
@@ -30,7 +20,7 @@ import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
 import { useSettingsStore } from '@/stores/settings';
 import { useTripStore } from '@/stores/trip';
 import { haversineDistance, metersToKm, metersToMiles } from '@/utils/distance';
-import { mpsToDisplay } from '@/utils/units';
+import { estimateSatelliteCount, mpsToDisplay } from '@/utils/units';
 
 // ========================================================================
 // Props (Server-Side Data)
@@ -180,6 +170,8 @@ const currentSpeed = computed(() => mpsToDisplay(speedMps.value, unit.value));
 
 const currentSpeedLimit = computed(() => localSpeedLimit.value);
 
+const satelliteCount = computed(() => estimateSatelliteCount(accuracy.value));
+
 const accuracyPercentage = computed(() => {
     if (!accuracy.value) {
 return 0;
@@ -241,6 +233,7 @@ const tripDistance = computed(() => {
 });
 
 const maxSpeed = computed(() => mpsToDisplay(tripStore.stats.maxSpeed, unit.value));
+const avgSpeed = computed(() => mpsToDisplay(tripStore.stats.averageSpeed, unit.value));
 
 // ========================================================================
 // Speed Unit Controls (km/h or mph)
@@ -308,152 +301,547 @@ onBeforeUnmount(() => {
             @sync="handleManualSync"
         />
 
-        <!-- ============================================================
-             Main Container with proper background containment
-             ============================================================ -->
-        <div class="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-black dark:via-zinc-950 dark:to-black">
+        <div class="speedometer-page">
             <!-- Header -->
-            <header class="sticky top-0 z-10 w-full border-b border-zinc-200 bg-white/90 backdrop-blur-xl px-7 py-4.5 dark:border-white/5 dark:bg-zinc-900/95">
-                <div class="mx-auto flex max-w-7xl items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="text-2xl font-bold tracking-wider text-cyan-600 dark:text-cyan-400" style="font-family: 'Bebas Neue', sans-serif">
-                            Speed<span class="text-zinc-900 dark:text-white">Monitor</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 text-sm font-medium uppercase tracking-wider">
-                        <div :class="[
-                            'h-2 w-2 rounded-full transition-all',
-                            gpsStatusClass === 'active' ? 'bg-green-500 shadow-lg shadow-green-500/50 dark:shadow-green-500/30' :
-                            gpsStatusClass === 'warn' ? 'bg-amber-500 shadow-lg shadow-amber-500/50 dark:shadow-amber-500/30' :
-                            'bg-zinc-400 dark:bg-zinc-600'
-                        ]" />
-                        <span class="text-zinc-700 dark:text-zinc-300">{{ gpsStatus }}</span>
-                    </div>
+            <header class="velo-header">
+                <div class="header-left">
+                    <div class="velo-logo">Velo<span>Track</span></div>
+                </div>
+                <div class="status-indicator">
+                    <div :class="['status-dot', gpsStatusClass]" />
+                    <span>{{ gpsStatus }}</span>
                 </div>
             </header>
 
-        <!-- Main Content -->
-        <main class="mx-auto w-full max-w-2xl px-4 py-6 sm:px-6">
-            <!-- Trip Controls - PRIMARY ACTION AT TOP (Fitts's Law) -->
+        <!-- Main -->
+        <main class="velo-main">
+            <!-- Speed Limit Banner (Read-Only) -->
             <motion.div
                 :initial="{ opacity: 0, y: -20 }"
                 :animate="{ opacity: 1, y: 0 }"
-                :transition="{ duration: 0.3 }"
-                class="mb-6"
+                :transition="{ type: 'spring', bounce: 0.4, duration: 0.6 }"
+                class="limit-banner"
             >
-                <TripControls />
-            </motion.div>
-
-            <!-- Speed Limit & Unit Toggle - COMPACT -->
-            <div class="mb-4 flex items-center justify-between gap-4 rounded-lg border border-zinc-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-zinc-800"
-            >
-                <div class="flex items-center gap-3">
-                    <div class="text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
-                        Limit:
-                    </div>
-                    <div class="text-xl font-bold text-cyan-600 dark:text-cyan-400" style="font-family: 'Bebas Neue', sans-serif">
-                        {{ currentSpeedLimit }} {{ unit === 'kmh' ? 'km/h' : 'mph' }}
-                    </div>
+                <div class="limit-info">
+                    <div class="limit-label">Speed Limit</div>
+                <motion.div
+                    :animate="{ scale: [1, 1.05, 1] }"
+                    :transition="{ duration: 0.3 }"
+                    :key="currentSpeedLimit"
+                    class="limit-value"
+                >
+                    {{ currentSpeedLimit }} {{ unit === 'kmh' ? 'km/h' : 'mph' }}
+                </motion.div>
+                    <div class="limit-subtext">Diatur oleh supervisor</div>
                 </div>
-                <div class="flex rounded-lg border border-zinc-200 bg-zinc-50 p-0.5 dark:border-white/10 dark:bg-zinc-900/50">
-                    <button
-                        :class="[
-                            'min-h-[36px] rounded-md px-3 py-1 text-xs font-medium transition-all',
-                            unit === 'kmh'
-                                ? 'bg-gradient-to-r from-cyan-600 to-blue-700 text-white dark:from-cyan-500 dark:to-blue-600'
-                                : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100'
-                        ]"
+                <div class="unit-toggle">
+                    <motion.button
+                        :class="{ active: unit === 'kmh' }"
                         @click="setUnit('kmh')"
+                        :whilePress="{ scale: 0.95 }"
+                        :animate="{ scale: unit === 'kmh' ? 1.02 : 1 }"
+                        :transition="{ type: 'spring', bounce: 0.4, duration: 0.4 }"
                     >
                         km/h
-                    </button>
-                    <button
-                        :class="[
-                            'min-h-[36px] rounded-md px-3 py-1 text-xs font-medium transition-all',
-                            unit === 'mph'
-                                ? 'bg-gradient-to-r from-cyan-600 to-blue-700 text-white dark:from-cyan-500 dark:to-blue-600'
-                                : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100'
-                        ]"
+                    </motion.button>
+                    <motion.button
+                        :class="{ active: unit === 'mph' }"
                         @click="setUnit('mph')"
+                        :whilePress="{ scale: 0.95 }"
+                        :animate="{ scale: unit === 'mph' ? 1.02 : 1 }"
+                        :transition="{ type: 'spring', bounce: 0.4, duration: 0.4 }"
                     >
                         mph
-                    </button>
+                    </motion.button>
                 </div>
-            </div>
+            </motion.div>
 
             <!-- Gauge -->
-            <div v-if="tripStore.hasActiveTrip" class="mb-6">
+            <motion.div
+                :initial="{ opacity: 0, scale: 0.9 }"
+                :animate="{ opacity: 1, scale: 1 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.7, delay: 0.1 }"
+            >
                 <ProductionGauge
                     :speed="currentSpeed"
                     :speed-limit="currentSpeedLimit"
                     :unit="unit"
                 />
-            </div>
+            </motion.div>
 
-            <!-- Active Trip Stats - PROGRESSIVE DISCLOSURE -->
-            <div v-if="tripStore.hasActiveTrip" class="space-y-3">
-                <!-- Compact Trip Bar -->
-                <div class="flex items-center justify-around rounded-lg border border-zinc-200 bg-white py-3 dark:border-white/10 dark:bg-zinc-800">
-                    <div class="text-center">
-                        <div class="text-lg font-bold text-cyan-600 dark:text-cyan-400" style="font-family: 'Share Tech Mono', monospace">
-                            {{ tripDistance.toFixed(2) }}
-                        </div>
-                        <div class="text-[10px] font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
-                            {{ unit === 'kmh' ? 'km' : 'mi' }}
-                        </div>
-                    </div>
-                    <div class="h-8 w-px bg-zinc-200 dark:bg-white/10" />
-                    <div class="text-center">
-                        <div class="text-lg font-bold text-cyan-600 dark:text-cyan-400" style="font-family: 'Share Tech Mono', monospace">
-                            {{ Math.floor(tripStore.stats.duration / 60).toString().padStart(2, '0') }}:{{ (tripStore.stats.duration % 60).toString().padStart(2, '0') }}
-                        </div>
-                        <div class="text-[10px] font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
-                            Time
-                        </div>
-                    </div>
-                    <div class="h-8 w-px bg-zinc-200 dark:bg-white/10" />
-                    <div class="text-center">
-                        <div class="text-lg font-bold" :class="accuracyPercentage > 60 ? 'text-green-600 dark:text-green-400' : accuracyPercentage > 30 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'" style="font-family: 'Share Tech Mono', monospace">
-                            {{ Math.round(maxSpeed) }}
-                        </div>
-                        <div class="text-[10px] font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
-                            Max
-                        </div>
-                    </div>
-                </div>
-
-                <!-- GPS Accuracy - INLINE -->
-                <div class="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-zinc-800">
-                    <div class="text-[10px] font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
-                        GPS
-                    </div>
-                    <div class="h-1 flex-1 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
-                        <div
-                            class="h-full rounded-full transition-all duration-300"
-                            :style="{ width: accuracyPercentage + '%', background: accuracyColor }"
-                        />
-                    </div>
-                    <div class="text-[10px] font-medium text-zinc-700 dark:text-zinc-300" style="font-family: 'Share Tech Mono', monospace">
-                        {{ accuracy !== null ? Math.round(accuracy) + 'm' : '—' }}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Empty State - When No Active Trip -->
-            <div
-                v-else
-                class="rounded-lg border border-zinc-200 bg-white p-6 text-center dark:border-white/10 dark:bg-zinc-800"
+            <!-- Stats Grid -->
+            <motion.div
+                :initial="{ opacity: 0, y: 20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.2 }"
+                class="stats-grid"
             >
-                <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-900">
-                    <svg class="h-6 w-6 text-zinc-400 dark:text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
+                <motion.div
+                    :whileHover="{ scale: 1.03, y: -2 }"
+                    :whilePress="{ scale: 0.98 }"
+                    :transition="{ type: 'spring', bounce: 0.5, duration: 0.4 }"
+                    class="stat-card danger"
+                >
+                    <div class="stat-label">Max Speed</div>
+                    <motion.div
+                        :animate="{ scale: [1, 1.1, 1] }"
+                        :transition="{ duration: 0.3 }"
+                        :key="Math.round(maxSpeed)"
+                        class="stat-value"
+                    >
+                        {{ Math.round(maxSpeed) }}
+                    </motion.div>
+                    <div class="stat-unit">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
+                </motion.div>
+                <motion.div
+                    :whileHover="{ scale: 1.03, y: -2 }"
+                    :whilePress="{ scale: 0.98 }"
+                    :transition="{ type: 'spring', bounce: 0.5, duration: 0.4 }"
+                    class="stat-card warn"
+                >
+                    <div class="stat-label">Avg Speed</div>
+                    <motion.div
+                        :animate="{ scale: [1, 1.1, 1] }"
+                        :transition="{ duration: 0.3 }"
+                        :key="Math.round(avgSpeed)"
+                        class="stat-value"
+                    >
+                        {{ Math.round(avgSpeed) }}
+                    </motion.div>
+                    <div class="stat-unit">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
+                </motion.div>
+            </motion.div>
+
+            <!-- Trip Bar -->
+            <motion.div
+                :initial="{ opacity: 0, y: 20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.3 }"
+                class="trip-bar"
+            >
+                <div class="trip-item">
+                    <motion.div
+                        :animate="{ scale: [1, 1.08, 1] }"
+                        :transition="{ duration: 0.4 }"
+                        :key="tripDistance.toFixed(2)"
+                        class="trip-val"
+                    >
+                        {{ tripDistance.toFixed(2) }}
+                    </motion.div>
+                    <div class="trip-lbl">Distance ({{ unit === 'kmh' ? 'km' : 'mi' }})</div>
                 </div>
-                <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                    Start trip to begin tracking
-                </p>
-            </div>
+                <div class="trip-divider" />
+                <div class="trip-item">
+                    <motion.div
+                        :animate="{ scale: [1, 1.08, 1] }"
+                        :transition="{ duration: 0.4 }"
+                        :key="tripStore.stats.duration"
+                        class="trip-val"
+                    >
+                        {{ Math.floor(tripStore.stats.duration / 60).toString().padStart(2, '0') }}:{{ (tripStore.stats.duration % 60).toString().padStart(2, '0') }}
+                    </motion.div>
+                    <div class="trip-lbl">Duration</div>
+                </div>
+                <div class="trip-divider" />
+                <div class="trip-item">
+                    <motion.div
+                        :animate="{ scale: [1, 1.08, 1] }"
+                        :transition="{ duration: 0.4 }"
+                        :key="satelliteCount"
+                        class="trip-val"
+                    >
+                        {{ satelliteCount || '—' }}
+                    </motion.div>
+                    <div class="trip-lbl">Satellites</div>
+                </div>
+            </motion.div>
+
+            <!-- GPS Accuracy -->
+            <motion.div
+                :initial="{ opacity: 0, y: 20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.4 }"
+                class="accuracy-row"
+            >
+                <div class="accuracy-label">GPS Accuracy</div>
+                <div class="accuracy-bar">
+                    <motion.div
+                        :animate="{
+                            width: accuracyPercentage + '%',
+                        }"
+                        :transition="{ type: 'spring', bounce: 0.2, duration: 0.8 }"
+                        class="accuracy-fill"
+                        :style="{
+                            background: accuracyColor,
+                        }"
+                    />
+                </div>
+                <div class="accuracy-text">
+                    {{ accuracy !== null ? Math.round(accuracy) + ' m' : '— m' }}
+                </div>
+            </motion.div>
+
+            <!-- Trip Controls -->
+            <TripControls />
         </main>
         </div>
     </EmployeeLayout>
 </template>
+
+<style scoped>
+.speedometer-page {
+    background: #0a0c0f;
+    color: #e8eaf0;
+    font-family: 'Barlow', sans-serif;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Noise overlay */
+.speedometer-page::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.5;
+}
+
+.velo-header {
+    width: 100%;
+    padding: 18px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1e2230;
+    background: rgba(10, 12, 15, 0.95);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.back-button {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid #1e2230;
+    background: #111318;
+    color: #e8eaf0;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    border-color: #00e5ff;
+    color: #00e5ff;
+    background: #0a0c0f;
+}
+
+.back-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.velo-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+    color: #00e5ff;
+    text-shadow: 0 0 20px rgba(0, 229, 255, 0.35);
+}
+
+.velo-logo span {
+    color: #e8eaf0;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #4a5068;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4a5068;
+    transition: all 0.4s;
+}
+
+.status-dot.active {
+    background: #00e676;
+    box-shadow: 0 0 8px #00e676;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.warn {
+    background: #ffab00;
+    box-shadow: 0 0 8px #ffab00;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.velo-main {
+    width: 100%;
+    max-width: 28rem;
+    padding: 24px 16px 40px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .velo-main {
+        max-width: 32rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .velo-main {
+        max-width: 42rem;
+    }
+}
+
+/* Landscape mode optimizations (short screens) */
+@media (orientation: landscape) and (max-height: 500px) {
+    .velo-main {
+        padding: 16px 16px 20px;
+        gap: 12px;
+    }
+
+    .gauge-container {
+        max-height: 60vh;
+    }
+
+    .stats-grid,
+    .trip-bar,
+    .accuracy-row {
+        transform: scale(0.9);
+    }
+
+    .limit-banner {
+        padding: 8px 12px;
+    }
+}
+
+.limit-banner {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    background: #111318;
+    border: 1px solid #1e2230;
+    border-radius: 14px;
+    padding: 16px 20px;
+    gap: 16px;
+}
+
+.limit-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.limit-label {
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #4a5068;
+}
+
+.limit-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    color: #00e5ff;
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+}
+
+.limit-subtext {
+    font-size: 0.7rem;
+    color: #4a5068;
+    font-style: italic;
+}
+
+.unit-toggle {
+    display: flex;
+    background: #0a0c0f;
+    border: 1px solid #1e2230;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.unit-toggle button {
+    min-height: 44px;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    color: #4a5068;
+    font-size: 0.875rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.unit-toggle button.active {
+    background: #00e5ff;
+    color: #000;
+    font-weight: 600;
+}
+
+.stats-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.stat-card {
+    background: #111318;
+    border: 1px solid #1e2230;
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #00e5ff;
+    opacity: 0.4;
+}
+
+.stat-card.danger::before {
+    background: #ff3d57;
+    opacity: 0.6;
+}
+
+.stat-card.warn::before {
+    background: #ffab00;
+    opacity: 0.6;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #4a5068;
+}
+
+.stat-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.7rem;
+    color: #e8eaf0;
+    line-height: 1;
+}
+
+.stat-unit {
+    font-size: 0.65rem;
+    color: #4a5068;
+    letter-spacing: 1px;
+}
+
+.trip-bar {
+    width: 100%;
+    background: #111318;
+    border: 1px solid #1e2230;
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.trip-item {
+    text-align: center;
+}
+
+.trip-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.3rem;
+    color: #00e5ff;
+}
+
+.trip-lbl {
+    font-size: 0.875rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #4a5068;
+    margin-top: 3px;
+}
+
+.trip-divider {
+    width: 1px;
+    height: 36px;
+    background: #1e2230;
+}
+
+.accuracy-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 4px;
+}
+
+.accuracy-label {
+    font-size: 0.875rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #4a5068;
+    white-space: nowrap;
+}
+
+.accuracy-bar {
+    flex: 1;
+    height: 3px;
+    background: #1e2230;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.accuracy-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s, background 0.5s;
+}
+
+.accuracy-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: #4a5068;
+    min-width: 50px;
+    text-align: right;
+}
+</style>
