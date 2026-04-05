@@ -97,7 +97,7 @@ export interface StatCardProps {
     /** Unit of measurement (e.g., "trips", "km", "km/h") */
     unit: string;
 
-    /** Emoji icon for visual identification */
+    /** Lucide icon name for visual identification (e.g., 'car', 'gauge', 'zap', 'shield-alert') */
     icon: string;
 
     /** Color variant for card styling */

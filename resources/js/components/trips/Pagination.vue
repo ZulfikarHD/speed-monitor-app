@@ -17,7 +17,7 @@
  * ```
  */
 
-import { motion } from 'motion-v';
+import { ChevronLeft, ChevronRight } from '@lucide/vue';
 import { computed } from 'vue';
 
 /**
@@ -31,7 +31,7 @@ interface PaginationProps {
     lastPage: number;
 
     /** Number of items per page */
-    perPage: number;
+    perPage?: number;
 
     /** Total number of items */
     total: number;
@@ -44,7 +44,9 @@ interface PaginationEmits {
     (event: 'page-change', page: number): void;
 }
 
-const props = defineProps<PaginationProps>();
+const props = withDefaults(defineProps<PaginationProps>(), {
+    perPage: 20,
+});
 const emit = defineEmits<PaginationEmits>();
 
 /**
@@ -107,20 +109,16 @@ const visiblePages = computed<(number | string)[]>(() => {
     const { currentPage, lastPage } = props;
 
     if (lastPage <= 7) {
-        // Show all pages if 7 or fewer
         for (let i = 1; i <= lastPage; i++) {
             pages.push(i);
         }
     } else {
-        // Always show first page
         pages.push(1);
 
-        // Show ellipsis if current page is far from start
         if (currentPage > 3) {
             pages.push('...');
         }
 
-        // Show pages around current page
         const start = Math.max(2, currentPage - 1);
         const end = Math.min(lastPage - 1, currentPage + 1);
 
@@ -128,12 +126,10 @@ const visiblePages = computed<(number | string)[]>(() => {
             pages.push(i);
         }
 
-        // Show ellipsis if current page is far from end
         if (currentPage < lastPage - 2) {
             pages.push('...');
         }
 
-        // Always show last page
         pages.push(lastPage);
     }
 
@@ -143,109 +139,72 @@ const visiblePages = computed<(number | string)[]>(() => {
 
 <template>
     <!-- ======================================================================
-        Pagination Container (Theme-Aware)
-        Mobile-first responsive pagination controls
+        Pagination — range text, prev/next, page numbers / mobile summary
     ======================================================================= -->
     <div
         class="flex flex-col items-center justify-between gap-4 sm:flex-row"
         role="navigation"
         aria-label="Pagination"
     >
-        <!-- Item Range Info (Left) -->
         <div class="text-sm text-zinc-600 dark:text-zinc-400">
             Menampilkan {{ itemRange }}
         </div>
 
-        <!-- Pagination Controls (Center/Right) -->
         <div class="flex items-center gap-2">
-            <!-- Previous Button -->
-            <motion.button
-                @click="goToPrevious"
+            <button
+                type="button"
                 :disabled="!canGoPrevious"
-                :whileHover="canGoPrevious ? { scale: 1.05, x: -2 } : {}"
-                :whilePress="canGoPrevious ? { scale: 0.95 } : {}"
-                :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
-                class="flex min-h-[44px] items-center gap-1 rounded-lg border border-zinc-300 dark:border-white/10 bg-zinc-100 dark:bg-zinc-800/50 px-3 text-sm font-medium text-zinc-900 dark:text-white transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-700/50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-zinc-100 dark:disabled:hover:bg-zinc-800/50"
+                class="flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-lg border border-zinc-200/80 bg-white/95 px-3 text-sm font-medium text-zinc-900 shadow-sm ring-1 ring-white/20 transition-all duration-200 hover:border-cyan-500/40 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-zinc-200/80 disabled:hover:bg-white/95 dark:border-white/10 dark:bg-zinc-800/95 dark:text-white dark:ring-white/5 dark:hover:border-cyan-500/30 dark:hover:bg-zinc-800 dark:disabled:hover:border-white/10 dark:disabled:hover:bg-zinc-800/95"
                 aria-label="Previous page"
+                @click="goToPrevious"
             >
-                <svg
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 19l-7-7 7-7"
-                    />
-                </svg>
+                <ChevronLeft class="h-4 w-4 shrink-0" :stroke-width="2" aria-hidden="true" />
                 <span class="hidden sm:inline">Sebelumnya</span>
-            </motion.button>
+            </button>
 
-            <!-- Page Numbers (Desktop Only) -->
             <div class="hidden items-center gap-1 md:flex">
-                <motion.button
-                    v-for="page in visiblePages"
-                    :key="page"
-                    @click="typeof page === 'number' ? goToPage(page) : null"
-                    :disabled="typeof page !== 'number'"
-                    :whileHover="typeof page === 'number' && page !== currentPage ? { scale: 1.1, y: -2 } : {}"
-                    :whilePress="typeof page === 'number' && page !== currentPage ? { scale: 0.95 } : {}"
-                    :animate="{ scale: page === currentPage ? 1.05 : 1 }"
-                    :transition="{ type: 'spring', bounce: 0.5, duration: 0.4 }"
-                    :class="[
-                        'flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors duration-200',
-                        page === currentPage
-                            ? 'bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 text-white shadow-lg shadow-zinc-200 dark:shadow-cyan-500/25'
-                            : typeof page === 'number'
-                              ? 'border border-zinc-300 dark:border-white/10 bg-zinc-100 dark:bg-zinc-800/50 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700/50'
-                              : 'cursor-default text-zinc-500 dark:text-zinc-500',
-                    ]"
-                    :aria-label="
-                        typeof page === 'number' ? `Go to page ${page}` : ''
-                    "
-                    :aria-current="page === currentPage ? 'page' : undefined"
-                >
-                    {{ page }}
-                </motion.button>
+                <template v-for="(page, pageIndex) in visiblePages" :key="`pagination-page-${pageIndex}-${page}`">
+                    <span
+                        v-if="typeof page !== 'number'"
+                        class="flex min-h-11 min-w-11 items-center justify-center px-2 text-sm text-zinc-500 dark:text-zinc-400"
+                        aria-hidden="true"
+                    >
+                        {{ page }}
+                    </span>
+                    <button
+                        v-else
+                        type="button"
+                        :class="[
+                            'flex min-h-11 min-w-11 items-center justify-center rounded-lg px-3 text-sm font-medium transition-all duration-200',
+                            page === currentPage
+                                ? 'bg-gradient-to-r from-cyan-600 to-blue-700 text-white shadow-md shadow-zinc-900/10 dark:from-cyan-500 dark:to-blue-600 dark:shadow-cyan-500/20'
+                                : 'border border-zinc-200/80 bg-white/95 text-zinc-900 shadow-sm ring-1 ring-white/20 hover:border-cyan-500/40 hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-800/95 dark:text-white dark:ring-white/5 dark:hover:border-cyan-500/30 dark:hover:bg-zinc-800',
+                        ]"
+                        :aria-label="`Go to page ${page}`"
+                        :aria-current="page === currentPage ? 'page' : undefined"
+                        @click="goToPage(page)"
+                    >
+                        {{ page }}
+                    </button>
+                </template>
             </div>
 
-            <!-- Page Info (Mobile) -->
             <div
-                class="flex min-h-[44px] items-center rounded-lg border border-zinc-300 dark:border-white/10 bg-zinc-100 dark:bg-zinc-800/50 px-3 text-sm font-medium text-zinc-900 dark:text-white md:hidden"
+                class="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-zinc-200/80 bg-white/95 px-3 text-sm font-medium text-zinc-900 shadow-sm ring-1 ring-white/20 dark:border-white/10 dark:bg-zinc-800/95 dark:text-white dark:ring-white/5 md:hidden"
             >
                 {{ currentPage }} / {{ lastPage }}
             </div>
 
-            <!-- Next Button -->
-            <motion.button
-                @click="goToNext"
+            <button
+                type="button"
                 :disabled="!canGoNext"
-                :whileHover="canGoNext ? { scale: 1.05, x: 2 } : {}"
-                :whilePress="canGoNext ? { scale: 0.95 } : {}"
-                :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
-                class="flex min-h-[44px] items-center gap-1 rounded-lg border border-zinc-300 dark:border-white/10 bg-zinc-100 dark:bg-zinc-800/50 px-3 text-sm font-medium text-zinc-900 dark:text-white transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-700/50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-zinc-100 dark:disabled:hover:bg-zinc-800/50"
+                class="flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-lg border border-zinc-200/80 bg-white/95 px-3 text-sm font-medium text-zinc-900 shadow-sm ring-1 ring-white/20 transition-all duration-200 hover:border-cyan-500/40 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-zinc-200/80 disabled:hover:bg-white/95 dark:border-white/10 dark:bg-zinc-800/95 dark:text-white dark:ring-white/5 dark:hover:border-cyan-500/30 dark:hover:bg-zinc-800 dark:disabled:hover:border-white/10 dark:disabled:hover:bg-zinc-800/95"
                 aria-label="Next page"
+                @click="goToNext"
             >
                 <span class="hidden sm:inline">Selanjutnya</span>
-                <svg
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 5l7 7-7 7"
-                    />
-                </svg>
-            </motion.button>
+                <ChevronRight class="h-4 w-4 shrink-0" :stroke-width="2" aria-hidden="true" />
+            </button>
         </div>
     </div>
 </template>

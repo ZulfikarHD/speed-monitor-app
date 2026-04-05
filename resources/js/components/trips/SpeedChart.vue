@@ -27,6 +27,7 @@
  * ```
  */
 
+import { Activity } from '@lucide/vue';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -36,11 +37,9 @@ import {
     Title,
     Tooltip,
     Legend,
-    Filler
-
-
+    Filler,
 } from 'chart.js';
-import type {ChartOptions, ChartData} from 'chart.js';
+import type { ChartData, ChartOptions } from 'chart.js';
 import { computed } from 'vue';
 import { Line } from 'vue-chartjs';
 import type { SpeedLog } from '@/types/trip';
@@ -104,7 +103,7 @@ const chartData = computed<ChartData<'line'>>(() => {
 
     // Extract speed values for Y-axis (parse to number if string from DB)
     const speeds = sortedLogs.map((log) =>
-        typeof log.speed === 'string' ? parseFloat(log.speed) : log.speed
+        typeof log.speed === 'string' ? parseFloat(log.speed) : log.speed,
     );
 
     // Filter violation points for scatter overlay
@@ -177,7 +176,7 @@ const chartOptions = computed<ChartOptions<'line'>>(() => ({
             display: true,
             position: 'top',
             labels: {
-                color: '#9ca3af', // Gray text
+                color: 'rgba(161, 161, 170, 0.8)',
                 font: {
                     family: "'Barlow', sans-serif",
                     size: 12,
@@ -186,10 +185,10 @@ const chartOptions = computed<ChartOptions<'line'>>(() => ({
             },
         },
         tooltip: {
-            backgroundColor: '#1a1d23',
-            titleColor: '#e5e7eb',
-            bodyColor: '#9ca3af',
-            borderColor: '#3E3E3A',
+            backgroundColor: '#18181b',
+            titleColor: '#fafafa',
+            bodyColor: '#a1a1aa',
+            borderColor: 'rgba(255, 255, 255, 0.1)',
             borderWidth: 1,
             padding: 12,
             displayColors: true,
@@ -217,21 +216,21 @@ const chartOptions = computed<ChartOptions<'line'>>(() => ({
             title: {
                 display: true,
                 text: 'Waktu',
-                color: '#9ca3af',
+                color: 'rgba(161, 161, 170, 0.8)',
                 font: {
                     family: "'Barlow', sans-serif",
                     size: 12,
                 },
             },
             ticks: {
-                color: '#9ca3af',
+                color: 'rgba(161, 161, 170, 0.8)',
                 maxRotation: 45,
                 minRotation: 0,
                 // WHY: Show fewer labels on mobile to prevent overlap
                 maxTicksLimit: 10,
             },
             grid: {
-                color: '#3E3E3A',
+                color: 'rgba(161, 161, 170, 0.15)',
                 drawBorder: false,
             },
         },
@@ -240,20 +239,20 @@ const chartOptions = computed<ChartOptions<'line'>>(() => ({
             title: {
                 display: true,
                 text: 'Kecepatan (km/h)',
-                color: '#9ca3af',
+                color: 'rgba(161, 161, 170, 0.8)',
                 font: {
                     family: "'Barlow', sans-serif",
                     size: 12,
                 },
             },
             ticks: {
-                color: '#9ca3af',
+                color: 'rgba(161, 161, 170, 0.8)',
                 callback: function (value) {
                     return value + ' km/h';
                 },
             },
             grid: {
-                color: '#3E3E3A',
+                color: 'rgba(161, 161, 170, 0.15)',
                 drawBorder: false,
             },
             // WHY: Fixed range provides consistent reference for speed limit line
@@ -274,16 +273,18 @@ const hasData = computed(() => props.speedLogs.length > 0);
         SpeedChart Component
         Chart.js line chart with speed data and violation markers
     ======================================================================= -->
-    <div class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-6">
+    <div
+        class="rounded-lg border border-zinc-200/80 bg-white/95 p-6 shadow-lg shadow-zinc-900/5 ring-1 ring-white/20 dark:border-white/10 dark:bg-zinc-800/95 dark:shadow-cyan-500/5 dark:ring-white/5"
+    >
         <!-- Chart Header -->
         <div class="mb-4">
             <h3
-                class="text-lg font-semibold text-[#e5e7eb]"
+                class="text-lg font-semibold text-zinc-900 dark:text-white"
                 style="font-family: 'Bebas Neue', sans-serif"
             >
                 Grafik Kecepatan
             </h3>
-            <p class="mt-1 text-sm text-[#9ca3af]">
+            <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                 Visualisasi kecepatan selama perjalanan dengan penanda
                 pelanggaran
             </p>
@@ -292,7 +293,7 @@ const hasData = computed(() => props.speedLogs.length > 0);
         <!-- Loading State -->
         <div
             v-if="isLoading"
-            class="flex h-64 items-center justify-center bg-[#0a0c0f] rounded-lg"
+            class="flex h-64 items-center justify-center rounded-lg bg-zinc-50 dark:bg-zinc-900/50"
             role="status"
             aria-label="Loading chart"
         >
@@ -300,20 +301,30 @@ const hasData = computed(() => props.speedLogs.length > 0);
                 <div
                     class="mb-3 inline-block h-10 w-10 animate-spin rounded-full border-4 border-cyan-500 border-t-transparent"
                 ></div>
-                <p class="text-sm text-[#9ca3af]">Memuat grafik...</p>
+                <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                    Memuat grafik...
+                </p>
             </div>
         </div>
 
         <!-- Empty State -->
         <div
             v-else-if="!hasData"
-            class="flex h-64 flex-col items-center justify-center bg-[#0a0c0f] rounded-lg"
+            class="flex h-64 flex-col items-center justify-center rounded-lg bg-zinc-50 dark:bg-zinc-900/50"
         >
-            <div class="mb-3 text-4xl" aria-hidden="true">📊</div>
-            <h4 class="mb-2 text-lg font-semibold text-[#e5e7eb]">
+            <Activity
+                :size="40"
+                class="mb-3 text-zinc-400"
+                aria-hidden="true"
+            />
+            <h4
+                class="mb-2 text-lg font-semibold text-zinc-900 dark:text-white"
+            >
                 Tidak Ada Data Kecepatan
             </h4>
-            <p class="text-center text-sm text-[#9ca3af]">
+            <p
+                class="text-center text-sm text-zinc-600 dark:text-zinc-400"
+            >
                 Tidak ada log kecepatan yang tercatat untuk perjalanan ini.
             </p>
         </div>
@@ -322,7 +333,7 @@ const hasData = computed(() => props.speedLogs.length > 0);
         <div v-else class="relative">
             <!-- Speed Limit Reference Line Indicator -->
             <div
-                class="mb-3 flex items-center justify-end gap-2 text-xs text-[#9ca3af]"
+                class="mb-3 flex items-center justify-end gap-2 text-xs text-zinc-600 dark:text-zinc-400"
             >
                 <span>Batas Kecepatan:</span>
                 <span
@@ -338,7 +349,7 @@ const hasData = computed(() => props.speedLogs.length > 0);
             </div>
 
             <!-- Chart.js Line Chart -->
-            <div class="relative bg-[#0a0c0f] rounded-lg p-4">
+            <div class="relative rounded-lg bg-zinc-50 p-4 dark:bg-zinc-900/50">
                 <Line :data="chartData" :options="chartOptions" />
 
                 <!-- Speed Limit Reference Line (Visual Overlay) -->
@@ -360,7 +371,7 @@ const hasData = computed(() => props.speedLogs.length > 0);
 
             <!-- Chart Legend Footer -->
             <div
-                class="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs text-[#9ca3af]"
+                class="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs text-zinc-600 dark:text-zinc-400"
             >
                 <div class="flex items-center gap-2">
                     <div

@@ -4,18 +4,18 @@ OFFLINE INDICATOR COMPONENT
 ==============================================================================
 
 Visual indicator showing offline mode status with animated badge.
-Uses motion-v for smooth entrance/exit animations following UX laws.
+Uses Vue CSS transitions for entrance/exit following UX laws.
 
 Features:
 - Animated slide-in from top when offline
 - Sync queue count badge with spring animation
-- Touch-friendly "Sync Now" button (Fitts's Law: 48px min)
+- Touch-friendly "Sync Now" button (Fitts's Law: 44px min)
 - Indonesian language messages
 - Dark theme consistent with SpeedoMontor branding
 
 UX Laws Applied:
 - Jakob's Law: Familiar cloud-off icon and badge pattern
-- Fitts's Law: Large touch targets (≥48px)
+- Fitts's Law: Large touch targets (≥44px)
 - Miller's Law: Limited information (status + count + action)
 - Hick's Law: Simple single action (Sync Now)
 
@@ -33,7 +33,7 @@ UX Laws Applied:
 -->
 
 <script setup lang="ts">
-import { motion } from 'motion-v';
+import { Cloud, CloudOff, RefreshCw } from '@lucide/vue';
 import { computed } from 'vue';
 
 import { useOnlineStatus } from '@/composables/useOnlineStatus';
@@ -201,143 +201,55 @@ const handleSyncClick = (): void => {
 </script>
 
 <template>
-    <!-- Main offline indicator container with motion-v animation -->
-    <Transition
-        :css="false"
-        @enter="
-            (el, done) => {
-                motion(el, { opacity: [0, 1], y: [-20, 0] }, { duration: 0.3, easing: 'ease-out' }).finished.then(
-                    done
-                );
-            }
-        "
-        @leave="
-            (el, done) => {
-                motion(el, { opacity: 0, y: -20 }, { duration: 0.2, easing: 'ease-in' }).finished.then(done);
-            }
-        "
-    >
+    <Transition name="slide">
         <div
             v-if="shouldShow"
-            :class="[bgColorClass, borderColorClass]"
-            class="fixed left-4 right-4 top-4 z-50 rounded-lg border px-4 py-3 shadow-lg backdrop-blur-sm md:left-auto md:right-4 md:w-auto md:min-w-[320px]"
+            class="fixed left-4 right-4 top-4 z-50 overflow-hidden rounded-lg border border-zinc-200/80 bg-white/95 shadow-lg ring-1 ring-white/20 dark:border-white/10 dark:bg-zinc-900/98 dark:ring-white/5 md:left-auto md:right-4 md:w-auto md:min-w-[320px]"
         >
+            <div :class="bgColorClass" class="pointer-events-none absolute inset-0" aria-hidden="true" />
+            <div class="relative z-10 px-4 py-3">
             <!-- ================================================================ -->
             <!-- HEADER: Icon + Status + Badge -->
             <!-- ================================================================ -->
             <div class="flex items-start justify-between gap-3">
                 <!-- Icon + Status Text -->
-                <div class="flex items-center gap-3">
-                    <!-- Cloud Off Icon (Offline) / Cloud Icon (Syncing/Online) -->
-                    <div v-if="isOffline" :class="textColorClass" class="flex-shrink-0">
-                        <!-- Cloud Off Icon (Simple SVG) -->
-                        <svg
-                            class="h-6 w-6"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path
-                                d="M3 3l18 18M6.5 6.5A6.5 6.5 0 006 9a6 6 0 006 6h7a4 4 0 001.26-.21m2.1-2.1A4 4 0 0019 9h-1.5a6.5 6.5 0 00-11.06-4.56"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            />
-                        </svg>
+                <div class="flex min-h-[44px] items-center gap-3">
+                    <!-- Offline -->
+                    <div v-if="isOffline && !isSyncing" :class="textColorClass" class="flex shrink-0 items-center">
+                        <CloudOff :size="24" :stroke-width="2" />
                     </div>
 
-                    <!-- Cloud Icon (Online/Syncing) with rotation/pulse animation -->
-                    <Transition
-                        :css="false"
-                        @enter="
-                            (el, done) => {
-                                if (isSyncing) {
-                                    motion(el, { rotate: 360 }, { duration: 1, repeat: Infinity, easing: 'linear' }).finished.then(
-                                        done
-                                    );
-                                } else if (isAutoSyncEnabled && pendingCount > 0) {
-                                    motion(
-                                        el,
-                                        { scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] },
-                                        { duration: 2, repeat: Infinity, easing: 'easeInOut' }
-                                    ).finished.then(done);
-                                } else {
-                                    motion(el, { opacity: 1 }, { duration: 0.3 }).finished.then(done);
-                                }
-                            }
-                        "
+                    <!-- Syncing -->
+                    <div v-else-if="isSyncing" :class="textColorClass" class="flex shrink-0 items-center">
+                        <RefreshCw :size="24" :stroke-width="2" class="animate-spin" />
+                    </div>
+
+                    <!-- Online / pending -->
+                    <div
+                        v-else
+                        :class="[textColorClass, isAutoSyncEnabled && pendingCount > 0 ? 'animate-pulse' : '']"
+                        class="flex shrink-0 items-center"
                     >
-                        <motion.div
-                            v-if="!isOffline"
-                            :animate="
-                                isSyncing
-                                    ? { rotate: 360 }
-                                    : isAutoSyncEnabled && pendingCount > 0
-                                      ? { scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }
-                                      : {}
-                            "
-                            :class="textColorClass"
-                            :transition="
-                                isSyncing
-                                    ? { duration: 1, repeat: Infinity, ease: 'linear' }
-                                    : isAutoSyncEnabled && pendingCount > 0
-                                      ? { duration: 2, repeat: Infinity, ease: 'easeInOut' }
-                                      : {}
-                            "
-                            class="flex-shrink-0"
-                        >
-                            <!-- Cloud Icon (Simple SVG) -->
-                            <svg
-                                class="h-6 w-6"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                        </motion.div>
-                    </Transition>
+                        <Cloud :size="24" :stroke-width="2" />
+                    </div>
 
                     <!-- Status Text -->
                     <div class="min-w-0 flex-1">
                         <div :class="textColorClass" class="text-sm font-semibold">
                             {{ statusMessage }}
                         </div>
-                        <div v-if="detailMessage" class="mt-0.5 text-xs text-gray-400">
+                        <div v-if="detailMessage" class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
                             {{ detailMessage }}
                         </div>
                     </div>
                 </div>
 
-                <!-- Pending Count Badge (with spring animation) -->
-                <Transition
-                    :css="false"
-                    @enter="
-                        (el, done) => {
-                            motion(
-                                el,
-                                { scale: [0, 1.1, 1] },
-                                { duration: 0.4, easing: [0.34, 1.56, 0.64, 1] }
-                            ).finished.then(done);
-                        }
-                    "
-                    @leave="
-                        (el, done) => {
-                            motion(el, { scale: 0 }, { duration: 0.2 }).finished.then(done);
-                        }
-                    "
-                >
+                <!-- Pending Count Badge -->
+                <Transition name="fade-scale">
                     <div
                         v-if="pendingCount > 0"
                         :class="textColorClass"
-                        class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-bold"
+                        class="flex h-11 min-w-[44px] shrink-0 items-center justify-center rounded-full bg-zinc-100/90 px-2 text-xs font-bold dark:bg-white/10"
                     >
                         {{ pendingCount > 99 ? '99+' : pendingCount }}
                     </div>
@@ -345,28 +257,14 @@ const handleSyncClick = (): void => {
             </div>
 
             <!-- ================================================================ -->
-            <!-- SYNC BUTTON (Fitts's Law: 48px min height for touch) -->
+            <!-- SYNC BUTTON (44px min touch target) -->
             <!-- ================================================================ -->
-            <Transition
-                :css="false"
-                @enter="
-                    (el, done) => {
-                        motion(el, { opacity: [0, 1], scaleY: [0.5, 1] }, { duration: 0.3, delay: 0.1 }).finished.then(
-                            done
-                        );
-                    }
-                "
-                @leave="
-                    (el, done) => {
-                        motion(el, { opacity: 0, scaleY: 0.5 }, { duration: 0.2 }).finished.then(done);
-                    }
-                "
-            >
+            <Transition name="fade-scale">
                 <button
                     v-if="showSync && !isSyncing"
                     type="button"
                     :class="[textColorClass, borderColorClass]"
-                    class="mt-3 w-full rounded-md border bg-white/5 px-4 py-2.5 text-sm font-medium transition-colors hover:bg-white/10 active:bg-white/15"
+                    class="mt-3 min-h-[44px] w-full rounded-md border bg-white/80 px-4 py-2.5 text-sm font-medium transition-all duration-200 hover:bg-zinc-50 active:scale-[0.98] dark:bg-zinc-800/80 dark:hover:bg-zinc-700/80"
                     @click="handleSyncClick"
                 >
                     Sinkronkan Sekarang
@@ -374,21 +272,9 @@ const handleSyncClick = (): void => {
             </Transition>
 
             <!-- Syncing Progress Indicator -->
-            <Transition
-                :css="false"
-                @enter="
-                    (el, done) => {
-                        motion(el, { opacity: [0, 1] }, { duration: 0.3 }).finished.then(done);
-                    }
-                "
-                @leave="
-                    (el, done) => {
-                        motion(el, { opacity: 0 }, { duration: 0.2 }).finished.then(done);
-                    }
-                "
-            >
+            <Transition name="fade">
                 <div v-if="isSyncing" class="mt-3">
-                    <div class="h-1 w-full overflow-hidden rounded-full bg-white/10">
+                    <div class="h-1 w-full overflow-hidden rounded-full bg-zinc-200/80 dark:bg-white/10">
                         <!-- Animated progress bar (indeterminate) -->
                         <div
                             :class="[bgColorClass.replace('/10', '/50')]"
@@ -398,11 +284,58 @@ const handleSyncClick = (): void => {
                     </div>
                 </div>
             </Transition>
+            </div>
         </div>
     </Transition>
 </template>
 
 <style scoped>
+.slide-enter-active {
+    transition: all 0.3s ease-out;
+}
+
+.slide-leave-active {
+    transition: all 0.2s ease-in;
+}
+
+.slide-enter-from {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+.slide-leave-to {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.fade-scale-enter-active {
+    transition: all 0.25s ease-out;
+}
+
+.fade-scale-leave-active {
+    transition: all 0.2s ease-in;
+}
+
+.fade-scale-enter-from {
+    opacity: 0;
+    transform: scale(0.85);
+}
+
+.fade-scale-leave-to {
+    opacity: 0;
+    transform: scale(0.85);
+}
+
 /**
  * Sliding progress bar animation for syncing state.
  */

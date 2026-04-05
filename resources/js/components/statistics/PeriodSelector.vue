@@ -9,8 +9,8 @@
  * - Three period options: Week, Month, Year
  * - Active state highlighting
  * - v-model support for two-way binding
- * - Touch-friendly (44px minimum height)
- * - Smooth transitions
+ * - Touch-friendly (44px minimum target size)
+ * - Smooth CSS transitions (200ms)
  */
 
 import type { Period, PeriodSelectorProps } from '@/types/statistics';
@@ -63,22 +63,26 @@ function isActive(period: Period): boolean {
 
 <template>
     <!-- ======================================================================
-        Period Selector (Theme-Aware)
-        Segmented control for time period selection
+        Period Selector (fake glass segmented control)
     ======================================================================= -->
-    <div class="flex flex-wrap rounded-lg border border-zinc-200 dark:border-white/5 bg-zinc-100 dark:bg-zinc-800/50 backdrop-blur-sm p-1">
+    <div
+        role="group"
+        aria-label="Statistics time period"
+        class="flex flex-wrap rounded-lg border border-zinc-200/80 bg-white/95 p-1 ring-1 ring-white/20 shadow-lg shadow-zinc-900/5 dark:border-white/10 dark:bg-zinc-800/95 dark:ring-white/5 dark:shadow-cyan-500/5"
+    >
         <button
             v-for="option in periodOptions"
             :key="option.value"
-            @click="selectPeriod(option.value)"
             type="button"
-            class="min-h-[44px] min-w-[80px] rounded-md px-4 py-3 text-sm font-medium transition-all duration-200 sm:min-w-[100px]"
+            class="min-h-[44px] min-w-[44px] rounded-md px-4 py-3 text-sm font-medium transition-all duration-200 sm:min-w-[100px]"
             :class="
                 isActive(option.value)
-                    ? 'bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 text-white shadow-lg shadow-zinc-200 dark:shadow-cyan-500/25'
-                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-white/5'
+                    ? 'bg-gradient-to-r from-cyan-600 to-blue-700 text-white shadow-lg shadow-zinc-200 dark:from-cyan-500 dark:to-blue-600 dark:shadow-cyan-500/25'
+                    : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-zinc-200'
             "
             :aria-pressed="isActive(option.value)"
+            :aria-label="`${option.label} statistics period`"
+            @click="selectPeriod(option.value)"
         >
             {{ option.label }}
         </button>

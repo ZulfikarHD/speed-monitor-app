@@ -18,9 +18,10 @@
  */
 
 import { router } from '@inertiajs/vue3';
-import { AnimatePresence, motion } from 'motion-v';
+import { CloudUpload, Loader2 } from '@lucide/vue';
 import { computed, onMounted, ref, watch } from 'vue';
 
+import { index as speedometerIndex } from '@/actions/App/Http/Controllers/Employee/SpeedometerController';
 import Toast from '@/components/common/Toast.vue';
 import OfflineIndicator from '@/components/offline/OfflineIndicator.vue';
 import SyncProgressIndicator from '@/components/sync/SyncProgressIndicator.vue';
@@ -285,12 +286,7 @@ const updatePendingSyncCount = async (): Promise<void> => {
 
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- Page Header with Sync Button -->
-            <motion.div
-                :initial="{ opacity: 0, y: -20 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.4, duration: 0.6 }"
-                class="mb-6 flex items-start justify-between gap-4"
-            >
+            <div class="mb-6 flex items-start justify-between gap-4">
                 <div class="flex-1">
                     <h1
                         class="text-3xl font-bold text-zinc-900 dark:text-white"
@@ -303,93 +299,36 @@ const updatePendingSyncCount = async (): Promise<void> => {
                     </p>
                 </div>
 
-                <!-- Manual Sync Button (only shown when pending items exist and not auto-syncing) -->
-                <AnimatePresence>
-                    <motion.button
-                        v-if="pendingSyncCount > 0 && !isAnySyncing"
-                        type="button"
-                        @click="handleManualSync"
-                        :initial="{ opacity: 0, scale: 0.8 }"
-                        :animate="{ opacity: 1, scale: 1 }"
-                        :exit="{ opacity: 0, scale: 0.8 }"
-                        :whileHover="{ scale: 1.05 }"
-                        :whilePress="{ scale: 0.95 }"
-                        :transition="{ type: 'spring', stiffness: 400, damping: 20 }"
-                        class="flex h-12 items-center gap-2 rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-4 text-sm font-medium text-cyan-600 dark:text-cyan-400 shadow-lg shadow-cyan-500/20 transition-colors hover:bg-cyan-500/20 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-white dark:ring-offset-zinc-900"
-                        aria-label="Sinkronkan perjalanan offline sekarang"
-                    >
-                        <!-- Cloud Upload Icon -->
-                        <svg
-                            class="h-5 w-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                            />
-                        </svg>
-                        <span class="hidden sm:inline">Sinkronkan</span>
-                        <span
-                            class="inline-flex items-center justify-center rounded-full bg-cyan-500/20 px-2 py-0.5 text-xs font-bold"
-                        >
-                            {{ pendingSyncCount }}
-                        </span>
-                    </motion.button>
+                <!-- Manual Sync Button -->
+                <button
+                    v-if="pendingSyncCount > 0 && !isAnySyncing"
+                    type="button"
+                    class="flex min-h-[44px] items-center gap-2 rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-4 text-sm font-medium text-cyan-600 shadow-lg shadow-cyan-500/20 transition-all duration-200 hover:bg-cyan-500/20 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-white dark:text-cyan-400 dark:ring-offset-zinc-900"
+                    aria-label="Sinkronkan perjalanan offline sekarang"
+                    @click="handleManualSync"
+                >
+                    <CloudUpload :size="20" :stroke-width="2" aria-hidden="true" />
+                    <span class="hidden sm:inline">Sinkronkan</span>
+                    <span class="inline-flex items-center justify-center rounded-full bg-cyan-500/20 px-2 py-0.5 text-xs font-bold">
+                        {{ pendingSyncCount }}
+                    </span>
+                </button>
 
-                    <!-- Loading Spinner (shown during any sync) -->
-                    <motion.div
-                        v-else-if="isAnySyncing"
-                        :initial="{ opacity: 0, scale: 0.8 }"
-                        :animate="{ opacity: 1, scale: 1 }"
-                        :exit="{ opacity: 0, scale: 0.8 }"
-                        class="flex h-12 items-center gap-3 rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-4 text-sm font-medium text-cyan-600 dark:text-cyan-400"
-                    >
-                        <!-- Rotating Spinner Icon -->
-                        <motion.div
-                            :animate="{ rotate: 360 }"
-                            :transition="{
-                                duration: 1,
-                                repeat: Infinity,
-                                ease: 'linear',
-                            }"
-                        >
-                            <svg
-                                class="h-5 w-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                                />
-                            </svg>
-                        </motion.div>
-                        <span v-if="currentSyncProgress">
-                            Menyinkronkan {{ currentSyncProgress.current }}/{{
-                                currentSyncProgress.total
-                            }}...
-                        </span>
-                        <span v-else>Menyinkronkan...</span>
-                    </motion.div>
-                </AnimatePresence>
-            </motion.div>
+                <!-- Loading Spinner (shown during any sync) -->
+                <div
+                    v-else-if="isAnySyncing"
+                    class="flex min-h-[44px] items-center gap-3 rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-4 text-sm font-medium text-cyan-600 dark:text-cyan-400"
+                >
+                    <Loader2 :size="20" :stroke-width="2" class="animate-spin" aria-hidden="true" />
+                    <span v-if="currentSyncProgress">
+                        Menyinkronkan {{ currentSyncProgress.current }}/{{ currentSyncProgress.total }}...
+                    </span>
+                    <span v-else>Menyinkronkan...</span>
+                </div>
+            </div>
 
             <!-- Filters Section -->
-            <motion.div
-                :initial="{ opacity: 0, y: 20 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.1 }"
-                class="mb-6"
-            >
+            <div class="mb-6">
                 <TripListFilters
                     v-model:status="localFilters.status"
                     v-model:date-from="localFilters.date_from"
@@ -397,43 +336,30 @@ const updatePendingSyncCount = async (): Promise<void> => {
                     @apply="handleApplyFilters"
                     @reset="handleResetFilters"
                 />
-            </motion.div>
+            </div>
 
             <!-- Trips Grid -->
             <div class="space-y-6">
                 <!-- Active Filters Indicator -->
-                <AnimatePresence>
-                    <motion.div
-                        v-if="hasActiveFilters"
-                        :initial="{ opacity: 0, x: -20 }"
-                        :animate="{ opacity: 1, x: 0 }"
-                        :exit="{ opacity: 0, x: 20 }"
-                        :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
-                        class="flex items-center justify-between rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-4 py-3"
+                <div
+                    v-if="hasActiveFilters"
+                    class="flex items-center justify-between rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-4 py-3"
+                >
+                    <span class="text-sm text-cyan-600 dark:text-cyan-400">
+                        Filter aktif: {{ meta.total }} trip ditemukan
+                    </span>
+                    <button
+                        type="button"
+                        class="inline-flex min-h-[44px] items-center gap-2 px-4 py-3 text-sm font-medium text-cyan-600 transition-colors duration-200 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300"
+                        @click="handleResetFilters"
                     >
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm text-cyan-600 dark:text-cyan-400">
-                                Filter aktif: {{ meta.total }} trip ditemukan
-                            </span>
-                        </div>
-                        <motion.button
-                            @click="handleResetFilters"
-                            :whileHover="{ scale: 1.05, x: 2 }"
-                            :whilePress="{ scale: 0.95 }"
-                            :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
-                            class="inline-flex min-h-[44px] items-center gap-2 px-4 py-3 text-sm text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:text-cyan-300"
-                        >
-                            Reset Filter
-                        </motion.button>
-                    </motion.div>
-                </AnimatePresence>
+                        Reset Filter
+                    </button>
+                </div>
 
                 <!-- Trip Cards -->
-                <motion.div
+                <div
                     v-if="!showEmptyState"
-                    :initial="{ opacity: 0, y: 20 }"
-                    :animate="{ opacity: 1, y: 0 }"
-                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.2 }"
                     class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-1"
                 >
                     <TripCard
@@ -441,13 +367,14 @@ const updatePendingSyncCount = async (): Promise<void> => {
                         :key="trip.id"
                         :trip="trip"
                     />
-                </motion.div>
+                </div>
 
                 <!-- Pagination -->
                 <div v-if="meta && meta.last_page > 1" class="mt-8">
                     <Pagination
                         :current-page="meta.current_page"
                         :last-page="meta.last_page"
+                        :per-page="meta.per_page"
                         :total="meta.total"
                         @page-change="handlePageChange"
                     />
@@ -456,6 +383,13 @@ const updatePendingSyncCount = async (): Promise<void> => {
                 <!-- Empty State -->
                 <EmptyState
                     v-if="showEmptyState"
+                    :icon="hasActiveFilters ? 'search' : 'clipboard'"
+                    :title="hasActiveFilters ? 'Tidak Ada Hasil' : 'Belum Ada Perjalanan'"
+                    :message="hasActiveFilters
+                        ? 'Tidak ada perjalanan yang cocok dengan filter Anda.'
+                        : 'Anda belum memiliki riwayat perjalanan. Mulai perjalanan pertama Anda dengan speedometer.'"
+                    :cta-text="hasActiveFilters ? undefined : 'Mulai Perjalanan'"
+                    :cta-href="hasActiveFilters ? undefined : speedometerIndex.url()"
                     :has-filters="hasActiveFilters"
                     @reset-filters="handleResetFilters"
                 />

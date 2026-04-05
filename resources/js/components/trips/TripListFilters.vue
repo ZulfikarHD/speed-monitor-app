@@ -17,6 +17,7 @@
  * ```
  */
 
+import { Filter, X } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 
 import type { TripStatus } from '@/types/trip';
@@ -136,21 +137,18 @@ const hasActiveFilters = computed(() => {
 
 <template>
     <!-- ======================================================================
-        Filters Container (Theme-Aware)
-        Responsive filter controls with date range and status
+        Filters — heading, grid inputs, actions
     ======================================================================= -->
     <div
-        class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white dark:bg-zinc-800/50 backdrop-blur-sm p-4"
+        class="rounded-lg border border-zinc-200/80 bg-white/95 p-4 shadow-lg shadow-zinc-900/5 ring-1 ring-white/20 dark:border-white/10 dark:bg-zinc-800/95 dark:shadow-cyan-500/5 dark:ring-white/5"
         role="search"
         aria-label="Filter trips"
     >
         <div class="mb-4">
-            <h3 class="text-sm font-medium text-zinc-900 dark:text-white">Filter</h3>
+            <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Filter</h3>
         </div>
 
-        <!-- Filter Controls Grid -->
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <!-- Date From Input -->
             <div>
                 <label
                     for="filter-date-from"
@@ -163,12 +161,11 @@ const hasActiveFilters = computed(() => {
                     v-model="localDateFrom"
                     type="date"
                     :max="localDateTo || todayDate"
-                    class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-zinc-100 dark:bg-zinc-900/50 px-3 py-2 text-sm text-zinc-900 dark:text-white transition-colors focus:border-cyan-500 dark:focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50"
+                    class="w-full rounded-lg border border-zinc-300 bg-zinc-100/90 px-3 py-2 text-sm text-zinc-900 transition-all duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:border-white/10 dark:bg-zinc-900/60 dark:text-white dark:focus:border-cyan-400 dark:focus:ring-cyan-400/50"
                     aria-label="Filter from date"
                 />
             </div>
 
-            <!-- Date To Input -->
             <div>
                 <label
                     for="filter-date-to"
@@ -182,12 +179,11 @@ const hasActiveFilters = computed(() => {
                     type="date"
                     :min="localDateFrom"
                     :max="todayDate"
-                    class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-zinc-100 dark:bg-zinc-900/50 px-3 py-2 text-sm text-zinc-900 dark:text-white transition-colors focus:border-cyan-500 dark:focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50"
+                    class="w-full rounded-lg border border-zinc-300 bg-zinc-100/90 px-3 py-2 text-sm text-zinc-900 transition-all duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:border-white/10 dark:bg-zinc-900/60 dark:text-white dark:focus:border-cyan-400 dark:focus:ring-cyan-400/50"
                     aria-label="Filter to date"
                 />
             </div>
 
-            <!-- Status Select -->
             <div>
                 <label
                     for="filter-status"
@@ -198,7 +194,7 @@ const hasActiveFilters = computed(() => {
                 <select
                     id="filter-status"
                     v-model="localStatus"
-                    class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-zinc-100 dark:bg-zinc-900/50 px-3 py-2 text-sm text-zinc-900 dark:text-white transition-colors focus:border-cyan-500 dark:focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50"
+                    class="w-full rounded-lg border border-zinc-300 bg-zinc-100/90 px-3 py-2 text-sm text-zinc-900 transition-all duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:border-white/10 dark:bg-zinc-900/60 dark:text-white dark:focus:border-cyan-400 dark:focus:ring-cyan-400/50"
                     aria-label="Filter by status"
                 >
                     <option value="">Semua Status</option>
@@ -208,51 +204,26 @@ const hasActiveFilters = computed(() => {
                 </select>
             </div>
 
-            <!-- Action Buttons -->
             <div class="flex items-end gap-2 sm:col-span-2 lg:col-span-1">
                 <button
-                    @click="handleApply"
-                    class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:shadow-lg hover:shadow-zinc-200 dark:hover:shadow-cyan-500/25 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900"
+                    type="button"
+                    class="flex min-h-11 min-w-11 flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-zinc-900/10 transition-all duration-200 hover:shadow-lg hover:shadow-zinc-900/15 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-white dark:from-cyan-500 dark:to-blue-600 dark:shadow-cyan-500/20 dark:hover:shadow-cyan-500/30 dark:focus:ring-cyan-400/50 dark:focus:ring-offset-zinc-950"
                     aria-label="Apply filters"
+                    @click="handleApply"
                 >
-                    <svg
-                        class="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                        />
-                    </svg>
+                    <Filter class="h-4 w-4 shrink-0" :stroke-width="2" aria-hidden="true" />
                     <span>Terapkan</span>
                 </button>
 
                 <button
                     v-if="hasActiveFilters"
-                    @click="handleReset"
-                    class="flex items-center justify-center rounded-lg border border-zinc-300 dark:border-white/10 bg-zinc-100 dark:bg-zinc-800/50 px-4 py-2 text-sm font-medium text-zinc-900 dark:text-white transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-700/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900"
+                    type="button"
+                    class="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-zinc-200/80 bg-zinc-100/90 text-zinc-900 shadow-sm ring-1 ring-white/10 transition-all duration-200 hover:border-zinc-300 hover:bg-zinc-200/90 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-white dark:border-white/10 dark:bg-zinc-900/60 dark:text-white dark:ring-white/5 dark:hover:bg-zinc-800 dark:focus:ring-cyan-400/50 dark:focus:ring-offset-zinc-950"
                     title="Reset filters"
                     aria-label="Reset filters"
+                    @click="handleReset"
                 >
-                    <svg
-                        class="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12"
-                        />
-                    </svg>
+                    <X class="h-4 w-4 shrink-0" :stroke-width="2" aria-hidden="true" />
                 </button>
             </div>
         </div>

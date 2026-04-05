@@ -8,8 +8,8 @@
  * Features:
  * - Trip summary (date, time, duration, distance, speeds)
  * - Status badge (in_progress, completed, auto_stopped)
- * - Sync status badge with animated icon
- * - Motion-v animations for interactivity
+ * - Sync status badge with CSS pulse for pending sync
+ * - CSS hover transitions (no motion-v)
  *
  * @example
  * ```vue
@@ -22,11 +22,11 @@
  */
 
 import { router } from '@inertiajs/vue3';
-import { motion } from 'motion-v';
+import { Check, ChevronRight, Clock, CloudUpload } from '@lucide/vue';
 import { computed } from 'vue';
 
 import type { Trip } from '@/types/trip';
-import { formatDate, formatTime, formatDuration } from '@/utils/date';
+import { formatDate, formatDuration, formatTime } from '@/utils/date';
 
 /**
  * TripCard component props.
@@ -159,110 +159,70 @@ function getSyncStatusColor(): string {
 
 <template>
     <!-- ======================================================================
-        Trip Card (Theme-Aware)
-        Interactive card displaying trip summary with hover effects
+        Trip Card — summary, badges, stats, footer
     ======================================================================= -->
-    <motion.button
-        @click="handleClick"
-        :whileHover="{ scale: 1.02, y: -4 }"
-        :whilePress="{ scale: 0.98 }"
-        :transition="{ type: 'spring', bounce: 0.4, duration: 0.4 }"
-        class="w-full rounded-lg border border-zinc-200 dark:border-white/5 bg-white dark:bg-zinc-800/50 backdrop-blur-sm p-5 text-left transition-all duration-300 hover:border-cyan-500/50 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 hover:shadow-lg hover:shadow-zinc-200 dark:hover:shadow-cyan-500/10 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900"
+    <button
+        type="button"
+        class="w-full rounded-lg border border-zinc-200/80 bg-white/95 p-5 text-left text-zinc-900 shadow-lg shadow-zinc-900/5 ring-1 ring-white/20 transition-all duration-200 hover:-translate-y-1 hover:border-cyan-500/50 hover:shadow-xl hover:shadow-zinc-900/10 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-white dark:border-white/10 dark:bg-zinc-800/95 dark:text-white dark:shadow-cyan-500/5 dark:ring-white/5 dark:focus:ring-cyan-400/50 dark:focus:ring-offset-zinc-950"
         :aria-label="`View trip details from ${formatDate(trip.started_at)}`"
+        @click="handleClick"
     >
-        <!-- Header: Date and Status -->
+        <!-- Header: date, time, status & sync -->
         <div class="mb-4 flex items-start justify-between gap-4">
-            <div class="flex-1">
+            <div class="min-w-0 flex-1">
                 <h3
-                    class="text-lg font-semibold text-zinc-900 dark:text-white"
+                    class="text-xl font-semibold tracking-tight text-zinc-900 dark:text-white sm:text-2xl"
                     style="font-family: 'Bebas Neue', sans-serif"
                 >
                     {{ formatDate(trip.started_at) }}
                 </h3>
                 <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                     {{ formatTime(trip.started_at) }}
-                    <span v-if="trip.ended_at">
-                        - {{ formatTime(trip.ended_at) }}
-                    </span>
+                    <span v-if="trip.ended_at"> — {{ formatTime(trip.ended_at) }}</span>
                 </p>
             </div>
 
-            <!-- Badges Container -->
-            <div class="flex flex-col items-end gap-2">
-                <!-- Status Badge -->
+            <div class="flex shrink-0 flex-col items-end gap-2">
                 <span
                     :class="[
-                        'inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium',
+                        'inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold',
                         getStatusColor(trip.status),
                     ]"
                 >
                     {{ getStatusText(trip.status) }}
                 </span>
 
-                <!-- Sync Status Badge -->
                 <span
                     :class="[
-                        'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium',
+                        'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold',
                         getSyncStatusColor(),
                     ]"
                 >
-                    <!-- Animated Sync Icon (pending) or Static Checkmark (synced) -->
-                    <motion.div
+                    <span
                         v-if="!isSynced"
-                        :animate="{
-                            scale: [1, 1.15, 1],
-                            opacity: [0.7, 1, 0.7],
-                        }"
-                        :transition="{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: 'easeInOut',
-                        }"
-                        class="flex items-center"
+                        class="inline-flex items-center text-current"
+                        :class="{ 'animate-pulse': !isSynced }"
+                        aria-hidden="true"
                     >
-                        <!-- Cloud Upload Icon (pending sync) -->
-                        <svg
-                            class="h-3.5 w-3.5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                            />
-                        </svg>
-                    </motion.div>
-                    <div v-else class="flex items-center">
-                        <!-- Checkmark Icon (synced) -->
-                        <svg
-                            class="h-3.5 w-3.5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M5 13l4 4L19 7"
-                            />
-                        </svg>
-                    </div>
+                        <CloudUpload class="h-3.5 w-3.5 shrink-0" :stroke-width="2" />
+                    </span>
+                    <span v-else class="inline-flex items-center text-current" aria-hidden="true">
+                        <Check class="h-3.5 w-3.5 shrink-0" :stroke-width="2" />
+                    </span>
                     <span>{{ getSyncStatusText() }}</span>
                 </span>
             </div>
         </div>
 
-        <!-- Stats Grid -->
+        <!-- Stats grid -->
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <!-- Duration -->
-            <div class="rounded-lg bg-zinc-100 dark:bg-zinc-900/50 p-3">
-                <div class="mb-1 text-xs text-zinc-500 dark:text-zinc-400">Durasi</div>
+            <div
+                class="rounded-lg border border-zinc-200/60 bg-zinc-100/90 p-3 dark:border-white/5 dark:bg-zinc-900/60"
+            >
+                <div class="mb-1 flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+                    <Clock class="h-3.5 w-3.5 shrink-0" :stroke-width="2" aria-hidden="true" />
+                    <span>Durasi</span>
+                </div>
                 <div
                     class="font-mono text-sm font-semibold text-zinc-900 dark:text-white"
                     style="font-family: 'Share Tech Mono', monospace"
@@ -271,30 +231,33 @@ function getSyncStatusColor(): string {
                 </div>
             </div>
 
-            <!-- Distance -->
-            <div class="rounded-lg bg-zinc-100 dark:bg-zinc-900/50 p-3">
+            <div
+                class="rounded-lg border border-zinc-200/60 bg-zinc-100/90 p-3 dark:border-white/5 dark:bg-zinc-900/60"
+            >
                 <div class="mb-1 text-xs text-zinc-500 dark:text-zinc-400">Jarak</div>
                 <div
-                    class="font-mono text-sm font-semibold text-cyan-600 dark:text-cyan-400"
+                    class="font-mono text-sm font-semibold text-cyan-700 dark:text-cyan-400"
                     style="font-family: 'Share Tech Mono', monospace"
                 >
                     {{ formatDistance(trip.total_distance) }}
                 </div>
             </div>
 
-            <!-- Max Speed -->
-            <div class="rounded-lg bg-zinc-100 dark:bg-zinc-900/50 p-3">
+            <div
+                class="rounded-lg border border-zinc-200/60 bg-zinc-100/90 p-3 dark:border-white/5 dark:bg-zinc-900/60"
+            >
                 <div class="mb-1 text-xs text-zinc-500 dark:text-zinc-400">Kec. Maks</div>
                 <div
-                    class="font-mono text-sm font-semibold text-red-600 dark:text-red-400"
+                    class="font-mono text-sm font-semibold text-red-700 dark:text-red-400"
                     style="font-family: 'Share Tech Mono', monospace"
                 >
                     {{ formatSpeed(trip.max_speed) }}
                 </div>
             </div>
 
-            <!-- Violations -->
-            <div class="rounded-lg bg-zinc-100 dark:bg-zinc-900/50 p-3">
+            <div
+                class="rounded-lg border border-zinc-200/60 bg-zinc-100/90 p-3 dark:border-white/5 dark:bg-zinc-900/60"
+            >
                 <div class="mb-1 text-xs text-zinc-500 dark:text-zinc-400">Pelanggaran</div>
                 <span
                     :class="[
@@ -308,31 +271,23 @@ function getSyncStatusColor(): string {
             </div>
         </div>
 
-        <!-- Optional Notes Preview -->
-        <div v-if="trip.notes" class="mt-4 border-t border-zinc-200 dark:border-white/5 pt-4">
+        <!-- Notes preview -->
+        <div
+            v-if="trip.notes"
+            class="mt-4 border-t border-zinc-200/80 pt-4 dark:border-white/10"
+        >
             <div class="text-xs text-zinc-500 dark:text-zinc-400">Catatan:</div>
             <p class="mt-1 line-clamp-2 text-sm text-zinc-900 dark:text-white">
                 {{ trip.notes }}
             </p>
         </div>
 
-        <!-- Click Indicator -->
-        <div class="mt-4 flex items-center justify-end text-xs text-cyan-600 dark:text-cyan-400">
+        <!-- Detail affordance -->
+        <div
+            class="mt-4 flex items-center justify-end gap-1 text-xs font-medium text-cyan-700 dark:text-cyan-400"
+        >
             <span>Lihat Detail</span>
-            <svg
-                class="ml-1 h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 5l7 7-7 7"
-                />
-            </svg>
+            <ChevronRight class="h-4 w-4 shrink-0" :stroke-width="2" aria-hidden="true" />
         </div>
-    </motion.button>
+    </button>
 </template>

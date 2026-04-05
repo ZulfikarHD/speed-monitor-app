@@ -16,6 +16,7 @@
  * - Empty state when no data available
  */
 
+import { TrendingUp } from '@lucide/vue';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -118,10 +119,10 @@ const chartOptions = computed<ChartOptions<'line'>>(() => ({
             display: false,
         },
         tooltip: {
-            backgroundColor: '#1a1d23',
-            titleColor: '#e5e7eb',
-            bodyColor: '#9ca3af',
-            borderColor: '#3E3E3A',
+            backgroundColor: '#18181b',
+            titleColor: '#fafafa',
+            bodyColor: '#a1a1aa',
+            borderColor: 'rgba(255, 255, 255, 0.1)',
             borderWidth: 1,
             padding: 12,
             displayColors: false,
@@ -136,11 +137,11 @@ const chartOptions = computed<ChartOptions<'line'>>(() => ({
         x: {
             display: true,
             grid: {
-                color: '#3E3E3A',
+                color: 'rgba(161, 161, 170, 0.15)',
                 drawBorder: false,
             },
             ticks: {
-                color: '#9ca3af',
+                color: 'rgba(161, 161, 170, 0.8)',
                 maxRotation: 45,
                 minRotation: 0,
                 font: {
@@ -153,11 +154,11 @@ const chartOptions = computed<ChartOptions<'line'>>(() => ({
             display: true,
             beginAtZero: true,
             grid: {
-                color: '#3E3E3A',
+                color: 'rgba(161, 161, 170, 0.15)',
                 drawBorder: false,
             },
             ticks: {
-                color: '#9ca3af',
+                color: 'rgba(161, 161, 170, 0.8)',
                 stepSize: 1,
                 precision: 0,
                 font: {
@@ -180,16 +181,18 @@ const hasData = computed(() => props.data.length > 0);
         Violations Line Chart
         Chart.js line chart with violation count data
     ======================================================================= -->
-    <div class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-6">
+    <div
+        class="rounded-lg border border-zinc-200/80 bg-white/95 p-6 shadow-lg shadow-zinc-900/5 ring-1 ring-white/20 dark:border-white/10 dark:bg-zinc-800/95 dark:shadow-cyan-500/5 dark:ring-white/5"
+    >
         <!-- Chart Header -->
         <div class="mb-4">
             <h3
-                class="text-lg font-semibold text-[#e5e7eb]"
+                class="text-lg font-semibold text-zinc-900 dark:text-white"
                 style="font-family: 'Bebas Neue', sans-serif"
             >
                 Violations Over Time
             </h3>
-            <p class="mt-1 text-sm text-[#9ca3af]">
+            <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                 Speed limit violations per day
             </p>
         </div>
@@ -197,7 +200,7 @@ const hasData = computed(() => props.data.length > 0);
         <!-- Loading State -->
         <div
             v-if="isLoading"
-            class="flex h-64 items-center justify-center rounded-lg bg-[#0a0c0f]"
+            class="flex h-64 items-center justify-center rounded-lg bg-zinc-50 dark:bg-zinc-900/50"
             role="status"
             aria-label="Loading chart"
         >
@@ -205,26 +208,36 @@ const hasData = computed(() => props.data.length > 0);
                 <div
                     class="mb-3 inline-block h-10 w-10 animate-spin rounded-full border-4 border-red-500 border-t-transparent"
                 ></div>
-                <p class="text-sm text-[#9ca3af]">Loading chart...</p>
+                <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                    Loading chart...
+                </p>
             </div>
         </div>
 
         <!-- Empty State -->
         <div
             v-else-if="!hasData"
-            class="flex h-64 flex-col items-center justify-center rounded-lg bg-[#0a0c0f]"
+            class="flex h-64 flex-col items-center justify-center rounded-lg bg-zinc-50 dark:bg-zinc-900/50"
         >
-            <div class="mb-3 text-4xl" aria-hidden="true">📈</div>
-            <h4 class="mb-2 text-lg font-semibold text-[#e5e7eb]">
+            <TrendingUp
+                :size="40"
+                class="mb-3 text-zinc-400"
+                aria-hidden="true"
+            />
+            <h4
+                class="mb-2 text-lg font-semibold text-zinc-900 dark:text-white"
+            >
                 No Violation Data
             </h4>
-            <p class="text-center text-sm text-[#9ca3af]">
+            <p
+                class="text-center text-sm text-zinc-600 dark:text-zinc-400"
+            >
                 No violations recorded for the selected period.
             </p>
         </div>
 
         <!-- Chart Canvas -->
-        <div v-else class="rounded-lg bg-[#0a0c0f] p-4">
+        <div v-else class="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-900/50">
             <Line :data="chartData" :options="chartOptions" />
         </div>
     </div>

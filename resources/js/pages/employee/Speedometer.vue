@@ -7,7 +7,6 @@ Uses EmployeeLayout for consistent navigation across all employee pages.
 -->
 
 <script setup lang="ts">
-import { motion } from 'motion-v';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import OfflineIndicator from '@/components/offline/OfflineIndicator.vue';
@@ -348,162 +347,79 @@ onBeforeUnmount(() => {
         <!-- Main -->
         <main class="velo-main">
             <!-- Speed Limit Banner (Read-Only) -->
-            <motion.div
-                :initial="{ opacity: 0, y: -20 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.4, duration: 0.6 }"
-                class="limit-banner"
-            >
+            <div class="limit-banner">
                 <div class="limit-info">
                     <div class="limit-label">Speed Limit</div>
-                <motion.div
-                    :animate="{ scale: [1, 1.05, 1] }"
-                    :transition="{ duration: 0.3 }"
-                    :key="currentSpeedLimit"
-                    class="limit-value"
-                >
-                    {{ currentSpeedLimit }} {{ unit === 'kmh' ? 'km/h' : 'mph' }}
-                </motion.div>
+                    <div class="limit-value">
+                        {{ currentSpeedLimit }} {{ unit === 'kmh' ? 'km/h' : 'mph' }}
+                    </div>
                     <div class="limit-subtext">Diatur oleh supervisor</div>
                 </div>
                 <div class="unit-toggle">
-                    <motion.button
+                    <button
                         :class="{ active: unit === 'kmh' }"
                         @click="setUnit('kmh')"
-                        :whilePress="{ scale: 0.95 }"
-                        :animate="{ scale: unit === 'kmh' ? 1.02 : 1 }"
-                        :transition="{ type: 'spring', bounce: 0.4, duration: 0.4 }"
                     >
                         km/h
-                    </motion.button>
-                    <motion.button
+                    </button>
+                    <button
                         :class="{ active: unit === 'mph' }"
                         @click="setUnit('mph')"
-                        :whilePress="{ scale: 0.95 }"
-                        :animate="{ scale: unit === 'mph' ? 1.02 : 1 }"
-                        :transition="{ type: 'spring', bounce: 0.4, duration: 0.4 }"
                     >
                         mph
-                    </motion.button>
+                    </button>
                 </div>
-            </motion.div>
+            </div>
 
             <!-- Gauge -->
-            <motion.div
-                :initial="{ opacity: 0, scale: 0.9 }"
-                :animate="{ opacity: 1, scale: 1 }"
-                :transition="{ type: 'spring', bounce: 0.3, duration: 0.7, delay: 0.1 }"
-            >
-                <ProductionGauge
-                    :speed="currentSpeed"
-                    :speed-limit="currentSpeedLimit"
-                    :unit="unit"
-                />
-            </motion.div>
+            <ProductionGauge
+                :speed="currentSpeed"
+                :speed-limit="currentSpeedLimit"
+                :unit="unit"
+            />
 
             <!-- Stats Grid -->
-            <motion.div
-                :initial="{ opacity: 0, y: 20 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.2 }"
-                class="stats-grid"
-            >
-                <motion.div
-                    :whileHover="{ scale: 1.03, y: -2 }"
-                    :whilePress="{ scale: 0.98 }"
-                    :transition="{ type: 'spring', bounce: 0.5, duration: 0.4 }"
-                    class="stat-card danger"
-                >
+            <div class="stats-grid">
+                <div class="stat-card danger">
                     <div class="stat-label">Max Speed</div>
-                    <motion.div
-                        :animate="{ scale: [1, 1.1, 1] }"
-                        :transition="{ duration: 0.3 }"
-                        :key="Math.round(maxSpeed)"
-                        class="stat-value"
-                    >
-                        {{ Math.round(maxSpeed) }}
-                    </motion.div>
+                    <div class="stat-value">{{ Math.round(maxSpeed) }}</div>
                     <div class="stat-unit">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
-                </motion.div>
-                <motion.div
-                    :whileHover="{ scale: 1.03, y: -2 }"
-                    :whilePress="{ scale: 0.98 }"
-                    :transition="{ type: 'spring', bounce: 0.5, duration: 0.4 }"
-                    class="stat-card warn"
-                >
+                </div>
+                <div class="stat-card warn">
                     <div class="stat-label">Avg Speed</div>
-                    <motion.div
-                        :animate="{ scale: [1, 1.1, 1] }"
-                        :transition="{ duration: 0.3 }"
-                        :key="Math.round(avgSpeed)"
-                        class="stat-value"
-                    >
-                        {{ Math.round(avgSpeed) }}
-                    </motion.div>
+                    <div class="stat-value">{{ Math.round(avgSpeed) }}</div>
                     <div class="stat-unit">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
-                </motion.div>
-            </motion.div>
+                </div>
+            </div>
 
             <!-- Trip Bar -->
-            <motion.div
-                :initial="{ opacity: 0, y: 20 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.3 }"
-                class="trip-bar"
-            >
+            <div class="trip-bar">
                 <div class="trip-item">
-                    <motion.div
-                        :animate="{ scale: [1, 1.08, 1] }"
-                        :transition="{ duration: 0.4 }"
-                        :key="tripDistance.toFixed(2)"
-                        class="trip-val"
-                    >
-                        {{ tripDistance.toFixed(2) }}
-                    </motion.div>
+                    <div class="trip-val">{{ tripDistance.toFixed(2) }}</div>
                     <div class="trip-lbl">Distance ({{ unit === 'kmh' ? 'km' : 'mi' }})</div>
                 </div>
                 <div class="trip-divider" />
                 <div class="trip-item">
-                    <motion.div
-                        :animate="{ scale: [1, 1.08, 1] }"
-                        :transition="{ duration: 0.4 }"
-                        :key="tripStore.stats.duration"
-                        class="trip-val"
-                    >
+                    <div class="trip-val">
                         {{ Math.floor(tripStore.stats.duration / 60).toString().padStart(2, '0') }}:{{ (tripStore.stats.duration % 60).toString().padStart(2, '0') }}
-                    </motion.div>
+                    </div>
                     <div class="trip-lbl">Duration</div>
                 </div>
                 <div class="trip-divider" />
                 <div class="trip-item">
-                    <motion.div
-                        :animate="{ scale: [1, 1.08, 1] }"
-                        :transition="{ duration: 0.4 }"
-                        :key="tripStore.stats.violationCount"
-                        class="trip-val"
-                    >
-                        {{ tripStore.stats.violationCount }}
-                    </motion.div>
+                    <div class="trip-val">{{ tripStore.stats.violationCount }}</div>
                     <div class="trip-lbl">Violations</div>
                 </div>
-            </motion.div>
+            </div>
 
             <!-- GPS Accuracy -->
-            <motion.div
-                :initial="{ opacity: 0, y: 20 }"
-                :animate="{ opacity: 1, y: 0 }"
-                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.4 }"
-                class="accuracy-row"
-            >
+            <div class="accuracy-row">
                 <div class="accuracy-label">GPS Accuracy</div>
                 <div class="accuracy-bar">
-                    <motion.div
-                        :animate="{
-                            width: accuracyPercentage + '%',
-                        }"
-                        :transition="{ type: 'spring', bounce: 0.2, duration: 0.8 }"
+                    <div
                         class="accuracy-fill"
                         :style="{
+                            width: accuracyPercentage + '%',
                             background: accuracyColor,
                         }"
                     />
@@ -511,7 +427,7 @@ onBeforeUnmount(() => {
                 <div class="accuracy-text">
                     {{ accuracy !== null ? Math.round(accuracy) + ' m' : '— m' }}
                 </div>
-            </motion.div>
+            </div>
 
             <!-- Trip Controls -->
             <TripControls />

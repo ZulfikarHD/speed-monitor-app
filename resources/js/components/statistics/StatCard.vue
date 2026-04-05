@@ -7,21 +7,23 @@
  *
  * Features:
  * - Large number display
- * - Icon badge with color variants
+ * - Lucide icon badge with color variants
  * - Title and unit labels
- * - Gradient background styling
+ * - Gradient overlay on fake-glass surface
  * - Theme-aware design with light/dark mode support
  */
 
-import { motion } from 'motion-v';
+import {
+    BarChart3,
+    Car,
+    ClipboardList,
+    Gauge,
+    Route,
+    ShieldAlert,
+    Zap,
+} from '@lucide/vue';
 import type { Component } from 'vue';
 
-import {
-    IconCar,
-    IconChart,
-    IconClipboard,
-    IconGauge,
-} from '@/components/icons';
 import type { StatCardProps } from '@/types/statistics';
 
 // ========================================================================
@@ -35,23 +37,21 @@ const props = defineProps<StatCardProps>();
 // ========================================================================
 
 /**
- * Get icon component based on icon string.
- *
- * Maps icon strings to SVG icon components.
+ * Resolves the Lucide icon component for the given `icon` string key.
  */
 function getIconComponent(icon: string): Component | null {
     const iconMap: Record<string, Component> = {
-        '🚗': IconCar,
-        '📍': IconGauge,
-        '⚡': IconChart,
-        '⚠️': IconClipboard,
-        'car': IconCar,
-        'gauge': IconGauge,
-        'chart': IconChart,
-        'clipboard': IconClipboard,
+        car: Car,
+        gauge: Gauge,
+        'bar-chart': BarChart3,
+        'shield-alert': ShieldAlert,
+        route: Route,
+        zap: Zap,
+        clipboard: ClipboardList,
+        chart: BarChart3,
     };
 
-    return iconMap[icon] || null;
+    return iconMap[icon] ?? null;
 }
 
 // ========================================================================
@@ -63,38 +63,42 @@ function getIconComponent(icon: string): Component | null {
  */
 function getColorClasses(color: StatCardProps['color']): {
     gradient: string;
-    border: string;
+    accent: string;
     icon: string;
     text: string;
 } {
     const colorMap = {
         blue: {
-            gradient: 'from-blue-500/10 to-indigo-500/10 dark:from-blue-500/10 dark:to-indigo-500/10',
-            border: 'border-blue-200 dark:border-blue-500/30',
+            gradient:
+                'from-blue-500/10 to-indigo-500/10 dark:from-blue-500/10 dark:to-indigo-500/10',
+            accent: 'border-l-blue-500 dark:border-l-blue-400',
             icon: 'from-blue-600 to-indigo-700 dark:from-blue-500 dark:to-indigo-600',
             text: 'text-blue-600 dark:text-blue-400',
         },
         green: {
-            gradient: 'from-green-500/10 to-emerald-500/10 dark:from-green-500/10 dark:to-emerald-500/10',
-            border: 'border-green-200 dark:border-green-500/30',
+            gradient:
+                'from-green-500/10 to-emerald-500/10 dark:from-green-500/10 dark:to-emerald-500/10',
+            accent: 'border-l-green-500 dark:border-l-green-400',
             icon: 'from-green-600 to-emerald-700 dark:from-green-500 dark:to-emerald-600',
             text: 'text-green-600 dark:text-green-400',
         },
         purple: {
-            gradient: 'from-purple-500/10 to-pink-500/10 dark:from-purple-500/10 dark:to-pink-500/10',
-            border: 'border-purple-200 dark:border-purple-500/30',
+            gradient:
+                'from-purple-500/10 to-pink-500/10 dark:from-purple-500/10 dark:to-pink-500/10',
+            accent: 'border-l-purple-500 dark:border-l-purple-400',
             icon: 'from-purple-600 to-pink-700 dark:from-purple-500 dark:to-pink-600',
             text: 'text-purple-600 dark:text-purple-400',
         },
         red: {
             gradient: 'from-red-500/10 to-rose-500/10 dark:from-red-500/10 dark:to-rose-500/10',
-            border: 'border-red-200 dark:border-red-500/30',
+            accent: 'border-l-red-500 dark:border-l-red-400',
             icon: 'from-red-600 to-rose-700 dark:from-red-500 dark:to-rose-600',
             text: 'text-red-600 dark:text-red-400',
         },
         orange: {
-            gradient: 'from-orange-500/10 to-amber-500/10 dark:from-orange-500/10 dark:to-amber-500/10',
-            border: 'border-orange-200 dark:border-orange-500/30',
+            gradient:
+                'from-orange-500/10 to-amber-500/10 dark:from-orange-500/10 dark:to-amber-500/10',
+            accent: 'border-l-orange-500 dark:border-l-orange-400',
             icon: 'from-orange-600 to-amber-700 dark:from-orange-500 dark:to-amber-600',
             text: 'text-orange-600 dark:text-orange-400',
         },
@@ -109,24 +113,25 @@ const iconComponent = getIconComponent(props.icon);
 
 <template>
     <!-- ======================================================================
-        Stat Card (Theme-Aware)
-        Display card for a single statistic metric with SVG icon
+        Stat Card (fake glass + gradient overlay, CSS hover lift)
     ======================================================================= -->
-    <motion.div
-        :whileHover="{ scale: 1.02, y: -4 }"
-        :transition="{ type: 'spring', bounce: 0.4, duration: 0.3 }"
-        class="rounded-lg border bg-gradient-to-br backdrop-blur-sm p-6 transition-all duration-300 hover:shadow-lg hover:shadow-zinc-200 dark:hover:shadow-none"
-        :class="[colors.gradient, colors.border]"
+    <div
+        class="relative overflow-hidden rounded-lg border border-zinc-200/80 bg-white/95 p-6 ring-1 ring-white/20 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-zinc-800/95 dark:ring-white/5 dark:shadow-lg dark:shadow-cyan-500/5 dark:hover:shadow-cyan-500/10"
+        :class="[colors.accent, 'border-l-4 shadow-lg shadow-zinc-900/5']"
     >
-        <div class="flex items-start justify-between">
+        <div
+            class="pointer-events-none absolute inset-0 bg-gradient-to-br"
+            :class="colors.gradient"
+            aria-hidden="true"
+        />
+
+        <div class="relative flex items-start justify-between">
             <!-- Left: Value and Label -->
             <div class="flex-1">
-                <!-- Title -->
                 <p class="text-sm font-medium text-zinc-600 dark:text-zinc-400">
                     {{ title }}
                 </p>
 
-                <!-- Value -->
                 <p
                     class="mt-2 text-4xl font-bold"
                     :class="colors.text"
@@ -135,26 +140,25 @@ const iconComponent = getIconComponent(props.icon);
                     {{ value.toLocaleString('id-ID') }}
                 </p>
 
-                <!-- Unit -->
                 <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
                     {{ unit }}
                 </p>
             </div>
 
-            <!-- Right: Icon Badge -->
+            <!-- Right: Icon Badge (44×44 touch-friendly) -->
             <div
-                class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg shadow-zinc-200 dark:shadow-none"
+                v-if="iconComponent"
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br shadow-lg shadow-zinc-200 dark:shadow-none"
                 :class="colors.icon"
                 aria-hidden="true"
             >
                 <component
-                    v-if="iconComponent"
                     :is="iconComponent"
                     :size="28"
+                    :stroke-width="2"
                     class="text-white"
                 />
-                <span v-else class="text-2xl">{{ icon }}</span>
             </div>
         </div>
-    </motion.div>
+    </div>
 </template>

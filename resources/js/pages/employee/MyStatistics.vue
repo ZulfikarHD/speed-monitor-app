@@ -17,8 +17,10 @@
  * @example Route: /employee/statistics
  */
 
-import { router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
+import { ArrowRight, BarChart3 } from '@lucide/vue';
 
+import { index as speedometerIndex } from '@/actions/App/Http/Controllers/Employee/SpeedometerController';
 import { index } from '@/actions/App/Http/Controllers/Employee/StatisticsController';
 import PeriodSelector from '@/components/statistics/PeriodSelector.vue';
 import StatCard from '@/components/statistics/StatCard.vue';
@@ -106,7 +108,7 @@ const { statistics, currentPeriod } = props;
                     title="Total Trips"
                     :value="statistics.summary.total_trips"
                     unit="trips completed"
-                    icon="🚗"
+                    icon="car"
                     color="blue"
                 />
 
@@ -116,7 +118,7 @@ const { statistics, currentPeriod } = props;
                     title="Total Distance"
                     :value="statistics.summary.total_distance"
                     unit="kilometers"
-                    icon="📍"
+                    icon="route"
                     color="green"
                 />
 
@@ -126,7 +128,7 @@ const { statistics, currentPeriod } = props;
                     title="Average Speed"
                     :value="statistics.summary.average_speed"
                     unit="km/h"
-                    icon="⚡"
+                    icon="zap"
                     color="purple"
                 />
 
@@ -136,7 +138,7 @@ const { statistics, currentPeriod } = props;
                     title="Violations"
                     :value="statistics.summary.violation_count"
                     unit="speed limit exceeded"
-                    icon="⚠️"
+                    icon="shield-alert"
                     :color="statistics.summary.violation_count > 0 ? 'red' : 'green'"
                 />
             </div>
@@ -165,9 +167,14 @@ const { statistics, currentPeriod } = props;
             ================================================================ -->
             <div
                 v-if="statistics.summary.total_trips === 0"
-                class="mt-8 rounded-lg border border-zinc-200 dark:border-white/5 bg-white dark:bg-zinc-800/50 backdrop-blur-sm p-8 text-center"
+                class="mt-8 rounded-lg border border-zinc-200/80 bg-white/95 p-8 text-center shadow-lg shadow-zinc-900/5 ring-1 ring-white/20 dark:border-white/10 dark:bg-zinc-800/95 dark:shadow-cyan-500/5 dark:ring-white/5"
             >
-                <div class="mb-4 text-6xl" aria-hidden="true">📊</div>
+                <div
+                    class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800"
+                    aria-hidden="true"
+                >
+                    <BarChart3 :size="32" :stroke-width="2" class="text-zinc-400" />
+                </div>
                 <h3
                     class="mb-2 text-xl font-semibold text-zinc-900 dark:text-white"
                     style="font-family: 'Bebas Neue', sans-serif"
@@ -177,25 +184,13 @@ const { statistics, currentPeriod } = props;
                 <p class="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
                     Start tracking your trips with the speedometer to see your statistics here.
                 </p>
-                <a
-                    href="/employee/speedometer"
-                    class="inline-flex items-center gap-2 rounded-lg bg-cyan-500 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-cyan-600"
+                <Link
+                    :href="speedometerIndex.url()"
+                    class="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:shadow-lg dark:from-cyan-500 dark:to-blue-600 dark:hover:shadow-cyan-500/25"
                 >
                     <span>Start Speedometer</span>
-                    <svg
-                        class="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M9 5l7 7-7 7"
-                        />
-                    </svg>
-                </a>
+                    <ArrowRight :size="16" :stroke-width="2" aria-hidden="true" />
+                </Link>
             </div>
         </div>
     </EmployeeLayout>
