@@ -31,7 +31,7 @@
     ]
   },
   "resources/css/app.css": {
-    "file": "assets/app-RsJOOTm8.css",
+    "file": "assets/app-DXL72g5Z.css",
     "name": "app",
     "names": [
       "app.css"
@@ -40,7 +40,7 @@
     "isEntry": true
   },
   "resources/js/app.ts": {
-    "file": "assets/app-CL_JMP_1.js",
+    "file": "assets/app-hF3Melkh.js",
     "name": "app",
     "src": "resources/js/app.ts",
     "isEntry": true,
