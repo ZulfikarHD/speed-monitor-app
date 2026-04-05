@@ -36,12 +36,12 @@ const props = withDefaults(defineProps<Props>(), {
     ======================================================================= -->
     <label
         :for="props.for"
-        class="mb-2 block text-sm font-medium text-[#e5e7eb]"
+        class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-200"
     >
         <slot />
         <span
             v-if="required"
-            class="ml-1 text-red-400"
+            class="ml-1 text-red-500 dark:text-red-400"
             aria-label="required"
             >*</span
         >
