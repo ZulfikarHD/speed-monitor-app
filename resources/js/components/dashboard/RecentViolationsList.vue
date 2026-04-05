@@ -79,21 +79,21 @@ function getRankColorClasses(rank: number): string {
         5: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white',
     };
 
-    return colorMap[rank] || 'bg-[#3E3E3A] text-[#EDEDEC]';
+    return colorMap[rank] || 'bg-[#3E3E3A] text-zinc-900 dark:text-white';
 }
 </script>
 
 <template>
-    <div class="overflow-hidden rounded-lg border border-[#3E3E3A] bg-[#161615]">
+    <div class="overflow-hidden rounded-lg border border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
         <!-- ======================================================================
             Header
         ======================================================================= -->
-        <div class="flex items-start justify-between border-b border-[#3E3E3A] px-6 py-4">
+        <div class="flex items-start justify-between border-b border-zinc-200 dark:border-white/5 px-6 py-4">
             <div class="flex-1">
-                <h3 class="text-lg font-semibold text-[#EDEDEC]">
+                <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">
                     Recent Violations
                 </h3>
-                <p class="mt-1 text-sm text-[#A1A09A]">
+                <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                     Top 5 employees by violation count today
                 </p>
             </div>
@@ -138,10 +138,10 @@ function getRankColorClasses(rank: number): string {
                 :transition="{ duration: 0.4 }"
             >
                 <div class="mb-4 text-5xl">✅</div>
-                <p class="text-lg font-medium text-[#EDEDEC]">
+                <p class="text-lg font-medium text-zinc-900 dark:text-white">
                     No Violations Today
                 </p>
-                <p class="mt-2 text-sm text-[#A1A09A]">
+                <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
                     All employees are driving safely within speed limits
                 </p>
             </motion.div>
@@ -165,7 +165,7 @@ function getRankColorClasses(rank: number): string {
                     type: 'spring',
                     bounce: 0.3,
                 }"
-                class="px-6 py-4 transition-colors hover:bg-[#1a1a19]"
+                class="px-6 py-4 transition-colors hover:bg-zinc-50 dark:hover:bg-white/5"
             >
                 <div class="flex items-center gap-4">
                     <!-- Rank Badge with Medal -->
@@ -191,10 +191,10 @@ function getRankColorClasses(rank: number): string {
 
                     <!-- Employee Info -->
                     <div class="flex-1 min-w-0">
-                        <p class="truncate font-medium text-[#EDEDEC]">
+                        <p class="truncate font-medium text-zinc-900 dark:text-white">
                             {{ violator.user.name }}
                         </p>
-                        <p class="mt-1 truncate text-sm text-[#A1A09A]">
+                        <p class="mt-1 truncate text-sm text-zinc-600 dark:text-zinc-400">
                             {{ violator.user.email }}
                         </p>
                     </div>

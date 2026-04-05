@@ -40,7 +40,7 @@ function selectRange(range: DateRange) {
                 'rounded-lg px-3 py-1.5 text-xs font-medium transition-all',
                 modelValue === 'today'
                     ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                    : 'bg-[#2A2A28] text-[#A1A09A] border border-[#3E3E3A] hover:border-[#4E4E4A] hover:text-[#EDEDEC]',
+                    : 'bg-white dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-white/5 hover:border-cyan-500/50 dark:hover:border-cyan-500/50 hover:text-zinc-900 dark:text-white',
             ]"
             @click="selectRange('today')"
         >
@@ -54,7 +54,7 @@ function selectRange(range: DateRange) {
                 'rounded-lg px-3 py-1.5 text-xs font-medium transition-all',
                 modelValue === 'week'
                     ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                    : 'bg-[#2A2A28] text-[#A1A09A] border border-[#3E3E3A] hover:border-[#4E4E4A] hover:text-[#EDEDEC]',
+                    : 'bg-white dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-white/5 hover:border-cyan-500/50 dark:hover:border-cyan-500/50 hover:text-zinc-900 dark:text-white',
             ]"
             @click="selectRange('week')"
         >
@@ -68,7 +68,7 @@ function selectRange(range: DateRange) {
                 'rounded-lg px-3 py-1.5 text-xs font-medium transition-all',
                 modelValue === 'month'
                     ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                    : 'bg-[#2A2A28] text-[#A1A09A] border border-[#3E3E3A] hover:border-[#4E4E4A] hover:text-[#EDEDEC]',
+                    : 'bg-white dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-white/5 hover:border-cyan-500/50 dark:hover:border-cyan-500/50 hover:text-zinc-900 dark:text-white',
             ]"
             @click="selectRange('month')"
         >

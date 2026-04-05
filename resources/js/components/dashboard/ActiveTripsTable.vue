@@ -102,16 +102,16 @@ const hasTrips = computed(() => props.trips.length > 0);
 </script>
 
 <template>
-    <div class="overflow-hidden rounded-lg border border-[#3E3E3A] bg-[#161615]">
+    <div class="overflow-hidden rounded-lg border border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
         <!-- ======================================================================
             Header
         ======================================================================= -->
-        <div class="flex items-start justify-between border-b border-[#3E3E3A] px-6 py-4">
+        <div class="flex items-start justify-between border-b border-zinc-200 dark:border-white/5 px-6 py-4">
             <div class="flex-1">
-                <h3 class="text-lg font-semibold text-[#EDEDEC]">
+                <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">
                     Active Trips
                 </h3>
-                <p class="mt-1 text-sm text-[#A1A09A]">
+                <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                     Real-time monitoring of ongoing employee trips
                 </p>
             </div>
@@ -155,10 +155,10 @@ const hasTrips = computed(() => props.trips.length > 0);
                 :transition="{ duration: 0.4 }"
             >
                 <div class="mb-4 text-5xl">🚗</div>
-                <p class="text-lg font-medium text-[#EDEDEC]">
+                <p class="text-lg font-medium text-zinc-900 dark:text-white">
                     No Active Trips
                 </p>
-                <p class="mt-2 text-sm text-[#A1A09A]">
+                <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
                     All employees have completed their trips
                 </p>
             </motion.div>
@@ -176,15 +176,15 @@ const hasTrips = computed(() => props.trips.length > 0);
                     aria-label="Active trips table"
                 >
                     <thead>
-                        <tr class="border-b border-[#3E3E3A] bg-[#0a0a0a]">
+                        <tr class="border-b border-zinc-200 dark:border-white/5 bg-[#0a0a0a]">
                             <th
-                                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#A1A09A]"
+                                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-600 dark:text-zinc-400"
                                 scope="col"
                             >
                                 Employee
                             </th>
                             <th
-                                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#A1A09A]"
+                                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-600 dark:text-zinc-400"
                                 scope="col"
                             >
                                 Duration
@@ -203,14 +203,14 @@ const hasTrips = computed(() => props.trips.length > 0);
                                 type: 'spring',
                                 bounce: 0.3,
                             }"
-                            class="transition-colors hover:bg-[#1a1a19]"
+                            class="transition-colors hover:bg-zinc-50 dark:hover:bg-white/5"
                         >
                             <td class="px-6 py-4">
                                 <div>
-                                    <p class="font-medium text-[#EDEDEC]">
+                                    <p class="font-medium text-zinc-900 dark:text-white">
                                         {{ trip.user.name }}
                                     </p>
-                                    <p class="mt-1 text-sm text-[#A1A09A]">
+                                    <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                                         {{ trip.user.email }}
                                     </p>
                                 </div>
@@ -246,10 +246,10 @@ const hasTrips = computed(() => props.trips.length > 0);
             >
                 <div class="flex items-center justify-between">
                     <div class="flex-1">
-                        <p class="font-medium text-[#EDEDEC]">
+                        <p class="font-medium text-zinc-900 dark:text-white">
                             {{ trip.user.name }}
                         </p>
-                        <p class="mt-1 text-sm text-[#A1A09A]">
+                        <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                             {{ trip.user.email }}
                         </p>
                     </div>

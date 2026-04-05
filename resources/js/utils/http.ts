@@ -22,14 +22,17 @@ interface HttpClient {
 function getCsrfToken(): string | null {
     // Try meta tag first (set by Laravel)
     const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
     if (token) {
         return token;
     }
 
     // Fallback to cookie
     const cookies = document.cookie.split(';');
+
     for (const cookie of cookies) {
         const [name, value] = cookie.trim().split('=');
+
         if (name === 'XSRF-TOKEN') {
             return decodeURIComponent(value);
         }
@@ -47,6 +50,7 @@ function buildUrl(url: string, params?: Record<string, any>): string {
     }
 
     const searchParams = new URLSearchParams();
+
     for (const [key, value] of Object.entries(params)) {
         if (value !== undefined && value !== null) {
             searchParams.append(key, String(value));
@@ -54,6 +58,7 @@ function buildUrl(url: string, params?: Record<string, any>): string {
     }
 
     const separator = url.includes('?') ? '&' : '?';
+
     return `${url}${separator}${searchParams.toString()}`;
 }
 
@@ -94,6 +99,7 @@ async function request<T>(
     // Handle non-2xx responses
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+
         throw new Error(
             errorData.message || `Request failed with status ${response.status}`
         );

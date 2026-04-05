@@ -23,12 +23,12 @@ withDefaults(defineProps<Props>(), {
 
 <template>
     <div
-        class="overflow-hidden rounded-xl border border-[#3E3E3A] bg-gradient-to-br from-[#1C1C1A] to-[#2A2A28]"
+        class="overflow-hidden rounded-xl border border-zinc-200 dark:border-white/5 bg-gradient-to-br from-[#1C1C1A] to-[#2A2A28]"
     >
         <!-- Header -->
-        <div class="border-b border-[#3E3E3A] px-6 py-4">
-            <h3 class="text-lg font-semibold text-[#EDEDEC]">Employee Summary</h3>
-            <p class="mt-1 text-sm text-[#A1A09A]">Activity overview for today</p>
+        <div class="border-b border-zinc-200 dark:border-white/5 px-6 py-4">
+            <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">Employee Summary</h3>
+            <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Activity overview for today</p>
         </div>
 
         <!-- Loading Skeleton -->
@@ -51,13 +51,13 @@ withDefaults(defineProps<Props>(), {
         <div v-else class="space-y-4 p-6">
             <!-- Total Employees -->
             <div class="flex items-center justify-between">
-                <span class="text-sm text-[#A1A09A]">Total Employees</span>
-                <span class="text-xl font-bold text-[#EDEDEC]">{{ summary.total_employees }}</span>
+                <span class="text-sm text-zinc-600 dark:text-zinc-400">Total Employees</span>
+                <span class="text-xl font-bold text-zinc-900 dark:text-white">{{ summary.total_employees }}</span>
             </div>
 
             <!-- Active Today -->
             <div class="flex items-center justify-between">
-                <span class="text-sm text-[#A1A09A]">Active Today</span>
+                <span class="text-sm text-zinc-600 dark:text-zinc-400">Active Today</span>
                 <div class="flex items-center gap-2">
                     <span class="text-xl font-bold text-emerald-400">{{ summary.active_today }}</span>
                     <span
@@ -70,16 +70,16 @@ withDefaults(defineProps<Props>(), {
             </div>
 
             <!-- Divider -->
-            <div class="border-t border-[#3E3E3A]"></div>
+            <div class="border-t border-zinc-200 dark:border-white/5"></div>
 
             <!-- Top Performer -->
             <div class="flex items-center justify-between">
                 <div>
-                    <span class="text-sm text-[#A1A09A]">Top Performer</span>
-                    <p v-if="summary.top_performer" class="mt-1 font-medium text-[#EDEDEC]">
+                    <span class="text-sm text-zinc-600 dark:text-zinc-400">Top Performer</span>
+                    <p v-if="summary.top_performer" class="mt-1 font-medium text-zinc-900 dark:text-white">
                         {{ summary.top_performer.name }}
                     </p>
-                    <p v-else class="mt-1 text-sm italic text-[#6B6B68]">No trips yet</p>
+                    <p v-else class="mt-1 text-sm italic text-zinc-500 dark:text-zinc-500">No trips yet</p>
                 </div>
                 <div
                     v-if="summary.top_performer"

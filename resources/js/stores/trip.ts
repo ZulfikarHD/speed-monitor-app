@@ -791,12 +791,15 @@ export const useTripStore = defineStore('trip', () => {
                 if (activeTrip.max_speed) {
                     stats.value.maxSpeed = activeTrip.max_speed;
                 }
+
                 if (activeTrip.average_speed) {
                     stats.value.averageSpeed = activeTrip.average_speed;
                 }
+
                 if (activeTrip.total_distance) {
                     stats.value.distance = activeTrip.total_distance;
                 }
+
                 if (activeTrip.violation_count) {
                     stats.value.violationCount = activeTrip.violation_count;
                 }
@@ -808,6 +811,7 @@ export const useTripStore = defineStore('trip', () => {
         } catch (err: any) {
             console.error('[Trip Store] Failed to load active trip:', err);
             error.value = err.message || 'Failed to load active trip';
+
             return false;
         }
     }

@@ -53,15 +53,15 @@ return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
 
 <template>
     <div
-        class="overflow-hidden rounded-xl border border-[#3E3E3A] bg-gradient-to-br from-[#1C1C1A] to-[#2A2A28]"
+        class="overflow-hidden rounded-xl border border-zinc-200 dark:border-white/5 bg-gradient-to-br from-[#1C1C1A] to-[#2A2A28]"
     >
         <!-- Header -->
-        <div class="border-b border-[#3E3E3A] px-6 py-4">
+        <div class="border-b border-zinc-200 dark:border-white/5 px-6 py-4">
             <div class="flex items-center gap-2">
                 <span class="text-xl">⚠️</span>
                 <div>
-                    <h3 class="text-lg font-semibold text-[#EDEDEC]">Recent Alerts</h3>
-                    <p class="text-sm text-[#A1A09A]">High violations in the last hour</p>
+                    <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">Recent Alerts</h3>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400">High violations in the last hour</p>
                 </div>
             </div>
         </div>
@@ -80,8 +80,8 @@ return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
         <!-- Empty State -->
         <div v-else-if="alerts.length === 0" class="px-6 py-8 text-center">
             <div class="mb-2 text-4xl">✅</div>
-            <p class="text-sm font-medium text-[#EDEDEC]">No Recent Alerts</p>
-            <p class="mt-1 text-xs text-[#A1A09A]">All trips are within acceptable limits</p>
+            <p class="text-sm font-medium text-zinc-900 dark:text-white">No Recent Alerts</p>
+            <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">All trips are within acceptable limits</p>
         </div>
 
         <!-- Alerts List -->
@@ -89,12 +89,12 @@ return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
             <div
                 v-for="alert in alerts"
                 :key="alert.id"
-                class="flex items-center justify-between px-6 py-4 transition-colors hover:bg-[#2A2A28]/50"
+                class="flex items-center justify-between px-6 py-4 transition-colors hover:bg-white dark:bg-zinc-800/50/50"
             >
                 <!-- Alert Info -->
                 <div class="flex-1">
-                    <p class="font-medium text-[#EDEDEC]">{{ alert.user.name }}</p>
-                    <p class="mt-0.5 text-xs text-[#A1A09A]">
+                    <p class="font-medium text-zinc-900 dark:text-white">{{ alert.user.name }}</p>
+                    <p class="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
                         {{ formatRelativeTime(alert.started_at) }}
                     </p>
                 </div>
@@ -111,8 +111,8 @@ return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
         </div>
 
         <!-- Footer Note -->
-        <div v-if="alerts.length > 0" class="border-t border-[#3E3E3A] px-6 py-3">
-            <p class="text-xs text-[#6B6B68]">
+        <div v-if="alerts.length > 0" class="border-t border-zinc-200 dark:border-white/5 px-6 py-3">
+            <p class="text-xs text-zinc-500 dark:text-zinc-500">
                 Showing trips with 5+ violations from the last hour
             </p>
         </div>
