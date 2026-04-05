@@ -23,7 +23,6 @@ import { router } from '@inertiajs/vue3';
 import { AnimatePresence, motion } from 'motion-v';
 import { computed, ref } from 'vue';
 
-import { index as allTripsIndex } from '@/actions/App/Http/Controllers/Supervisor/AllTripsController';
 import Pagination from '@/components/trips/Pagination.vue';
 import SupervisorTripFilters from '@/components/trips/SupervisorTripFilters.vue';
 import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
@@ -270,21 +269,6 @@ function handleExport(): void {
     }, 2000);
 }
 
-/**
- * Clear employee filter and keep other filters.
- *
- * Navigates back to all trips view while preserving date range filters.
- * Used when dismissing the contextual banner.
- */
-function clearEmployeeFilter(): void {
-    router.visit(allTripsIndex.url({
-        query: {
-            date_from: props.filters.date_from || undefined,
-            date_to: props.filters.date_to || undefined,
-        },
-    }));
-}
-
 // ========================================================================
 // Formatting Helpers
 // ========================================================================
@@ -463,73 +447,6 @@ function getViolationColor(count: number): string {
                     @reset="handleResetFilters"
                 />
             </motion.div>
-
-            <!-- Contextual Banner: Viewing Employee Violations -->
-            <AnimatePresence>
-                <motion.div
-                    v-if="filters.user_id && filters.violations_only"
-                    :initial="{ opacity: 0, y: -20 }"
-                    :animate="{ opacity: 1, y: 0 }"
-                    :exit="{ opacity: 0, y: -20 }"
-                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.5 }"
-                    class="mb-4 rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-4"
-                    role="status"
-                    aria-live="polite"
-                >
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="flex items-start gap-3">
-                            <!-- Info Icon -->
-                            <svg
-                                class="mt-0.5 h-5 w-5 shrink-0 text-cyan-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                            </svg>
-
-                            <div>
-                                <p class="text-sm font-medium text-cyan-300">
-                                    Menampilkan perjalanan pelanggaran untuk: {{ getEmployeeName(filters.user_id) }}
-                                </p>
-                                <p class="mt-1 text-xs text-cyan-400/80">
-                                    Dari leaderboard • {{ filters.date_from }} sampai {{ filters.date_to }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Close Button -->
-                        <button
-                            @click="clearEmployeeFilter"
-                            type="button"
-                            class="shrink-0 text-cyan-400 transition-colors hover:text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
-                            title="Tampilkan semua perjalanan"
-                            aria-label="Tutup filter karyawan"
-                        >
-                            <svg
-                                class="h-5 w-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"
-                                />
-                            </svg>
-                        </button>
-                    </div>
-                </motion.div>
-            </AnimatePresence>
 
             <!-- Results Info -->
             <AnimatePresence>
