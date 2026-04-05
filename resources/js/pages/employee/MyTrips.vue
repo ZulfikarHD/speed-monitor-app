@@ -293,12 +293,12 @@ const updatePendingSyncCount = async (): Promise<void> => {
             >
                 <div class="flex-1">
                     <h1
-                        class="text-3xl font-bold text-[#e5e7eb]"
+                        class="text-3xl font-bold text-zinc-900 dark:text-white"
                         style="font-family: 'Bebas Neue', sans-serif"
                     >
                         My Trips
                     </h1>
-                    <p class="mt-1 text-sm text-[#9ca3af]">
+                    <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                         View and filter your trip history
                     </p>
                 </div>
@@ -315,7 +315,7 @@ const updatePendingSyncCount = async (): Promise<void> => {
                         :whileHover="{ scale: 1.05 }"
                         :whilePress="{ scale: 0.95 }"
                         :transition="{ type: 'spring', stiffness: 400, damping: 20 }"
-                        class="flex h-12 items-center gap-2 rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-4 text-sm font-medium text-cyan-400 shadow-lg shadow-cyan-500/20 transition-colors hover:bg-cyan-500/20 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
+                        class="flex h-12 items-center gap-2 rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-4 text-sm font-medium text-cyan-600 dark:text-cyan-400 shadow-lg shadow-cyan-500/20 transition-colors hover:bg-cyan-500/20 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-white dark:ring-offset-zinc-900"
                         aria-label="Sinkronkan perjalanan offline sekarang"
                     >
                         <!-- Cloud Upload Icon -->
@@ -347,7 +347,7 @@ const updatePendingSyncCount = async (): Promise<void> => {
                         :initial="{ opacity: 0, scale: 0.8 }"
                         :animate="{ opacity: 1, scale: 1 }"
                         :exit="{ opacity: 0, scale: 0.8 }"
-                        class="flex h-12 items-center gap-3 rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-4 text-sm font-medium text-cyan-400"
+                        class="flex h-12 items-center gap-3 rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-4 text-sm font-medium text-cyan-600 dark:text-cyan-400"
                     >
                         <!-- Rotating Spinner Icon -->
                         <motion.div
@@ -412,7 +412,7 @@ const updatePendingSyncCount = async (): Promise<void> => {
                         class="flex items-center justify-between rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-4 py-3"
                     >
                         <div class="flex items-center gap-2">
-                            <span class="text-sm text-cyan-400">
+                            <span class="text-sm text-cyan-600 dark:text-cyan-400">
                                 Filter aktif: {{ meta.total }} trip ditemukan
                             </span>
                         </div>
@@ -421,7 +421,7 @@ const updatePendingSyncCount = async (): Promise<void> => {
                             :whileHover="{ scale: 1.05, x: 2 }"
                             :whilePress="{ scale: 0.95 }"
                             :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
-                            class="inline-flex min-h-[44px] items-center gap-2 px-4 py-3 text-sm text-cyan-400 hover:text-cyan-300"
+                            class="inline-flex min-h-[44px] items-center gap-2 px-4 py-3 text-sm text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:text-cyan-300"
                         >
                             Reset Filter
                         </motion.button>

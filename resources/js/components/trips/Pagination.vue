@@ -143,7 +143,7 @@ const visiblePages = computed<(number | string)[]>(() => {
 
 <template>
     <!-- ======================================================================
-        Pagination Container
+        Pagination Container (Theme-Aware)
         Mobile-first responsive pagination controls
     ======================================================================= -->
     <div
@@ -152,7 +152,7 @@ const visiblePages = computed<(number | string)[]>(() => {
         aria-label="Pagination"
     >
         <!-- Item Range Info (Left) -->
-        <div class="text-sm text-[#9ca3af]">
+        <div class="text-sm text-zinc-600 dark:text-zinc-400">
             Menampilkan {{ itemRange }}
         </div>
 
@@ -165,7 +165,7 @@ const visiblePages = computed<(number | string)[]>(() => {
                 :whileHover="canGoPrevious ? { scale: 1.05, x: -2 } : {}"
                 :whilePress="canGoPrevious ? { scale: 0.95 } : {}"
                 :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
-                class="flex min-h-[44px] items-center gap-1 rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-3 text-sm font-medium text-[#e5e7eb] transition-colors hover:bg-[#2a2d33] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#1a1d23]"
+                class="flex min-h-[44px] items-center gap-1 rounded-lg border border-zinc-300 dark:border-white/10 bg-zinc-100 dark:bg-zinc-800/50 px-3 text-sm font-medium text-zinc-900 dark:text-white transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-700/50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-zinc-100 dark:disabled:hover:bg-zinc-800/50"
                 aria-label="Previous page"
             >
                 <svg
@@ -197,12 +197,12 @@ const visiblePages = computed<(number | string)[]>(() => {
                     :animate="{ scale: page === currentPage ? 1.05 : 1 }"
                     :transition="{ type: 'spring', bounce: 0.5, duration: 0.4 }"
                     :class="[
-                        'flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors',
+                        'flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors duration-200',
                         page === currentPage
-                            ? 'bg-cyan-600 text-white'
+                            ? 'bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 text-white shadow-lg shadow-zinc-200 dark:shadow-cyan-500/25'
                             : typeof page === 'number'
-                              ? 'border border-[#3E3E3A] bg-[#1a1d23] text-[#e5e7eb] hover:bg-[#2a2d33]'
-                              : 'cursor-default text-[#9ca3af]',
+                              ? 'border border-zinc-300 dark:border-white/10 bg-zinc-100 dark:bg-zinc-800/50 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700/50'
+                              : 'cursor-default text-zinc-500 dark:text-zinc-500',
                     ]"
                     :aria-label="
                         typeof page === 'number' ? `Go to page ${page}` : ''
@@ -215,7 +215,7 @@ const visiblePages = computed<(number | string)[]>(() => {
 
             <!-- Page Info (Mobile) -->
             <div
-                class="flex min-h-[44px] items-center rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-3 text-sm font-medium text-[#e5e7eb] md:hidden"
+                class="flex min-h-[44px] items-center rounded-lg border border-zinc-300 dark:border-white/10 bg-zinc-100 dark:bg-zinc-800/50 px-3 text-sm font-medium text-zinc-900 dark:text-white md:hidden"
             >
                 {{ currentPage }} / {{ lastPage }}
             </div>
@@ -227,7 +227,7 @@ const visiblePages = computed<(number | string)[]>(() => {
                 :whileHover="canGoNext ? { scale: 1.05, x: 2 } : {}"
                 :whilePress="canGoNext ? { scale: 0.95 } : {}"
                 :transition="{ type: 'spring', bounce: 0.5, duration: 0.3 }"
-                class="flex min-h-[44px] items-center gap-1 rounded-lg border border-[#3E3E3A] bg-[#1a1d23] px-3 text-sm font-medium text-[#e5e7eb] transition-colors hover:bg-[#2a2d33] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#1a1d23]"
+                class="flex min-h-[44px] items-center gap-1 rounded-lg border border-zinc-300 dark:border-white/10 bg-zinc-100 dark:bg-zinc-800/50 px-3 text-sm font-medium text-zinc-900 dark:text-white transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-700/50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-zinc-100 dark:disabled:hover:bg-zinc-800/50"
                 aria-label="Next page"
             >
                 <span class="hidden sm:inline">Selanjutnya</span>

@@ -19,124 +19,158 @@ const authStore = useAuthStore();
 <template>
     <EmployeeLayout title="Dashboard">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <!-- Page Header -->
-            <div class="mb-6">
+            <!-- ============================================================
+                Page Header
+            ============================================================ -->
+            <motion.div
+                :initial="{ opacity: 0, y: -20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.4, duration: 0.6 }"
+                class="mb-6"
+            >
                 <h1
-                    class="text-3xl font-bold text-[#e5e7eb]"
+                    class="text-3xl font-bold text-zinc-900 dark:text-white"
                     style="font-family: 'Bebas Neue', sans-serif"
                 >
                     Dashboard
                 </h1>
-                <p class="mt-1 text-sm text-[#9ca3af]">
+                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                     Welcome back, {{ authStore.user?.name }}!
                 </p>
-            </div>
+            </motion.div>
 
-            <!-- Quick Actions Grid -->
+            <!-- ============================================================
+                Quick Actions Grid
+            ============================================================ -->
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 <!-- Speedometer Card -->
-                <Link
-                    href="/employee/speedometer"
-                    class="group block rounded-lg border border-[#3E3E3A] bg-gradient-to-br from-blue-500/10 to-indigo-500/10 p-6 transition-all hover:scale-[1.02] hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/20"
+                <motion.div
+                    :initial="{ opacity: 0, y: 20 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.1 }"
                 >
-                    <div class="flex items-start gap-4">
-                        <div
-                            class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-2xl shadow-lg"
-                        >
-                            🚗
-                        </div>
-                        <div class="flex-1">
-                            <h3
-                                class="mb-1 text-lg font-semibold text-[#e5e7eb] group-hover:text-blue-400"
+                    <Link
+                        href="/employee/speedometer"
+                        class="group block rounded-lg border border-zinc-200 dark:border-white/5 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 dark:from-blue-500/10 dark:to-indigo-500/10 backdrop-blur-sm p-6 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:border-blue-500/50 hover:shadow-lg hover:shadow-zinc-200 dark:hover:shadow-blue-500/20"
+                    >
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 dark:from-blue-500 dark:to-indigo-600 shadow-lg shadow-zinc-200 dark:shadow-blue-500/25"
                             >
-                                Start Speedometer
-                            </h3>
-                            <p class="text-sm text-[#9ca3af]">
-                                Track your trip speed and distance in real-time
-                            </p>
+                                <IconCar :size="28" class="text-white" />
+                            </div>
+                            <div class="flex-1">
+                                <h3
+                                    class="mb-1 text-lg font-semibold text-zinc-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200"
+                                >
+                                    Start Speedometer
+                                </h3>
+                                <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                                    Track your trip speed and distance in real-time
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                </Link>
+                    </Link>
+                </motion.div>
 
                 <!-- Trip History Card -->
-                <Link
-                    href="/employee/my-trips"
-                    class="group block rounded-lg border border-[#3E3E3A] bg-gradient-to-br from-cyan-500/10 to-teal-500/10 p-6 transition-all hover:scale-[1.02] hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20"
+                <motion.div
+                    :initial="{ opacity: 0, y: 20 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.2 }"
                 >
-                    <div class="flex items-start gap-4">
-                        <div
-                            class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-teal-600 text-2xl shadow-lg"
-                        >
-                            📋
-                        </div>
-                        <div class="flex-1">
-                            <h3
-                                class="mb-1 text-lg font-semibold text-[#e5e7eb] group-hover:text-cyan-400"
+                    <Link
+                        href="/employee/my-trips"
+                        class="group block rounded-lg border border-zinc-200 dark:border-white/5 bg-gradient-to-br from-cyan-500/10 to-teal-500/10 dark:from-cyan-500/10 dark:to-teal-500/10 backdrop-blur-sm p-6 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-zinc-200 dark:hover:shadow-cyan-500/20"
+                    >
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-600 to-teal-700 dark:from-cyan-500 dark:to-teal-600 shadow-lg shadow-zinc-200 dark:shadow-cyan-500/25"
                             >
-                                Trip History
-                            </h3>
-                            <p class="text-sm text-[#9ca3af]">
-                                View your past trips and detailed statistics
-                            </p>
+                                <IconClipboard :size="28" class="text-white" />
+                            </div>
+                            <div class="flex-1">
+                                <h3
+                                    class="mb-1 text-lg font-semibold text-zinc-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors duration-200"
+                                >
+                                    Trip History
+                                </h3>
+                                <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                                    View your past trips and detailed statistics
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                </Link>
+                    </Link>
+                </motion.div>
 
                 <!-- Statistics Card -->
-                <Link
-                    href="/employee/statistics"
-                    class="group block rounded-lg border border-[#3E3E3A] bg-gradient-to-br from-purple-500/10 to-pink-500/10 p-6 transition-all hover:scale-[1.02] hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20"
+                <motion.div
+                    :initial="{ opacity: 0, y: 20 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.3 }"
                 >
-                    <div class="flex items-start gap-4">
-                        <div
-                            class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-2xl shadow-lg"
-                        >
-                            📊
-                        </div>
-                        <div class="flex-1">
-                            <h3
-                                class="mb-1 text-lg font-semibold text-[#e5e7eb] group-hover:text-purple-400"
+                    <Link
+                        href="/employee/statistics"
+                        class="group block rounded-lg border border-zinc-200 dark:border-white/5 bg-gradient-to-br from-purple-500/10 to-pink-500/10 dark:from-purple-500/10 dark:to-pink-500/10 backdrop-blur-sm p-6 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:border-purple-500/50 hover:shadow-lg hover:shadow-zinc-200 dark:hover:shadow-purple-500/20"
+                    >
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-pink-700 dark:from-purple-500 dark:to-pink-600 shadow-lg shadow-zinc-200 dark:shadow-purple-500/25"
                             >
-                                My Statistics
-                            </h3>
-                            <p class="text-sm text-[#9ca3af]">
-                                Track your performance and driving metrics
-                            </p>
+                                <IconChart :size="28" class="text-white" />
+                            </div>
+                            <div class="flex-1">
+                                <h3
+                                    class="mb-1 text-lg font-semibold text-zinc-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200"
+                                >
+                                    My Statistics
+                                </h3>
+                                <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                                    Track your performance and driving metrics
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                </Link>
+                    </Link>
+                </motion.div>
             </div>
 
-            <!-- Profile Info Card -->
-            <div class="mt-8 rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-6">
-                <h2 class="mb-4 text-lg font-semibold text-[#e5e7eb]">
+            <!-- ============================================================
+                Profile Info Card
+            ============================================================ -->
+            <motion.div
+                :initial="{ opacity: 0, y: 20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.4 }"
+                class="mt-8 rounded-lg border border-zinc-200 dark:border-white/5 bg-white dark:bg-zinc-800/50 backdrop-blur-sm p-6"
+            >
+                <h2 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-white">
                     Your Profile
                 </h2>
                 <div class="grid gap-3 sm:grid-cols-2">
-                    <div class="rounded-lg bg-[#0a0c0f] p-4">
-                        <p class="text-xs text-[#9ca3af]">Name</p>
-                        <p class="mt-1 text-sm font-medium text-[#e5e7eb]">
+                    <div class="rounded-lg bg-zinc-100 dark:bg-zinc-900/50 p-4">
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400">Name</p>
+                        <p class="mt-1 text-sm font-medium text-zinc-900 dark:text-white">
                             {{ authStore.user?.name }}
                         </p>
                     </div>
-                    <div class="rounded-lg bg-[#0a0c0f] p-4">
-                        <p class="text-xs text-[#9ca3af]">Email</p>
-                        <p class="mt-1 text-sm font-medium text-[#e5e7eb]">
+                    <div class="rounded-lg bg-zinc-100 dark:bg-zinc-900/50 p-4">
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400">Email</p>
+                        <p class="mt-1 text-sm font-medium text-zinc-900 dark:text-white">
                             {{ authStore.user?.email }}
                         </p>
                     </div>
-                    <div class="rounded-lg bg-[#0a0c0f] p-4">
-                        <p class="text-xs text-[#9ca3af]">Role</p>
+                    <div class="rounded-lg bg-zinc-100 dark:bg-zinc-900/50 p-4">
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400">Role</p>
                         <p class="mt-1">
                             <span
-                                class="inline-flex items-center rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400"
+                                class="inline-flex items-center rounded-full bg-cyan-100 dark:bg-cyan-500/15 px-3 py-1 text-xs font-medium text-cyan-700 dark:text-cyan-300"
                             >
                                 {{ authStore.user?.role }}
                             </span>
                         </p>
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </div>
     </EmployeeLayout>
 </template>

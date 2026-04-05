@@ -70,12 +70,12 @@ const { statistics, currentPeriod } = props;
                 <!-- Page Title -->
                 <div>
                     <h1
-                        class="text-3xl font-bold text-[#e5e7eb]"
+                        class="text-3xl font-bold text-zinc-900 dark:text-white"
                         style="font-family: 'Bebas Neue', sans-serif"
                     >
                         My Statistics
                     </h1>
-                    <p class="mt-1 text-sm text-[#9ca3af]">
+                    <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                         Your driving performance for {{ statistics.period.label }}
                     </p>
                 </div>
@@ -150,16 +150,16 @@ const { statistics, currentPeriod } = props;
             ================================================================ -->
             <div
                 v-if="statistics.summary.total_trips === 0"
-                class="mt-8 rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-8 text-center"
+                class="mt-8 rounded-lg border border-zinc-200 dark:border-white/5 bg-white dark:bg-zinc-800/50 backdrop-blur-sm p-8 text-center"
             >
                 <div class="mb-4 text-6xl" aria-hidden="true">📊</div>
                 <h3
-                    class="mb-2 text-xl font-semibold text-[#e5e7eb]"
+                    class="mb-2 text-xl font-semibold text-zinc-900 dark:text-white"
                     style="font-family: 'Bebas Neue', sans-serif"
                 >
                     No Trip Data Yet
                 </h3>
-                <p class="mb-6 text-sm text-[#9ca3af]">
+                <p class="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
                     Start tracking your trips with the speedometer to see your statistics here.
                 </p>
                 <a

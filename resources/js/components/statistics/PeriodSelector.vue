@@ -63,20 +63,20 @@ function isActive(period: Period): boolean {
 
 <template>
     <!-- ======================================================================
-        Period Selector
+        Period Selector (Theme-Aware)
         Segmented control for time period selection
     ======================================================================= -->
-    <div class="flex flex-wrap rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-1">
+    <div class="flex flex-wrap rounded-lg border border-zinc-200 dark:border-white/5 bg-zinc-100 dark:bg-zinc-800/50 backdrop-blur-sm p-1">
         <button
             v-for="option in periodOptions"
             :key="option.value"
             @click="selectPeriod(option.value)"
             type="button"
-            class="min-h-[44px] min-w-[80px] rounded-md px-4 py-3 text-sm font-medium transition-all sm:min-w-[100px]"
+            class="min-h-[44px] min-w-[80px] rounded-md px-4 py-3 text-sm font-medium transition-all duration-200 sm:min-w-[100px]"
             :class="
                 isActive(option.value)
-                    ? 'bg-cyan-500 text-white shadow-lg'
-                    : 'text-[#9ca3af] hover:text-[#e5e7eb]'
+                    ? 'bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 text-white shadow-lg shadow-zinc-200 dark:shadow-cyan-500/25'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-white/5'
             "
             :aria-pressed="isActive(option.value)"
         >

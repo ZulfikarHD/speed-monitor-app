@@ -52,11 +52,11 @@ const props = defineProps<EmptyStateProps>();
 
 <template>
     <!-- ======================================================================
-        Empty State Container
+        Empty State Container (Theme-Aware)
         Centered empty state with icon, title, message, and optional CTA
     ======================================================================= -->
     <div
-        class="flex flex-col items-center justify-center rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-12 text-center"
+        class="flex flex-col items-center justify-center rounded-lg border border-zinc-200 dark:border-white/5 bg-white dark:bg-zinc-800/50 backdrop-blur-sm p-12 text-center"
     >
         <!-- Icon -->
         <div
@@ -68,12 +68,12 @@ const props = defineProps<EmptyStateProps>();
         </div>
 
         <!-- Title -->
-        <h3 class="mb-2 text-xl font-semibold text-[#e5e7eb]">
+        <h3 class="mb-2 text-xl font-semibold text-zinc-900 dark:text-white">
             {{ props.title }}
         </h3>
 
         <!-- Message -->
-        <p class="mb-6 max-w-md text-sm text-[#9ca3af]">
+        <p class="mb-6 max-w-md text-sm text-zinc-600 dark:text-zinc-400">
             {{ props.message }}
         </p>
 
@@ -81,7 +81,7 @@ const props = defineProps<EmptyStateProps>();
         <Link
             v-if="props.ctaText && props.ctaHref"
             :href="props.ctaHref"
-            class="inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-6 py-3 font-medium text-white transition-all hover:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
+            class="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 px-6 py-3 font-medium text-white transition-all duration-200 hover:shadow-lg hover:shadow-zinc-200 dark:hover:shadow-cyan-500/25 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900"
         >
             {{ props.ctaText }}
             <svg
