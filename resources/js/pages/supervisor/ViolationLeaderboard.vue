@@ -19,11 +19,12 @@
  * @example Route: /supervisor/leaderboard?date_from=2026-03-01&date_to=2026-04-01
  */
 
-import { router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { AlertTriangle, Medal, Trophy } from '@lucide/vue';
 import { motion } from 'motion-v';
 import { computed, ref } from 'vue';
 
+import { index as allTripsIndex } from '@/actions/App/Http/Controllers/Supervisor/AllTripsController';
 import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
 import type {
     LeaderboardFilters,
@@ -162,20 +163,21 @@ function resetFilters(): void {
 }
 
 /**
- * Navigate to employee's trips with filters.
+ * Generate Wayfinder URL for viewing employee's trips with filters.
+ *
+ * WHY: Type-safe route generation with query parameters.
  *
  * @param userId - Employee user ID
+ * @returns URL string to All Trips page filtered by employee and violations
  */
-function viewEmployeeTrips(userId: number): void {
-    router.visit('/supervisor/trips', {
-        data: {
+function getEmployeeTripsUrl(userId: number): string {
+    return allTripsIndex.url({
+        query: {
             user_id: userId,
             date_from: props.filters.date_from,
             date_to: props.filters.date_to,
-            violations_only: true,
+            violations_only: 1,
         },
-        preserveState: false,
-        preserveScroll: false,
     });
 }
 </script>
@@ -360,13 +362,13 @@ function viewEmployeeTrips(userId: number): void {
 
                                 <!-- Actions -->
                                 <td class="px-6 py-4 text-center">
-                                    <button
-                                        class="rounded-lg border border-cyan-500/30 bg-cyan-500/20 dark:bg-cyan-500/15 px-4 py-2 text-sm font-medium text-cyan-600 dark:text-cyan-400 transition-all duration-200 hover:bg-cyan-500/30 dark:hover:bg-cyan-500/25"
+                                    <Link
+                                        :href="getEmployeeTripsUrl(entry.user.id)"
+                                        class="inline-block rounded-lg border border-cyan-500/30 bg-cyan-500/20 dark:bg-cyan-500/15 px-4 py-2 text-sm font-medium text-cyan-600 dark:text-cyan-400 transition-all duration-200 hover:bg-cyan-500/30 dark:hover:bg-cyan-500/25"
                                         :aria-label="`View trips for ${entry.user.name}`"
-                                        @click="viewEmployeeTrips(entry.user.id)"
                                     >
                                         View Trips
-                                    </button>
+                                    </Link>
                                 </td>
                             </motion.tr>
                         </tbody>
@@ -429,14 +431,14 @@ function viewEmployeeTrips(userId: number): void {
                                 </div>
                             </div>
 
-                            <!-- View Trips Button -->
-                            <button
-                                class="w-full rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 py-3 font-medium text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl active:scale-95"
+                            <!-- View Trips Link -->
+                            <Link
+                                :href="getEmployeeTripsUrl(entry.user.id)"
+                                class="block w-full rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 py-3 text-center font-medium text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl active:scale-95"
                                 :aria-label="`View trips for ${entry.user.name}`"
-                                @click="viewEmployeeTrips(entry.user.id)"
                             >
                                 View Trips
-                            </button>
+                            </Link>
                         </div>
                     </motion.div>
                 </div>

@@ -39,8 +39,15 @@ Route::middleware(['auth', 'role:employee'])->group(function () {
     Route::get('/employee/dashboard', [EmployeeDashboardController::class, 'index'])->name('employee.dashboard');
     Route::get('/employee/speedometer', [SpeedometerController::class, 'index'])->name('employee.speedometer');
     Route::get('/employee/my-trips', [MyTripsController::class, 'index'])->name('employee.my-trips');
-    Route::get('/employee/trips/{trip}', [TripController::class, 'showWeb'])->name('employee.trips.show');
     Route::get('/employee/statistics', [StatisticsController::class, 'index'])->name('employee.statistics');
+});
+
+// Shared trip detail route (accessible by employees, supervisors, and admins)
+// Authorization is handled by TripPolicy which allows:
+// - Employees to view their own trips
+// - Supervisors and admins to view any trip
+Route::middleware('auth')->group(function () {
+    Route::get('/employee/trips/{trip}', [TripController::class, 'showWeb'])->name('employee.trips.show');
 });
 
 // Supervisor routes (auth + supervisor or admin role required)

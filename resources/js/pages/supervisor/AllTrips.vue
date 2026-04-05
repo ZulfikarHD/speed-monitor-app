@@ -23,6 +23,7 @@ import { Car, Download, Loader2 } from '@lucide/vue';
 import { AnimatePresence, motion } from 'motion-v';
 import { computed, ref } from 'vue';
 
+import { showWeb } from '@/actions/App/Http/Controllers/TripController';
 import Pagination from '@/components/trips/Pagination.vue';
 import SupervisorTripFilters from '@/components/trips/SupervisorTripFilters.vue';
 import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
@@ -219,7 +220,7 @@ function handlePageChange(page: number): void {
  * @param tripId - Trip ID to view
  */
 function navigateToTrip(tripId: number): void {
-    router.visit(`/employee/trips/${tripId}`);
+    router.visit(showWeb.url({ trip: tripId }));
 }
 
 /** Loading state for CSV export */

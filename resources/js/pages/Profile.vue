@@ -24,6 +24,8 @@ import {
     CheckCircle,
     ChevronRight,
     KeyRound,
+    Loader2,
+    LogOut,
     Mail,
     Shield,
     User as UserIcon,
@@ -37,6 +39,7 @@ import { updateProfile } from '@/actions/App/Http/Controllers/ProfileController'
 import Button from '@/components/ui/Button.vue';
 import Input from '@/components/ui/Input.vue';
 import Label from '@/components/ui/Label.vue';
+import { useAuth } from '@/composables/useAuth';
 import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
 import { useAuthStore } from '@/stores/auth';
 import type { User } from '@/stores/auth';
@@ -58,6 +61,7 @@ const props = defineProps<Props>();
 
 const authStore = useAuthStore();
 const page = usePage();
+const { handleLogout, isLoading: isLoggingOut } = useAuth();
 
 // ========================================================================
 // Forms
@@ -447,6 +451,54 @@ function submitProfile(): void {
                         class="text-zinc-400 dark:text-zinc-500 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors"
                     />
                 </Link>
+            </motion.section>
+
+            <!-- Logout Section -->
+            <motion.section
+                :initial="{ opacity: 0, y: 10 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ duration: 0.3, delay: 0.2 }"
+                class="mt-6"
+            >
+                <button
+                    @click="handleLogout"
+                    type="button"
+                    :disabled="isLoggingOut"
+                    class="group w-full flex items-center justify-between rounded-lg border border-zinc-200/80 dark:border-white/10 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5 p-5 transition-all duration-200 hover:border-red-500/50 dark:hover:border-red-400/50 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100 dark:bg-red-500/15 group-hover:bg-red-200 dark:group-hover:bg-red-500/25 transition-colors"
+                        >
+                            <Loader2
+                                v-if="isLoggingOut"
+                                :size="20"
+                                class="animate-spin text-red-600 dark:text-red-400"
+                            />
+                            <LogOut
+                                v-else
+                                :size="20"
+                                class="text-red-600 dark:text-red-400"
+                            />
+                        </div>
+                        <div class="text-left">
+                            <p
+                                class="font-medium text-zinc-900 dark:text-white"
+                            >
+                                {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
+                            </p>
+                            <p
+                                class="text-sm text-zinc-600 dark:text-zinc-400"
+                            >
+                                Sign out from your account
+                            </p>
+                        </div>
+                    </div>
+                    <ChevronRight
+                        :size="20"
+                        class="text-zinc-400 dark:text-zinc-500 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors"
+                    />
+                </button>
             </motion.section>
         </div>
     </EmployeeLayout>

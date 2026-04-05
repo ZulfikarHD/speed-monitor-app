@@ -35,6 +35,31 @@ const gaugeSize = computed(() => sizes[props.size] || sizes.md);
 const maxSpeedDisplay = () => (props.unit === 'kmh' ? 200 : 125);
 
 /**
+ * Animated speed value for smooth display transitions.
+ * 
+ * WHY: Smoothly interpolates to target speed instead of jumping instantly.
+ */
+const animatedSpeed = ref<number>(0);
+
+/**
+ * Animated gauge arc ratio for smooth gauge transitions.
+ * 
+ * WHY: Creates smooth sweeping motion of the gauge arc.
+ */
+const animatedRatio = ref<number>(0);
+
+/**
+ * Linear interpolation helper.
+ * 
+ * @param start - Starting value
+ * @param end - Target value
+ * @param factor - Interpolation factor (0-1), higher = faster
+ */
+function lerp(start: number, end: number, factor: number): number {
+    return start + (end - start) * factor;
+}
+
+/**
  * Detect current theme (light/dark mode).
  * 
  * Checks for 'dark' class on document root element.
@@ -85,7 +110,6 @@ return;
 
     ctx.clearRect(0, 0, W, H);
 
-    const ratio = Math.min(1, props.speed / maxSpeedDisplay());
     const startAngle = Math.PI * 0.75;
     const endAngle = Math.PI * 2.25;
     const arcRange = endAngle - startAngle;
@@ -99,9 +123,9 @@ return;
     ctx.lineCap = 'round';
     ctx.stroke();
 
-    // Speed arc
-    const speedEnd = startAngle + arcRange * ratio;
-    const over = props.speed > props.speedLimit;
+    // Speed arc (using animated ratio for smooth transitions)
+    const speedEnd = startAngle + arcRange * animatedRatio.value;
+    const over = animatedSpeed.value > props.speedLimit;
     const grad = ctx.createLinearGradient(cx - R, cy, cx + R, cy);
     grad.addColorStop(0, over ? '#ff3d57' : '#00e5ff');
     grad.addColorStop(1, over ? '#ff8a80' : '#00bcd4');
@@ -169,8 +193,31 @@ return;
     ctx.shadowBlur = 0;
 }
 
+/**
+ * Animation loop with smooth interpolation.
+ * 
+ * Smoothly animates both the displayed speed number and gauge arc
+ * towards target values using linear interpolation.
+ * 
+ * WHY: Creates professional, smooth transitions instead of instant jumps.
+ * WHY: Factor 0.15 provides good balance between responsiveness and smoothness.
+ */
 function animate() {
+    const targetSpeed = props.speed;
+    const targetRatio = Math.min(1, targetSpeed / maxSpeedDisplay());
+    
+    // Smooth interpolation factor (0.15 = smooth, 0.3 = faster)
+    const smoothFactor = 0.15;
+    
+    // Interpolate speed value
+    animatedSpeed.value = lerp(animatedSpeed.value, targetSpeed, smoothFactor);
+    
+    // Interpolate gauge arc ratio
+    animatedRatio.value = lerp(animatedRatio.value, targetRatio, smoothFactor);
+    
+    // Draw with animated values
     drawGauge();
+    
     animationFrame = requestAnimationFrame(animate);
 }
 
@@ -202,8 +249,15 @@ onUnmounted(() => {
     }
 });
 
-watch([() => props.speed, () => props.speedLimit, () => props.unit], () => {
-    drawGauge();
+/**
+ * Watch for unit changes to reset animation immediately.
+ * 
+ * WHY: When switching km/h ↔ mph, snap to new value instead of animating.
+ */
+watch(() => props.unit, () => {
+    // Snap to current speed in new unit
+    animatedSpeed.value = props.speed;
+    animatedRatio.value = Math.min(1, props.speed / maxSpeedDisplay());
 });
 </script>
 
@@ -226,22 +280,24 @@ watch([() => props.speed, () => props.speedLimit, () => props.unit], () => {
             <div
                 class="speed-display font-[Bebas_Neue] text-[5.5rem] leading-none transition-colors duration-300"
                 :class="
-                    speed > speedLimit
+                    animatedSpeed > speedLimit
                         ? 'text-[#ff3d57] [text-shadow:0_0_20px_rgba(255,61,87,0.5)]'
                         : 'text-zinc-800 dark:text-[#e8eaf0] [text-shadow:0_0_30px_rgba(39,39,42,0.2)] dark:[text-shadow:0_0_30px_rgba(232,234,240,0.2)]'
                 "
             >
-                {{ Math.round(speed) }}
+                {{ Math.round(animatedSpeed) }}
             </div>
             <div class="unit-label text-xs tracking-[3px] uppercase text-zinc-500 dark:text-[#4a5068] -mt-1">
                 {{ unit === 'kmh' ? 'km/h' : 'mph' }}
             </div>
-            <div
-                v-if="speed > speedLimit"
-                class="warning-text mt-1.5 text-[0.65rem] tracking-[2px] uppercase text-[#ff3d57] animate-blink"
-            >
-                ⚠ OVER LIMIT
-            </div>
+            <Transition name="fade">
+                <div
+                    v-if="animatedSpeed > speedLimit"
+                    class="warning-text mt-1.5 text-[0.65rem] tracking-[2px] uppercase text-[#ff3d57] animate-blink"
+                >
+                    ⚠ OVER LIMIT
+                </div>
+            </Transition>
         </div>
     </div>
 </template>
@@ -254,5 +310,16 @@ watch([() => props.speed, () => props.speedLimit, () => props.unit], () => {
 
 .animate-blink {
     animation: blink 0.8s infinite;
+}
+
+/* Smooth fade transition for warning text */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
 }
 </style>

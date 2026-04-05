@@ -25,6 +25,7 @@ import { router } from '@inertiajs/vue3';
 import { Check, ChevronRight, Clock, CloudUpload } from '@lucide/vue';
 import { computed } from 'vue';
 
+import { showWeb } from '@/actions/App/Http/Controllers/TripController';
 import type { Trip } from '@/types/trip';
 import { formatDate, formatDuration, formatTime } from '@/utils/date';
 
@@ -120,7 +121,7 @@ function getViolationColor(count: number): string {
  * Handle card click - navigate to trip detail page.
  */
 function handleClick(): void {
-    router.visit(`/employee/trips/${props.trip.id}`);
+    router.visit(showWeb.url({ trip: props.trip.id }));
 }
 
 // ========================================================================
