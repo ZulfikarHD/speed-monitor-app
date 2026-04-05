@@ -168,7 +168,7 @@ return;
 
 const currentSpeed = computed(() => mpsToDisplay(speedMps.value, unit.value));
 
-const speedLimit = computed(() => localSpeedLimit.value);
+const currentSpeedLimit = computed(() => localSpeedLimit.value);
 
 const satelliteCount = computed(() => estimateSatelliteCount(accuracy.value));
 
@@ -324,14 +324,14 @@ onBeforeUnmount(() => {
             >
                 <div class="limit-info">
                     <div class="limit-label">Speed Limit</div>
-                    <motion.div
-                        :animate="{ scale: [1, 1.05, 1] }"
-                        :transition="{ duration: 0.3 }"
-                        :key="speedLimit"
-                        class="limit-value"
-                    >
-                        {{ speedLimit }} {{ unit === 'kmh' ? 'km/h' : 'mph' }}
-                    </motion.div>
+                <motion.div
+                    :animate="{ scale: [1, 1.05, 1] }"
+                    :transition="{ duration: 0.3 }"
+                    :key="currentSpeedLimit"
+                    class="limit-value"
+                >
+                    {{ currentSpeedLimit }} {{ unit === 'kmh' ? 'km/h' : 'mph' }}
+                </motion.div>
                     <div class="limit-subtext">Diatur oleh supervisor</div>
                 </div>
                 <div class="unit-toggle">
@@ -364,7 +364,7 @@ onBeforeUnmount(() => {
             >
                 <ProductionGauge
                     :speed="currentSpeed"
-                    :speed-limit="speedLimit"
+                    :speed-limit="currentSpeedLimit"
                     :unit="unit"
                 />
             </motion.div>
