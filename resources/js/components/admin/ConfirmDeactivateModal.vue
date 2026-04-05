@@ -23,6 +23,8 @@ import { router } from '@inertiajs/vue3';
 import { AnimatePresence, motion } from 'motion-v';
 import { ref } from 'vue';
 
+import IconAlert from '@/components/icons/IconAlert.vue';
+import IconClose from '@/components/icons/IconClose.vue';
 import Button from '@/components/ui/Button.vue';
 import type { User } from '@/types/auth';
 
@@ -97,9 +99,7 @@ if (typeof window !== 'undefined') {
 </script>
 
 <template>
-    <!-- ======================================================================
-        Modal Overlay
-    ======================================================================= -->
+    <!-- Modal Overlay -->
     <Teleport to="body">
         <AnimatePresence>
             <motion.div
@@ -109,29 +109,30 @@ if (typeof window !== 'undefined') {
                 :animate="{ opacity: 1 }"
                 :exit="{ opacity: 0 }"
                 :transition="{ duration: 0.2 }"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
                 role="dialog"
                 aria-modal="true"
                 :aria-labelledby="'confirm-deactivate-modal-title'"
             >
-                <!-- ======================================================================
-                    Modal Content
-                ======================================================================= -->
+                <!-- Modal Content -->
                 <motion.div
                     :initial="{ opacity: 0, scale: 0.95, y: 20 }"
                     :animate="{ opacity: 1, scale: 1, y: 0 }"
                     :exit="{ opacity: 0, scale: 0.95, y: 20 }"
-                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.4 }"
-                    class="w-full max-w-md rounded-lg border border-[#3E3E3A] bg-[#1a1d23] shadow-xl"
+                    :transition="{ duration: 0.3 }"
+                    class="w-full max-w-md rounded-lg border border-zinc-200 dark:border-white/5 bg-white dark:bg-zinc-800/50 backdrop-blur-xl shadow-xl"
                     @click.stop
                 >
                     <!-- Modal Header -->
-                    <div class="flex items-center justify-between border-b border-[#3E3E3A] p-6">
+                    <div class="flex items-center justify-between border-b border-zinc-200 dark:border-white/5 p-6">
                         <div class="flex items-center gap-3">
-                            <span class="text-2xl" aria-hidden="true">⚠️</span>
+                            <IconAlert
+                                :size="24"
+                                class="text-red-600 dark:text-red-400"
+                            />
                             <h2
                                 id="confirm-deactivate-modal-title"
-                                class="text-xl font-semibold text-[#EDEDEC]"
+                                class="text-xl font-semibold text-zinc-900 dark:text-white"
                             >
                                 Konfirmasi Nonaktifkan
                             </h2>
@@ -139,43 +140,43 @@ if (typeof window !== 'undefined') {
                         <button
                             @click="emit('close')"
                             :disabled="isSubmitting"
-                            class="rounded-lg p-2 text-[#A1A09A] transition-colors hover:bg-[#3E3E3A] hover:text-[#EDEDEC] disabled:cursor-not-allowed disabled:opacity-50"
+                            class="rounded-lg p-2 text-zinc-500 dark:text-zinc-400 transition-all duration-200 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                             aria-label="Tutup"
                         >
-                            <span class="text-xl" aria-hidden="true">✕</span>
+                            <IconClose :size="20" />
                         </button>
                     </div>
 
                     <!-- Modal Body -->
                     <div class="p-6 space-y-4">
                         <!-- Warning Message -->
-                        <div class="rounded-lg border border-red-500/30 bg-red-500/10 p-4">
-                            <p class="text-sm text-red-300">
+                        <div class="rounded-lg border border-red-500/30 dark:border-red-500/30 bg-red-100 dark:bg-red-500/10 p-4">
+                            <p class="text-sm text-red-800 dark:text-red-300">
                                 Anda yakin ingin menonaktifkan akun karyawan berikut?
                             </p>
                         </div>
 
                         <!-- User Details -->
-                        <div class="rounded-lg border border-[#3E3E3A] bg-[#0a0c0f] p-4">
+                        <div class="rounded-lg border border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50 p-4">
                             <dl class="space-y-2">
                                 <div>
-                                    <dt class="text-xs font-medium text-[#6b7280]">
+                                    <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400">
                                         Nama
                                     </dt>
-                                    <dd class="mt-1 text-sm font-semibold text-[#e5e7eb]">
+                                    <dd class="mt-1 text-sm font-semibold text-zinc-900 dark:text-white">
                                         {{ user.name }}
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt class="text-xs font-medium text-[#6b7280]">
+                                    <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400">
                                         Email
                                     </dt>
-                                    <dd class="mt-1 text-sm text-[#A1A09A]">
+                                    <dd class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                                         {{ user.email }}
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt class="text-xs font-medium text-[#6b7280]">
+                                    <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400">
                                         Role
                                     </dt>
                                     <dd class="mt-1">
@@ -183,10 +184,10 @@ if (typeof window !== 'undefined') {
                                             class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium"
                                             :class="
                                                 user.role === 'admin'
-                                                    ? 'border-purple-500/30 bg-purple-500/20 text-purple-400'
+                                                    ? 'border-purple-500/30 bg-purple-500/20 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300'
                                                     : user.role === 'supervisor'
-                                                        ? 'border-blue-500/30 bg-blue-500/20 text-blue-400'
-                                                        : 'border-green-500/30 bg-green-500/20 text-green-400'
+                                                        ? 'border-blue-500/30 bg-blue-500/20 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300'
+                                                        : 'border-emerald-500/30 bg-emerald-500/20 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
                                             "
                                         >
                                             {{
@@ -203,7 +204,7 @@ if (typeof window !== 'undefined') {
                         </div>
 
                         <!-- Info Message -->
-                        <p class="text-sm text-[#A1A09A]">
+                        <p class="text-sm text-zinc-600 dark:text-zinc-400">
                             Akun yang dinonaktifkan tidak dapat login ke sistem.
                             Anda dapat mengaktifkan kembali akun ini nanti jika diperlukan.
                         </p>

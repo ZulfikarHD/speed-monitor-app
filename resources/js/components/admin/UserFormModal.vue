@@ -23,6 +23,7 @@ import { useForm } from '@inertiajs/vue3';
 import { AnimatePresence, motion } from 'motion-v';
 import { computed, watch } from 'vue';
 
+import IconClose from '@/components/icons/IconClose.vue';
 import Button from '@/components/ui/Button.vue';
 import Input from '@/components/ui/Input.vue';
 import Label from '@/components/ui/Label.vue';
@@ -166,9 +167,7 @@ if (typeof window !== 'undefined') {
 </script>
 
 <template>
-    <!-- ======================================================================
-        Modal Overlay
-    ======================================================================= -->
+    <!-- Modal Overlay -->
     <Teleport to="body">
         <AnimatePresence>
             <motion.div
@@ -178,36 +177,34 @@ if (typeof window !== 'undefined') {
                 :animate="{ opacity: 1 }"
                 :exit="{ opacity: 0 }"
                 :transition="{ duration: 0.2 }"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
                 role="dialog"
                 aria-modal="true"
                 :aria-labelledby="'user-form-modal-title'"
             >
-                <!-- ======================================================================
-                    Modal Content
-                ======================================================================= -->
+                <!-- Modal Content -->
                 <motion.div
                     :initial="{ opacity: 0, scale: 0.95, y: 20 }"
                     :animate="{ opacity: 1, scale: 1, y: 0 }"
                     :exit="{ opacity: 0, scale: 0.95, y: 20 }"
-                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.4 }"
-                    class="w-full max-w-lg rounded-lg border border-[#3E3E3A] bg-[#1a1d23] shadow-xl"
+                    :transition="{ duration: 0.3 }"
+                    class="w-full max-w-lg rounded-lg border border-zinc-200 dark:border-white/5 bg-white dark:bg-zinc-800/50 backdrop-blur-xl shadow-xl"
                     @click.stop
                 >
                     <!-- Modal Header -->
-                    <div class="flex items-center justify-between border-b border-[#3E3E3A] p-6">
+                    <div class="flex items-center justify-between border-b border-zinc-200 dark:border-white/5 p-6">
                         <h2
                             id="user-form-modal-title"
-                            class="text-xl font-semibold text-[#EDEDEC]"
+                            class="text-xl font-semibold text-zinc-900 dark:text-white"
                         >
                             {{ modalTitle }}
                         </h2>
                         <button
                             @click="emit('close')"
-                            class="rounded-lg p-2 text-[#A1A09A] transition-colors hover:bg-[#3E3E3A] hover:text-[#EDEDEC]"
+                            class="rounded-lg p-2 text-zinc-500 dark:text-zinc-400 transition-all duration-200 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white"
                             aria-label="Tutup"
                         >
-                            <span class="text-xl" aria-hidden="true">✕</span>
+                            <IconClose :size="20" />
                         </button>
                     </div>
 
@@ -278,11 +275,11 @@ if (typeof window !== 'undefined') {
                             <select
                                 id="role"
                                 v-model="form.role"
-                                class="w-full rounded-lg border px-4 py-3 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1a1d23]"
+                                class="w-full rounded-lg border px-4 py-3 text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
                                 :class="[
                                     form.errors.role
-                                        ? 'border-red-400 bg-red-950/20 text-red-100 focus:border-red-400 focus:ring-red-500'
-                                        : 'border-[#3E3E3A] bg-[#0a0c0f] text-[#e5e7eb] focus:border-cyan-500 focus:ring-cyan-500',
+                                        ? 'border-red-400 bg-red-950/20 text-red-100 dark:bg-red-950/20 dark:text-red-100 focus:border-red-400 focus:ring-red-500 dark:focus:ring-red-400/50'
+                                        : 'border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 focus:border-cyan-500 focus:ring-cyan-500 dark:focus:ring-cyan-400/50',
                                 ]"
                             >
                                 <option value="employee">Karyawan</option>
@@ -291,7 +288,7 @@ if (typeof window !== 'undefined') {
                             </select>
                             <p
                                 v-if="form.errors.role"
-                                class="mt-1.5 text-sm text-red-400"
+                                class="mt-1.5 text-sm text-red-600 dark:text-red-400"
                                 role="alert"
                             >
                                 {{ form.errors.role }}
@@ -312,16 +309,16 @@ if (typeof window !== 'undefined') {
                                         class="peer sr-only"
                                     />
                                     <div
-                                        class="peer h-6 w-11 rounded-full bg-[#3E3E3A] after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-cyan-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-cyan-500 peer-focus:ring-offset-2 peer-focus:ring-offset-[#1a1d23]"
+                                        class="peer h-6 w-11 rounded-full bg-zinc-300 dark:bg-zinc-700 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-zinc-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-cyan-500 dark:peer-checked:bg-cyan-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-cyan-500 dark:peer-focus:ring-cyan-400/50 peer-focus:ring-offset-2 peer-focus:ring-offset-white dark:peer-focus:ring-offset-zinc-800"
                                     ></div>
                                 </label>
-                                <span class="text-sm text-[#e5e7eb]">
+                                <span class="text-sm text-zinc-900 dark:text-white">
                                     {{ form.is_active ? 'Aktif' : 'Nonaktif' }}
                                 </span>
                             </div>
                             <p
                                 v-if="form.errors.is_active"
-                                class="mt-1.5 text-sm text-red-400"
+                                class="mt-1.5 text-sm text-red-600 dark:text-red-400"
                                 role="alert"
                             >
                                 {{ form.errors.is_active }}
