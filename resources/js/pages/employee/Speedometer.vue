@@ -107,25 +107,6 @@ onMounted(async () => {
 
     // Load pending sync count
     await updatePendingSyncCount();
-
-    // Start duration update interval
-    // WHY: Update duration display every second for smooth counting
-    durationInterval = setInterval(() => {
-        // Stop interval if trip is no longer active
-        if (!tripStore.hasActiveTrip) {
-            if (durationInterval) {
-                clearInterval(durationInterval);
-                durationInterval = null;
-            }
-            return;
-        }
-
-        if (tripStore.currentTrip?.started_at) {
-            const startTime = new Date(tripStore.currentTrip.started_at).getTime();
-            const now = Date.now();
-            tripStore.stats.duration = Math.floor((now - startTime) / 1000);
-        }
-    }, 1000);
 });
 
 // ========================================================================
@@ -299,6 +280,19 @@ watch(
 watch(() => tripStore.hasActiveTrip, (isActive) => {
     if (isActive) {
         autoStop.startMonitoring(() => speedKmh.value);
+        
+        // Start duration interval when trip becomes active
+        if (!durationInterval) {
+            durationInterval = setInterval(() => {
+                if (!tripStore.hasActiveTrip || !tripStore.currentTrip?.started_at) {
+                    return;
+                }
+
+                const startTime = new Date(tripStore.currentTrip.started_at).getTime();
+                const now = Date.now();
+                tripStore.stats.duration = Math.floor((now - startTime) / 1000);
+            }, 1000);
+        }
     } else {
         autoStop.stopMonitoring();
         lastPosition.value = null;
@@ -309,7 +303,7 @@ watch(() => tripStore.hasActiveTrip, (isActive) => {
             durationInterval = null;
         }
     }
-});
+}, { immediate: true });
 
 // ========================================================================
 // Cleanup

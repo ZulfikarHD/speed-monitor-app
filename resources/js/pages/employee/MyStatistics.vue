@@ -19,6 +19,7 @@
 
 import { router } from '@inertiajs/vue3';
 
+import { index } from '@/actions/App/Http/Controllers/Employee/StatisticsController';
 import PeriodSelector from '@/components/statistics/PeriodSelector.vue';
 import StatCard from '@/components/statistics/StatCard.vue';
 import TripsChart from '@/components/statistics/TripsChart.vue';
@@ -49,10 +50,18 @@ const props = defineProps<Props>();
  * Uses Inertia router to fetch new data with selected period.
  */
 function handlePeriodChange(period: Period): void {
-    router.visit('/employee/statistics', {
-        data: { period },
+    const url = index.url({ query: { period } });
+    console.log('Navigating to:', url, 'with period:', period);
+    
+    router.visit(url, {
         only: ['statistics', 'currentPeriod'],
         preserveScroll: true,
+        onSuccess: () => {
+            console.log('Statistics updated successfully for period:', period);
+        },
+        onError: (errors) => {
+            console.error('Failed to load statistics:', errors);
+        },
     });
 }
 
@@ -93,6 +102,7 @@ const { statistics, currentPeriod } = props;
             <div class="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Trips -->
                 <StatCard
+                    :key="`trips-${currentPeriod}-${statistics.summary.total_trips}`"
                     title="Total Trips"
                     :value="statistics.summary.total_trips"
                     unit="trips completed"
@@ -102,6 +112,7 @@ const { statistics, currentPeriod } = props;
 
                 <!-- Total Distance -->
                 <StatCard
+                    :key="`distance-${currentPeriod}-${statistics.summary.total_distance}`"
                     title="Total Distance"
                     :value="statistics.summary.total_distance"
                     unit="kilometers"
@@ -111,6 +122,7 @@ const { statistics, currentPeriod } = props;
 
                 <!-- Average Speed -->
                 <StatCard
+                    :key="`speed-${currentPeriod}-${statistics.summary.average_speed}`"
                     title="Average Speed"
                     :value="statistics.summary.average_speed"
                     unit="km/h"
@@ -120,6 +132,7 @@ const { statistics, currentPeriod } = props;
 
                 <!-- Violations -->
                 <StatCard
+                    :key="`violations-${currentPeriod}-${statistics.summary.violation_count}`"
                     title="Violations"
                     :value="statistics.summary.violation_count"
                     unit="speed limit exceeded"
@@ -134,12 +147,14 @@ const { statistics, currentPeriod } = props;
             <div class="space-y-6">
                 <!-- Trips Over Time Chart -->
                 <TripsChart
+                    :key="`trips-chart-${currentPeriod}`"
                     :data="statistics.charts.trips_over_time"
                     :period="currentPeriod"
                 />
 
                 <!-- Violations Over Time Chart -->
                 <ViolationsChart
+                    :key="`violations-chart-${currentPeriod}`"
                     :data="statistics.charts.violations_over_time"
                     :period="currentPeriod"
                 />

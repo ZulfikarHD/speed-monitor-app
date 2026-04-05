@@ -28,21 +28,33 @@ export default defineConfig({
     build: {
         rollupOptions: {
             output: {
-                manualChunks: {
+                manualChunks: (id) => {
                     // Vue core and Inertia (changes rarely)
-                    'vue-vendor': ['vue', '@inertiajs/vue3'],
+                    if (id.includes('node_modules/vue/') || id.includes('node_modules/@inertiajs/vue3/')) {
+                        return 'vue-vendor';
+                    }
                     // Chart libraries (large, changes rarely)
-                    'charts-vendor': ['chart.js', 'vue-chartjs'],
+                    if (id.includes('node_modules/chart.js/') || id.includes('node_modules/vue-chartjs/')) {
+                        return 'charts-vendor';
+                    }
                     // Utilities and composables
-                    'utils-vendor': [
-                        '@vueuse/core',
-                        'date-fns',
-                        'clsx',
-                        'class-variance-authority',
-                        'tailwind-merge',
-                    ],
+                    if (
+                        id.includes('node_modules/@vueuse/core/') ||
+                        id.includes('node_modules/date-fns/') ||
+                        id.includes('node_modules/clsx/') ||
+                        id.includes('node_modules/class-variance-authority/') ||
+                        id.includes('node_modules/tailwind-merge/')
+                    ) {
+                        return 'utils-vendor';
+                    }
                     // State management and animations
-                    'vendor': ['pinia', 'motion-v'],
+                    if (id.includes('node_modules/pinia/') || id.includes('node_modules/motion-v/')) {
+                        return 'vendor';
+                    }
+                    // All other node_modules
+                    if (id.includes('node_modules/')) {
+                        return 'vendor';
+                    }
                 },
             },
         },

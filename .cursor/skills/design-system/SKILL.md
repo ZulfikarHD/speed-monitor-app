@@ -1,6 +1,6 @@
 ---
 name: design-system
-description: Apply professional, modern, tech-inspired design with full light/dark mode. Use when creating/modifying UI components, layouts, styling, navigation, forms, cards, modals. Auto-applies zinc colors with dark variants, extra dark mode (black base), SVG icons, glassmorphism, smooth transitions, theme-aware effects.
+description: Apply professional, modern, tech-inspired design with full light/dark mode. Use when creating/modifying UI components, layouts, styling, navigation, forms, cards, modals. Auto-applies zinc colors with dark variants, extra dark mode (black base), SVG icons, fake glass effects, smooth transitions, theme-aware effects.
 ---
 
 # SpeedMonitor Design System
@@ -11,7 +11,7 @@ Professional tech-inspired design with extra dark mode support.
 
 **Professional**: Clean lines, consistent spacing, refined typography, proper visual hierarchy
 
-**Modern**: Glassmorphism, gradient overlays, subtle shadows, smooth transitions
+**Modern**: Fake glass effects, gradient overlays, subtle shadows, smooth transitions
 
 **Tech-Inspired**: Grid patterns, monospace fonts for technical elements, cyan/blue color scheme, layered depth
 
@@ -111,12 +111,24 @@ Always use Tailwind's `dark:` variant:
 
 ## Visual Effects
 
-### Glassmorphism
+### Fake Glass
+Lightweight glass-like effect without performance-heavy backdrop-blur.
+
 ```html
-<div class="backdrop-blur-xl 
-    bg-white/90 dark:bg-black/98 
-    border border-zinc-200 dark:border-white/5">
+<!-- Elevated Surface (nav, modals, overlays) -->
+<div class="
+    bg-white/95 dark:bg-zinc-900/98 
+    border border-zinc-200/80 dark:border-white/10 
+    shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5
+    ring-1 ring-white/20 dark:ring-white/5">
 ```
+
+**Key Principles:**
+- Higher opacity backgrounds (95-98%) for solid appearance
+- Double borders: main border + subtle ring for depth
+- Soft shadows instead of blur
+- Light: zinc shadows, Dark: cyan glows
+- NO `backdrop-blur-*` classes
 
 ### Tech Grids
 ```html
@@ -171,19 +183,21 @@ shadow-lg shadow-zinc-200 dark:shadow-cyan-500/10
 ### Navigation Components
 - **Height**: `h-16` (64px) for desktop nav
 - **Min Height**: `min-h-[60px]` for mobile bottom nav
-- **Backdrop**: Glassmorphism with blur
-- **Border**: `border-zinc-200 dark:border-white/5`
-- **Background**: `bg-white/90 dark:bg-zinc-900/98`
+- **Backdrop**: Fake glass effect (no blur)
+- **Border**: `border-zinc-200/80 dark:border-white/10`
+- **Background**: `bg-white/95 dark:bg-zinc-900/98`
+- **Ring**: `ring-1 ring-white/20 dark:ring-white/5`
+- **Shadow**: `shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5`
 - **Grid Overlay**: 32px grid pattern (theme-aware)
 
 ### Cards & Containers
 ```html
 <div class="rounded-lg 
-    bg-white dark:bg-zinc-800/50 
-    backdrop-blur-sm 
-    border border-zinc-200 dark:border-white/5 
+    bg-white/95 dark:bg-zinc-800/95 
+    border border-zinc-200/80 dark:border-white/10 
+    ring-1 ring-white/20 dark:ring-white/5 
     p-6 
-    shadow-lg shadow-zinc-200 dark:shadow-none">
+    shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5">
 ```
 
 ### Spacing Scale
@@ -306,12 +320,14 @@ const { isDark, toggleTheme } = useTheme();
 - Slate colors (use zinc)
 - Forget `dark:` variants
 - Light dark mode (use black base)
+- `backdrop-blur-*` classes (heavy performance cost)
 
 ### ✅ DO
 - SVG icons with `currentColor`
 - Zinc colors with `dark:` variants
 - Extra dark mode (black/zinc-950)
 - Smooth 200-300ms transitions
+- Fake glass (semi-transparent + borders + shadows)
 - Test in both modes
 
 ## Quick Reference
@@ -332,6 +348,7 @@ focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50
 - [ ] Zinc colors with `dark:` variants
 - [ ] Extra dark mode (black base)
 - [ ] Smooth transitions (200-300ms)
+- [ ] Fake glass effect (no backdrop-blur)
 - [ ] Active/hover/focus states
 - [ ] ARIA labels
 - [ ] 44x44px touch targets mobile
