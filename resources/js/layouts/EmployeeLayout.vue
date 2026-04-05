@@ -126,7 +126,7 @@ const handleInstallDismiss = (): void => {
 
         <!-- Main Content Area -->
         <main
-            class="relative pb-20 md:pb-0"
+            class="relative z-0 pt-0 pb-20 md:pt-16 md:pb-0"
             role="main"
         >
             <!-- Page Content Slot -->

@@ -182,14 +182,14 @@ function handleSyncBadgeClick(event: MouseEvent): void {
         Theme-aware glassmorphism design with extra dark mode
     ======================================================================= -->
     <nav
-        class="hidden border-b border-zinc-200 dark:border-white/5 bg-white/90 dark:bg-black/98 backdrop-blur-xl md:block"
+        class="fixed top-0 left-0 right-0 z-50 hidden border-b border-zinc-200 dark:border-white/5 bg-white/90 dark:bg-black/98 backdrop-blur-xl md:block"
         role="navigation"
         aria-label="Main navigation"
     >
         <!-- Subtle grid pattern overlay (theme-aware) -->
-        <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(6,182,212,.05)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,.05)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.01)_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+        <div class="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(rgba(6,182,212,.05)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,.05)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.01)_1px,transparent_1px)] bg-[size:32px_32px]"></div>
 
-        <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-16 items-center justify-between">
                 <!-- Left: Logo/Branding -->
                 <div class="flex items-center gap-8">
@@ -224,7 +224,7 @@ function handleSyncBadgeClick(event: MouseEvent): void {
                             class="group relative flex items-center gap-2.5 rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200"
                             :class="
                                 isActive(item.href)
-                                    ? 'bg-cyan-100 dark:bg-gradient-to-br dark:from-cyan-500/15 dark:to-blue-600/15 text-cyan-700 dark:text-cyan-300 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/10'
+                                    ? 'bg-cyan-100 dark:bg-gradient-to-br dark:from-cyan-500/15 dark:to-blue-600/15 text-cyan-700 dark:text-cyan-100 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/10'
                                     : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-zinc-200'
                             "
                             :aria-current="isActive(item.href) ? 'page' : undefined"
@@ -243,7 +243,7 @@ function handleSyncBadgeClick(event: MouseEvent): void {
                                 class="transition-all duration-200"
                                 :class="
                                     isActive(item.href)
-                                        ? 'text-cyan-600 dark:text-cyan-400'
+                                        ? 'text-cyan-600 dark:text-cyan-300'
                                         : 'text-zinc-500 dark:text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300'
                                 "
                             />

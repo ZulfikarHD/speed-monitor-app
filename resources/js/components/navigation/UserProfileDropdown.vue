@@ -115,6 +115,7 @@ onBeforeUnmount(() => {
     <!-- ======================================================================
         User Profile Dropdown
         Accessible dropdown menu with user info and actions
+        Theme-aware design following SpeedMonitor design system
     ======================================================================= -->
     <div ref="dropdownRef" class="relative">
         <!-- Dropdown Trigger Button -->
@@ -124,7 +125,7 @@ onBeforeUnmount(() => {
             :whileHover="{ scale: 1.02 }"
             :whilePress="{ scale: 0.98 }"
             :transition="{ type: 'spring', bounce: 0.4, duration: 0.3 }"
-            class="flex min-h-[44px] items-center gap-3 rounded-lg px-4 py-3 transition-colors hover:bg-[#1a1d23] focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
+            class="flex min-h-[44px] items-center gap-3 rounded-lg px-4 py-3 transition-all duration-200 hover:bg-zinc-100 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900"
             :aria-expanded="isOpen"
             aria-haspopup="true"
             aria-label="User menu"
@@ -133,7 +134,7 @@ onBeforeUnmount(() => {
             <motion.div
                 :animate="{ rotate: isOpen ? 180 : 0 }"
                 :transition="{ type: 'spring', bounce: 0.5, duration: 0.5 }"
-                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-sm font-semibold text-white"
+                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 dark:from-cyan-500 dark:to-blue-600 text-sm font-semibold text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25"
                 aria-hidden="true"
             >
                 {{ getUserInitials() }}
@@ -141,10 +142,10 @@ onBeforeUnmount(() => {
 
             <!-- User Info (Hidden on mobile) -->
             <div class="hidden text-left md:block">
-                <p class="text-sm font-medium text-[#e5e7eb]">
+                <p class="text-sm font-semibold text-zinc-900 dark:text-white">
                     {{ authStore.user?.name }}
                 </p>
-                <p class="text-xs text-[#9ca3af]">
+                <p class="text-xs font-medium text-zinc-600 dark:text-zinc-300">
                     {{ authStore.user?.role }}
                 </p>
             </div>
@@ -153,7 +154,7 @@ onBeforeUnmount(() => {
             <motion.svg
                 :animate="{ rotate: isOpen ? 180 : 0 }"
                 :transition="{ type: 'spring', bounce: 0.4, duration: 0.4 }"
-                class="h-4 w-4 text-[#9ca3af]"
+                class="h-4 w-4 text-zinc-500 dark:text-zinc-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -176,7 +177,7 @@ onBeforeUnmount(() => {
                 :animate="{ opacity: 1, scale: 1, y: 0 }"
                 :exit="{ opacity: 0, scale: 0.95, y: -10 }"
                 :transition="{ type: 'spring', bounce: 0.3, duration: 0.3 }"
-                class="absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-lg border border-[#3E3E3A] bg-[#1a1d23] shadow-lg ring-1 ring-black ring-opacity-5"
+                class="absolute right-0 z-[100] mt-2 w-56 origin-top-right rounded-lg border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900/98 backdrop-blur-xl shadow-lg shadow-zinc-200 dark:shadow-cyan-500/10"
                 role="menu"
                 aria-orientation="vertical"
             >
@@ -185,12 +186,12 @@ onBeforeUnmount(() => {
                     :initial="{ opacity: 0, y: -5 }"
                     :animate="{ opacity: 1, y: 0 }"
                     :transition="{ delay: 0.05, duration: 0.3 }"
-                    class="border-b border-[#3E3E3A] px-4 py-3 md:hidden"
+                    class="border-b border-zinc-200 dark:border-white/10 px-4 py-3 md:hidden"
                 >
-                    <p class="text-sm font-medium text-[#e5e7eb]">
+                    <p class="text-sm font-semibold text-zinc-900 dark:text-white">
                         {{ authStore.user?.name }}
                     </p>
-                    <p class="text-xs text-[#9ca3af]">
+                    <p class="text-xs font-medium text-zinc-600 dark:text-zinc-300">
                         {{ authStore.user?.email }}
                     </p>
                 </motion.div>
@@ -206,7 +207,7 @@ onBeforeUnmount(() => {
                         <Link
                             :href="profileShow.url()"
                             @click="closeDropdown"
-                            class="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-sm text-[#9ca3af] transition-colors hover:bg-[#0a0c0f] hover:text-[#e5e7eb]"
+                            class="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 transition-all duration-200 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-zinc-100"
                             role="menuitem"
                         >
                             <svg
@@ -236,7 +237,7 @@ onBeforeUnmount(() => {
                         <Link
                             href="/profile/change-password"
                             @click="closeDropdown"
-                            class="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-sm text-[#9ca3af] transition-colors hover:bg-[#0a0c0f] hover:text-[#e5e7eb]"
+                            class="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 transition-all duration-200 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-zinc-100"
                             role="menuitem"
                         >
                             <svg
@@ -258,7 +259,7 @@ onBeforeUnmount(() => {
                     </motion.div>
 
                     <!-- Divider -->
-                    <div class="my-1 border-t border-[#3E3E3A]"></div>
+                    <div class="my-1 border-t border-zinc-200 dark:border-white/10"></div>
 
                     <!-- Logout Button -->
                     <motion.button
@@ -269,7 +270,7 @@ onBeforeUnmount(() => {
                         :animate="{ opacity: 1, x: 0 }"
                         :whileHover="{ x: 3 }"
                         :transition="{ delay: 0.16, type: 'spring', bounce: 0.3, duration: 0.4 }"
-                        class="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-sm text-red-400 transition-colors hover:bg-[#0a0c0f] hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60"
+                        class="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-sm text-red-600 dark:text-red-400 transition-all duration-200 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60"
                         role="menuitem"
                     >
                         <svg

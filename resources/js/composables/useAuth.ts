@@ -6,13 +6,14 @@
  *
  * @example
  * ```ts
- * const { handleLogout } = useAuth();
+ * const { handleLogout, isLoading } = useAuth();
  *
  * // Logout user and redirect to login page
  * await handleLogout();
  * ```
  */
 import { router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 import { useAuthStore } from '@/stores/auth';
 
@@ -22,10 +23,11 @@ import { useAuthStore } from '@/stores/auth';
  * Provides logout functionality. Login is handled by Login.vue component
  * using Inertia's useForm composable with Wayfinder route objects.
  *
- * @returns Object containing handleLogout method
+ * @returns Object containing handleLogout method and isLoading state
  */
 export function useAuth() {
     const authStore = useAuthStore();
+    const isLoading = ref(false);
 
     /**
      * Logout current user and redirect to login page.
@@ -39,7 +41,7 @@ export function useAuth() {
      *
      * @example
      * ```ts
-     * const { handleLogout } = useAuth();
+     * const { handleLogout, isLoading } = useAuth();
      *
      * // In a logout button click handler
      * await handleLogout();
@@ -48,9 +50,11 @@ export function useAuth() {
      */
     const handleLogout = async (): Promise<void> => {
         return new Promise((resolve) => {
+            isLoading.value = true;
             router.post('/logout', {}, {
                 onFinish: () => {
                     authStore.logout();
+                    isLoading.value = false;
                     resolve();
                 },
             });
@@ -59,5 +63,6 @@ export function useAuth() {
 
     return {
         handleLogout,
+        isLoading,
     };
 }
