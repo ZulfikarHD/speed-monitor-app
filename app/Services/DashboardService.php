@@ -6,6 +6,7 @@ use App\Enums\TripStatus;
 use App\Models\Trip;
 use App\Models\User;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 
 /**
  * Dashboard Service
@@ -92,11 +93,11 @@ class DashboardService
     /**
      * Get summary statistics for a specific time period.
      *
-     * @param  Carbon  $start  Period start timestamp
-     * @param  Carbon  $end  Period end timestamp
+     * @param  CarbonInterface  $start  Period start timestamp
+     * @param  CarbonInterface  $end  Period end timestamp
      * @return array Summary with total_trips and violations_count
      */
-    private function getSummaryForPeriod(Carbon $start, Carbon $end): array
+    private function getSummaryForPeriod(CarbonInterface $start, CarbonInterface $end): array
     {
         $totalTrips = Trip::whereBetween('started_at', [$start, $end])->count();
 
@@ -198,11 +199,11 @@ class DashboardService
      * Aggregates total employee count, active employees in period, and identifies
      * the top performer by trip count.
      *
-     * @param  Carbon  $start  Period start timestamp
-     * @param  Carbon  $end  Period end timestamp
+     * @param  CarbonInterface  $start  Period start timestamp
+     * @param  CarbonInterface  $end  Period end timestamp
      * @return array Employee summary with totals and top performer
      */
-    private function getEmployeeSummaryForPeriod(Carbon $start, Carbon $end): array
+    private function getEmployeeSummaryForPeriod(CarbonInterface $start, CarbonInterface $end): array
     {
         // Total employees with 'employee' role
         $totalEmployees = User::where('role', 'employee')->count();
@@ -315,12 +316,12 @@ class DashboardService
      * Returns employees with highest violation counts within the given time range,
      * ordered by violation count descending.
      *
-     * @param  Carbon  $start  Period start timestamp
-     * @param  Carbon  $end  Period end timestamp
+     * @param  CarbonInterface  $start  Period start timestamp
+     * @param  CarbonInterface  $end  Period end timestamp
      * @param  int  $limit  Number of top violators to return
      * @return array Array of users with violation counts
      */
-    private function getTopViolatorsForPeriod(Carbon $start, Carbon $end, int $limit): array
+    private function getTopViolatorsForPeriod(CarbonInterface $start, CarbonInterface $end, int $limit): array
     {
         return Trip::with('user:id,name,email')
             ->whereBetween('started_at', [$start, $end])
@@ -363,11 +364,11 @@ class DashboardService
      * Computes the average speed from all completed trips within the given
      * time range for performance monitoring.
      *
-     * @param  Carbon  $start  Period start timestamp
-     * @param  Carbon  $end  Period end timestamp
+     * @param  CarbonInterface  $start  Period start timestamp
+     * @param  CarbonInterface  $end  Period end timestamp
      * @return float Average speed in km/h (rounded to 2 decimals)
      */
-    private function getAverageSpeedForPeriod(Carbon $start, Carbon $end): float
+    private function getAverageSpeedForPeriod(CarbonInterface $start, CarbonInterface $end): float
     {
         $averageSpeed = Trip::whereBetween('started_at', [$start, $end])
             ->where('status', TripStatus::Completed)
