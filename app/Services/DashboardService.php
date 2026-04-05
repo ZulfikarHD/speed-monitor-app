@@ -131,9 +131,7 @@ class DashboardService
         $todayEnd = now()->endOfDay();
 
         // Total employees with 'employee' role
-        $totalEmployees = User::whereHas('roles', function ($query) {
-            $query->where('name', 'employee');
-        })->count();
+        $totalEmployees = User::where('role', 'employee')->count();
 
         // Active employees today (have at least one trip today)
         $activeToday = Trip::whereBetween('started_at', [$todayStart, $todayEnd])
