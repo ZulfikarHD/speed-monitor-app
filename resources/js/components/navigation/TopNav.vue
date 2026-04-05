@@ -224,7 +224,7 @@ function handleSyncBadgeClick(event: MouseEvent): void {
                             class="group relative flex items-center gap-2.5 rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200"
                             :class="
                                 isActive(item.href)
-                                    ? 'bg-cyan-100 dark:bg-gradient-to-br dark:from-cyan-500/25 dark:to-blue-600/25 text-cyan-700 dark:text-cyan-100 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/10'
+                                    ? 'bg-cyan-100 dark:bg-gradient-to-br dark:from-cyan-500/25 dark:to-blue-600/25 text-cyan-700 dark:text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/10'
                                     : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-zinc-200'
                             "
                             :aria-current="isActive(item.href) ? 'page' : undefined"
@@ -243,7 +243,7 @@ function handleSyncBadgeClick(event: MouseEvent): void {
                                 class="transition-all duration-200"
                                 :class="
                                     isActive(item.href)
-                                        ? 'text-cyan-600 dark:text-cyan-300'
+                                        ? 'text-cyan-600 dark:text-white'
                                         : 'text-zinc-500 dark:text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300'
                                 "
                             />

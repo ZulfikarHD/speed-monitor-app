@@ -229,7 +229,7 @@ function handleSyncBadgeClick(event: MouseEvent): void {
                 class="group relative flex min-h-[60px] flex-col items-center justify-center gap-1.5 px-2 py-2.5 transition-all duration-200"
                 :class="
                     isActive(item.href)
-                        ? 'text-cyan-700 dark:text-cyan-100'
+                        ? 'text-cyan-700 dark:text-white'
                         : 'text-zinc-500 dark:text-zinc-500 active:bg-zinc-100 dark:active:bg-white/5'
                 "
                 :aria-label="item.label"
@@ -265,7 +265,7 @@ function handleSyncBadgeClick(event: MouseEvent): void {
                         class="relative transition-colors duration-200"
                         :class="
                             isActive(item.href)
-                                ? 'text-cyan-600 dark:text-cyan-300'
+                                ? 'text-cyan-600 dark:text-white'
                                 : 'text-zinc-500 dark:text-zinc-500 group-active:text-zinc-600 dark:group-active:text-zinc-400'
                         "
                     />
