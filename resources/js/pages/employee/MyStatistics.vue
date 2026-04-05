@@ -7,18 +7,23 @@
  * Uses EmployeeLayout for consistent navigation across all employee pages.
  *
  * Features:
- * - Period selector (week/month/year)
- * - Summary statistics cards (trips, distance, speed, violations)
+ * - Period selector (week/month/year) with theme support
+ * - Summary statistics cards with SVG icons
  * - Trips over time bar chart
  * - Violations over time line chart
  * - Server-side data fetching with Inertia
  * - Responsive design (mobile-first)
+ * - Full theme support (light/dark)
+ * - Motion animations for smooth UX
+ * - Empty state for no data
  *
  * @example Route: /employee/statistics
  */
 
 import { router } from '@inertiajs/vue3';
+import { motion } from 'motion-v';
 
+import { IconGauge } from '@/components/icons';
 import PeriodSelector from '@/components/statistics/PeriodSelector.vue';
 import StatCard from '@/components/statistics/StatCard.vue';
 import TripsChart from '@/components/statistics/TripsChart.vue';
@@ -66,16 +71,21 @@ const { statistics, currentPeriod } = props;
             <!-- ================================================================
                 Page Header with Period Selector
             ================================================================ -->
-            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <motion.div
+                :initial="{ opacity: 0, y: -20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.4, duration: 0.6 }"
+                class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+            >
                 <!-- Page Title -->
                 <div>
                     <h1
-                        class="text-3xl font-bold text-[#e5e7eb]"
+                        class="text-3xl font-bold text-zinc-900 dark:text-white"
                         style="font-family: 'Bebas Neue', sans-serif"
                     >
                         My Statistics
                     </h1>
-                    <p class="mt-1 text-sm text-[#9ca3af]">
+                    <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                         Your driving performance for {{ statistics.period.label }}
                     </p>
                 </div>
@@ -85,47 +95,71 @@ const { statistics, currentPeriod } = props;
                     :model-value="currentPeriod"
                     @update:model-value="handlePeriodChange"
                 />
-            </div>
+            </motion.div>
 
             <!-- ================================================================
                 Summary Statistics Cards Grid
             ================================================================ -->
             <div class="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Trips -->
-                <StatCard
-                    title="Total Trips"
-                    :value="statistics.summary.total_trips"
-                    unit="trips completed"
-                    icon="🚗"
-                    color="blue"
-                />
+                <motion.div
+                    :initial="{ opacity: 0, y: 20 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.1 }"
+                >
+                    <StatCard
+                        title="Total Trips"
+                        :value="statistics.summary.total_trips"
+                        unit="trips completed"
+                        icon="car"
+                        color="blue"
+                    />
+                </motion.div>
 
                 <!-- Total Distance -->
-                <StatCard
-                    title="Total Distance"
-                    :value="statistics.summary.total_distance"
-                    unit="kilometers"
-                    icon="📍"
-                    color="green"
-                />
+                <motion.div
+                    :initial="{ opacity: 0, y: 20 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.2 }"
+                >
+                    <StatCard
+                        title="Total Distance"
+                        :value="statistics.summary.total_distance"
+                        unit="kilometers"
+                        icon="map"
+                        color="green"
+                    />
+                </motion.div>
 
                 <!-- Average Speed -->
-                <StatCard
-                    title="Average Speed"
-                    :value="statistics.summary.average_speed"
-                    unit="km/h"
-                    icon="⚡"
-                    color="purple"
-                />
+                <motion.div
+                    :initial="{ opacity: 0, y: 20 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.3 }"
+                >
+                    <StatCard
+                        title="Average Speed"
+                        :value="statistics.summary.average_speed"
+                        unit="km/h"
+                        icon="zap"
+                        color="purple"
+                    />
+                </motion.div>
 
                 <!-- Violations -->
-                <StatCard
-                    title="Violations"
-                    :value="statistics.summary.violation_count"
-                    unit="speed limit exceeded"
-                    icon="⚠️"
-                    :color="statistics.summary.violation_count > 0 ? 'red' : 'green'"
-                />
+                <motion.div
+                    :initial="{ opacity: 0, y: 20 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.4 }"
+                >
+                    <StatCard
+                        title="Violations"
+                        :value="statistics.summary.violation_count"
+                        unit="speed limit exceeded"
+                        icon="alert"
+                        :color="statistics.summary.violation_count > 0 ? 'red' : 'green'"
+                    />
+                </motion.div>
             </div>
 
             <!-- ================================================================
@@ -148,23 +182,30 @@ const { statistics, currentPeriod } = props;
             <!-- ================================================================
                 Empty State (No Trips)
             ================================================================ -->
-            <div
+            <motion.div
                 v-if="statistics.summary.total_trips === 0"
-                class="mt-8 rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-8 text-center"
+                :initial="{ opacity: 0, y: 20 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ type: 'spring', bounce: 0.3, duration: 0.6, delay: 0.5 }"
+                class="mt-8 rounded-lg border border-zinc-200 bg-white backdrop-blur-sm p-8 text-center dark:border-white/5 dark:bg-zinc-800/50"
             >
-                <div class="mb-4 text-6xl" aria-hidden="true">📊</div>
+                <div class="mb-6 flex justify-center">
+                    <div class="flex h-20 w-20 items-center justify-center rounded-full bg-zinc-100 text-zinc-400 dark:bg-zinc-900 dark:text-zinc-600">
+                        <IconGauge :size="40" />
+                    </div>
+                </div>
                 <h3
-                    class="mb-2 text-xl font-semibold text-[#e5e7eb]"
+                    class="mb-2 text-xl font-semibold text-zinc-900 dark:text-white"
                     style="font-family: 'Bebas Neue', sans-serif"
                 >
                     No Trip Data Yet
                 </h3>
-                <p class="mb-6 text-sm text-[#9ca3af]">
+                <p class="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
                     Start tracking your trips with the speedometer to see your statistics here.
                 </p>
                 <a
                     href="/employee/speedometer"
-                    class="inline-flex items-center gap-2 rounded-lg bg-cyan-500 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-cyan-600"
+                    class="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-200 transition-all hover:shadow-xl hover:shadow-cyan-200 active:scale-95 dark:from-cyan-500 dark:to-blue-600 dark:shadow-cyan-500/25 dark:hover:shadow-cyan-500/40"
                 >
                     <span>Start Speedometer</span>
                     <svg
@@ -181,7 +222,7 @@ const { statistics, currentPeriod } = props;
                         />
                     </svg>
                 </a>
-            </div>
+            </motion.div>
         </div>
     </EmployeeLayout>
 </template>

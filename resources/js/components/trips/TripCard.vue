@@ -87,33 +87,33 @@ function getStatusText(status: string): string {
 }
 
 /**
- * Get status badge color classes.
+ * Get status badge color classes (theme-aware).
  *
  * @param status - Trip status
  * @returns Tailwind CSS classes for status badge
  */
 function getStatusColor(status: string): string {
     const colorMap: Record<string, string> = {
-        in_progress: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-        completed: 'bg-green-500/10 text-green-400 border-green-500/20',
-        auto_stopped: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+        in_progress: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/15 dark:text-blue-300 dark:border-blue-500/20',
+        completed: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-500/15 dark:text-green-300 dark:border-green-500/20',
+        auto_stopped: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/20',
     };
 
-    return colorMap[status] || 'bg-gray-500/10 text-gray-400 border-gray-500/20';
+    return colorMap[status] || 'bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-500/15 dark:text-zinc-300 dark:border-zinc-500/20';
 }
 
 /**
- * Get violation badge color.
+ * Get violation badge color (theme-aware).
  *
  * @param count - Violation count
  * @returns Tailwind CSS classes for violation badge
  */
 function getViolationColor(count: number): string {
     if (count === 0) {
-        return 'bg-green-500/10 text-green-400 border-green-500/20';
+        return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-500/15 dark:text-green-300 dark:border-green-500/20';
     }
 
-    return 'bg-red-500/10 text-red-400 border-red-500/20';
+    return 'bg-red-100 text-red-700 border-red-200 dark:bg-red-500/15 dark:text-red-300 dark:border-red-500/20';
 }
 
 /**
@@ -146,14 +146,14 @@ function getSyncStatusText(): string {
 }
 
 /**
- * Get sync status badge color classes.
+ * Get sync status badge color classes (theme-aware).
  *
  * @returns Tailwind CSS classes for sync badge
  */
 function getSyncStatusColor(): string {
     return isSynced.value
-        ? 'bg-green-500/10 text-green-400 border-green-500/20'
-        : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
+        ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-500/15 dark:text-green-300 dark:border-green-500/20'
+        : 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/20';
 }
 </script>
 
@@ -164,22 +164,22 @@ function getSyncStatusColor(): string {
     ======================================================================= -->
     <motion.button
         @click="handleClick"
-        :whileHover="{ scale: 1.02, y: -4 }"
-        :whilePress="{ scale: 0.98 }"
+        :whileHover="{ scale: 1.01, y: -4 }"
+        :whilePress="{ scale: 0.99 }"
         :transition="{ type: 'spring', bounce: 0.4, duration: 0.4 }"
-        class="w-full rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-5 text-left transition-all hover:border-cyan-500/50 hover:bg-[#2a2d33] focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-[#0a0c0f]"
+        class="w-full rounded-lg border border-zinc-200 bg-white backdrop-blur-sm p-5 text-left transition-all hover:border-cyan-500/50 hover:shadow-lg hover:shadow-zinc-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:border-white/5 dark:bg-zinc-800/50 dark:hover:shadow-cyan-500/10 dark:focus:ring-offset-zinc-900"
         :aria-label="`View trip details from ${formatDate(trip.started_at)}`"
     >
         <!-- Header: Date and Status -->
         <div class="mb-4 flex items-start justify-between gap-4">
             <div class="flex-1">
                 <h3
-                    class="text-lg font-semibold text-[#e5e7eb]"
+                    class="text-lg font-semibold text-zinc-900 dark:text-white"
                     style="font-family: 'Bebas Neue', sans-serif"
                 >
                     {{ formatDate(trip.started_at) }}
                 </h3>
-                <p class="mt-1 text-sm text-[#9ca3af]">
+                <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                     {{ formatTime(trip.started_at) }}
                     <span v-if="trip.ended_at">
                         - {{ formatTime(trip.ended_at) }}
@@ -261,10 +261,12 @@ function getSyncStatusColor(): string {
         <!-- Stats Grid -->
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <!-- Duration -->
-            <div class="rounded-lg bg-[#0a0c0f] p-3">
-                <div class="mb-1 text-xs text-[#9ca3af]">Durasi</div>
+            <div class="rounded-lg bg-zinc-50 p-3 dark:bg-zinc-900/50">
+                <div class="mb-1 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
+                    Durasi
+                </div>
                 <div
-                    class="font-mono text-sm font-semibold text-[#e5e7eb]"
+                    class="font-mono text-sm font-semibold text-zinc-900 dark:text-zinc-100"
                     style="font-family: 'Share Tech Mono', monospace"
                 >
                     {{ formatDuration(trip.duration_seconds) }}
@@ -272,10 +274,12 @@ function getSyncStatusColor(): string {
             </div>
 
             <!-- Distance -->
-            <div class="rounded-lg bg-[#0a0c0f] p-3">
-                <div class="mb-1 text-xs text-[#9ca3af]">Jarak</div>
+            <div class="rounded-lg bg-zinc-50 p-3 dark:bg-zinc-900/50">
+                <div class="mb-1 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
+                    Jarak
+                </div>
                 <div
-                    class="font-mono text-sm font-semibold text-cyan-400"
+                    class="font-mono text-sm font-semibold text-cyan-600 dark:text-cyan-400"
                     style="font-family: 'Share Tech Mono', monospace"
                 >
                     {{ formatDistance(trip.total_distance) }}
@@ -283,10 +287,12 @@ function getSyncStatusColor(): string {
             </div>
 
             <!-- Max Speed -->
-            <div class="rounded-lg bg-[#0a0c0f] p-3">
-                <div class="mb-1 text-xs text-[#9ca3af]">Kec. Maks</div>
+            <div class="rounded-lg bg-zinc-50 p-3 dark:bg-zinc-900/50">
+                <div class="mb-1 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
+                    Kec. Maks
+                </div>
                 <div
-                    class="font-mono text-sm font-semibold text-red-400"
+                    class="font-mono text-sm font-semibold text-red-600 dark:text-red-400"
                     style="font-family: 'Share Tech Mono', monospace"
                 >
                     {{ formatSpeed(trip.max_speed) }}
@@ -294,8 +300,10 @@ function getSyncStatusColor(): string {
             </div>
 
             <!-- Violations -->
-            <div class="rounded-lg bg-[#0a0c0f] p-3">
-                <div class="mb-1 text-xs text-[#9ca3af]">Pelanggaran</div>
+            <div class="rounded-lg bg-zinc-50 p-3 dark:bg-zinc-900/50">
+                <div class="mb-1 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
+                    Pelanggaran
+                </div>
                 <span
                     :class="[
                         'inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-xs font-semibold',
@@ -309,15 +317,17 @@ function getSyncStatusColor(): string {
         </div>
 
         <!-- Optional Notes Preview -->
-        <div v-if="trip.notes" class="mt-4 border-t border-[#3E3E3A] pt-4">
-            <div class="text-xs text-[#9ca3af]">Catatan:</div>
-            <p class="mt-1 line-clamp-2 text-sm text-[#e5e7eb]">
+        <div v-if="trip.notes" class="mt-4 border-t border-zinc-200 pt-4 dark:border-white/5">
+            <div class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
+                Catatan:
+            </div>
+            <p class="mt-1 line-clamp-2 text-sm text-zinc-700 dark:text-zinc-300">
                 {{ trip.notes }}
             </p>
         </div>
 
         <!-- Click Indicator -->
-        <div class="mt-4 flex items-center justify-end text-xs text-cyan-500">
+        <div class="mt-4 flex items-center justify-end text-xs font-medium text-cyan-600 dark:text-cyan-400">
             <span>Lihat Detail</span>
             <svg
                 class="ml-1 h-4 w-4"

@@ -2,17 +2,19 @@
 /**
  * StatCard Component
  *
- * Reusable statistics display card showing a metric value with icon and label.
- * Designed for dashboard statistics grids with color-coded variants.
+ * Reusable statistics display card showing a metric value with SVG icon and label.
+ * Designed for dashboard statistics grids with theme-aware color variants.
  *
  * Features:
- * - Large number display
- * - Icon badge with color variants
+ * - Large number display with formatted values
+ * - SVG icon components instead of emojis
  * - Title and unit labels
- * - Gradient background styling
- * - SpeedoMontor dark theme
+ * - Theme-aware gradient styling (light/dark)
+ * - Subtle hover effects
+ * - Responsive design
  */
 
+import { IconCar, IconMap, IconZap, IconAlert } from '@/components/icons';
 import type { StatCardProps } from '@/types/statistics';
 
 // ========================================================================
@@ -22,48 +24,42 @@ import type { StatCardProps } from '@/types/statistics';
 const props = defineProps<StatCardProps>();
 
 // ========================================================================
-// Computed Colors
+// Computed Colors (Theme-Aware)
 // ========================================================================
 
 /**
- * Get color classes based on card variant.
+ * Get color classes based on card variant with full theme support.
  */
 function getColorClasses(color: StatCardProps['color']): {
-    gradient: string;
-    border: string;
+    card: string;
     icon: string;
     text: string;
 } {
     const colorMap = {
         blue: {
-            gradient: 'from-blue-500/10 to-indigo-500/10',
-            border: 'border-blue-500/30',
-            icon: 'from-blue-500 to-indigo-600',
-            text: 'text-blue-400',
+            card: 'border-zinc-200 bg-white dark:border-white/5 dark:bg-zinc-800/50',
+            icon: 'from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600',
+            text: 'text-cyan-600 dark:text-cyan-400',
         },
         green: {
-            gradient: 'from-green-500/10 to-emerald-500/10',
-            border: 'border-green-500/30',
-            icon: 'from-green-500 to-emerald-600',
-            text: 'text-green-400',
+            card: 'border-zinc-200 bg-white dark:border-white/5 dark:bg-zinc-800/50',
+            icon: 'from-green-600 to-emerald-700 dark:from-green-500 dark:to-emerald-600',
+            text: 'text-green-600 dark:text-green-400',
         },
         purple: {
-            gradient: 'from-purple-500/10 to-pink-500/10',
-            border: 'border-purple-500/30',
-            icon: 'from-purple-500 to-pink-600',
-            text: 'text-purple-400',
+            card: 'border-zinc-200 bg-white dark:border-white/5 dark:bg-zinc-800/50',
+            icon: 'from-purple-600 to-pink-700 dark:from-purple-500 dark:to-pink-600',
+            text: 'text-purple-600 dark:text-purple-400',
         },
         red: {
-            gradient: 'from-red-500/10 to-rose-500/10',
-            border: 'border-red-500/30',
-            icon: 'from-red-500 to-rose-600',
-            text: 'text-red-400',
+            card: 'border-zinc-200 bg-white dark:border-white/5 dark:bg-zinc-800/50',
+            icon: 'from-red-600 to-rose-700 dark:from-red-500 dark:to-rose-600',
+            text: 'text-red-600 dark:text-red-400',
         },
         orange: {
-            gradient: 'from-orange-500/10 to-amber-500/10',
-            border: 'border-orange-500/30',
-            icon: 'from-orange-500 to-amber-600',
-            text: 'text-orange-400',
+            card: 'border-zinc-200 bg-white dark:border-white/5 dark:bg-zinc-800/50',
+            icon: 'from-orange-600 to-amber-700 dark:from-orange-500 dark:to-amber-600',
+            text: 'text-orange-600 dark:text-orange-400',
         },
     };
 
@@ -71,6 +67,22 @@ function getColorClasses(color: StatCardProps['color']): {
 }
 
 const colors = getColorClasses(props.color);
+
+/**
+ * Get icon component based on icon prop.
+ */
+function getIconComponent(iconName: string) {
+    const iconMap: Record<string, any> = {
+        car: IconCar,
+        map: IconMap,
+        zap: IconZap,
+        alert: IconAlert,
+    };
+
+    return iconMap[iconName] || IconCar;
+}
+
+const IconComponent = getIconComponent(props.icon);
 </script>
 
 <template>
@@ -79,14 +91,14 @@ const colors = getColorClasses(props.color);
         Display card for a single statistic metric
     ======================================================================= -->
     <div
-        class="rounded-lg border bg-gradient-to-br p-6 transition-all hover:scale-[1.02]"
-        :class="[colors.gradient, colors.border]"
+        class="rounded-lg border backdrop-blur-sm p-6 transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-zinc-200 dark:hover:shadow-cyan-500/10"
+        :class="colors.card"
     >
         <div class="flex items-start justify-between">
             <!-- Left: Value and Label -->
             <div class="flex-1">
                 <!-- Title -->
-                <p class="text-sm font-medium text-[#9ca3af]">
+                <p class="text-sm font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
                     {{ title }}
                 </p>
 
@@ -100,18 +112,18 @@ const colors = getColorClasses(props.color);
                 </p>
 
                 <!-- Unit -->
-                <p class="mt-1 text-xs text-[#9ca3af]">
+                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
                     {{ unit }}
                 </p>
             </div>
 
             <!-- Right: Icon Badge -->
             <div
-                class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-2xl shadow-lg"
+                class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25"
                 :class="colors.icon"
                 aria-hidden="true"
             >
-                {{ icon }}
+                <component :is="IconComponent" :size="28" />
             </div>
         </div>
     </div>

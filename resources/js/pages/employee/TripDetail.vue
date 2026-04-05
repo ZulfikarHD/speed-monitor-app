@@ -124,7 +124,7 @@ function formatSpeed(speed: number | string | null): string {
             >
                 <Link
                     href="/employee/my-trips"
-                    class="mb-6 inline-flex min-h-[44px] items-center gap-2 px-4 py-3 text-sm text-cyan-400 transition-colors hover:text-cyan-300"
+                    class="mb-6 inline-flex min-h-[44px] items-center gap-2 px-4 py-3 text-sm font-medium text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300"
                 >
                     <svg
                         class="h-4 w-4"
@@ -152,7 +152,7 @@ function formatSpeed(speed: number | string | null): string {
                 class="mb-6 flex items-center gap-3"
             >
                 <h1
-                    class="text-3xl font-bold text-[#e5e7eb]"
+                    class="text-3xl font-bold text-zinc-900 dark:text-white"
                     style="font-family: 'Bebas Neue', sans-serif"
                 >
                     {{ formatDate(trip.started_at) }}
@@ -176,7 +176,7 @@ function formatSpeed(speed: number | string | null): string {
                 :initial="{ opacity: 0 }"
                 :animate="{ opacity: 1 }"
                 :transition="{ delay: 0.25, duration: 0.5 }"
-                class="mb-6 text-sm text-[#9ca3af]"
+                class="mb-6 text-sm text-zinc-600 dark:text-zinc-400"
             >
                 Dimulai: {{ formatTime(trip.started_at) }}
                 <span v-if="trip.ended_at">
@@ -195,13 +195,15 @@ function formatSpeed(speed: number | string | null): string {
                 <motion.div
                     :initial="{ opacity: 0, y: 20 }"
                     :animate="{ opacity: 1, y: 0 }"
-                    :whileHover="{ scale: 1.03, y: -4 }"
+                    :whileHover="{ scale: 1.02, y: -4 }"
                     :transition="{ type: 'spring', bounce: 0.4, duration: 0.5, delay: 0.35 }"
-                    class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-4"
+                    class="rounded-lg border border-zinc-200 bg-white backdrop-blur-sm p-4 dark:border-white/5 dark:bg-zinc-800/50"
                 >
-                    <div class="mb-2 text-xs text-[#9ca3af]">Durasi</div>
+                    <div class="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
+                        Durasi
+                    </div>
                     <div
-                        class="font-mono text-xl font-semibold text-[#e5e7eb]"
+                        class="font-mono text-xl font-semibold text-zinc-900 dark:text-zinc-100"
                         style="font-family: 'Share Tech Mono', monospace"
                     >
                         {{ formatDuration(trip.duration_seconds) }}
@@ -273,18 +275,23 @@ function formatSpeed(speed: number | string | null): string {
 
             <!-- Violation Summary -->
             <div
-                class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-6 text-center"
+                class="rounded-lg border border-zinc-200 bg-white backdrop-blur-sm p-6 text-center dark:border-white/5 dark:bg-zinc-800/50"
             >
                 <h3
-                    class="mb-3 text-lg font-semibold text-[#e5e7eb]"
+                    class="mb-3 text-lg font-semibold text-zinc-900 dark:text-white"
                     style="font-family: 'Bebas Neue', sans-serif"
                 >
                     Ringkasan Pelanggaran
                 </h3>
 
                 <div class="flex items-center justify-center gap-4">
-                    <div class="text-6xl" aria-hidden="true">
-                        {{ trip.violation_count > 0 ? '⚠️' : '✅' }}
+                    <div class="flex h-16 w-16 items-center justify-center rounded-full" :class="trip.violation_count > 0 ? 'bg-red-100 dark:bg-red-500/15' : 'bg-green-100 dark:bg-green-500/15'" aria-hidden="true">
+                        <svg v-if="trip.violation_count === 0" class="h-10 w-10 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <svg v-else class="h-10 w-10 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
                     </div>
 
                     <div class="text-left">
@@ -298,7 +305,7 @@ function formatSpeed(speed: number | string | null): string {
                             {{ trip.violation_count }}
                         </div>
 
-                        <p class="mt-2 text-sm text-[#9ca3af]">
+                        <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
                             {{
                                 trip.violation_count === 0
                                     ? 'Tidak ada pelanggaran'
@@ -326,10 +333,10 @@ function formatSpeed(speed: number | string | null): string {
 
             <!-- Trip Metadata -->
             <div
-                class="rounded-lg border border-[#3E3E3A] bg-[#1a1d23] p-6 space-y-4"
+                class="rounded-lg border border-zinc-200 bg-white backdrop-blur-sm p-6 space-y-4 dark:border-white/5 dark:bg-zinc-800/50"
             >
                 <h3
-                    class="text-lg font-semibold text-[#e5e7eb]"
+                    class="text-lg font-semibold text-zinc-900 dark:text-white"
                     style="font-family: 'Bebas Neue', sans-serif"
                 >
                     Informasi Perjalanan
@@ -338,10 +345,10 @@ function formatSpeed(speed: number | string | null): string {
                 <div class="grid gap-4 sm:grid-cols-2">
                     <!-- Start Time -->
                     <div>
-                        <div class="mb-1 text-xs text-[#9ca3af]">
+                        <div class="mb-1 text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
                             Waktu Mulai
                         </div>
-                        <div class="text-sm text-[#e5e7eb]">
+                        <div class="text-sm text-zinc-900 dark:text-zinc-100">
                             {{
                                 new Date(trip.started_at).toLocaleString(
                                     'id-ID',
@@ -423,10 +430,12 @@ function formatSpeed(speed: number | string | null): string {
                 </div>
 
                 <!-- Notes -->
-                <div v-if="trip.notes" class="border-t border-[#3E3E3A] pt-4">
-                    <div class="mb-2 text-xs text-[#9ca3af]">Catatan</div>
+                <div v-if="trip.notes" class="border-t border-zinc-200 pt-4 dark:border-white/5">
+                    <div class="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
+                        Catatan
+                    </div>
                     <div
-                        class="rounded-lg bg-[#0a0c0f] p-4 text-sm text-[#e5e7eb]"
+                        class="rounded-lg bg-zinc-50 p-4 text-sm text-zinc-900 dark:bg-zinc-900/50 dark:text-zinc-100"
                     >
                         {{ trip.notes }}
                     </div>
