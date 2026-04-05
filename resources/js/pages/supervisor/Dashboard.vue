@@ -32,6 +32,7 @@ import TrendStatCard from '@/components/dashboard/TrendStatCard.vue';
 import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
 import type { DashboardOverview } from '@/types/dashboard';
 import { index as tripsIndex } from '@/actions/App/Http/Controllers/Supervisor/AllTripsController';
+import { violations as leaderboardIndex } from '@/actions/App/Http/Controllers/Supervisor/DashboardController';
 
 // ========================================================================
 // Local State
@@ -436,7 +437,7 @@ async function handleManualRefresh(): Promise<void> {
                             >
                                 <template #actions>
                                     <Link
-                                        href="/supervisor/leaderboard"
+                                        :href="leaderboardIndex.url()"
                                         class="text-sm font-medium text-cyan-400 transition-colors hover:text-cyan-300"
                                     >
                                         View All →
