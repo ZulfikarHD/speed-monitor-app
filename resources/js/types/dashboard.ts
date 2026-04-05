@@ -9,11 +9,18 @@
  * Complete dashboard overview response from backend.
  *
  * Contains all dashboard metrics for supervisor/admin monitoring including
- * today's summary, currently active trips, top violators, and average speed.
+ * today's summary, historical trends, currently active trips, top violators,
+ * average speed, employee summary, and recent alerts.
  */
 export interface DashboardOverview {
     /** Today's summary statistics (total trips and violations) */
     today_summary: TodaySummary;
+
+    /** Yesterday's summary for trend comparison */
+    yesterday_summary: TodaySummary;
+
+    /** Trend indicators (percentage changes from yesterday) */
+    trends: TrendIndicators;
 
     /** Currently active trips with user info and duration */
     active_trips: ActiveTrip[];
@@ -23,6 +30,12 @@ export interface DashboardOverview {
 
     /** Average speed across all employees today (km/h) */
     average_speed: number;
+
+    /** Employee summary statistics */
+    employee_summary: EmployeeSummary;
+
+    /** Recent high-violation alerts from last hour */
+    recent_alerts: RecentAlert[];
 }
 
 /**
@@ -37,6 +50,69 @@ export interface TodaySummary {
 
     /** Total number of speed violations recorded today */
     violations_count: number;
+}
+
+/**
+ * Trend indicators for dashboard metrics.
+ *
+ * Percentage changes comparing today's metrics against yesterday's
+ * for at-a-glance trend visualization (positive = increase, negative = decrease).
+ */
+export interface TrendIndicators {
+    /** Percentage change in total trips (today vs yesterday) */
+    trips_change: number;
+
+    /** Percentage change in violations (today vs yesterday) */
+    violations_change: number;
+}
+
+/**
+ * Employee summary statistics.
+ *
+ * Aggregated employee metrics including total employee count,
+ * active employees today, and top performer identification.
+ */
+export interface EmployeeSummary {
+    /** Total number of employees in the system */
+    total_employees: number;
+
+    /** Number of employees with trips today */
+    active_today: number;
+
+    /** Top performer by trip count today (null if no trips) */
+    top_performer: {
+        /** Employee name */
+        name: string;
+
+        /** Number of trips completed today */
+        trip_count: number;
+    } | null;
+}
+
+/**
+ * Recent alert for high-violation trips.
+ *
+ * Alert entry for trips with high violation counts from the last hour,
+ * requiring supervisor attention and potential intervention.
+ */
+export interface RecentAlert {
+    /** Trip ID */
+    id: number;
+
+    /** Employee information */
+    user: {
+        /** Employee full name */
+        name: string;
+
+        /** Employee email address */
+        email: string;
+    };
+
+    /** Number of violations in this trip */
+    violation_count: number;
+
+    /** Trip start timestamp (ISO8601 format) */
+    started_at: string;
 }
 
 /**

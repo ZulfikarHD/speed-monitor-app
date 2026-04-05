@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\TripStatus;
 use App\Models\Trip;
+use App\Models\User;
 use Carbon\Carbon;
 
 /**
@@ -18,17 +19,34 @@ class DashboardService
      * Get complete dashboard overview for supervisors/admins.
      *
      * Aggregates today's summary statistics, active trips, top violators,
-     * and overall performance metrics for employee monitoring.
+     * and overall performance metrics for employee monitoring. Includes
+     * historical comparison for trend analysis.
      *
-     * @return array Dashboard overview data with all metrics
+     * @return array Dashboard overview data with all metrics and trends
      */
     public function getOverview(): array
     {
+        $todaySummary = $this->getTodaySummary();
+        $yesterdaySummary = $this->getYesterdaySummary();
+
         return [
-            'today_summary' => $this->getTodaySummary(),
+            'today_summary' => $todaySummary,
+            'yesterday_summary' => $yesterdaySummary,
+            'trends' => [
+                'trips_change' => $this->calculatePercentageChange(
+                    $yesterdaySummary['total_trips'],
+                    $todaySummary['total_trips']
+                ),
+                'violations_change' => $this->calculatePercentageChange(
+                    $yesterdaySummary['violations_count'],
+                    $todaySummary['violations_count']
+                ),
+            ],
             'active_trips' => $this->getActiveTrips(),
             'top_violators' => $this->getTopViolators(5),
             'average_speed' => $this->getAverageSpeedAllEmployees(),
+            'employee_summary' => $this->getEmployeeSummary(),
+            'recent_alerts' => $this->getRecentAlerts(),
         ];
     }
 
@@ -54,6 +72,123 @@ class DashboardService
             'total_trips' => $totalTrips,
             'violations_count' => $violationsCount,
         ];
+    }
+
+    /**
+     * Get yesterday's summary statistics for trend comparison.
+     *
+     * Calculates total trips and violations from yesterday to enable
+     * day-over-day trend analysis on the dashboard.
+     *
+     * @return array Summary with total_trips and violations_count for yesterday
+     */
+    private function getYesterdaySummary(): array
+    {
+        $yesterdayStart = now()->subDay()->startOfDay();
+        $yesterdayEnd = now()->subDay()->endOfDay();
+
+        $totalTrips = Trip::whereBetween('started_at', [$yesterdayStart, $yesterdayEnd])->count();
+
+        $violationsCount = Trip::whereBetween('started_at', [$yesterdayStart, $yesterdayEnd])
+            ->sum('violation_count');
+
+        return [
+            'total_trips' => $totalTrips,
+            'violations_count' => $violationsCount,
+        ];
+    }
+
+    /**
+     * Calculate percentage change between two values.
+     *
+     * Computes the percentage difference from old value to new value.
+     * Handles division by zero by returning 0 when old value is 0.
+     *
+     * @param  int|float  $oldValue  Previous period value
+     * @param  int|float  $newValue  Current period value
+     * @return float Percentage change (positive = increase, negative = decrease)
+     */
+    private function calculatePercentageChange(int|float $oldValue, int|float $newValue): float
+    {
+        if ($oldValue == 0) {
+            return $newValue > 0 ? 100.0 : 0.0;
+        }
+
+        return round((($newValue - $oldValue) / $oldValue) * 100, 1);
+    }
+
+    /**
+     * Get employee summary statistics for today.
+     *
+     * Aggregates total employee count, active employees today, and identifies
+     * the top performer by trip count. Used for dashboard employee widget.
+     *
+     * @return array Employee summary with totals and top performer
+     */
+    private function getEmployeeSummary(): array
+    {
+        $todayStart = now()->startOfDay();
+        $todayEnd = now()->endOfDay();
+
+        // Total employees with 'employee' role
+        $totalEmployees = User::whereHas('roles', function ($query) {
+            $query->where('name', 'employee');
+        })->count();
+
+        // Active employees today (have at least one trip today)
+        $activeToday = Trip::whereBetween('started_at', [$todayStart, $todayEnd])
+            ->distinct('user_id')
+            ->count('user_id');
+
+        // Top performer by trip count today
+        $topPerformer = Trip::selectRaw('user_id, COUNT(*) as trip_count')
+            ->with('user:id,name')
+            ->whereBetween('started_at', [$todayStart, $todayEnd])
+            ->groupBy('user_id')
+            ->orderByDesc('trip_count')
+            ->first();
+
+        return [
+            'total_employees' => $totalEmployees,
+            'active_today' => $activeToday,
+            'top_performer' => $topPerformer ? [
+                'name' => $topPerformer->user->name,
+                'trip_count' => (int) $topPerformer->trip_count,
+            ] : null,
+        ];
+    }
+
+    /**
+     * Get recent high-violation alerts from the last hour.
+     *
+     * Retrieves trips with high violation counts (>= 5) from the past hour
+     * to provide real-time alerts for supervisor intervention.
+     *
+     * @return array Array of recent alerts with user and violation data
+     */
+    private function getRecentAlerts(): array
+    {
+        $oneHourAgo = now()->subHour();
+
+        return Trip::with('user:id,name,email')
+            ->where('started_at', '>=', $oneHourAgo)
+            ->where('violation_count', '>=', 5)
+            ->orderBy('started_at', 'desc')
+            ->take(5)
+            ->get()
+            ->map(function ($trip) {
+                return [
+                    'id' => $trip->id,
+                    'user' => [
+                        'name' => $trip->user->name,
+                        'email' => $trip->user->email,
+                    ],
+                    'violation_count' => $trip->violation_count,
+                    'started_at' => $trip->started_at->toIso8601String(),
+                ];
+            })
+            ->values()
+            ->toArray();
     }
 
     /**

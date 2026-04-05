@@ -88,13 +88,18 @@ function getRankColorClasses(rank: number): string {
         <!-- ======================================================================
             Header
         ======================================================================= -->
-        <div class="border-b border-[#3E3E3A] px-6 py-4">
-            <h3 class="text-lg font-semibold text-[#EDEDEC]">
-                Recent Violations
-            </h3>
-            <p class="mt-1 text-sm text-[#A1A09A]">
-                Top 5 employees by violation count today
-            </p>
+        <div class="flex items-start justify-between border-b border-[#3E3E3A] px-6 py-4">
+            <div class="flex-1">
+                <h3 class="text-lg font-semibold text-[#EDEDEC]">
+                    Recent Violations
+                </h3>
+                <p class="mt-1 text-sm text-[#A1A09A]">
+                    Top 5 employees by violation count today
+                </p>
+            </div>
+            <div v-if="$slots.actions" class="ml-4">
+                <slot name="actions" />
+            </div>
         </div>
 
         <!-- ======================================================================
