@@ -305,7 +305,7 @@ onBeforeUnmount(() => {
             <!-- Header -->
             <header class="velo-header">
                 <div class="header-left">
-                    <div class="velo-logo">Velo<span>Track</span></div>
+                    <div class="velo-logo">Speed<span>Monitor</span></div>
                 </div>
                 <div class="status-indicator">
                     <div :class="['status-dot', gpsStatusClass]" />
