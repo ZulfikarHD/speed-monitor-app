@@ -17,6 +17,8 @@
  * @example Route: /employee/statistics
  */
 
+import { ref } from 'vue';
+
 import { Link, router } from '@inertiajs/vue3';
 import { ArrowRight, BarChart3 } from '@lucide/vue';
 
@@ -123,8 +125,13 @@ function handleApply(): void {
 
                 <!-- Period Selector -->
                 <PeriodSelector
-                    :model-value="currentPeriod"
+                    :model-value="selectedPeriod"
+                    :date-from="localDateFrom"
+                    :date-to="localDateTo"
                     @update:model-value="handlePeriodChange"
+                    @update:date-from="handleDateFromChange"
+                    @update:date-to="handleDateToChange"
+                    @apply="handleApply"
                 />
             </div>
 
@@ -134,7 +141,7 @@ function handleApply(): void {
             <div class="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Trips -->
                 <StatCard
-                    :key="`trips-${currentPeriod}-${statistics.summary.total_trips}`"
+                    :key="`trips-${currentPeriod}-${dateFrom}-${dateTo}-${statistics.summary.total_trips}`"
                     title="Total Perjalanan"
                     :value="statistics.summary.total_trips"
                     unit="perjalanan selesai"
@@ -144,7 +151,7 @@ function handleApply(): void {
 
                 <!-- Total Distance -->
                 <StatCard
-                    :key="`distance-${currentPeriod}-${statistics.summary.total_distance}`"
+                    :key="`distance-${currentPeriod}-${dateFrom}-${dateTo}-${statistics.summary.total_distance}`"
                     title="Total Jarak"
                     :value="statistics.summary.total_distance"
                     unit="kilometer"
@@ -154,7 +161,7 @@ function handleApply(): void {
 
                 <!-- Average Speed -->
                 <StatCard
-                    :key="`speed-${currentPeriod}-${statistics.summary.average_speed}`"
+                    :key="`speed-${currentPeriod}-${dateFrom}-${dateTo}-${statistics.summary.average_speed}`"
                     title="Kecepatan Rata-rata"
                     :value="statistics.summary.average_speed"
                     unit="km/h"
@@ -164,7 +171,7 @@ function handleApply(): void {
 
                 <!-- Violations -->
                 <StatCard
-                    :key="`violations-${currentPeriod}-${statistics.summary.violation_count}`"
+                    :key="`violations-${currentPeriod}-${dateFrom}-${dateTo}-${statistics.summary.violation_count}`"
                     title="Pelanggaran"
                     :value="statistics.summary.violation_count"
                     unit="melampaui batas kecepatan"
@@ -179,14 +186,14 @@ function handleApply(): void {
             <div class="space-y-6">
                 <!-- Trips Over Time Chart -->
                 <TripsChart
-                    :key="`trips-chart-${currentPeriod}`"
+                    :key="`trips-chart-${currentPeriod}-${dateFrom}-${dateTo}`"
                     :data="statistics.charts.trips_over_time"
                     :period="currentPeriod"
                 />
 
                 <!-- Violations Over Time Chart -->
                 <ViolationsChart
-                    :key="`violations-chart-${currentPeriod}`"
+                    :key="`violations-chart-${currentPeriod}-${dateFrom}-${dateTo}`"
                     :data="statistics.charts.violations_over_time"
                     :period="currentPeriod"
                 />

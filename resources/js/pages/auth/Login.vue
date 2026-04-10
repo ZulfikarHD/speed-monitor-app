@@ -214,23 +214,6 @@ const handleSubmit = (): void => {
                         <span v-else>Masuk</span>
                     </button>
                 </form>
-
-                <!-- Test Accounts Info (Development) -->
-                <div
-                    class="mt-8 rounded-lg border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-zinc-800/30 px-4 py-3"
-                >
-                    <p class="mb-2 text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                        Akun Uji Coba
-                    </p>
-                    <div class="space-y-1 text-xs text-zinc-600 dark:text-zinc-400 font-mono">
-                        <p>Admin: admin@example.com</p>
-                        <p>Superuser: superuser@example.com</p>
-                        <p>Employee: employee@example.com</p>
-                        <p class="mt-2 pt-2 border-t border-zinc-200 dark:border-white/10">
-                            Kata sandi: <span class="text-zinc-700 dark:text-zinc-300">password</span>
-                        </p>
-                    </div>
-                </div>
             </div>
 
             <!-- Footer -->
