@@ -28,6 +28,7 @@ interface TripListFiltersProps {
     dateTo?: string;
     status?: TripStatus | '';
     vehicleType?: string;
+    shiftType?: string;
 }
 
 interface TripListFiltersEmits {
@@ -35,6 +36,7 @@ interface TripListFiltersEmits {
     (event: 'update:dateTo', value: string): void;
     (event: 'update:status', value: TripStatus | ''): void;
     (event: 'update:vehicleType', value: string): void;
+    (event: 'update:shiftType', value: string): void;
     (event: 'apply'): void;
     (event: 'reset'): void;
 }
@@ -44,6 +46,7 @@ const props = withDefaults(defineProps<TripListFiltersProps>(), {
     dateTo: '',
     status: '',
     vehicleType: '',
+    shiftType: '',
 });
 
 const emit = defineEmits<TripListFiltersEmits>();
@@ -53,6 +56,7 @@ const localDateFrom = ref(props.dateFrom);
 const localDateTo = ref(props.dateTo);
 const localStatus = ref<TripStatus | ''>(props.status);
 const localVehicleType = ref(props.vehicleType);
+const localShiftType = ref(props.shiftType);
 
 watch(
     () => props.dateFrom,
@@ -82,6 +86,13 @@ watch(
     },
 );
 
+watch(
+    () => props.shiftType,
+    (newValue) => {
+        localShiftType.value = newValue;
+    },
+);
+
 const todayDate = getTodayDate();
 
 function handleApply(): void {
@@ -89,6 +100,7 @@ function handleApply(): void {
     emit('update:dateTo', localDateTo.value);
     emit('update:status', localStatus.value);
     emit('update:vehicleType', localVehicleType.value);
+    emit('update:shiftType', localShiftType.value);
     emit('apply');
 }
 
@@ -97,15 +109,17 @@ function handleReset(): void {
     localDateTo.value = '';
     localStatus.value = '';
     localVehicleType.value = '';
+    localShiftType.value = '';
     emit('update:dateFrom', '');
     emit('update:dateTo', '');
     emit('update:status', '');
     emit('update:vehicleType', '');
+    emit('update:shiftType', '');
     emit('reset');
 }
 
 const hasActiveFilters = computed(() => {
-    return !!(localDateFrom.value || localDateTo.value || localStatus.value || localVehicleType.value);
+    return !!(localDateFrom.value || localDateTo.value || localStatus.value || localVehicleType.value || localShiftType.value);
 });
 
 const activeFilterCount = computed(() => {
@@ -124,6 +138,10 @@ count++;
 }
 
     if (localVehicleType.value) {
+count++;
+}
+
+    if (localShiftType.value) {
 count++;
 }
 
@@ -163,7 +181,7 @@ count++;
         >
             <div class="overflow-hidden">
                 <div class="mt-3 rounded-lg border border-zinc-200/80 bg-white/95 p-4 shadow-lg shadow-zinc-900/5 ring-1 ring-white/20 dark:border-white/10 dark:bg-zinc-800/95 dark:shadow-cyan-500/5 dark:ring-white/5">
-                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
                         <div>
                             <label
                                 for="filter-date-from"
@@ -235,6 +253,26 @@ count++;
                                 <option value="">Semua Kendaraan</option>
                                 <option value="mobil">Mobil</option>
                                 <option value="motor">Motor</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label
+                                for="filter-shift-type"
+                                class="mb-2 block text-xs font-medium text-zinc-600 dark:text-zinc-400"
+                            >
+                                Shift
+                            </label>
+                            <select
+                                id="filter-shift-type"
+                                v-model="localShiftType"
+                                class="w-full rounded-lg border border-zinc-300 bg-zinc-100/90 px-3 py-2 text-sm text-zinc-900 transition-all duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:border-white/10 dark:bg-zinc-900/60 dark:text-white dark:focus:border-cyan-400 dark:focus:ring-cyan-400/50"
+                                aria-label="Filter berdasarkan shift"
+                            >
+                                <option value="">Semua Shift</option>
+                                <option value="non_shift">Non Shift</option>
+                                <option value="shift_pagi">Shift Pagi</option>
+                                <option value="shift_malam">Shift Malam</option>
                             </select>
                         </div>
 

@@ -16,7 +16,7 @@ const authStore = useAuthStore();
 </script>
 
 <template>
-    <EmployeeLayout title="Dasbor">
+    <EmployeeLayout title="Dashboard">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- ============================================================
                 Page Header
@@ -26,7 +26,7 @@ const authStore = useAuthStore();
                     class="text-3xl font-bold text-zinc-900 dark:text-white"
                     style="font-family: 'Bebas Neue', sans-serif"
                 >
-                    Dasbor
+                    Dashboard
                 </h1>
                 <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                     Selamat datang, {{ authStore.user?.name }}!

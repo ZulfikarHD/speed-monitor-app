@@ -152,6 +152,7 @@ const chartOptions = computed<ChartOptions<'line'>>(() => ({
             callbacks: {
                 label: function (context) {
                     const value = context.parsed.y ?? 0;
+
                     return `${context.dataset.label}: ${value.toFixed(1)} km/h`;
                 },
             },

@@ -59,6 +59,7 @@ interface Props {
         date_from: string;
         date_to: string;
         vehicle_type: string;
+        shift_type: string;
     };
 }
 
@@ -93,6 +94,7 @@ const localFilters = ref({
     date_from: props.filters.date_from,
     date_to: props.filters.date_to,
     vehicle_type: props.filters.vehicle_type,
+    shift_type: props.filters.shift_type,
 });
 
 /** Pending sync count for offline indicator */
@@ -125,6 +127,7 @@ function handleApplyFilters(): void {
             date_from: localFilters.value.date_from || undefined,
             date_to: localFilters.value.date_to || undefined,
             vehicle_type: localFilters.value.vehicle_type || undefined,
+            shift_type: localFilters.value.shift_type || undefined,
             page: 1,
         },
         {
@@ -143,6 +146,7 @@ function handleResetFilters(): void {
         date_from: '',
         date_to: '',
         vehicle_type: '',
+        shift_type: '',
     };
 
     router.get(
@@ -169,6 +173,7 @@ function handlePageChange(page: number): void {
             date_from: props.filters.date_from || undefined,
             date_to: props.filters.date_to || undefined,
             vehicle_type: props.filters.vehicle_type || undefined,
+            shift_type: props.filters.shift_type || undefined,
         },
         {
             preserveState: true,
@@ -213,7 +218,7 @@ async function handleManualSync(): Promise<void> {
  * Check if there are any active filters.
  */
 const hasActiveFilters = computed(() => {
-    return !!(props.filters.status || props.filters.date_from || props.filters.date_to || props.filters.vehicle_type);
+    return !!(props.filters.status || props.filters.date_from || props.filters.date_to || props.filters.vehicle_type || props.filters.shift_type);
 });
 
 /**
@@ -343,6 +348,7 @@ const updatePendingSyncCount = async (): Promise<void> => {
                     v-model:date-from="localFilters.date_from"
                     v-model:date-to="localFilters.date_to"
                     v-model:vehicle-type="localFilters.vehicle_type"
+                    v-model:shift-type="localFilters.shift_type"
                     @apply="handleApplyFilters"
                     @reset="handleResetFilters"
                 />

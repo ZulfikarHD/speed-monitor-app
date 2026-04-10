@@ -49,6 +49,9 @@ interface SuperuserTripFiltersProps {
     /** Filter: vehicle type */
     vehicleType?: string;
 
+    /** Filter: shift type */
+    shiftType?: string;
+
     /** Sort field */
     sortBy?: string;
 
@@ -63,6 +66,7 @@ const props = withDefaults(defineProps<SuperuserTripFiltersProps>(), {
     status: '',
     violationsOnly: false,
     vehicleType: '',
+    shiftType: '',
     sortBy: 'started_at',
     sortOrder: 'desc',
 });
@@ -78,6 +82,7 @@ interface SuperuserTripFiltersEmits {
     (event: 'update:status', value: TripStatus | ''): void;
     (event: 'update:violationsOnly', value: boolean): void;
     (event: 'update:vehicleType', value: string): void;
+    (event: 'update:shiftType', value: string): void;
     (event: 'update:sortBy', value: string): void;
     (event: 'update:sortOrder', value: 'asc' | 'desc'): void;
     (event: 'apply'): void;
@@ -97,6 +102,7 @@ const localDateTo = ref(props.dateTo);
 const localStatus = ref<TripStatus | ''>(props.status);
 const localViolationsOnly = ref(props.violationsOnly);
 const localVehicleType = ref(props.vehicleType);
+const localShiftType = ref(props.shiftType);
 const localSortBy = ref(props.sortBy);
 const localSortOrder = ref<'asc' | 'desc'>(props.sortOrder);
 
@@ -147,6 +153,13 @@ watch(
 );
 
 watch(
+    () => props.shiftType,
+    (newValue) => {
+        localShiftType.value = newValue;
+    }
+);
+
+watch(
     () => props.sortBy,
     (newValue) => {
         localSortBy.value = newValue;
@@ -177,7 +190,8 @@ const hasActiveFilters = computed(() => {
         localDateTo.value ||
         localStatus.value ||
         localViolationsOnly.value ||
-        localVehicleType.value
+        localVehicleType.value ||
+        localShiftType.value
     );
 });
 
@@ -211,6 +225,10 @@ count++;
 count++;
 }
 
+    if (localShiftType.value) {
+count++;
+}
+
     return count;
 });
 
@@ -236,6 +254,7 @@ function handleApply(): void {
     emit('update:status', localStatus.value);
     emit('update:violationsOnly', localViolationsOnly.value);
     emit('update:vehicleType', localVehicleType.value);
+    emit('update:shiftType', localShiftType.value);
     emit('update:sortBy', localSortBy.value);
     emit('update:sortOrder', localSortOrder.value);
     emit('apply');
@@ -251,6 +270,7 @@ function handleReset(): void {
     localStatus.value = '';
     localViolationsOnly.value = false;
     localVehicleType.value = '';
+    localShiftType.value = '';
     localSortBy.value = 'started_at';
     localSortOrder.value = 'desc';
 
@@ -260,6 +280,7 @@ function handleReset(): void {
     emit('update:status', '');
     emit('update:violationsOnly', false);
     emit('update:vehicleType', '');
+    emit('update:shiftType', '');
     emit('update:sortBy', 'started_at');
     emit('update:sortOrder', 'desc');
     emit('reset');
@@ -306,7 +327,7 @@ function toggleSortOrder(): void {
             <div class="overflow-hidden">
                 <div class="mt-3 rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-4 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5">
                     <!-- Filter Controls Grid -->
-                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-7">
                         <!-- Employee Dropdown -->
                         <div>
                             <label
@@ -407,6 +428,27 @@ function toggleSortOrder(): void {
                                 <option value="">Semua Kendaraan</option>
                                 <option value="mobil">Mobil</option>
                                 <option value="motor">Motor</option>
+                            </select>
+                        </div>
+
+                        <!-- Shift Type -->
+                        <div>
+                            <label
+                                for="filter-shift-type"
+                                class="mb-2 block text-xs font-medium text-zinc-500 dark:text-zinc-400"
+                            >
+                                Shift
+                            </label>
+                            <select
+                                id="filter-shift-type"
+                                v-model="localShiftType"
+                                class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50"
+                                aria-label="Filter berdasarkan shift"
+                            >
+                                <option value="">Semua Shift</option>
+                                <option value="non_shift">Non Shift</option>
+                                <option value="shift_pagi">Shift Pagi</option>
+                                <option value="shift_malam">Shift Malam</option>
                             </select>
                         </div>
 

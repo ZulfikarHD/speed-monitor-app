@@ -234,7 +234,7 @@ async function handleManualRefresh(): Promise<void> {
 </script>
 
 <template>
-    <SuperuserLayout title="Ringkasan Dasbor">
+    <SuperuserLayout title="Ringkasan Dashboard">
         <div class="min-h-screen p-4 md:p-6 lg:p-8">
             <div class="mx-auto max-w-7xl space-y-6">
                 <!-- Header Section with Date Filter -->
@@ -247,7 +247,7 @@ async function handleManualRefresh(): Promise<void> {
                     <!-- Title -->
                     <div class="flex-1">
                         <h1 class="text-3xl font-bold text-zinc-900 dark:text-white md:text-4xl">
-                            Ringkasan Dasbor
+                            Ringkasan Dashboard
                         </h1>
                         <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                             Pemantauan kepatuhan perjalanan karyawan secara real-time
@@ -270,7 +270,7 @@ async function handleManualRefresh(): Promise<void> {
                         <button
                             :disabled="isLoading"
                             class="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white transition-colors duration-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50"
-                            aria-label="Segarkan dasbor"
+                            aria-label="Segarkan dashboard"
                             @click="handleManualRefresh"
                         >
                             <RefreshCw :size="18" :stroke-width="2" aria-hidden="true" />
@@ -289,7 +289,7 @@ async function handleManualRefresh(): Promise<void> {
                     <div class="flex items-start gap-3">
                         <AlertTriangle :size="24" :stroke-width="2" class="text-red-600 dark:text-red-400" aria-hidden="true" />
                         <div class="flex-1">
-                            <h3 class="font-semibold text-red-800 dark:text-red-400">Gagal Memuat Data Dasbor</h3>
+                            <h3 class="font-semibold text-red-800 dark:text-red-400">Gagal Memuat Data Dashboard</h3>
                             <p class="mt-1 text-sm text-red-700 dark:text-red-300">
                                 {{ error }}
                             </p>

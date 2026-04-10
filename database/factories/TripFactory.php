@@ -45,6 +45,8 @@ class TripFactory extends Factory
             'violation_count' => 0,
             'duration_seconds' => null,
             'notes' => null,
+            'shift_type' => fake()->randomElement(['non_shift', 'shift_pagi', 'shift_malam']),
+            'vehicle_type' => fake()->randomElement(['mobil', 'motor']),
             'synced_at' => null,
         ];
     }

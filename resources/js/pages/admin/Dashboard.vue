@@ -50,7 +50,7 @@ const { handleLogout, isLoading } = useAuth();
 </script>
 
 <template>
-    <SuperuserLayout title="Dasbor Admin">
+    <SuperuserLayout title="Dashboard Admin">
         <div class="p-4 md:p-6 lg:p-8">
             <div class="mx-auto max-w-5xl space-y-6">
                 <!-- Header Section -->
@@ -60,7 +60,7 @@ const { handleLogout, isLoading } = useAuth();
                     :transition="{ duration: 0.25 }"
                 >
                     <h1 class="text-2xl font-semibold text-zinc-900 dark:text-white md:text-3xl">
-                        Dasbor Admin
+                        Dashboard Admin
                     </h1>
                     <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                         Kelola sistem dan konfigurasi aplikasi
@@ -184,7 +184,7 @@ const { handleLogout, isLoading } = useAuth();
                                     />
                                 </div>
                                 <h4 class="text-sm font-semibold text-zinc-900 dark:text-white">
-                                    Dasbor Superuser
+                                    Dashboard Superuser
                                 </h4>
                                 <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                                     Monitoring perjalanan, statistik, dan data karyawan

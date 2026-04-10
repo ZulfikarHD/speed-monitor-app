@@ -20,13 +20,12 @@
 
 
 import { Link, router } from '@inertiajs/vue3';
-import { ArrowRight, BarChart3 } from '@lucide/vue';
+import { ArrowRight, BarChart3, BarChart4, LineChart } from '@lucide/vue';
 import { ref } from 'vue';
 
-import { index as speedometerRoutes } from '@/actions/App/Http/Controllers/Employee/SpeedometerController';
+import { index as speedometerIndex } from '@/actions/App/Http/Controllers/Employee/SpeedometerController';
 import { index } from '@/actions/App/Http/Controllers/Employee/StatisticsController';
 
-const speedometerIndex = speedometerRoutes['/employee/speedometer'];
 import AvgSpeedOverTimeChart from '@/components/charts/AvgSpeedOverTimeChart.vue';
 import MaxSpeedChart from '@/components/charts/MaxSpeedChart.vue';
 import PeriodSelector from '@/components/statistics/PeriodSelector.vue';
@@ -62,6 +61,7 @@ const props = withDefaults(defineProps<Props>(), {
 const selectedPeriod = ref<Period>(props.currentPeriod);
 const localDateFrom = ref(props.dateFrom);
 const localDateTo = ref(props.dateTo);
+const chartType = ref<'line' | 'bar'>('line');
 
 // ========================================================================
 // Methods
@@ -109,7 +109,7 @@ function handleApply(): void {
     <EmployeeLayout title="Statistik Saya">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- ================================================================
-                Page Header with Period Selector
+                Page Header with Period Selector & Chart Type Toggle
             ================================================================ -->
             <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <!-- Page Title -->
@@ -125,16 +125,48 @@ function handleApply(): void {
                     </p>
                 </div>
 
-                <!-- Period Selector -->
-                <PeriodSelector
-                    :model-value="selectedPeriod"
-                    :date-from="localDateFrom"
-                    :date-to="localDateTo"
-                    @update:model-value="handlePeriodChange"
-                    @update:date-from="handleDateFromChange"
-                    @update:date-to="handleDateToChange"
-                    @apply="handleApply"
-                />
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <!-- Chart Type Toggle -->
+                    <div class="flex gap-2 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-900">
+                        <button
+                            type="button"
+                            :class="[
+                                'flex min-h-[44px] items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200',
+                                chartType === 'line'
+                                    ? 'bg-white text-cyan-600 shadow-sm dark:bg-zinc-800 dark:text-cyan-400'
+                                    : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200',
+                            ]"
+                            @click="chartType = 'line'"
+                        >
+                            <LineChart :size="18" :stroke-width="2" />
+                            <span>Line</span>
+                        </button>
+                        <button
+                            type="button"
+                            :class="[
+                                'flex min-h-[44px] items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200',
+                                chartType === 'bar'
+                                    ? 'bg-white text-cyan-600 shadow-sm dark:bg-zinc-800 dark:text-cyan-400'
+                                    : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200',
+                            ]"
+                            @click="chartType = 'bar'"
+                        >
+                            <BarChart4 :size="18" :stroke-width="2" />
+                            <span>Bar</span>
+                        </button>
+                    </div>
+
+                    <!-- Period Selector -->
+                    <PeriodSelector
+                        :model-value="selectedPeriod"
+                        :date-from="localDateFrom"
+                        :date-to="localDateTo"
+                        @update:model-value="handlePeriodChange"
+                        @update:date-from="handleDateFromChange"
+                        @update:date-to="handleDateToChange"
+                        @apply="handleApply"
+                    />
+                </div>
             </div>
 
             <!-- ================================================================
@@ -249,7 +281,7 @@ function handleApply(): void {
                     Mulai lacak perjalanan Anda dengan speedometer untuk melihat statistik di sini.
                 </p>
                 <Link
-                    :href="speedometerIndex.url()"
+                    :href="speedometerIndex['/employee/speedometer'].url()"
                     class="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:shadow-lg dark:from-cyan-500 dark:to-blue-600 dark:hover:shadow-cyan-500/25"
                 >
                     <span>Mulai Speedometer</span>

@@ -79,7 +79,7 @@ const localSpeedLimit = ref<number>(60);
 const lastPosition = ref<{ lat: number; lon: number } | null>(null);
 const pendingSyncCount = ref<number>(0);
 
-const selectedShift = ref<string>('non_shift');
+const selectedShift = ref<string>('shift_pagi');
 const selectedVehicle = ref<string>('mobil');
 
 // ========================================================================
@@ -494,16 +494,15 @@ onBeforeUnmount(() => {
                 <!-- Shift Type -->
                 <div>
                     <div class="text-[9px] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068] mb-1.5">Shift</div>
-                    <div class="grid grid-cols-3 gap-1">
+                    <div class="grid grid-cols-2 gap-1">
                         <button
                             v-for="opt in [
-                                { value: 'non_shift', label: 'Non Shift' },
                                 { value: 'shift_pagi', label: 'Pagi' },
                                 { value: 'shift_malam', label: 'Malam' },
                             ]"
                             :key="opt.value"
                             type="button"
-                            class="rounded-md px-1.5 py-1.5 text-[11px] font-medium transition-all duration-200 text-center"
+                            class="rounded-md px-2 py-1.5 text-[11px] font-medium transition-all duration-200 text-center"
                             :class="selectedShift === opt.value
                                 ? 'bg-cyan-600 text-white shadow-sm'
                                 : 'bg-white dark:bg-[#0a0c0f] text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-[#1e2230]'"

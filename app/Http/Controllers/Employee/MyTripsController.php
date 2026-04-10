@@ -60,6 +60,11 @@ class MyTripsController extends Controller
             $query->where('vehicle_type', $request->input('vehicle_type'));
         }
 
+        // Apply shift type filter
+        if ($request->has('shift_type')) {
+            $query->where('shift_type', $request->input('shift_type'));
+        }
+
         // Order by most recent first
         $query->orderBy('started_at', 'desc');
 
@@ -82,6 +87,7 @@ class MyTripsController extends Controller
                 'date_from' => $request->input('date_from', ''),
                 'date_to' => $request->input('date_to', ''),
                 'vehicle_type' => $request->input('vehicle_type', ''),
+                'shift_type' => $request->input('shift_type', ''),
             ],
         ]);
     }

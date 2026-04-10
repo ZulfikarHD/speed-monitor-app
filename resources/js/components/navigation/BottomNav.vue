@@ -50,7 +50,7 @@ interface NavItem {
 
 /** Employee navigation items (mobile) */
 const employeeNavItems: NavItem[] = [
-    { id: 'dashboard', label: 'Dasbor', icon: Home, href: '/employee/dashboard' },
+    { id: 'dashboard', label: 'Dashboard', icon: Home, href: '/employee/dashboard' },
     { id: 'speedometer', label: 'Speedometer', icon: Gauge, href: '/employee/speedometer' },
     { id: 'trips', label: 'Perjalanan', icon: ClipboardList, href: '/employee/my-trips' },
     { id: 'statistics', label: 'Statistik', icon: BarChart3, href: '/employee/statistics' },
@@ -59,7 +59,7 @@ const employeeNavItems: NavItem[] = [
 
 /** Superuser/Admin primary navigation items (mobile — shown in bottom bar) */
 const superuserPrimaryNavItems: NavItem[] = [
-    { id: 'dashboard', label: 'Dasbor', icon: BarChart3, href: '/superuser/dashboard' },
+    { id: 'dashboard', label: 'Dashboard', icon: BarChart3, href: '/superuser/dashboard' },
     { id: 'speedometer', label: 'Speedometer', icon: Gauge, href: '/superuser/speedometer' },
     { id: 'employees', label: 'Karyawan', icon: Users, href: '/superuser/employees' },
     { id: 'profile', label: 'Profil', icon: User, href: '/profile' },

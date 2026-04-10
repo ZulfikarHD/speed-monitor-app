@@ -10,112 +10,190 @@ use Illuminate\Database\Seeder;
 /**
  * Trip Seeder
  *
- * Seeds sample trips with speed logs for development and testing.
- * Creates a variety of trips including completed trips with and without
- * violations to provide realistic test data for the dashboard and reporting features.
+ * Seeds extensive trip data for all employees with realistic patterns.
+ * Generates trips over the last 30 days with varied shift types, vehicle types,
+ * and violation patterns to provide comprehensive test data for analytics,
+ * dashboards, and reporting features.
  */
 class TripSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     *
+     * Creates realistic trip data for each employee:
+     * - 10-20 trips per employee over the last 30 days
+     * - Mix of shift types (non_shift, shift_pagi, shift_malam)
+     * - Mix of vehicle types (mobil, motor)
+     * - 70% safe trips, 25% with minor violations, 5% with major violations
+     * - Some auto-stopped trips (5%)
+     * - Realistic speed logs for each trip
      */
     public function run(): void
     {
-        // Get employee users to assign trips to
         $employees = User::where('role', 'employee')->get();
 
         if ($employees->isEmpty()) {
-            // No employees to create trips for
             return;
         }
 
-        // Create 5 completed trips without violations
-        foreach ($employees->random(min(5, $employees->count())) as $employee) {
-            $trip = Trip::factory()
-                ->completed()
-                ->for($employee)
-                ->create();
+        $this->command->info('Creating trips for '.$employees->count().' employees...');
 
-            // Add 15-20 safe speed logs to this trip
-            SpeedLog::factory()
-                ->for($trip)
-                ->safe()
-                ->count(fake()->numberBetween(15, 20))
-                ->create([
-                    'recorded_at' => function () use ($trip) {
-                        return fake()->dateTimeBetween(
-                            $trip->started_at,
-                            $trip->ended_at
-                        );
-                    },
-                ]);
+        foreach ($employees as $employee) {
+            $tripsCount = fake()->numberBetween(10, 20);
+            $this->command->info("Generating {$tripsCount} trips for {$employee->name}...");
+
+            for ($i = 0; $i < $tripsCount; $i++) {
+                $this->createTripForEmployee($employee);
+            }
         }
 
-        // Create 3 completed trips with violations
-        foreach ($employees->random(min(3, $employees->count())) as $employee) {
-            $trip = Trip::factory()
-                ->completed()
-                ->withViolations()
-                ->for($employee)
-                ->create();
+        $totalTrips = Trip::count();
+        $this->command->info("Created {$totalTrips} total trips with speed logs!");
+    }
 
-            // Add mix of safe and violation speed logs
-            $safeLogsCount = fake()->numberBetween(10, 15);
-            $violationLogsCount = fake()->numberBetween(3, 8);
+    /**
+     * Create a single trip for an employee with realistic data.
+     */
+    private function createTripForEmployee(User $employee): void
+    {
+        // Random date in the last 30 days
+        $daysAgo = fake()->numberBetween(0, 30);
+        $startedAt = now()->subDays($daysAgo)->setTime(
+            fake()->numberBetween(6, 20),
+            fake()->numberBetween(0, 59)
+        );
 
-            // Create safe speed logs
-            SpeedLog::factory()
-                ->for($trip)
-                ->safe()
-                ->count($safeLogsCount)
-                ->create([
-                    'recorded_at' => function () use ($trip) {
-                        return fake()->dateTimeBetween(
-                            $trip->started_at,
-                            $trip->ended_at
-                        );
-                    },
-                ]);
+        // Determine trip type with realistic distribution
+        $rand = fake()->numberBetween(1, 100);
 
-            // Create violation speed logs
-            SpeedLog::factory()
-                ->for($trip)
-                ->violation()
-                ->count($violationLogsCount)
-                ->create([
-                    'recorded_at' => function () use ($trip) {
-                        return fake()->dateTimeBetween(
-                            $trip->started_at,
-                            $trip->ended_at
-                        );
-                    },
-                ]);
+        if ($rand <= 5) {
+            // 5% auto-stopped trips
+            $this->createAutoStoppedTrip($employee, $startedAt);
+        } elseif ($rand <= 30) {
+            // 25% trips with violations
+            $this->createTripWithViolations($employee, $startedAt);
+        } else {
+            // 70% safe trips
+            $this->createSafeTrip($employee, $startedAt);
+        }
+    }
 
-            // Update trip violation count to match actual violations
-            $trip->update([
-                'violation_count' => $violationLogsCount,
+    /**
+     * Create a safe trip without violations.
+     */
+    private function createSafeTrip(User $employee, $startedAt): void
+    {
+        $endedAt = (clone $startedAt)->addMinutes(fake()->numberBetween(20, 120));
+
+        $trip = Trip::factory()
+            ->completed()
+            ->for($employee)
+            ->create([
+                'started_at' => $startedAt,
+                'ended_at' => $endedAt,
+                'duration_seconds' => $startedAt->diffInSeconds($endedAt),
             ]);
-        }
 
-        // Create 2 auto-stopped trips
-        foreach ($employees->random(min(2, $employees->count())) as $employee) {
-            $trip = Trip::factory()
-                ->autoStopped()
-                ->for($employee)
-                ->create();
+        // Add 20-40 safe speed logs
+        $logsCount = fake()->numberBetween(20, 40);
+        SpeedLog::factory()
+            ->for($trip)
+            ->safe()
+            ->count($logsCount)
+            ->create([
+                'recorded_at' => function () use ($trip) {
+                    return fake()->dateTimeBetween(
+                        $trip->started_at,
+                        $trip->ended_at
+                    );
+                },
+            ]);
+    }
 
-            // Add speed logs
-            SpeedLog::factory()
-                ->for($trip)
-                ->count(fake()->numberBetween(10, 15))
-                ->create([
-                    'recorded_at' => function () use ($trip) {
-                        return fake()->dateTimeBetween(
-                            $trip->started_at,
-                            $trip->ended_at
-                        );
-                    },
-                ]);
-        }
+    /**
+     * Create a trip with speed violations.
+     */
+    private function createTripWithViolations(User $employee, $startedAt): void
+    {
+        $endedAt = (clone $startedAt)->addMinutes(fake()->numberBetween(20, 120));
+
+        // Determine violation severity
+        $isMajorViolation = fake()->numberBetween(1, 100) <= 20; // 20% are major
+        $violationCount = $isMajorViolation
+            ? fake()->numberBetween(10, 20)
+            : fake()->numberBetween(3, 8);
+
+        $trip = Trip::factory()
+            ->completed()
+            ->withViolations()
+            ->for($employee)
+            ->create([
+                'started_at' => $startedAt,
+                'ended_at' => $endedAt,
+                'duration_seconds' => $startedAt->diffInSeconds($endedAt),
+                'violation_count' => $violationCount,
+            ]);
+
+        // Add mix of safe and violation speed logs
+        $safeLogsCount = fake()->numberBetween(20, 35);
+
+        // Create safe speed logs
+        SpeedLog::factory()
+            ->for($trip)
+            ->safe()
+            ->count($safeLogsCount)
+            ->create([
+                'recorded_at' => function () use ($trip) {
+                    return fake()->dateTimeBetween(
+                        $trip->started_at,
+                        $trip->ended_at
+                    );
+                },
+            ]);
+
+        // Create violation speed logs
+        SpeedLog::factory()
+            ->for($trip)
+            ->violation()
+            ->count($violationCount)
+            ->create([
+                'recorded_at' => function () use ($trip) {
+                    return fake()->dateTimeBetween(
+                        $trip->started_at,
+                        $trip->ended_at
+                    );
+                },
+            ]);
+    }
+
+    /**
+     * Create an auto-stopped trip.
+     */
+    private function createAutoStoppedTrip(User $employee, $startedAt): void
+    {
+        $endedAt = (clone $startedAt)->addMinutes(fake()->numberBetween(10, 40));
+
+        $trip = Trip::factory()
+            ->autoStopped()
+            ->for($employee)
+            ->create([
+                'started_at' => $startedAt,
+                'ended_at' => $endedAt,
+                'duration_seconds' => $startedAt->diffInSeconds($endedAt),
+            ]);
+
+        // Add fewer speed logs (trip was cut short)
+        $logsCount = fake()->numberBetween(5, 15);
+        SpeedLog::factory()
+            ->for($trip)
+            ->count($logsCount)
+            ->create([
+                'recorded_at' => function () use ($trip) {
+                    return fake()->dateTimeBetween(
+                        $trip->started_at,
+                        $trip->ended_at
+                    );
+                },
+            ]);
     }
 }

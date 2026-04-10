@@ -79,6 +79,11 @@ class AllTripsController extends Controller
             $query->where('vehicle_type', $request->input('vehicle_type'));
         }
 
+        // Apply shift type filter
+        if ($request->has('shift_type')) {
+            $query->where('shift_type', $request->input('shift_type'));
+        }
+
         // Apply sorting
         $sortBy = $request->input('sort_by', 'started_at');
         $sortOrder = $request->input('sort_order', 'desc');
@@ -113,6 +118,7 @@ class AllTripsController extends Controller
                 'status' => $request->input('status', ''),
                 'violations_only' => $request->boolean('violations_only', false),
                 'vehicle_type' => $request->input('vehicle_type', ''),
+                'shift_type' => $request->input('shift_type', ''),
             ],
             'sort' => [
                 'by' => $sortBy,
@@ -157,6 +163,10 @@ class AllTripsController extends Controller
             $chartQuery->where('vehicle_type', $request->input('vehicle_type'));
         }
 
+        if ($request->has('shift_type')) {
+            $chartQuery->where('shift_type', $request->input('shift_type'));
+        }
+
         $allTrips = $chartQuery->orderBy('started_at', 'desc')->limit(50)->get();
 
         $avgSpeedVsStandard = $allTrips->map(fn ($trip) => [
@@ -179,6 +189,7 @@ class AllTripsController extends Controller
             ->when($request->has('date_from'), fn ($q) => $q->whereDate('started_at', '>=', $request->input('date_from')))
             ->when($request->has('date_to'), fn ($q) => $q->whereDate('started_at', '<=', $request->input('date_to')))
             ->when($request->has('vehicle_type'), fn ($q) => $q->where('vehicle_type', $request->input('vehicle_type')))
+            ->when($request->has('shift_type'), fn ($q) => $q->where('shift_type', $request->input('shift_type')))
             ->groupBy('user_id')
             ->havingRaw('SUM(violation_count) > 0')
             ->orderByDesc('total_violations')
@@ -194,7 +205,8 @@ class AllTripsController extends Controller
             ->when($request->has('date_from'), fn ($q) => $q->whereDate('started_at', '>=', $request->input('date_from')))
             ->when($request->has('date_to'), fn ($q) => $q->whereDate('started_at', '<=', $request->input('date_to')))
             ->when($request->has('status'), fn ($q) => $q->where('status', $request->input('status')))
-            ->when($request->has('violations_only') && $request->boolean('violations_only'), fn ($q) => $q->where('violation_count', '>', 0));
+            ->when($request->has('violations_only') && $request->boolean('violations_only'), fn ($q) => $q->where('violation_count', '>', 0))
+            ->when($request->has('shift_type'), fn ($q) => $q->where('shift_type', $request->input('shift_type')));
 
         $vehicleDistribution = [
             'mobil' => (int) (clone $vehicleBaseQuery)->where('vehicle_type', 'mobil')->count(),
@@ -244,6 +256,10 @@ class AllTripsController extends Controller
 
         if ($request->has('violations_only') && $request->boolean('violations_only')) {
             $query->where('violation_count', '>', 0);
+        }
+
+        if ($request->has('shift_type')) {
+            $query->where('shift_type', $request->input('shift_type'));
         }
 
         // Sort by date (oldest first for exports)

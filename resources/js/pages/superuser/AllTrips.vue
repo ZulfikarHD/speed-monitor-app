@@ -68,6 +68,7 @@ interface Props {
         status: TripStatus | '';
         violations_only: boolean;
         vehicle_type: string;
+        shift_type: string;
     };
 
     /** Current sort configuration */
@@ -99,6 +100,7 @@ const localFilters = ref({
     status: props.filters.status,
     violationsOnly: props.filters.violations_only,
     vehicleType: props.filters.vehicle_type,
+    shiftType: props.filters.shift_type,
 });
 
 /** Local sort state (synced with props) */
@@ -119,7 +121,8 @@ const hasActiveFilters = computed(() => {
         props.filters.date_to ||
         props.filters.status ||
         props.filters.violations_only ||
-        props.filters.vehicle_type
+        props.filters.vehicle_type ||
+        props.filters.shift_type
     );
 });
 
@@ -169,6 +172,7 @@ function handleApplyFilters(): void {
             status: localFilters.value.status || undefined,
             violations_only: localFilters.value.violationsOnly || undefined,
             vehicle_type: localFilters.value.vehicleType || undefined,
+            shift_type: localFilters.value.shiftType || undefined,
             sort_by: localSort.value.by,
             sort_order: localSort.value.order,
             page: 1,
@@ -191,6 +195,7 @@ function handleResetFilters(): void {
         status: '',
         violationsOnly: false,
         vehicleType: '',
+        shiftType: '',
     };
 
     localSort.value = {
@@ -224,6 +229,7 @@ function handlePageChange(page: number): void {
             status: props.filters.status || undefined,
             violations_only: props.filters.violations_only || undefined,
             vehicle_type: props.filters.vehicle_type || undefined,
+            shift_type: props.filters.shift_type || undefined,
             sort_by: props.sort.by,
             sort_order: props.sort.order,
         },
@@ -357,6 +363,7 @@ function getViolationColor(count: number): string {
                     v-model:status="localFilters.status"
                     v-model:violations-only="localFilters.violationsOnly"
                     v-model:vehicle-type="localFilters.vehicleType"
+                    v-model:shift-type="localFilters.shiftType"
                     v-model:sort-by="localSort.by"
                     v-model:sort-order="localSort.order"
                     @apply="handleApplyFilters"
