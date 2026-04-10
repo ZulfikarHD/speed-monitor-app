@@ -2,12 +2,12 @@
 /**
  * PWA Install Prompt Component
  *
- * Custom install prompt banner for SpeedMonitor PWA.
+ * Custom install prompt banner for SafeTrack PWA.
  * Slide-up prompt encouraging users to install the app.
  *
  * Features:
  * - Slide-up entrance animation
- * - SpeedMonitor branding with gradient border
+ * - SafeTrack branding with gradient border
  * - Large touch targets per Fitts's Law
  * - Two actions: Install / Dismiss per Hick's Law
  * - Loading state during installation
@@ -94,7 +94,7 @@ const handleDismiss = (): void => {
                 <div class="p-6">
                     <!-- Icon & Text -->
                     <div class="mb-6 flex items-start gap-4">
-                        <!-- SpeedMonitor Icon -->
+                        <!-- SafeTrack Icon -->
                         <div
                             class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/30"
                         >
@@ -111,13 +111,13 @@ const handleDismiss = (): void => {
                                 id="install-prompt-title"
                                 class="mb-1 text-lg font-semibold text-zinc-900 dark:text-white"
                             >
-                                Install SpeedMonitor
+                                Install SafeTrack
                             </h3>
                             <p
                                 id="install-prompt-description"
                                 class="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400"
                             >
-                                Install SpeedMonitor ke layar utama untuk akses cepat dan
+                                Install SafeTrack ke layar utama untuk akses cepat dan
                                 pengalaman seperti aplikasi native.
                             </p>
                         </div>

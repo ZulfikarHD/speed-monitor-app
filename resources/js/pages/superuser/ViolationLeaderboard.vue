@@ -20,7 +20,7 @@
  */
 
 import { Link, router } from '@inertiajs/vue3';
-import { AlertTriangle, Medal, Trophy } from '@lucide/vue';
+import { AlertTriangle, ChevronDown, ChevronUp, Medal, SlidersHorizontal, Trophy } from '@lucide/vue';
 import { motion } from 'motion-v';
 import { computed, ref } from 'vue';
 
@@ -48,6 +48,9 @@ const props = defineProps<Props>();
 // ========================================================================
 // Local State
 // ========================================================================
+
+/** Whether filter panel is open */
+const isFilterOpen = ref(false);
 
 /** Local filter state (synced with props) */
 const localFilters = ref({
@@ -117,13 +120,13 @@ function getRankColorClasses(rank: number): string {
 }
 
 /**
- * Format violation rate for display.
+ * Format average distance for display.
  *
- * @param rate - Violation rate (violations per trip)
- * @returns Formatted string (e.g., "2.50 / trip")
+ * @param distance - Average distance in km
+ * @returns Formatted string (e.g., "12.50 km")
  */
-function formatRate(rate: number): string {
-    return `${rate.toFixed(2)} / trip`;
+function formatDistance(distance: number): string {
+    return `${distance.toFixed(2)} km`;
 }
 
 /**
@@ -203,60 +206,67 @@ function getEmployeeTripsUrl(userId: number): string {
                             </p>
                         </div>
 
-                        <!-- Date Range Filters -->
-                        <div
-                            class="flex flex-col gap-3 rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-4 sm:flex-row sm:items-end shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
-                        >
-                            <!-- From Date -->
-                            <div class="flex-1">
-                                <label
-                                    for="date-from"
-                                    class="mb-1 block text-sm font-medium text-zinc-900 dark:text-white"
-                                >
-                                    Dari Tanggal
-                                </label>
-                                <input
-                                    id="date-from"
-                                    v-model="localFilters.date_from"
-                                    type="date"
-                                    class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-zinc-900 dark:text-white transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-800"
-                                />
-                            </div>
+                        <!-- Collapsible Date Range Filters -->
+                        <div>
+                            <button
+                                type="button"
+                                class="flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all duration-200 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-amber-500/20 hover:shadow-amber-500/30 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-950"
+                                :aria-expanded="isFilterOpen"
+                                aria-controls="leaderboard-filter-panel"
+                                @click="isFilterOpen = !isFilterOpen"
+                            >
+                                <span class="flex items-center gap-2">
+                                    <SlidersHorizontal :size="16" :stroke-width="2" aria-hidden="true" />
+                                    <span>Filter Periode</span>
+                                </span>
+                                <ChevronUp v-if="isFilterOpen" :size="16" :stroke-width="2" aria-hidden="true" />
+                                <ChevronDown v-else :size="16" :stroke-width="2" aria-hidden="true" />
+                            </button>
 
-                            <!-- To Date -->
-                            <div class="flex-1">
-                                <label
-                                    for="date-to"
-                                    class="mb-1 block text-sm font-medium text-zinc-900 dark:text-white"
-                                >
-                                    Sampai Tanggal
-                                </label>
-                                <input
-                                    id="date-to"
-                                    v-model="localFilters.date_to"
-                                    type="date"
-                                    class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-zinc-900 dark:text-white transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-800"
-                                />
-                            </div>
-
-                            <!-- Action Buttons -->
-                            <div class="flex gap-2">
-                                <button
-                                    :disabled="!filtersModified"
-                                    class="rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 px-4 py-2 font-medium text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
-                                    aria-label="Terapkan filter"
-                                    @click="applyFilters"
-                                >
-                                    Terapkan
-                                </button>
-
-                                <button
-                                    class="rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-4 py-2 font-medium text-zinc-900 dark:text-zinc-200 transition-colors duration-200 hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
-                                    aria-label="Reset filters"
-                                    @click="resetFilters"
-                                >
-                                    Reset
-                                </button>
+                            <div
+                                id="leaderboard-filter-panel"
+                                class="grid transition-all duration-300 ease-in-out"
+                                :class="isFilterOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+                            >
+                                <div class="overflow-hidden">
+                                    <div
+                                        class="mt-3 flex flex-col gap-3 rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-4 sm:flex-row sm:items-end shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
+                                    >
+                                        <div class="flex-1">
+                                            <label for="date-from" class="mb-1 block text-sm font-medium text-zinc-900 dark:text-white">Dari Tanggal</label>
+                                            <input
+                                                id="date-from"
+                                                v-model="localFilters.date_from"
+                                                type="date"
+                                                class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-zinc-900 dark:text-white transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50"
+                                            />
+                                        </div>
+                                        <div class="flex-1">
+                                            <label for="date-to" class="mb-1 block text-sm font-medium text-zinc-900 dark:text-white">Sampai Tanggal</label>
+                                            <input
+                                                id="date-to"
+                                                v-model="localFilters.date_to"
+                                                type="date"
+                                                class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-zinc-900 dark:text-white transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50"
+                                            />
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <button
+                                                :disabled="!filtersModified"
+                                                class="rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 px-4 py-2 font-medium text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
+                                                @click="applyFilters"
+                                            >
+                                                Terapkan
+                                            </button>
+                                            <button
+                                                class="rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-4 py-2 font-medium text-zinc-900 dark:text-zinc-200 transition-colors duration-200 hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
+                                                @click="resetFilters"
+                                            >
+                                                Reset
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -298,7 +308,7 @@ function getEmployeeTripsUrl(userId: number): string {
                                 <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Karyawan</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Pelanggaran</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Total Perjalanan</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Rasio Pelanggaran</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Rata-rata Jarak Tempuh</th>
                                 <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Aksi</th>
                             </tr>
                         </thead>
@@ -355,9 +365,9 @@ function getEmployeeTripsUrl(userId: number): string {
                                     <span class="text-zinc-900 dark:text-white">{{ entry.total_trips }}</span>
                                 </td>
 
-                                <!-- Violation Rate -->
+                                <!-- Average Distance -->
                                 <td class="px-6 py-4">
-                                    <span class="text-zinc-500 dark:text-zinc-400">{{ formatRate(entry.violation_rate) }}</span>
+                                    <span class="text-cyan-600 dark:text-cyan-400 font-mono">{{ formatDistance(entry.average_distance) }}</span>
                                 </td>
 
                                 <!-- Actions -->
@@ -426,8 +436,8 @@ function getEmployeeTripsUrl(userId: number): string {
                                     <div class="text-xs text-zinc-500 dark:text-zinc-400">Perjalanan</div>
                                 </div>
                                 <div class="text-center">
-                                    <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ entry.violation_rate.toFixed(2) }}</div>
-                                    <div class="text-xs text-zinc-500 dark:text-zinc-400">Rasio</div>
+                                    <div class="text-2xl font-bold text-cyan-600 dark:text-cyan-400">{{ entry.average_distance.toFixed(2) }}</div>
+                                    <div class="text-xs text-zinc-500 dark:text-zinc-400">Jarak (km)</div>
                                 </div>
                             </div>
 

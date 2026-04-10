@@ -1,7 +1,7 @@
 /**
  * IconLock - Lock/security icon.
  *
- * SVG icon component following SpeedMonitor design system standards.
+ * SVG icon component following SafeTrack design system standards.
  * 2px stroke, currentColor, accepts size prop.
  */
 <script setup lang="ts">

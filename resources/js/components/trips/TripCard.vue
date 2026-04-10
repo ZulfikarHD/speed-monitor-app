@@ -35,9 +35,13 @@ import { formatDate, formatDuration, formatTime } from '@/utils/date';
 interface TripCardProps {
     /** Trip data to display */
     trip: Trip;
+    /** Speed limit from settings (km/h) */
+    speedLimit?: number;
 }
 
-const props = defineProps<TripCardProps>();
+const props = withDefaults(defineProps<TripCardProps>(), {
+    speedLimit: 60,
+});
 
 /**
  * Format distance for display.
@@ -122,6 +126,31 @@ function getViolationColor(count: number): string {
  */
 function handleClick(): void {
     router.visit(showWeb.url({ trip: props.trip.id }));
+}
+
+/**
+ * Get shift type display text.
+ */
+function getShiftLabel(shiftType: string | null): string {
+    const map: Record<string, string> = {
+        non_shift: 'Non Shift',
+        shift_pagi: 'Shift Pagi',
+        shift_malam: 'Shift Malam',
+    };
+
+    return shiftType ? map[shiftType] ?? '-' : '-';
+}
+
+/**
+ * Get vehicle type display text.
+ */
+function getVehicleLabel(vehicleType: string | null): string {
+    const map: Record<string, string> = {
+        mobil: 'Mobil',
+        motor: 'Motor',
+    };
+
+    return vehicleType ? map[vehicleType] ?? '-' : '-';
 }
 
 // ========================================================================
@@ -269,6 +298,48 @@ function getSyncStatusColor(): string {
                 >
                     {{ trip.violation_count }}
                 </span>
+            </div>
+
+            <div
+                class="rounded-lg border border-zinc-200/60 bg-zinc-100/90 p-3 dark:border-white/5 dark:bg-zinc-900/60"
+            >
+                <div class="mb-1 text-xs text-zinc-500 dark:text-zinc-400">Kec. Rata-Rata</div>
+                <div
+                    class="font-mono text-sm font-semibold text-blue-700 dark:text-blue-400"
+                    style="font-family: 'Share Tech Mono', monospace"
+                >
+                    {{ formatSpeed(trip.average_speed) }}
+                </div>
+            </div>
+
+            <div
+                class="rounded-lg border border-zinc-200/60 bg-zinc-100/90 p-3 dark:border-white/5 dark:bg-zinc-900/60"
+            >
+                <div class="mb-1 text-xs text-zinc-500 dark:text-zinc-400">Kec. Standar</div>
+                <div
+                    class="font-mono text-sm font-semibold text-emerald-700 dark:text-emerald-400"
+                    style="font-family: 'Share Tech Mono', monospace"
+                >
+                    {{ speedLimit }} km/h
+                </div>
+            </div>
+
+            <div
+                class="rounded-lg border border-zinc-200/60 bg-zinc-100/90 p-3 dark:border-white/5 dark:bg-zinc-900/60"
+            >
+                <div class="mb-1 text-xs text-zinc-500 dark:text-zinc-400">Shift</div>
+                <div class="text-sm font-medium text-zinc-900 dark:text-white">
+                    {{ getShiftLabel(trip.shift_type) }}
+                </div>
+            </div>
+
+            <div
+                class="rounded-lg border border-zinc-200/60 bg-zinc-100/90 p-3 dark:border-white/5 dark:bg-zinc-900/60"
+            >
+                <div class="mb-1 text-xs text-zinc-500 dark:text-zinc-400">Kendaraan</div>
+                <div class="text-sm font-medium text-zinc-900 dark:text-white">
+                    {{ getVehicleLabel(trip.vehicle_type) }}
+                </div>
             </div>
         </div>
 

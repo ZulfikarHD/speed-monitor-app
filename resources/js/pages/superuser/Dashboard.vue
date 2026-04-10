@@ -128,6 +128,16 @@ const averageSpeed = computed(() => {
     return dashboardData.value?.average_speed ?? 0;
 });
 
+/** Get average speed for mobil. */
+const averageSpeedMobil = computed(() => {
+    return dashboardData.value?.average_speed_mobil ?? 0;
+});
+
+/** Get average speed for motor. */
+const averageSpeedMotor = computed(() => {
+    return dashboardData.value?.average_speed_motor ?? 0;
+});
+
 /** Get trend indicators. */
 const trends = computed(() => {
     return dashboardData.value?.trends ?? { trips_change: 0, violations_change: 0 };
@@ -244,11 +254,8 @@ async function handleManualRefresh(): Promise<void> {
                         </p>
                     </div>
 
-                    <!-- Right Section: Date Filter + Refresh Controls -->
+                    <!-- Right Section: Refresh Controls -->
                     <div class="flex flex-wrap items-center gap-3">
-                        <!-- Date Range Filter -->
-                        <DateRangeFilter v-model="selectedDateRange" />
-
                         <!-- Last Updated -->
                         <div class="text-sm text-zinc-500 dark:text-zinc-400">Diperbarui: {{ lastUpdatedText }}</div>
 
@@ -305,8 +312,17 @@ async function handleManualRefresh(): Promise<void> {
                     <QuickActionsBar />
                 </motion.div>
 
+                <!-- Date Range Filter -->
+                <motion.div
+                    :initial="{ opacity: 0, y: 12 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :transition="{ delay: 0.08, duration: 0.3 }"
+                >
+                    <DateRangeFilter v-model="selectedDateRange" />
+                </motion.div>
+
                 <!-- Trend Stats Cards Grid -->
-                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     <motion.div
                         :initial="{ opacity: 0, y: 12 }"
                         :animate="{ opacity: 1, y: 0 }"
@@ -317,6 +333,7 @@ async function handleManualRefresh(): Promise<void> {
                             :value="activeTripsCount"
                             :trend-percentage="0"
                             :is-loading="isLoading"
+                            color="blue"
                         />
                     </motion.div>
 
@@ -330,6 +347,7 @@ async function handleManualRefresh(): Promise<void> {
                             :value="totalTripsToday"
                             :trend-percentage="trends.trips_change"
                             :is-loading="isLoading"
+                            color="green"
                         />
                     </motion.div>
 
@@ -343,6 +361,7 @@ async function handleManualRefresh(): Promise<void> {
                             :value="violationsCount"
                             :trend-percentage="trends.violations_change"
                             :is-loading="isLoading"
+                            color="red"
                         />
                     </motion.div>
 
@@ -356,6 +375,35 @@ async function handleManualRefresh(): Promise<void> {
                             :value="`${averageSpeed} km/h`"
                             :trend-percentage="0"
                             :is-loading="isLoading"
+                            color="cyan"
+                        />
+                    </motion.div>
+
+                    <motion.div
+                        :initial="{ opacity: 0, y: 12 }"
+                        :animate="{ opacity: 1, y: 0 }"
+                        :transition="{ delay: 0.3, duration: 0.3 }"
+                    >
+                        <TrendStatCard
+                            title="Rata-Rata Kec. Mobil"
+                            :value="`${averageSpeedMobil} km/h`"
+                            :trend-percentage="0"
+                            :is-loading="isLoading"
+                            color="orange"
+                        />
+                    </motion.div>
+
+                    <motion.div
+                        :initial="{ opacity: 0, y: 12 }"
+                        :animate="{ opacity: 1, y: 0 }"
+                        :transition="{ delay: 0.35, duration: 0.3 }"
+                    >
+                        <TrendStatCard
+                            title="Rata-Rata Kec. Motor"
+                            :value="`${averageSpeedMotor} km/h`"
+                            :trend-percentage="0"
+                            :is-loading="isLoading"
+                            color="purple"
                         />
                     </motion.div>
                 </div>

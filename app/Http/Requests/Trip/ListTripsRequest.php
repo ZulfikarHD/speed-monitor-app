@@ -45,6 +45,7 @@ class ListTripsRequest extends FormRequest
             'sort_by' => ['nullable', 'string', 'in:started_at,violation_count,total_distance,duration_seconds'],
             'sort_order' => ['nullable', 'string', 'in:asc,desc'],
             'violations_only' => ['nullable', 'boolean'],
+            'vehicle_type' => ['nullable', 'string', 'in:mobil,motor'],
         ];
     }
 }

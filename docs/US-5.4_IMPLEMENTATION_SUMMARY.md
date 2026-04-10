@@ -11,7 +11,7 @@
 
 Successfully implemented a production-ready Service Worker with intelligent caching strategies, automatic update notifications, and seamless offline support. The implementation provides cache-first strategy for static assets, network-first for app shell, and complete integration with the existing IndexedDB infrastructure for offline data management.
 
-**Key Achievement:** SpeedoMontor is now a fully functional Progressive Web App (PWA) with offline-first capabilities, intelligent asset caching, and automatic update management without user intervention required.
+**Key Achievement:** SafeTrack is now a fully functional Progressive Web App (PWA) with offline-first capabilities, intelligent asset caching, and automatic update management without user intervention required.
 
 ---
 
@@ -129,10 +129,10 @@ sequenceDiagram
 
 | Resource Type | Strategy | Cache Name | Max Age | Max Entries |
 |--------------|----------|------------|---------|-------------|
-| Vite JS/CSS | Cache-First | `SpeedoMontor-static-v1` | 30 days | 60 |
-| Fonts (Bunny CDN) | Cache-First | `SpeedoMontor-fonts-v1` | 90 days | 10 |
-| Navigation (HTML) | Network-First | `SpeedoMontor-app-shell-v1` | N/A | No limit |
-| Images | Cache-First | `SpeedoMontor-images-v1` | 7 days | 50 |
+| Vite JS/CSS | Cache-First | `SafeTrack-static-v1` | 30 days | 60 |
+| Fonts (Bunny CDN) | Cache-First | `SafeTrack-fonts-v1` | 90 days | 10 |
+| Navigation (HTML) | Network-First | `SafeTrack-app-shell-v1` | N/A | No limit |
+| Images | Cache-First | `SafeTrack-images-v1` | 7 days | 50 |
 | API Routes | Network-Only | N/A | N/A | N/A |
 
 **Cache Lifecycle:**
@@ -140,7 +140,7 @@ sequenceDiagram
 // Install: Precache critical resources
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open('SpeedoMontor-app-shell-v1')
+    caches.open('SafeTrack-app-shell-v1')
       .then(cache => cache.addAll(['/', '/offline.html']))
       .then(() => self.skipWaiting())
   );
@@ -174,7 +174,7 @@ self.addEventListener('fetch', (event) => {
 
 **Key Features:**
 - **Fully Self-Contained:** All styles inline (no external resources)
-- **SpeedoMontor Dark Theme:** Consistent with app branding
+- **SafeTrack Dark Theme:** Consistent with app branding
 - **Cloud Offline Icon:** SVG icon with slash indicating offline state
 - **Clear Messaging:** "Anda Sedang Offline" with actionable "Coba Lagi" button
 - **Animated Status Indicator:** Pulsing red dot showing offline status
@@ -317,7 +317,7 @@ const handleUpdate = async () => {
 - **Auto-Dismiss:** Optional 30-second auto-dismiss timer
 - **Safe Area Support:** iOS notch padding with `pb-safe`
 - **Touch-Friendly:** Buttons ≥48px height for mobile accessibility
-- **SpeedoMontor Theme:** Gradient backgrounds matching app design
+- **SafeTrack Theme:** Gradient backgrounds matching app design
 
 **UX Laws Applied:**
 - **Jakob's Law:** Familiar PWA update pattern (Chrome/Edge style)
@@ -467,7 +467,7 @@ self.addEventListener('activate', (event) => {
         // Delete old version caches
         return Promise.all(
           cacheNames
-            .filter(name => name.startsWith('SpeedoMontor') && !isCurrentVersion(name))
+            .filter(name => name.startsWith('SafeTrack') && !isCurrentVersion(name))
             .map(name => caches.delete(name))
         );
       })
@@ -680,15 +680,15 @@ Done in 3.63s
 - [ ] Open DevTools → Application → Service Workers
 - [ ] Verify SW registered with status "activated"
 - [ ] Check scope: "/" (controls entire origin)
-- [ ] Verify version number in console: `[SW] Service worker loaded - SpeedoMontor v1`
+- [ ] Verify version number in console: `[SW] Service worker loaded - SafeTrack v1`
 
 **Cache Verification:**
 - [ ] DevTools → Application → Cache Storage
 - [ ] Verify caches exist:
-  - `SpeedoMontor-static-v1` (Vite assets)
-  - `SpeedoMontor-fonts-v1` (Bunny CDN fonts)
-  - `SpeedoMontor-app-shell-v1` (HTML pages)
-  - `SpeedoMontor-images-v1` (images)
+  - `SafeTrack-static-v1` (Vite assets)
+  - `SafeTrack-fonts-v1` (Bunny CDN fonts)
+  - `SafeTrack-app-shell-v1` (HTML pages)
+  - `SafeTrack-images-v1` (images)
 - [ ] Check cache entries match expected resources
 
 **Offline Behavior:**
@@ -1064,4 +1064,4 @@ yarn add -D vite-plugin-static-copy  # Removed: not needed for this approach
 
 ---
 
-**Next Up:** US-5.5 (PWA Manifest Configuration) - Make SpeedoMontor installable on home screens!
+**Next Up:** US-5.5 (PWA Manifest Configuration) - Make SafeTrack installable on home screens!

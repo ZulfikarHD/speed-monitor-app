@@ -178,7 +178,7 @@ graph TD
 - **Auto-dismiss:** 3 seconds after success
 - **Manual dismiss:** X button for user control
 - **Retry button:** Shown on error state
-- **SpeedoMontor theme:** Consistent dark theme styling
+- **SafeTrack theme:** Consistent dark theme styling
 - **Touch-friendly:** All buttons ≥44px (Fitts's Law)
 
 **Motion-v Animations:**
@@ -651,7 +651,7 @@ const strokeDashoffset = computed(() => {
 ### Aesthetic-Usability Effect
 ✅ Professional design enhances perceived usability:
 - **Smooth motion-v animations:** Spring physics (stiffness 500, damping 30)
-- **SpeedoMontor dark theme:** Consistent #0a0c0f background, cyan accents
+- **SafeTrack dark theme:** Consistent #0a0c0f background, cyan accents
 - **Color-coded feedback:** Cyan (syncing), green (success), red (error)
 - **Gradient backgrounds:** Depth and visual hierarchy
 

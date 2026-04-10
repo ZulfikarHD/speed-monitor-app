@@ -3,10 +3,10 @@
  * Top Navigation Component
  *
  * Horizontal navigation bar for desktop/tablet with fake glass effect.
- * Follows SpeedMonitor design system with lucide icons and theme-aware styling.
+ * Follows SafeTrack design system with lucide icons and theme-aware styling.
  *
  * Features:
- * - SpeedMonitor logo/branding on left
+ * - SafeTrack logo/branding on left
  * - Horizontal navigation links with lucide icons
  * - Sync status badge on My Trips link
  * - User profile dropdown on right
@@ -138,7 +138,7 @@ function handleSyncBadgeClick(event: MouseEvent): void {
             <div class="flex h-16 items-center justify-between">
                 <!-- Left: Logo + Nav Links -->
                 <div class="flex items-center gap-8">
-                    <!-- SpeedMonitor Logo -->
+                    <!-- SafeTrack Logo -->
                     <Link
                         href="/employee/dashboard"
                         class="group flex items-center gap-3 transition-colors duration-200"
@@ -153,7 +153,7 @@ function handleSyncBadgeClick(event: MouseEvent): void {
                         </div>
                         <div class="flex flex-col">
                             <span class="font-mono text-base font-semibold tracking-wider text-zinc-900 dark:text-zinc-50">
-                                SpeedMonitor
+                                SafeTrack
                             </span>
                             <span class="text-[10px] font-medium tracking-widest text-zinc-500 dark:text-zinc-500">
                                 TRACKING

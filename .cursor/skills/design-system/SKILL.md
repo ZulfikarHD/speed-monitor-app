@@ -3,7 +3,7 @@ name: design-system
 description: Apply professional, modern, tech-inspired design with full light/dark mode. Use when creating/modifying UI components, layouts, styling, navigation, forms, cards, modals. Auto-applies zinc colors with dark variants, extra dark mode (black base), SVG icons, fake glass effects, smooth transitions, theme-aware effects.
 ---
 
-# SpeedMonitor Design System
+# SafeTrack Design System
 
 Professional tech-inspired design with extra dark mode support.
 
@@ -275,7 +275,7 @@ Touch: 44x44px minimum mobile
 
 ## Theme Implementation
 
-SpeedoMontor supports full light/dark mode switching with theme persistence.
+SafeTrack supports full light/dark mode switching with theme persistence.
 
 ### Quick Setup
 1. Configure Tailwind: `darkMode: 'class'` in `tailwind.config.js`

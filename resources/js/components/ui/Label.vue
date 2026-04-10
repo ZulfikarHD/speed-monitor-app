@@ -2,13 +2,13 @@
 /**
  * Label Component
  *
- * Reusable form label with SpeedoMontor dark theme styling.
+ * Reusable form label with SafeTrack dark theme styling.
  * Supports required field indicator and proper accessibility.
  *
  * Features:
  * - Required field indicator (red asterisk)
  * - Proper `for` attribute for input association
- * - SpeedoMontor dark theme colors
+ * - SafeTrack dark theme colors
  * - Accessible label-input relationship
  */
 
@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<Props>(), {
 <template>
     <!-- ======================================================================
         Label
-        Form label with required indicator and SpeedoMontor styling
+        Form label with required indicator and SafeTrack styling
     ======================================================================= -->
     <label
         :for="props.for"

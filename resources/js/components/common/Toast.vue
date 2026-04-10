@@ -11,7 +11,7 @@
  * - Color-coded by type (green/red/blue/yellow)
  * - Auto-dismiss with manual dismiss button
  * - Touch-friendly dismiss button (44x44px minimum)
- * - SpeedoMontor dark theme styling
+ * - SafeTrack dark theme styling
  * - Accessible with ARIA attributes
  *
  * @example

@@ -1,5 +1,5 @@
 /**
- * SpeedoMontor Service Worker
+ * SafeTrack Service Worker
  *
  * Progressive Web App service worker for offline support and intelligent caching.
  * Implements cache-first strategy for static assets and network-first for app shell.
@@ -16,7 +16,7 @@
 
 // Cache version - increment to force cache refresh
 const CACHE_VERSION = 2;
-const CACHE_PREFIX = 'SpeedoMontor';
+const CACHE_PREFIX = 'SafeTrack';
 
 // Cache names
 const CACHE_NAMES = {
@@ -385,4 +385,4 @@ async function enforceCacheLimit(cacheName, maxEntries) {
 // LOGGING
 // ==============================================================================
 
-console.log('[SW] Service worker loaded - SpeedoMontor v' + CACHE_VERSION);
+console.log('[SW] Service worker loaded - SafeTrack v' + CACHE_VERSION);

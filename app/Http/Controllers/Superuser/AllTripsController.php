@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Superuser;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Trip\ExportTripsRequest;
 use App\Http\Requests\Trip\ListTripsRequest;
+use App\Models\Setting;
 use App\Models\Trip;
 use App\Models\User;
 use App\Services\ExportService;
@@ -73,6 +74,11 @@ class AllTripsController extends Controller
             $query->where('violation_count', '>', 0);
         }
 
+        // Apply vehicle type filter
+        if ($request->has('vehicle_type')) {
+            $query->where('vehicle_type', $request->input('vehicle_type'));
+        }
+
         // Apply sorting
         $sortBy = $request->input('sort_by', 'started_at');
         $sortOrder = $request->input('sort_order', 'desc');
@@ -88,7 +94,10 @@ class AllTripsController extends Controller
             ->orderBy('name')
             ->get();
 
+        $speedLimit = (int) (Setting::where('key', 'speed_limit')->value('value') ?? 60);
+
         return Inertia::render('superuser/AllTrips', [
+            'speedLimit' => $speedLimit,
             'trips' => $trips->items(),
             'employees' => $employees,
             'meta' => [
@@ -103,12 +112,101 @@ class AllTripsController extends Controller
                 'date_to' => $request->input('date_to', ''),
                 'status' => $request->input('status', ''),
                 'violations_only' => $request->boolean('violations_only', false),
+                'vehicle_type' => $request->input('vehicle_type', ''),
             ],
             'sort' => [
                 'by' => $sortBy,
                 'order' => $sortOrder,
             ],
+            'chartData' => Inertia::defer(fn () => $this->getChartData($request, $speedLimit)),
         ]);
+    }
+
+    /**
+     * Build chart data from the same filtered query.
+     *
+     * @param  ListTripsRequest  $request  Validated query parameters
+     * @param  int  $speedLimit  Speed limit from settings
+     * @return array{avgSpeedVsStandard: array, maxSpeedVsStandard: array, violationsByEmployee: array, vehicleDistribution: array}
+     */
+    private function getChartData(ListTripsRequest $request, int $speedLimit): array
+    {
+        $chartQuery = Trip::query()->with('user:id,name');
+
+        if ($request->has('user_id')) {
+            $chartQuery->where('user_id', $request->input('user_id'));
+        }
+
+        if ($request->has('date_from')) {
+            $chartQuery->whereDate('started_at', '>=', $request->input('date_from'));
+        }
+
+        if ($request->has('date_to')) {
+            $chartQuery->whereDate('started_at', '<=', $request->input('date_to'));
+        }
+
+        if ($request->has('status')) {
+            $chartQuery->where('status', $request->input('status'));
+        }
+
+        if ($request->has('violations_only') && $request->boolean('violations_only')) {
+            $chartQuery->where('violation_count', '>', 0);
+        }
+
+        if ($request->has('vehicle_type')) {
+            $chartQuery->where('vehicle_type', $request->input('vehicle_type'));
+        }
+
+        $allTrips = $chartQuery->orderBy('started_at', 'desc')->limit(50)->get();
+
+        $avgSpeedVsStandard = $allTrips->map(fn ($trip) => [
+            'label' => $trip->user?->name ?? 'Unknown',
+            'date' => $trip->started_at->format('d/m'),
+            'avg_speed' => round((float) ($trip->average_speed ?? 0), 1),
+            'speed_limit' => $speedLimit,
+        ])->reverse()->values();
+
+        $maxSpeedVsStandard = $allTrips->map(fn ($trip) => [
+            'label' => $trip->user?->name ?? 'Unknown',
+            'date' => $trip->started_at->format('d/m'),
+            'max_speed' => round((float) ($trip->max_speed ?? 0), 1),
+            'speed_limit' => $speedLimit,
+        ])->reverse()->values();
+
+        $violationsByEmployee = Trip::query()
+            ->selectRaw('user_id, SUM(violation_count) as total_violations')
+            ->with('user:id,name')
+            ->when($request->has('date_from'), fn ($q) => $q->whereDate('started_at', '>=', $request->input('date_from')))
+            ->when($request->has('date_to'), fn ($q) => $q->whereDate('started_at', '<=', $request->input('date_to')))
+            ->when($request->has('vehicle_type'), fn ($q) => $q->where('vehicle_type', $request->input('vehicle_type')))
+            ->groupBy('user_id')
+            ->havingRaw('SUM(violation_count) > 0')
+            ->orderByDesc('total_violations')
+            ->limit(10)
+            ->get()
+            ->map(fn ($row) => [
+                'name' => $row->user?->name ?? 'Unknown',
+                'violations' => (int) $row->total_violations,
+            ]);
+
+        $vehicleBaseQuery = Trip::query()
+            ->when($request->has('user_id'), fn ($q) => $q->where('user_id', $request->input('user_id')))
+            ->when($request->has('date_from'), fn ($q) => $q->whereDate('started_at', '>=', $request->input('date_from')))
+            ->when($request->has('date_to'), fn ($q) => $q->whereDate('started_at', '<=', $request->input('date_to')))
+            ->when($request->has('status'), fn ($q) => $q->where('status', $request->input('status')))
+            ->when($request->has('violations_only') && $request->boolean('violations_only'), fn ($q) => $q->where('violation_count', '>', 0));
+
+        $vehicleDistribution = [
+            'mobil' => (int) (clone $vehicleBaseQuery)->where('vehicle_type', 'mobil')->count(),
+            'motor' => (int) (clone $vehicleBaseQuery)->where('vehicle_type', 'motor')->count(),
+        ];
+
+        return [
+            'avgSpeedVsStandard' => $avgSpeedVsStandard,
+            'maxSpeedVsStandard' => $maxSpeedVsStandard,
+            'violationsByEmployee' => $violationsByEmployee,
+            'vehicleDistribution' => $vehicleDistribution,
+        ];
     }
 
     /**

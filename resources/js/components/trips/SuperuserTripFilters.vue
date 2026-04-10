@@ -46,6 +46,9 @@ interface SuperuserTripFiltersProps {
     /** Filter: violations only */
     violationsOnly?: boolean;
 
+    /** Filter: vehicle type */
+    vehicleType?: string;
+
     /** Sort field */
     sortBy?: string;
 
@@ -59,6 +62,7 @@ const props = withDefaults(defineProps<SuperuserTripFiltersProps>(), {
     dateTo: '',
     status: '',
     violationsOnly: false,
+    vehicleType: '',
     sortBy: 'started_at',
     sortOrder: 'desc',
 });
@@ -73,6 +77,7 @@ interface SuperuserTripFiltersEmits {
     (event: 'update:dateTo', value: string): void;
     (event: 'update:status', value: TripStatus | ''): void;
     (event: 'update:violationsOnly', value: boolean): void;
+    (event: 'update:vehicleType', value: string): void;
     (event: 'update:sortBy', value: string): void;
     (event: 'update:sortOrder', value: 'asc' | 'desc'): void;
     (event: 'apply'): void;
@@ -91,6 +96,7 @@ const localDateFrom = ref(props.dateFrom);
 const localDateTo = ref(props.dateTo);
 const localStatus = ref<TripStatus | ''>(props.status);
 const localViolationsOnly = ref(props.violationsOnly);
+const localVehicleType = ref(props.vehicleType);
 const localSortBy = ref(props.sortBy);
 const localSortOrder = ref<'asc' | 'desc'>(props.sortOrder);
 
@@ -134,6 +140,13 @@ watch(
 );
 
 watch(
+    () => props.vehicleType,
+    (newValue) => {
+        localVehicleType.value = newValue;
+    }
+);
+
+watch(
     () => props.sortBy,
     (newValue) => {
         localSortBy.value = newValue;
@@ -163,7 +176,8 @@ const hasActiveFilters = computed(() => {
         localDateFrom.value ||
         localDateTo.value ||
         localStatus.value ||
-        localViolationsOnly.value
+        localViolationsOnly.value ||
+        localVehicleType.value
     );
 });
 
@@ -193,6 +207,10 @@ count++;
 count++;
 }
 
+    if (localVehicleType.value) {
+count++;
+}
+
     return count;
 });
 
@@ -217,6 +235,7 @@ function handleApply(): void {
     emit('update:dateTo', localDateTo.value);
     emit('update:status', localStatus.value);
     emit('update:violationsOnly', localViolationsOnly.value);
+    emit('update:vehicleType', localVehicleType.value);
     emit('update:sortBy', localSortBy.value);
     emit('update:sortOrder', localSortOrder.value);
     emit('apply');
@@ -231,6 +250,7 @@ function handleReset(): void {
     localDateTo.value = '';
     localStatus.value = '';
     localViolationsOnly.value = false;
+    localVehicleType.value = '';
     localSortBy.value = 'started_at';
     localSortOrder.value = 'desc';
 
@@ -239,6 +259,7 @@ function handleReset(): void {
     emit('update:dateTo', '');
     emit('update:status', '');
     emit('update:violationsOnly', false);
+    emit('update:vehicleType', '');
     emit('update:sortBy', 'started_at');
     emit('update:sortOrder', 'desc');
     emit('reset');
@@ -285,7 +306,7 @@ function toggleSortOrder(): void {
             <div class="overflow-hidden">
                 <div class="mt-3 rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-4 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5">
                     <!-- Filter Controls Grid -->
-                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
                         <!-- Employee Dropdown -->
                         <div>
                             <label
@@ -366,6 +387,26 @@ function toggleSortOrder(): void {
                                 <option value="in_progress">Sedang Berjalan</option>
                                 <option value="completed">Selesai</option>
                                 <option value="auto_stopped">Berhenti Otomatis</option>
+                            </select>
+                        </div>
+
+                        <!-- Vehicle Type -->
+                        <div>
+                            <label
+                                for="filter-vehicle-type"
+                                class="mb-2 block text-xs font-medium text-zinc-500 dark:text-zinc-400"
+                            >
+                                Kendaraan
+                            </label>
+                            <select
+                                id="filter-vehicle-type"
+                                v-model="localVehicleType"
+                                class="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 transition-colors duration-200 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50"
+                                aria-label="Filter berdasarkan kendaraan"
+                            >
+                                <option value="">Semua Kendaraan</option>
+                                <option value="mobil">Mobil</option>
+                                <option value="motor">Motor</option>
                             </select>
                         </div>
 

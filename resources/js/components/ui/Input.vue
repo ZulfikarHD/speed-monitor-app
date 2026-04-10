@@ -2,7 +2,7 @@
 /**
  * Input Component
  *
- * Reusable form input with SpeedoMontor dark theme styling.
+ * Reusable form input with SafeTrack dark theme styling.
  * Supports error states, disabled states, and various input types.
  *
  * Features:
@@ -12,7 +12,7 @@
  * - Disabled state with reduced opacity
  * - Touch-friendly (min 44px height)
  * - ARIA accessibility attributes
- * - SpeedoMontor dark theme colors
+ * - SafeTrack dark theme colors
  */
 
 // ========================================================================
@@ -68,7 +68,7 @@ function handleInput(event: Event): void {
 <template>
     <!-- ======================================================================
         Input Field
-        Touch-friendly input with error states and SpeedoMontor styling
+        Touch-friendly input with error states and SafeTrack styling
     ======================================================================= -->
     <div class="w-full">
         <input

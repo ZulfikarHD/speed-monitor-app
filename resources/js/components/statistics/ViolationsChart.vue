@@ -3,7 +3,7 @@
  * ViolationsChart Component
  *
  * Line chart displaying violation count over time for the selected period.
- * Built with Chart.js for high-performance rendering with SpeedoMontor dark theme.
+ * Built with Chart.js for high-performance rendering with SafeTrack dark theme.
  *
  * Features:
  * - Line chart with date (X-axis) and violation count (Y-axis)

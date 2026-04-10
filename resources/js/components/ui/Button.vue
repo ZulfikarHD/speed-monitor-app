@@ -2,7 +2,7 @@
 /**
  * Button Component
  *
- * Reusable button with SpeedMonitor design system styling.
+ * Reusable button with SafeTrack design system styling.
  * Supports multiple variants, loading states, and disabled states.
  *
  * Features:

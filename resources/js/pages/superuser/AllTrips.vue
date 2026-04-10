@@ -17,12 +17,16 @@
  * @example Route: /superuser/trips
  */
 
-import { router } from '@inertiajs/vue3';
+import { Deferred, router } from '@inertiajs/vue3';
 import { Road } from '@lucide/vue';
 import { AnimatePresence, motion } from 'motion-v';
 import { computed, ref } from 'vue';
 
 import { showWeb } from '@/actions/App/Http/Controllers/TripController';
+import AvgSpeedChart from '@/components/charts/AvgSpeedChart.vue';
+import MaxSpeedChart from '@/components/charts/MaxSpeedChart.vue';
+import VehicleDistributionChart from '@/components/charts/VehicleDistributionChart.vue';
+import ViolationChart from '@/components/charts/ViolationChart.vue';
 import Pagination from '@/components/trips/Pagination.vue';
 import SuperuserTripFilters from '@/components/trips/SuperuserTripFilters.vue';
 import SuperuserLayout from '@/layouts/SuperuserLayout.vue';
@@ -39,6 +43,9 @@ import {
 // ========================================================================
 
 interface Props {
+    /** Speed limit from settings */
+    speedLimit: number;
+
     /** Trips for current page */
     trips: Trip[];
 
@@ -60,12 +67,21 @@ interface Props {
         date_to: string;
         status: TripStatus | '';
         violations_only: boolean;
+        vehicle_type: string;
     };
 
     /** Current sort configuration */
     sort: {
         by: string;
         order: 'asc' | 'desc';
+    };
+
+    /** Chart data (deferred) */
+    chartData?: {
+        avgSpeedVsStandard: Array<{ label: string; date: string; avg_speed: number; speed_limit: number }>;
+        maxSpeedVsStandard: Array<{ label: string; date: string; max_speed: number; speed_limit: number }>;
+        violationsByEmployee: Array<{ name: string; violations: number }>;
+        vehicleDistribution: { mobil: number; motor: number };
     };
 }
 
@@ -82,6 +98,7 @@ const localFilters = ref({
     dateTo: props.filters.date_to,
     status: props.filters.status,
     violationsOnly: props.filters.violations_only,
+    vehicleType: props.filters.vehicle_type,
 });
 
 /** Local sort state (synced with props) */
@@ -101,7 +118,8 @@ const hasActiveFilters = computed(() => {
         props.filters.date_from ||
         props.filters.date_to ||
         props.filters.status ||
-        props.filters.violations_only
+        props.filters.violations_only ||
+        props.filters.vehicle_type
     );
 });
 
@@ -150,6 +168,7 @@ function handleApplyFilters(): void {
             date_to: localFilters.value.dateTo || undefined,
             status: localFilters.value.status || undefined,
             violations_only: localFilters.value.violationsOnly || undefined,
+            vehicle_type: localFilters.value.vehicleType || undefined,
             sort_by: localSort.value.by,
             sort_order: localSort.value.order,
             page: 1,
@@ -171,6 +190,7 @@ function handleResetFilters(): void {
         dateTo: '',
         status: '',
         violationsOnly: false,
+        vehicleType: '',
     };
 
     localSort.value = {
@@ -203,6 +223,7 @@ function handlePageChange(page: number): void {
             date_to: props.filters.date_to || undefined,
             status: props.filters.status || undefined,
             violations_only: props.filters.violations_only || undefined,
+            vehicle_type: props.filters.vehicle_type || undefined,
             sort_by: props.sort.by,
             sort_order: props.sort.order,
         },
@@ -270,6 +291,27 @@ function getStatusColor(status: string): string {
     return colorMap[status] || 'bg-zinc-500/20 dark:bg-zinc-500/15 text-zinc-700 dark:text-zinc-400 border-zinc-500/30';
 }
 
+/** Get shift type display text. */
+function getShiftLabel(shiftType: string | null): string {
+    const map: Record<string, string> = {
+        non_shift: 'Non Shift',
+        shift_pagi: 'Shift Pagi',
+        shift_malam: 'Shift Malam',
+    };
+
+    return shiftType ? map[shiftType] ?? '-' : '-';
+}
+
+/** Get vehicle type display text. */
+function getVehicleLabel(vehicleType: string | null): string {
+    const map: Record<string, string> = {
+        mobil: 'Mobil',
+        motor: 'Motor',
+    };
+
+    return vehicleType ? map[vehicleType] ?? '-' : '-';
+}
+
 /** Get violation badge color (theme-aware). */
 function getViolationColor(count: number): string {
     if (count === 0) {
@@ -314,6 +356,7 @@ function getViolationColor(count: number): string {
                     v-model:date-to="localFilters.dateTo"
                     v-model:status="localFilters.status"
                     v-model:violations-only="localFilters.violationsOnly"
+                    v-model:vehicle-type="localFilters.vehicleType"
                     v-model:sort-by="localSort.by"
                     v-model:sort-order="localSort.order"
                     @apply="handleApplyFilters"
@@ -375,13 +418,17 @@ function getViolationColor(count: number): string {
                     >
                         <thead>
                             <tr class="border-b border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Karyawan</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Tanggal/Waktu</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Durasi</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Jarak</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Kec. Maks</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Pelanggaran</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Status</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Karyawan</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Tanggal</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Durasi</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Jarak</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Kec. Rata-Rata</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Kec. Maks</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Kec. Standar</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Shift</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Kendaraan</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Pelanggaran</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400" scope="col">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-200 dark:divide-white/5">
@@ -394,35 +441,47 @@ function getViolationColor(count: number): string {
                                 class="cursor-pointer transition-colors duration-200 hover:bg-zinc-50 dark:hover:bg-white/5"
                                 @click="navigateToTrip(trip.id)"
                             >
-                                <td class="px-6 py-4">
+                                <td class="px-4 py-4">
                                     <div>
                                         <p class="font-medium text-zinc-900 dark:text-white">{{ getEmployeeName(trip.user_id) }}</p>
                                         <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{{ getEmployeeEmail(trip.user_id) }}</p>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-4 py-4">
                                     <div>
                                         <p class="text-sm text-zinc-900 dark:text-white">{{ formatShortDate(trip.started_at) }}</p>
                                         <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{{ formatTime(trip.started_at) }}</p>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-4 py-4">
                                     <span class="font-mono text-sm text-zinc-900 dark:text-white">{{ formatDuration(trip.duration_seconds) }}</span>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-4 py-4">
                                     <span class="font-mono text-sm text-cyan-600 dark:text-cyan-400">{{ formatDistance(trip.total_distance) }}</span>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-4 py-4">
+                                    <span class="font-mono text-sm text-blue-600 dark:text-blue-400">{{ formatSpeed(trip.average_speed) }}</span>
+                                </td>
+                                <td class="px-4 py-4">
                                     <span class="font-mono text-sm text-red-600 dark:text-red-400">{{ formatSpeed(trip.max_speed) }}</span>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-4 py-4">
+                                    <span class="font-mono text-sm text-emerald-600 dark:text-emerald-400">{{ speedLimit }} km/h</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="text-sm text-zinc-900 dark:text-white">{{ getShiftLabel(trip.shift_type) }}</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span class="text-sm text-zinc-900 dark:text-white">{{ getVehicleLabel(trip.vehicle_type) }}</span>
+                                </td>
+                                <td class="px-4 py-4">
                                     <span
                                         :class="['inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-xs font-semibold', getViolationColor(trip.violation_count)]"
                                     >
                                         {{ trip.violation_count }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-4 py-4">
                                     <span
                                         :class="['inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium', getStatusColor(trip.status)]"
                                     >
@@ -477,8 +536,18 @@ function getViolationColor(count: number): string {
                             </div>
 
                             <div class="rounded-lg border border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50 p-2">
+                                <div class="mb-1 text-xs text-zinc-500 dark:text-zinc-400">Kec. Rata-Rata</div>
+                                <div class="font-mono text-sm font-semibold text-blue-600 dark:text-blue-400">{{ formatSpeed(trip.average_speed) }}</div>
+                            </div>
+
+                            <div class="rounded-lg border border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50 p-2">
                                 <div class="mb-1 text-xs text-zinc-500 dark:text-zinc-400">Kec. Maks</div>
                                 <div class="font-mono text-sm font-semibold text-red-600 dark:text-red-400">{{ formatSpeed(trip.max_speed) }}</div>
+                            </div>
+
+                            <div class="rounded-lg border border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50 p-2">
+                                <div class="mb-1 text-xs text-zinc-500 dark:text-zinc-400">Kec. Standar</div>
+                                <div class="font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400">{{ speedLimit }} km/h</div>
                             </div>
 
                             <div class="rounded-lg border border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50 p-2">
@@ -486,6 +555,16 @@ function getViolationColor(count: number): string {
                                 <span :class="['inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-xs font-semibold', getViolationColor(trip.violation_count)]">
                                     {{ trip.violation_count }}
                                 </span>
+                            </div>
+
+                            <div class="rounded-lg border border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50 p-2">
+                                <div class="mb-1 text-xs text-zinc-500 dark:text-zinc-400">Shift</div>
+                                <div class="text-sm font-medium text-zinc-900 dark:text-white">{{ getShiftLabel(trip.shift_type) }}</div>
+                            </div>
+
+                            <div class="rounded-lg border border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50 p-2">
+                                <div class="mb-1 text-xs text-zinc-500 dark:text-zinc-400">Kendaraan</div>
+                                <div class="text-sm font-medium text-zinc-900 dark:text-white">{{ getVehicleLabel(trip.vehicle_type) }}</div>
                             </div>
                         </div>
                     </motion.div>
@@ -500,6 +579,39 @@ function getViolationColor(count: number): string {
                         @page-change="handlePageChange"
                     />
                 </div>
+
+                <!-- Charts Section -->
+                <Deferred data="chartData">
+                    <template #fallback>
+                        <div class="mt-8 grid gap-6 lg:grid-cols-2">
+                            <div v-for="i in 4" :key="i" class="rounded-xl border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 p-5 shadow-lg">
+                                <div class="mb-4">
+                                    <div class="h-5 w-40 animate-pulse rounded bg-zinc-200 dark:bg-zinc-700"></div>
+                                    <div class="mt-2 h-3 w-56 animate-pulse rounded bg-zinc-200 dark:bg-zinc-700"></div>
+                                </div>
+                                <div class="flex h-48 items-center justify-center">
+                                    <div class="h-8 w-8 animate-spin rounded-full border-4 border-cyan-500 border-t-transparent"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <motion.div
+                        v-if="chartData"
+                        :initial="{ opacity: 0, y: 12 }"
+                        :animate="{ opacity: 1, y: 0 }"
+                        :transition="{ duration: 0.4 }"
+                        class="mt-8"
+                    >
+                        <h2 class="mb-4 text-xl font-bold text-zinc-900 dark:text-white">Grafik Analisis</h2>
+                        <div class="grid gap-6 lg:grid-cols-2">
+                            <AvgSpeedChart :data="chartData.avgSpeedVsStandard" />
+                            <MaxSpeedChart :data="chartData.maxSpeedVsStandard" />
+                            <ViolationChart :data="chartData.violationsByEmployee" />
+                            <VehicleDistributionChart :data="chartData.vehicleDistribution" />
+                        </div>
+                    </motion.div>
+                </Deferred>
             </div>
         </div>
     </SuperuserLayout>

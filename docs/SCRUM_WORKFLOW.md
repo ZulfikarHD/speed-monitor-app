@@ -767,7 +767,7 @@ const { speedKmh } = useGeolocation();
 **Acceptance Criteria:**
 - [x] Speedometer.vue view created with production design
 - [x] Canvas gauge with tick marks and speed labels
-- [x] SpeedoMontor branding (Bebas Neue typography)
+- [x] SafeTrack branding (Bebas Neue typography)
 - [x] Speed limit controls (+/- buttons) on page
 - [x] Unit toggle (km/h ↔ mph)
 - [x] GPS accuracy bar with color coding
@@ -793,7 +793,7 @@ const { speedKmh } = useGeolocation();
 - API integration: SettingsController (GET /api/settings)
 
 **Frontend - Production Speedometer Page (`resources/js/pages/employee/Speedometer.vue`):**
-- **SpeedoMontor branding** with Bebas Neue typography and cyan glow effects
+- **SafeTrack branding** with Bebas Neue typography and cyan glow effects
 - **Canvas gauge** (ProductionGauge component) with tick marks, speed labels, and gradient arcs
 - **Speed limit banner** with +/- controls (adjustable 10-200 range)
 - **Unit toggle** (km/h ↔ mph) with full conversion across all displays
@@ -833,7 +833,7 @@ const { speedKmh } = useGeolocation();
 - **Haversine distance**: Accurate GPS-based distance calculation (not straight-line)
 - **Speed log batching**: Reduces API calls by ~90% (syncs every 10 logs)
 - **Unit conversion**: Dynamic switching between km/h and mph
-- **Professional styling**: SpeedoMontor branding with Bebas Neue, Share Tech Mono, Barlow fonts
+- **Professional styling**: SafeTrack branding with Bebas Neue, Share Tech Mono, Barlow fonts
 - **GPS monitoring**: Accuracy bar, satellite count, status indicator
 - **Mobile-optimized**: Portrait layout, touch-friendly, responsive
 
@@ -1050,7 +1050,7 @@ Build trip history, statistics, and profile pages for employees.
 - Integrated navigation card in employee dashboard
 - Fixed Sanctum stateful auth for SPA (added EnsureFrontendRequestsAreStateful middleware)
 - Factory already exists with comprehensive states (completed, autoStopped, withViolations, synced)
-- All components follow SpeedoMontor dark theme design system
+- All components follow SafeTrack dark theme design system
 - Responsive layout with mobile-first approach
 - Empty state handles both "no trips" and "no filter results" scenarios
 - Trip cards ready for click navigation to detail page (US-4.2)
@@ -1116,7 +1116,7 @@ Build trip history, statistics, and profile pages for employees.
 **Frontend - Components:**
 - `StatCard.vue` - Reusable metric display with 5 color variants (blue, green, purple, red, orange)
 - `PeriodSelector.vue` - Segmented control for week/month/year
-- `TripsChart.vue` - Bar chart using Chart.js with SpeedoMontor dark theme
+- `TripsChart.vue` - Bar chart using Chart.js with SafeTrack dark theme
 - `ViolationsChart.vue` - Line chart with gradient fill and tooltips
 
 **Frontend - Types (`resources/js/types/statistics.ts`):**
@@ -1140,7 +1140,7 @@ Build trip history, statistics, and profile pages for employees.
    - Week: Daily breakdown (7 days)
    - Month: Daily breakdown (up to 31 days)
    - Year: Monthly breakdown (12 months)
-4. **SpeedoMontor Theme:**
+4. **SafeTrack Theme:**
    - Dark theme with cyan accent (#22d3ee)
    - Gradient backgrounds on stat cards
    - Chart.js custom configuration for dark mode
@@ -1220,7 +1220,7 @@ Build trip history, statistics, and profile pages for employees.
 - Security tip section
 
 **Frontend - Reusable UI Components:**
-- `Input.vue` - Text/password input with error display, SpeedoMontor theme
+- `Input.vue` - Text/password input with error display, SafeTrack theme
 - `Button.vue` - Multiple variants (primary, secondary, danger), loading states
 - `Label.vue` - Form labels with required field indicator
 
@@ -1286,7 +1286,7 @@ Build trip history, statistics, and profile pages for employees.
 
 **Desktop Navigation (`resources/js/components/navigation/TopNav.vue`):**
 - Horizontal navigation bar (>768px breakpoint)
-- SpeedoMontor logo/branding on left
+- SafeTrack logo/branding on left
 - Navigation links with icon + label
 - User profile dropdown on right
 - Active state with cyan background (bg-cyan-500/10)
@@ -1336,7 +1336,7 @@ All employee pages wrapped with EmployeeLayout:
 - Wayfinder integration with Link component
 - Smooth Inertia page transitions
 - No layout shifts or flash of unstyled content
-- SpeedoMontor dark theme consistency (#0a0c0f background)
+- SafeTrack dark theme consistency (#0a0c0f background)
 - Gradient badges and accent colors
 
 **Story Points:** 2  
@@ -1767,7 +1767,7 @@ Implement offline capability with IndexedDB and Service Worker.
 - Auto-dismiss on success (3 seconds)
 - Manual dismiss button (44x44px)
 - Retry button on error state
-- SpeedoMontor dark theme styling
+- SafeTrack dark theme styling
 
 **Frontend - Settings Store (`resources/js/stores/settings.ts`):**
 - Added `auto_sync_enabled: boolean` to AppSettings interface
@@ -1908,7 +1908,7 @@ Wait:    5s    15s   45s   -
 **Offline Fallback (`public/offline.html`):**
 - Standalone HTML page (~150 lines)
 - Fully self-contained with inline styles
-- SpeedoMontor dark theme styling
+- SafeTrack dark theme styling
 - Cloud offline icon with floating animation
 - "Coba Lagi" button for manual retry
 - Shown when navigating to uncached pages offline
@@ -1935,7 +1935,7 @@ Wait:    5s    15s   45s   -
 - Auto-dismiss after 30 seconds (configurable)
 - Touch-friendly buttons (≥48px)
 - Safe area padding for iOS notch
-- SpeedoMontor dark theme styling
+- SafeTrack dark theme styling
 
 **App Integration (`resources/js/app.ts`):**
 - SW registration after Pinia setup (+10 lines)
@@ -1951,10 +1951,10 @@ Wait:    5s    15s   45s   -
 **Caching Strategy Matrix:**
 | Resource Type | Strategy | Cache Name | Max Age | Max Entries |
 |--------------|----------|------------|---------|-------------|
-| Vite JS/CSS | Cache-First | SpeedoMontor-static-v1 | 30 days | 60 |
-| Fonts | Cache-First | SpeedoMontor-fonts-v1 | 90 days | 10 |
-| Navigation | Network-First | SpeedoMontor-app-shell-v1 | N/A | No limit |
-| Images | Cache-First | SpeedoMontor-images-v1 | 7 days | 50 |
+| Vite JS/CSS | Cache-First | SafeTrack-static-v1 | 30 days | 60 |
+| Fonts | Cache-First | SafeTrack-fonts-v1 | 90 days | 10 |
+| Navigation | Network-First | SafeTrack-app-shell-v1 | N/A | No limit |
+| Images | Cache-First | SafeTrack-images-v1 | 7 days | 50 |
 | API Routes | Network-Only | N/A | N/A | N/A |
 
 **UX Laws Applied:**
@@ -2029,7 +2029,7 @@ Wait:    5s    15s   45s   -
 **Status:** ✅ **COMPLETED** (April 4, 2026)
 
 **Implementation Summary:**
-- Created complete PWA manifest with SpeedoMontor branding
+- Created complete PWA manifest with SafeTrack branding
 - Generated 7 icon sizes (48x48 to 512x512 + Apple touch icon)
 - Added iOS/Android/Windows meta tags to app.blade.php
 - Implemented optional InstallPrompt component with motion-v animations

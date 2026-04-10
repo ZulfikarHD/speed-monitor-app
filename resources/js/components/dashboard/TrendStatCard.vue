@@ -10,6 +10,8 @@
 import IconTrendDown from '@/components/icons/IconTrendDown.vue';
 import IconTrendUp from '@/components/icons/IconTrendUp.vue';
 
+type CardColor = 'blue' | 'green' | 'red' | 'cyan' | 'orange' | 'purple' | 'default';
+
 interface Props {
     /** Card title/label */
     title: string;
@@ -25,12 +27,47 @@ interface Props {
 
     /** Loading state for skeleton UI */
     isLoading?: boolean;
+
+    /** Accent color for the card */
+    color?: CardColor;
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
     icon: undefined,
     isLoading: false,
+    color: 'default',
 });
+
+const colorClasses: Record<CardColor, { border: string; gradient: string }> = {
+    blue: {
+        border: 'border-l-4 border-l-blue-500',
+        gradient: 'from-blue-500/15 dark:from-blue-500/20',
+    },
+    green: {
+        border: 'border-l-4 border-l-emerald-500',
+        gradient: 'from-emerald-500/15 dark:from-emerald-500/20',
+    },
+    red: {
+        border: 'border-l-4 border-l-red-500',
+        gradient: 'from-red-500/15 dark:from-red-500/20',
+    },
+    cyan: {
+        border: 'border-l-4 border-l-cyan-500',
+        gradient: 'from-cyan-500/15 dark:from-cyan-500/20',
+    },
+    orange: {
+        border: 'border-l-4 border-l-orange-500',
+        gradient: 'from-orange-500/15 dark:from-orange-500/20',
+    },
+    purple: {
+        border: 'border-l-4 border-l-purple-500',
+        gradient: 'from-purple-500/15 dark:from-purple-500/20',
+    },
+    default: {
+        border: '',
+        gradient: 'from-cyan-500/10 dark:from-cyan-500/20',
+    },
+};
 
 /**
  * Determine trend direction and styling.
@@ -69,7 +106,10 @@ function getTrendStyle(percentage: number) {
 
 <template>
     <div
-        class="relative overflow-hidden rounded-xl border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-6 shadow-lg shadow-zinc-200 dark:shadow-cyan-500/5 transition-all duration-200 hover:border-cyan-500/50 dark:hover:border-cyan-500/50"
+        :class="[
+            'relative overflow-hidden rounded-xl border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-6 shadow-lg shadow-zinc-200 dark:shadow-cyan-500/5 transition-all duration-200 hover:border-cyan-500/50 dark:hover:border-cyan-500/50',
+            colorClasses[props.color].border,
+        ]"
     >
         <!-- Loading Skeleton -->
         <div v-if="isLoading" class="animate-pulse space-y-3">
@@ -106,7 +146,10 @@ function getTrendStyle(percentage: number) {
 
         <!-- Decorative gradient (theme-aware) -->
         <div
-            class="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br from-cyan-500/10 dark:from-cyan-500/20 to-transparent blur-2xl"
+            :class="[
+                'pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br to-transparent blur-2xl',
+                colorClasses[props.color].gradient,
+            ]"
         ></div>
     </div>
 </template>

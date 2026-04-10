@@ -2,7 +2,7 @@
 /**
  * Login Page - User authentication form.
  *
- * Professional login page following SpeedMonitor design system with
+ * Professional login page following SafeTrack design system with
  * full dark mode support, tech-inspired aesthetics, and lucide icons.
  * Single entrance animation on the card — no staggered child animations
  * to keep rendering lightweight.
@@ -42,7 +42,7 @@ const handleSubmit = (): void => {
 </script>
 
 <template>
-    <Head title="Masuk - SpeedMonitor" />
+    <Head title="Masuk - SafeTrack" />
 
     <!-- ======================================================================
         Login Page Container
@@ -88,7 +88,7 @@ const handleSubmit = (): void => {
             >
                 <!-- Header Section -->
                 <div class="mb-8 text-center">
-                    <!-- SpeedMonitor Logo -->
+                    <!-- SafeTrack Logo -->
                     <div class="mb-6 flex justify-center">
                         <div
                             class="flex h-16 w-16 items-center justify-center rounded-xl border border-cyan-200 dark:border-cyan-500/20 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-500/10 dark:to-blue-600/10 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/10"
@@ -104,7 +104,7 @@ const handleSubmit = (): void => {
                         Selamat Datang
                     </h1>
                     <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                        Masuk ke akun SpeedMonitor Anda
+                        Masuk ke akun SafeTrack Anda
                     </p>
                 </div>
 
@@ -235,7 +235,7 @@ const handleSubmit = (): void => {
 
             <!-- Footer -->
             <p class="mt-6 text-center text-xs text-zinc-500 dark:text-zinc-500 font-mono tracking-wide">
-                SPEEDMONITOR &copy; 2026
+                SAFETRACK &copy; 2026
             </p>
         </motion.div>
     </div>

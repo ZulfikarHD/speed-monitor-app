@@ -40,6 +40,8 @@ import type { Trip, TripStatus } from '@/types/trip';
 // ========================================================================
 
 interface Props {
+    /** Speed limit from settings */
+    speedLimit: number;
     /** Trips for current page */
     trips: Trip[];
     /** Pagination metadata */
@@ -54,6 +56,7 @@ interface Props {
         status: TripStatus | '';
         date_from: string;
         date_to: string;
+        vehicle_type: string;
     };
 }
 
@@ -87,6 +90,7 @@ const localFilters = ref({
     status: props.filters.status,
     date_from: props.filters.date_from,
     date_to: props.filters.date_to,
+    vehicle_type: props.filters.vehicle_type,
 });
 
 /** Pending sync count for offline indicator */
@@ -118,7 +122,8 @@ function handleApplyFilters(): void {
             status: localFilters.value.status || undefined,
             date_from: localFilters.value.date_from || undefined,
             date_to: localFilters.value.date_to || undefined,
-            page: 1, // Reset to first page
+            vehicle_type: localFilters.value.vehicle_type || undefined,
+            page: 1,
         },
         {
             preserveState: true,
@@ -135,6 +140,7 @@ function handleResetFilters(): void {
         status: '',
         date_from: '',
         date_to: '',
+        vehicle_type: '',
     };
 
     router.get(
@@ -160,6 +166,7 @@ function handlePageChange(page: number): void {
             status: props.filters.status || undefined,
             date_from: props.filters.date_from || undefined,
             date_to: props.filters.date_to || undefined,
+            vehicle_type: props.filters.vehicle_type || undefined,
         },
         {
             preserveState: true,
@@ -204,7 +211,7 @@ async function handleManualSync(): Promise<void> {
  * Check if there are any active filters.
  */
 const hasActiveFilters = computed(() => {
-    return !!(props.filters.status || props.filters.date_from || props.filters.date_to);
+    return !!(props.filters.status || props.filters.date_from || props.filters.date_to || props.filters.vehicle_type);
 });
 
 /**
@@ -333,6 +340,7 @@ const updatePendingSyncCount = async (): Promise<void> => {
                     v-model:status="localFilters.status"
                     v-model:date-from="localFilters.date_from"
                     v-model:date-to="localFilters.date_to"
+                    v-model:vehicle-type="localFilters.vehicle_type"
                     @apply="handleApplyFilters"
                     @reset="handleResetFilters"
                 />
@@ -366,6 +374,7 @@ const updatePendingSyncCount = async (): Promise<void> => {
                         v-for="trip in trips"
                         :key="trip.id"
                         :trip="trip"
+                        :speed-limit="speedLimit"
                     />
                 </div>
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Icon Generator Script for SpeedoMontor PWA
+ * Icon Generator Script for SafeTrack PWA
  *
  * Generates PNG icons from SVG source using sharp library.
  * Run: node scripts/generate-icons.js
@@ -15,7 +15,7 @@ import sharp from 'sharp';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const svgPath = path.join(__dirname, '../resources/icons/SpeedoMontor-logo.svg');
+const svgPath = path.join(__dirname, '../resources/icons/velotrack-logo.svg');
 const outputDir = path.join(__dirname, '../public/icons');
 
 // Icon sizes to generate
@@ -32,7 +32,7 @@ const sizes = [
 const appleIcon = { size: 180, name: '../apple-touch-icon.png' };
 
 async function generateIcons() {
-  console.log('🎨 Generating SpeedoMontor PWA icons...\n');
+  console.log('🎨 Generating SafeTrack PWA icons...\n');
 
   // Ensure output directory exists
   if (!fs.existsSync(outputDir)) {

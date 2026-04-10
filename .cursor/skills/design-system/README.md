@@ -1,10 +1,10 @@
-# SpeedMonitor Design System Skill
+# SafeTrack Design System Skill
 
-This skill helps maintain consistent professional, modern, and tech-inspired design with full light/dark mode support across the SpeedMonitor application.
+This skill helps maintain consistent professional, modern, and tech-inspired design with full light/dark mode support across the SafeTrack application.
 
 ## What This Skill Does
 
-Automatically applies SpeedoMontor design principles when:
+Automatically applies SafeTrack design principles when:
 - Creating new UI components (buttons, cards, modals, forms)
 - Modifying existing layouts or pages
 - Styling navigation elements
@@ -138,7 +138,7 @@ Try asking the agent:
 - "Create a new icon component"
 - "Add a theme toggle button"
 
-The agent should automatically apply SpeedoMontor design principles without you needing to specify the style.
+The agent should automatically apply SafeTrack design principles without you needing to specify the style.
 
 ## Updating This Skill
 

@@ -55,10 +55,11 @@ class DashboardPerformanceTest extends TestCase
         // 1. One query for active trips
         // 2. One query for users (eager loaded)
         // 3. Additional queries for today's summary and other stats
-        // Total trip-related queries should be manageable (< 10 regardless of trip count)
+        // 4. Two queries for average speed by vehicle type (mobil, motor)
+        // Total trip-related queries should be manageable (< 20 regardless of trip count)
 
         // The key test: query count should NOT scale with number of trips
-        $this->assertLessThan(10, $tripRelatedQueries->count(),
+        $this->assertLessThan(20, $tripRelatedQueries->count(),
             'Too many queries detected. Possible N+1 issue. Queries: '.json_encode($queries));
 
         DB::disableQueryLog();

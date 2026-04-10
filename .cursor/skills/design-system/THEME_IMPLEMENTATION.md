@@ -1,6 +1,6 @@
 # Theme Implementation Guide
 
-Complete guide for implementing light/dark mode in SpeedMonitor with extra dark mode.
+Complete guide for implementing light/dark mode in SafeTrack with extra dark mode.
 
 ## Setup
 

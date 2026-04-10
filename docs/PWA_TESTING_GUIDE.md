@@ -1,10 +1,10 @@
-# SpeedoMontor PWA Testing Guide
+# SafeTrack PWA Testing Guide
 
 This guide provides instructions for testing the PWA manifest implementation (US-5.5).
 
 ## Prerequisites
 
-- SpeedoMontor running on a publicly accessible HTTPS URL (required for PWA)
+- SafeTrack running on a publicly accessible HTTPS URL (required for PWA)
 - Android device with Chrome browser (for Android testing)
 - iOS device with Safari (for iOS testing)
 - Desktop Chrome browser with DevTools (for initial verification)
@@ -15,14 +15,14 @@ This guide provides instructions for testing the PWA manifest implementation (US
 
 ### 1.1 Manifest Inspection
 
-1. Open SpeedoMontor in Chrome desktop browser
+1. Open SafeTrack in Chrome desktop browser
 2. Open DevTools (F12) → Application tab
 3. Navigate to "Manifest" section in left sidebar
 4. Verify the following fields:
 
 **Expected Values:**
-- **Name:** SpeedoMontor - Speed Monitoring System
-- **Short Name:** SpeedoMontor
+- **Name:** SafeTrack - Speed Monitoring System
+- **Short Name:** SafeTrack
 - **Start URL:** /
 - **Theme Color:** #06b6d4 (cyan)
 - **Background Color:** #0a0c0f (dark)
@@ -62,7 +62,7 @@ This guide provides instructions for testing the PWA manifest implementation (US
 
 ### 2.1 Manifest & Installation
 
-1. Open SpeedoMontor in Chrome for Android
+1. Open SafeTrack in Chrome for Android
 2. Wait 3-5 seconds for install prompt (or check Chrome menu → "Install app")
 3. Native "Add to Home Screen" banner should appear
 
@@ -71,24 +71,24 @@ This guide provides instructions for testing the PWA manifest implementation (US
 - Ensure you're on HTTPS (PWA requires secure connection)
 
 4. Tap "Install" / "Add to Home Screen"
-5. Verify icon preview shows SpeedoMontor car icon with gradient
+5. Verify icon preview shows SafeTrack car icon with gradient
 6. Confirm installation
 
 ### 2.2 Home Screen Verification
 
 1. Go to Android home screen
-2. Locate "SpeedoMontor" app icon
+2. Locate "SafeTrack" app icon
 3. Verify icon displays correctly (car icon on cyan-blue gradient)
 4. Long-press icon → App info
 
 **Expected:**
-- App name: "SpeedoMontor"
+- App name: "SafeTrack"
 - Icon is clear and recognizable
 - No default PWA placeholder icon
 
 ### 2.3 Standalone Mode Testing
 
-1. Launch SpeedoMontor from home screen icon
+1. Launch SafeTrack from home screen icon
 2. App should open in standalone mode (full-screen, no browser UI)
 3. Verify status bar color matches theme (cyan #06b6d4)
 4. Check no Chrome address bar at top
@@ -120,23 +120,23 @@ This guide provides instructions for testing the PWA manifest implementation (US
 
 **Note:** iOS does not show automatic install prompts. Users must manually add to home screen.
 
-1. Open SpeedoMontor in Safari (iOS 15+)
+1. Open SafeTrack in Safari (iOS 15+)
 2. Tap Share button (box with arrow pointing up)
 3. Scroll down and tap "Add to Home Screen"
-4. Verify icon preview shows SpeedoMontor car icon
-5. Edit name if desired (default: "SpeedoMontor")
+4. Verify icon preview shows SafeTrack car icon
+5. Edit name if desired (default: "SafeTrack")
 6. Tap "Add"
 
 ### 3.2 Home Screen Verification
 
 1. Go to iOS home screen
-2. Locate "SpeedoMontor" app icon
+2. Locate "SafeTrack" app icon
 3. Verify icon displays correctly (should use apple-touch-icon.png - 180x180)
 4. Icon should be sharp and clear (no blur)
 
 ### 3.3 Standalone Mode Testing
 
-1. Launch SpeedoMontor from home screen icon
+1. Launch SafeTrack from home screen icon
 2. App should open in standalone mode (no Safari UI)
 3. Verify status bar style (should be black-translucent, blending with dark theme)
 4. Check no Safari toolbar at bottom
@@ -166,7 +166,7 @@ This guide provides instructions for testing the PWA manifest implementation (US
 ### 4.1 Run Lighthouse Audit
 
 **Desktop Chrome:**
-1. Open SpeedoMontor in Chrome
+1. Open SafeTrack in Chrome
 2. Open DevTools (F12) → Lighthouse tab
 3. Select "Progressive Web App" category
 4. Select "Mobile" device
@@ -174,7 +174,7 @@ This guide provides instructions for testing the PWA manifest implementation (US
 
 **CLI (Alternative):**
 ```bash
-npx lighthouse https://your-SpeedoMontor-url.com --view --preset=pwa
+npx lighthouse https://your-SafeTrack-url.com --view --preset=pwa
 ```
 
 ### 4.2 Expected Scores
@@ -225,14 +225,14 @@ npx lighthouse https://your-SpeedoMontor-url.com --view --preset=pwa
 
 **Why test:** Samsung Internet has significant market share in Indonesia
 
-1. Open SpeedoMontor in Samsung Internet
+1. Open SafeTrack in Samsung Internet
 2. Tap menu → "Add page to" → "Home screen"
 3. Verify installation works
 4. Test standalone mode
 
 ### 5.2 Edge Mobile (Android)
 
-1. Open SpeedoMontor in Edge for Android
+1. Open SafeTrack in Edge for Android
 2. Check install prompt appears
 3. Test installation flow
 
@@ -240,7 +240,7 @@ npx lighthouse https://your-SpeedoMontor-url.com --view --preset=pwa
 
 **Note:** Firefox Android has limited PWA support (no standalone mode)
 
-1. Open SpeedoMontor in Firefox Android
+1. Open SafeTrack in Firefox Android
 2. Verify manifest loads (may not support full PWA features)
 3. Test "Add to Home Screen" if available
 
@@ -299,7 +299,7 @@ Verify existing features still work after PWA changes:
 
 ### Icons Not Displaying
 
-**Symptoms:** Default browser icon shown instead of SpeedoMontor icon
+**Symptoms:** Default browser icon shown instead of SafeTrack icon
 
 **Solutions:**
 1. Verify icons exist: `ls -la public/icons/`
@@ -338,7 +338,7 @@ Verify existing features still work after PWA changes:
 All US-5.5 acceptance criteria must be met:
 
 ✅ **`public/manifest.json` created** - Complete, accessible at `/manifest.json`  
-✅ **App name, short name configured** - "SpeedoMontor - Speed Monitoring System" / "SpeedoMontor"  
+✅ **App name, short name configured** - "SafeTrack - Speed Monitoring System" / "SafeTrack"  
 ✅ **Icons for all sizes** - 48, 72, 96, 144, 192, 512 + apple-touch-icon (180)  
 ✅ **Theme color, background color set** - #06b6d4 (cyan), #0a0c0f (dark)  
 ✅ **Display: standalone** - Configured in manifest.json  
@@ -375,9 +375,9 @@ Document testing results with screenshots:
 **Required Screenshots:**
 1. Chrome DevTools Manifest tab (desktop)
 2. Lighthouse PWA audit results
-3. Android home screen with SpeedoMontor icon
+3. Android home screen with SafeTrack icon
 4. Android standalone mode (no browser UI)
-5. iOS home screen with SpeedoMontor icon
+5. iOS home screen with SafeTrack icon
 6. iOS standalone mode (no Safari UI)
 
 **Save to:** `docs/screenshots/us-5.5/`

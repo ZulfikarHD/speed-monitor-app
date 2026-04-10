@@ -1,6 +1,6 @@
 {
-  "name": "SpeedoMontor - Speed Monitoring System",
-  "short_name": "SpeedoMontor",
+  "name": "SafeTrack - Speed Monitoring System",
+  "short_name": "SafeTrack",
   "description": "Monitor perjalanan dan kecepatan kendaraan secara real-time dengan dukungan offline",
   "start_url": "/",
   "display": "standalone",

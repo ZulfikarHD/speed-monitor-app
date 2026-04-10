@@ -2,7 +2,7 @@
  * Date Formatting Utilities
  *
  * Provides consistent date, time, and duration formatting utilities
- * for the SpeedoMontor application, using Asia/Jakarta timezone.
+ * for the SafeTrack application, using Asia/Jakarta timezone.
  */
 
 /**

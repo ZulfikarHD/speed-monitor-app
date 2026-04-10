@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Trip\ListTripsRequest;
+use App\Models\Setting;
 use App\Models\Trip;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -54,13 +55,21 @@ class MyTripsController extends Controller
             $query->whereDate('started_at', '<=', $request->input('date_to'));
         }
 
+        // Apply vehicle type filter
+        if ($request->has('vehicle_type')) {
+            $query->where('vehicle_type', $request->input('vehicle_type'));
+        }
+
         // Order by most recent first
         $query->orderBy('started_at', 'desc');
 
         $perPage = $request->input('per_page', 20);
         $trips = $query->paginate($perPage);
 
+        $speedLimit = Setting::where('key', 'speed_limit')->value('value') ?? 60;
+
         return Inertia::render('employee/MyTrips', [
+            'speedLimit' => (int) $speedLimit,
             'trips' => $trips->items(),
             'meta' => [
                 'current_page' => $trips->currentPage(),
@@ -72,6 +81,7 @@ class MyTripsController extends Controller
                 'status' => $request->input('status', ''),
                 'date_from' => $request->input('date_from', ''),
                 'date_to' => $request->input('date_to', ''),
+                'vehicle_type' => $request->input('vehicle_type', ''),
             ],
         ]);
     }

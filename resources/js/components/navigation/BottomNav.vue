@@ -3,7 +3,7 @@
  * Bottom Navigation Component
  *
  * Fixed bottom navigation bar for mobile devices with fake glass effect.
- * Follows SpeedMonitor design system with lucide icons and theme-aware styling.
+ * Follows SafeTrack design system with lucide icons and theme-aware styling.
  *
  * Features:
  * - 5 navigation items with lucide icons

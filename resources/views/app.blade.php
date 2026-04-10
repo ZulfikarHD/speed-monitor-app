@@ -14,7 +14,7 @@
         <!-- iOS-Specific Meta Tags -->
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-        <meta name="apple-mobile-web-app-title" content="SpeedoMontor">
+        <meta name="apple-mobile-web-app-title" content="SafeTrack">
 
         <!-- Theme Color (Android Chrome) -->
         <meta name="theme-color" content="#06b6d4">

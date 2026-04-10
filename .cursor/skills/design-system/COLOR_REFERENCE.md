@@ -1,4 +1,4 @@
-# SpeedMonitor Color Reference
+# SafeTrack Color Reference
 
 Complete color palette with hex values and usage guidelines for both light and dark modes.
 

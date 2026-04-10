@@ -13,7 +13,7 @@
  * - Responsive navigation (bottom mobile, top desktop)
  * - Content slot for page content
  * - Proper spacing for fixed navigation
- * - SpeedMonitor design system styling (extra dark mode)
+ * - SafeTrack design system styling (extra dark mode)
  * - Global PWA install prompt
  * - Global service worker update notification
  * - Accessible navigation landmarks
@@ -38,7 +38,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    title: 'SpeedMonitor - Superuser',
+    title: 'SafeTrack - Superuser',
 });
 
 // ========================================================================

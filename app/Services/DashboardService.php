@@ -49,6 +49,8 @@ class DashboardService
             'active_trips' => $this->getActiveTrips(),
             'top_violators' => $this->getTopViolatorsForPeriod($currentStart, $currentEnd, 5),
             'average_speed' => $this->getAverageSpeedForPeriod($currentStart, $currentEnd),
+            'average_speed_mobil' => $this->getAverageSpeedByVehicle($currentStart, $currentEnd, 'mobil'),
+            'average_speed_motor' => $this->getAverageSpeedByVehicle($currentStart, $currentEnd, 'motor'),
             'employee_summary' => $this->getEmployeeSummaryForPeriod($currentStart, $currentEnd),
             'recent_alerts' => $this->getRecentAlerts(),
             'date_range' => $dateRange,
@@ -403,7 +405,8 @@ class DashboardService
                 user_id,
                 SUM(violation_count) as total_violations,
                 COUNT(*) as total_trips,
-                ROUND(SUM(violation_count) / COUNT(*), 2) as violation_rate
+                ROUND(SUM(violation_count) / COUNT(*), 2) as violation_rate,
+                ROUND(AVG(CAST(total_distance AS DECIMAL(10,2))), 2) as average_distance
             ')
             ->with('user:id,name,email')
             ->whereBetween('started_at', [$dateFromStart, $dateToEnd])
@@ -423,7 +426,26 @@ class DashboardService
                 'violation_count' => (int) $result->total_violations,
                 'total_trips' => (int) $result->total_trips,
                 'violation_rate' => (float) $result->violation_rate,
+                'average_distance' => (float) ($result->average_distance ?? 0),
             ];
         })->values()->toArray();
+    }
+
+    /**
+     * Get average speed for a specific vehicle type within a period.
+     *
+     * @param  CarbonInterface  $start  Period start timestamp
+     * @param  CarbonInterface  $end  Period end timestamp
+     * @param  string  $vehicleType  Vehicle type (mobil|motor)
+     * @return float Average speed in km/h
+     */
+    private function getAverageSpeedByVehicle(CarbonInterface $start, CarbonInterface $end, string $vehicleType): float
+    {
+        $averageSpeed = Trip::whereBetween('started_at', [$start, $end])
+            ->where('status', TripStatus::Completed)
+            ->where('vehicle_type', $vehicleType)
+            ->avg('average_speed');
+
+        return round($averageSpeed ?? 0, 2);
     }
 }

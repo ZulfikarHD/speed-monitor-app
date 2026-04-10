@@ -31,6 +31,12 @@ export interface DashboardOverview {
     /** Average speed across all employees today (km/h) */
     average_speed: number;
 
+    /** Average speed for mobil vehicle type (km/h) */
+    average_speed_mobil: number;
+
+    /** Average speed for motor vehicle type (km/h) */
+    average_speed_motor: number;
+
     /** Employee summary statistics */
     employee_summary: EmployeeSummary;
 
@@ -193,6 +199,9 @@ export interface ViolationLeaderboardEntry {
 
     /** Violation rate (violations per trip) */
     violation_rate: number;
+
+    /** Average distance per trip in km */
+    average_distance: number;
 }
 
 /**

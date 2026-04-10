@@ -1,5 +1,5 @@
 <!--
-SpeedoMontor - Production GPS Speedometer
+SafeTrack - Production GPS Speedometer
 
 Full production speedometer with backend integration via Trip Store and Settings Store.
 Features professional design from HTML spec while maintaining proper API integration.
@@ -19,6 +19,8 @@ import { useAutoStop } from '@/composables/useAutoStop';
 import { useBackgroundSync } from '@/composables/useBackgroundSync';
 import { useGeolocation } from '@/composables/useGeolocation';
 import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
+import SuperuserLayout from '@/layouts/SuperuserLayout.vue';
+import { useAuthStore } from '@/stores/auth';
 import { useSettingsStore } from '@/stores/settings';
 import { useTripStore } from '@/stores/trip';
 import { haversineDistance, metersToKm, metersToMiles } from '@/utils/distance';
@@ -45,6 +47,12 @@ const props = defineProps<Props>();
 
 const tripStore = useTripStore();
 const settingsStore = useSettingsStore();
+const authStore = useAuthStore();
+
+const LayoutComponent = computed(() => {
+    const role = authStore.role;
+    return role === 'superuser' || role === 'admin' ? SuperuserLayout : EmployeeLayout;
+});
 const { speedKmh, speedMps, accuracy, coords, locatedAt, stopTracking } = useGeolocation();
 
 // Duration update interval
@@ -354,7 +362,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <EmployeeLayout title="Speedometer">
+    <component :is="LayoutComponent" title="Speedometer">
         <!-- ============================================================ -->
         <!-- OFFLINE INDICATOR (Fixed position, outside main layout) -->
         <!-- ============================================================ -->
@@ -535,7 +543,7 @@ onBeforeUnmount(() => {
             />
         </main>
         </div>
-    </EmployeeLayout>
+    </component>
 </template>
 
 <style scoped>

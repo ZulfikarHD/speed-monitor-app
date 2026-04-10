@@ -2,7 +2,7 @@
  * Icon Components Index
  *
  * Centralized export for all SVG icon components.
- * All icons follow SpeedMonitor design system:
+ * All icons follow SafeTrack design system:
  * - 2px stroke weight
  * - currentColor for theme-aware coloring
  * - Accepts size prop (default 24px)

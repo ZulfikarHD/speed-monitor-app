@@ -11,7 +11,7 @@
  * - Speed limit horizontal reference line (red dashed)
  * - Violation markers as red scatter points
  * - Gradient fill under speed line (cyan to transparent)
- * - Dark theme styling matching SpeedoMontor design
+ * - Dark theme styling matching SafeTrack design
  * - Responsive sizing with proper aspect ratio
  * - Tooltips showing exact speed and time on hover
  * - Loading skeleton state
@@ -123,7 +123,7 @@ const chartData = computed<ChartData<'line'>>(() => {
             {
                 label: 'Kecepatan',
                 data: speeds,
-                borderColor: '#22d3ee', // Cyan (SpeedoMontor theme)
+                borderColor: '#22d3ee', // Cyan (SafeTrack theme)
                 backgroundColor: (context) => {
                     // WHY: Gradient fill provides visual depth without overwhelming data
                     const chart = context.chart;
