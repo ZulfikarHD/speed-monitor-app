@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
 // Superuser routes (auth + superuser or admin role required)
 Route::middleware(['auth', 'role:superuser,admin'])->group(function () {
     Route::get('/superuser/dashboard', [SuperuserDashboardController::class, 'index'])->name('superuser.dashboard');
+    Route::get('/superuser/speedometer', [SpeedometerController::class, 'index'])->name('superuser.speedometer');
     Route::get('/superuser/trips', [AllTripsController::class, 'index'])->name('superuser.trips');
     Route::get('/superuser/trips/export', [AllTripsController::class, 'export'])->name('superuser.trips.export');
     Route::get('/superuser/leaderboard', [SuperuserDashboardController::class, 'violations'])->name('superuser.leaderboard');

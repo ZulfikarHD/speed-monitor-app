@@ -74,6 +74,10 @@ const { handleLogout, isLoading: isLoggingOut } = useAuth();
 const profileForm = useForm({
     name: props.user.name,
     email: props.user.email,
+    npk: props.user.npk || '',
+    divisi: props.user.divisi || '',
+    departement: props.user.departement || '',
+    section: props.user.section || '',
 });
 
 // ========================================================================
@@ -406,121 +410,97 @@ function submitProfile(): void {
 
                     <!-- NPK Field -->
                     <div>
-                        <Label>NPK</Label>
-                        <div
-                            class="flex items-center gap-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 px-4 py-3"
-                        >
-                            <Hash
-                                :size="18"
-                                class="text-zinc-500 dark:text-zinc-400"
+                        <Label for="profile-npk">NPK</Label>
+                        <div class="relative">
+                            <div
+                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                            >
+                                <Hash
+                                    :size="18"
+                                    class="text-zinc-400 dark:text-zinc-500"
+                                />
+                            </div>
+                            <Input
+                                id="profile-npk"
+                                v-model="profileForm.npk"
+                                type="text"
+                                placeholder="Masukkan NPK"
+                                :disabled="profileForm.processing"
+                                :error="profileForm.errors.npk"
+                                class="pl-10"
                             />
-                            <span
-                                v-if="user.npk"
-                                class="flex-1 text-sm font-medium text-zinc-700 dark:text-zinc-300"
-                            >
-                                {{ user.npk }}
-                            </span>
-                            <span
-                                v-else
-                                class="flex-1 text-sm text-zinc-400 dark:text-zinc-500 italic"
-                            >
-                                Belum diisi
-                            </span>
-                            <span
-                                class="rounded-full bg-cyan-100 dark:bg-cyan-500/20 px-2.5 py-1 text-xs font-medium text-cyan-700 dark:text-cyan-300"
-                            >
-                                Hanya-baca
-                            </span>
                         </div>
                     </div>
 
                     <!-- Divisi Field -->
                     <div>
-                        <Label>Divisi</Label>
-                        <div
-                            class="flex items-center gap-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 px-4 py-3"
-                        >
-                            <Building2
-                                :size="18"
-                                class="text-zinc-500 dark:text-zinc-400"
+                        <Label for="profile-divisi">Divisi</Label>
+                        <div class="relative">
+                            <div
+                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                            >
+                                <Building2
+                                    :size="18"
+                                    class="text-zinc-400 dark:text-zinc-500"
+                                />
+                            </div>
+                            <Input
+                                id="profile-divisi"
+                                v-model="profileForm.divisi"
+                                type="text"
+                                placeholder="Masukkan divisi"
+                                :disabled="profileForm.processing"
+                                :error="profileForm.errors.divisi"
+                                class="pl-10"
                             />
-                            <span
-                                v-if="user.divisi"
-                                class="flex-1 text-sm font-medium text-zinc-700 dark:text-zinc-300"
-                            >
-                                {{ user.divisi }}
-                            </span>
-                            <span
-                                v-else
-                                class="flex-1 text-sm text-zinc-400 dark:text-zinc-500 italic"
-                            >
-                                Belum diisi
-                            </span>
-                            <span
-                                class="rounded-full bg-cyan-100 dark:bg-cyan-500/20 px-2.5 py-1 text-xs font-medium text-cyan-700 dark:text-cyan-300"
-                            >
-                                Hanya-baca
-                            </span>
                         </div>
                     </div>
 
                     <!-- Departement Field -->
                     <div>
-                        <Label>Departement</Label>
-                        <div
-                            class="flex items-center gap-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 px-4 py-3"
-                        >
-                            <Briefcase
-                                :size="18"
-                                class="text-zinc-500 dark:text-zinc-400"
+                        <Label for="profile-departement">Departement</Label>
+                        <div class="relative">
+                            <div
+                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                            >
+                                <Briefcase
+                                    :size="18"
+                                    class="text-zinc-400 dark:text-zinc-500"
+                                />
+                            </div>
+                            <Input
+                                id="profile-departement"
+                                v-model="profileForm.departement"
+                                type="text"
+                                placeholder="Masukkan departement"
+                                :disabled="profileForm.processing"
+                                :error="profileForm.errors.departement"
+                                class="pl-10"
                             />
-                            <span
-                                v-if="user.departement"
-                                class="flex-1 text-sm font-medium text-zinc-700 dark:text-zinc-300"
-                            >
-                                {{ user.departement }}
-                            </span>
-                            <span
-                                v-else
-                                class="flex-1 text-sm text-zinc-400 dark:text-zinc-500 italic"
-                            >
-                                Belum diisi
-                            </span>
-                            <span
-                                class="rounded-full bg-cyan-100 dark:bg-cyan-500/20 px-2.5 py-1 text-xs font-medium text-cyan-700 dark:text-cyan-300"
-                            >
-                                Hanya-baca
-                            </span>
                         </div>
                     </div>
 
                     <!-- Section Field -->
                     <div>
-                        <Label>Section</Label>
-                        <div
-                            class="flex items-center gap-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 px-4 py-3"
-                        >
-                            <Layers
-                                :size="18"
-                                class="text-zinc-500 dark:text-zinc-400"
+                        <Label for="profile-section">Section</Label>
+                        <div class="relative">
+                            <div
+                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                            >
+                                <Layers
+                                    :size="18"
+                                    class="text-zinc-400 dark:text-zinc-500"
+                                />
+                            </div>
+                            <Input
+                                id="profile-section"
+                                v-model="profileForm.section"
+                                type="text"
+                                placeholder="Masukkan section"
+                                :disabled="profileForm.processing"
+                                :error="profileForm.errors.section"
+                                class="pl-10"
                             />
-                            <span
-                                v-if="user.section"
-                                class="flex-1 text-sm font-medium text-zinc-700 dark:text-zinc-300"
-                            >
-                                {{ user.section }}
-                            </span>
-                            <span
-                                v-else
-                                class="flex-1 text-sm text-zinc-400 dark:text-zinc-500 italic"
-                            >
-                                Belum diisi
-                            </span>
-                            <span
-                                class="rounded-full bg-cyan-100 dark:bg-cyan-500/20 px-2.5 py-1 text-xs font-medium text-cyan-700 dark:text-cyan-300"
-                            >
-                                Hanya-baca
-                            </span>
                         </div>
                     </div>
 

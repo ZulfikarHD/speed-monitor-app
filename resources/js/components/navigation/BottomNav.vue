@@ -21,7 +21,7 @@ import {
     Gauge,
     Home,
     Road,
-    Trophy,
+    Settings,
     User,
     Users,
 } from '@lucide/vue';
@@ -56,9 +56,9 @@ const employeeNavItems: NavItem[] = [
 /** Superuser/Admin navigation items (mobile) */
 const superuserNavItems: NavItem[] = [
     { id: 'dashboard', label: 'Dasbor', icon: BarChart3, href: '/superuser/dashboard' },
-    { id: 'trips', label: 'Semua Trip', icon: Road, href: '/superuser/trips' },
-    { id: 'leaderboard', label: 'Peringkat', icon: Trophy, href: '/superuser/leaderboard' },
+    { id: 'speedometer', label: 'Speedometer', icon: Gauge, href: '/superuser/speedometer' },
     { id: 'employees', label: 'Karyawan', icon: Users, href: '/superuser/employees' },
+    { id: 'settings', label: 'Pengaturan', icon: Settings, href: '/admin/settings' },
     { id: 'profile', label: 'Profil', icon: User, href: '/profile' },
 ];
 

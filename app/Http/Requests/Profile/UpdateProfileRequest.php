@@ -35,6 +35,10 @@ class UpdateProfileRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
+            'npk' => ['nullable', 'string', 'max:50'],
+            'divisi' => ['nullable', 'string', 'max:100'],
+            'departement' => ['nullable', 'string', 'max:100'],
+            'section' => ['nullable', 'string', 'max:100'],
         ];
     }
 

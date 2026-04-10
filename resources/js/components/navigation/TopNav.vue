@@ -65,6 +65,7 @@ const employeeNavItems: NavItem[] = [
 /** Superuser/Admin navigation items */
 const superuserNavItems: NavItem[] = [
     { id: 'dashboard', label: 'Dasbor', icon: BarChart3, href: '/superuser/dashboard' },
+    { id: 'speedometer', label: 'Speedometer', icon: Gauge, href: '/superuser/speedometer' },
     { id: 'trips', label: 'Semua Trip', icon: Road, href: '/superuser/trips' },
     { id: 'leaderboard', label: 'Peringkat', icon: Trophy, href: '/superuser/leaderboard' },
     { id: 'employees', label: 'Karyawan', icon: Users, href: '/superuser/employees' },

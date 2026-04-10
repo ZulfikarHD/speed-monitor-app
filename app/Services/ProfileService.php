@@ -45,6 +45,10 @@ class ProfileService
         $user->update([
             'name' => $data['name'],
             'email' => $data['email'],
+            'npk' => $data['npk'] ?? $user->npk,
+            'divisi' => $data['divisi'] ?? $user->divisi,
+            'departement' => $data['departement'] ?? $user->departement,
+            'section' => $data['section'] ?? $user->section,
         ]);
 
         return $user->fresh();

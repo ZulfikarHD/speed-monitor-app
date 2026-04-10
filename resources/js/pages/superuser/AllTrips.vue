@@ -10,7 +10,6 @@
  * - Advanced filtering (employee, date range, status, violations)
  * - Sorting (date, violations, distance, duration)
  * - Responsive design (table on desktop, cards on mobile)
- * - CSV export with lucide icons
  * - Lightweight opacity/y animations
  * - Empty states with SVG icons
  * - Full light/dark theme support
@@ -19,7 +18,7 @@
  */
 
 import { router } from '@inertiajs/vue3';
-import { Download, Loader2, Road } from '@lucide/vue';
+import { Road } from '@lucide/vue';
 import { AnimatePresence, motion } from 'motion-v';
 import { computed, ref } from 'vue';
 
@@ -223,52 +222,6 @@ function navigateToTrip(tripId: number): void {
     router.visit(showWeb.url({ trip: tripId }));
 }
 
-/** Loading state for CSV export */
-const isExporting = ref(false);
-
-/**
- * Handle CSV export with applied filters.
- *
- * WHY: Triggers browser download via direct navigation to export URL
- * with current filter parameters instead of AJAX to handle file download.
- */
-function handleExport(): void {
-    if (isExporting.value) {
-        return;
-    }
-
-    isExporting.value = true;
-
-    const params = new URLSearchParams();
-
-    if (props.filters.user_id) {
-        params.append('user_id', String(props.filters.user_id));
-    }
-
-    if (props.filters.date_from) {
-        params.append('date_from', props.filters.date_from);
-    }
-
-    if (props.filters.date_to) {
-        params.append('date_to', props.filters.date_to);
-    }
-
-    if (props.filters.status) {
-        params.append('status', props.filters.status);
-    }
-
-    if (props.filters.violations_only) {
-        params.append('violations_only', 'true');
-    }
-
-    const exportUrl = '/superuser/trips/export?' + params.toString();
-    window.location.href = exportUrl;
-
-    setTimeout(() => {
-        isExporting.value = false;
-    }, 2000);
-}
-
 // ========================================================================
 // Formatting Helpers
 // ========================================================================
@@ -345,41 +298,6 @@ function getViolationColor(count: number): string {
                         Pantau semua perjalanan karyawan dengan filter lanjutan
                     </p>
                 </div>
-
-                <!-- Export Button -->
-                <button
-                    :disabled="isExporting || showEmptyState"
-                    :class="[
-                        'flex h-12 items-center gap-2 rounded-lg border px-4 text-sm font-medium transition-all duration-200',
-                        isExporting || showEmptyState
-                            ? 'cursor-not-allowed border-zinc-300 dark:border-white/10 bg-zinc-100 dark:bg-zinc-800/50 text-zinc-400 dark:text-zinc-600 opacity-50'
-                            : 'border-cyan-500/30 bg-cyan-500/20 dark:bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 hover:border-cyan-500/50 hover:bg-cyan-500/30 dark:hover:bg-cyan-500/25 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/10',
-                    ]"
-                    :title="
-                        showEmptyState
-                            ? 'Tidak ada data untuk diekspor'
-                            : 'Ekspor perjalanan ke CSV'
-                    "
-                    aria-label="Ekspor perjalanan ke CSV"
-                    @click="handleExport"
-                >
-                    <Loader2
-                        v-if="isExporting"
-                        :size="20"
-                        :stroke-width="2"
-                        class="animate-spin"
-                        aria-hidden="true"
-                    />
-                    <Download
-                        v-else
-                        :size="20"
-                        :stroke-width="2"
-                        aria-hidden="true"
-                    />
-                    <span class="hidden sm:inline">
-                        {{ isExporting ? 'Mengekspor...' : 'Ekspor CSV' }}
-                    </span>
-                </button>
             </motion.div>
 
             <!-- Filters Section -->
