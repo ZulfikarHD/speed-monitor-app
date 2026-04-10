@@ -377,35 +377,35 @@ onBeforeUnmount(() => {
 
         <div class="speedometer-page bg-white dark:bg-[#0a0c0f] text-zinc-900 dark:text-[#e8eaf0]">
             <!-- Header -->
-            <header class="velo-header w-full px-5 py-3 flex justify-between items-center border-b border-zinc-200 dark:border-[#1e2230] bg-white/95 dark:bg-[rgba(10,12,15,0.95)] backdrop-blur-[10px] sticky top-0 z-10">
-                <div class="header-left flex items-center gap-4">
-                    <div class="velo-logo font-[Bebas_Neue] text-xl tracking-[3px] text-cyan-600 dark:text-[#00e5ff] [text-shadow:0_0_20px_rgba(6,182,212,0.35)] dark:[text-shadow:0_0_20px_rgba(0,229,255,0.35)]">
-                        Speed<span class="text-zinc-900 dark:text-[#e8eaf0]">Monitor</span>
+            <header class="velo-header w-full px-4 py-1.5 flex justify-between items-center border-b border-zinc-200 dark:border-[#1e2230] bg-white/95 dark:bg-[rgba(10,12,15,0.95)] backdrop-blur-[10px] sticky top-0 z-10">
+                <div class="header-left flex items-center gap-3">
+                    <div class="velo-logo font-[Bebas_Neue] text-lg tracking-[3px] text-cyan-600 dark:text-[#00e5ff] [text-shadow:0_0_20px_rgba(6,182,212,0.35)] dark:[text-shadow:0_0_20px_rgba(0,229,255,0.35)]">
+                        Safe<span class="text-zinc-900 dark:text-[#e8eaf0]">Track</span>
                     </div>
                 </div>
-                <div class="status-indicator flex items-center gap-2 text-xs tracking-[1.5px] uppercase text-zinc-400 dark:text-[#4a5068]">
-                    <div :class="['status-dot w-2 h-2 rounded-full bg-zinc-400 dark:bg-[#4a5068] transition-all duration-400', gpsStatusClass]" />
+                <div class="status-indicator flex items-center gap-1.5 text-[10px] tracking-[1.5px] uppercase text-zinc-400 dark:text-[#4a5068]">
+                    <div :class="['status-dot w-1.5 h-1.5 rounded-full bg-zinc-400 dark:bg-[#4a5068] transition-all duration-400', gpsStatusClass]" />
                     <span>{{ gpsStatus }}</span>
                 </div>
             </header>
 
-        <!-- Main (compact layout for mobile) -->
-        <main class="velo-main w-full max-w-md md:max-w-lg lg:max-w-2xl px-3 py-3 pb-4 mx-auto flex flex-col items-center gap-2.5">
-            <!-- Speed Limit Banner (compact) -->
-            <div class="limit-banner w-full flex flex-wrap items-center justify-between bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-xl p-3 px-4 gap-3">
-                <div class="limit-info flex flex-col gap-0.5">
-                    <div class="limit-label text-[10px] tracking-[2px] uppercase text-zinc-500 dark:text-[#4a5068]">Batas Kecepatan</div>
-                    <div class="limit-value font-[Bebas_Neue] text-[1.5rem] tracking-[2px] text-cyan-600 dark:text-[#00e5ff] [text-shadow:0_0_10px_rgba(6,182,212,0.3)] dark:[text-shadow:0_0_10px_rgba(0,229,255,0.3)]">
-                        {{ currentSpeedLimit }} {{ unit === 'kmh' ? 'km/h' : 'mph' }}
+        <!-- Main (ultra-compact layout for mobile) -->
+        <main class="velo-main w-full max-w-md md:max-w-lg lg:max-w-2xl px-2.5 py-1.5 pb-2 mx-auto flex flex-col items-center gap-1.5">
+            <!-- Speed Limit + Unit Toggle (single compact row) -->
+            <div class="limit-banner w-full flex items-center justify-between bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-lg px-3 py-1.5">
+                <div class="limit-info flex items-center gap-2">
+                    <div class="limit-label text-[9px] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068]">Batas</div>
+                    <div class="limit-value font-[Bebas_Neue] text-xl tracking-[2px] text-cyan-600 dark:text-[#00e5ff] leading-none">
+                        {{ currentSpeedLimit }} <span class="text-xs text-zinc-400 dark:text-[#4a5068]">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</span>
                     </div>
                 </div>
-                <div class="unit-toggle flex bg-white dark:bg-[#0a0c0f] border border-zinc-200 dark:border-[#1e2230] rounded-lg overflow-hidden">
+                <div class="unit-toggle flex bg-white dark:bg-[#0a0c0f] border border-zinc-200 dark:border-[#1e2230] rounded-md overflow-hidden">
                     <button
                         :class="{
                             'bg-cyan-600 text-white font-semibold': unit === 'kmh',
                             'bg-transparent text-zinc-500 dark:text-[#4a5068]': unit !== 'kmh'
                         }"
-                        class="min-h-[36px] px-3 py-1.5 border-none text-xs tracking-wider uppercase cursor-pointer transition-all duration-200"
+                        class="px-2.5 py-1 border-none text-[10px] tracking-wider uppercase cursor-pointer transition-all duration-200"
                         @click="setUnit('kmh')"
                     >
                         km/h
@@ -415,7 +415,7 @@ onBeforeUnmount(() => {
                             'bg-cyan-600 text-white font-semibold': unit === 'mph',
                             'bg-transparent text-zinc-500 dark:text-[#4a5068]': unit !== 'mph'
                         }"
-                        class="min-h-[36px] px-3 py-1.5 border-none text-xs tracking-wider uppercase cursor-pointer transition-all duration-200"
+                        class="px-2.5 py-1 border-none text-[10px] tracking-wider uppercase cursor-pointer transition-all duration-200"
                         @click="setUnit('mph')"
                     >
                         mph
@@ -423,8 +423,8 @@ onBeforeUnmount(() => {
                 </div>
             </div>
 
-            <!-- Gauge (constrained height for mobile) -->
-            <div class="w-full max-h-[38vh] flex items-center justify-center">
+            <!-- Gauge (scales down on pre-trip to fit controls on screen) -->
+            <div class="gauge-wrapper w-full flex items-center justify-center" :class="tripStore.hasActiveTrip ? 'gauge-active' : 'gauge-idle'">
                 <ProductionGauge
                     :speed="currentSpeed"
                     :speed-limit="currentSpeedLimit"
@@ -432,49 +432,49 @@ onBeforeUnmount(() => {
                 />
             </div>
 
-            <!-- Stats Grid (3 columns: Max, Avg, STD) -->
-            <div class="stats-grid w-full grid grid-cols-3 gap-2">
-                <div class="stat-card danger relative overflow-hidden bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-xl p-3 px-3 flex flex-col gap-1">
-                    <div class="stat-label text-[10px] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068]">Kec. Maks</div>
-                    <div class="stat-value font-[Share_Tech_Mono] text-[1.4rem] text-zinc-900 dark:text-[#e8eaf0] leading-none">{{ Math.round(maxSpeed) }}</div>
-                    <div class="stat-unit text-[0.6rem] text-zinc-400 dark:text-[#4a5068] tracking-wider">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
+            <!-- Stats Row (inline 3-col: Max | Avg | STD) -->
+            <div class="stats-grid w-full grid grid-cols-3 gap-1.5">
+                <div class="stat-card danger relative overflow-hidden bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-lg p-2 flex flex-col gap-0.5">
+                    <div class="stat-label text-[9px] tracking-[1px] uppercase text-zinc-500 dark:text-[#4a5068]">Maks</div>
+                    <div class="stat-value font-[Share_Tech_Mono] text-lg text-zinc-900 dark:text-[#e8eaf0] leading-none">{{ Math.round(maxSpeed) }}</div>
+                    <div class="stat-unit text-[0.55rem] text-zinc-400 dark:text-[#4a5068]">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
                 </div>
-                <div class="stat-card warn relative overflow-hidden bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-xl p-3 px-3 flex flex-col gap-1">
-                    <div class="stat-label text-[10px] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068]">Kec. Rata2</div>
-                    <div class="stat-value font-[Share_Tech_Mono] text-[1.4rem] text-zinc-900 dark:text-[#e8eaf0] leading-none">{{ Math.round(avgSpeed) }}</div>
-                    <div class="stat-unit text-[0.6rem] text-zinc-400 dark:text-[#4a5068] tracking-wider">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
+                <div class="stat-card warn relative overflow-hidden bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-lg p-2 flex flex-col gap-0.5">
+                    <div class="stat-label text-[9px] tracking-[1px] uppercase text-zinc-500 dark:text-[#4a5068]">Rata2</div>
+                    <div class="stat-value font-[Share_Tech_Mono] text-lg text-zinc-900 dark:text-[#e8eaf0] leading-none">{{ Math.round(avgSpeed) }}</div>
+                    <div class="stat-unit text-[0.55rem] text-zinc-400 dark:text-[#4a5068]">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
                 </div>
-                <div class="stat-card relative overflow-hidden bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-xl p-3 px-3 flex flex-col gap-1">
-                    <div class="stat-label text-[10px] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068]">STD Speed</div>
-                    <div class="stat-value font-[Share_Tech_Mono] text-[1.4rem] text-cyan-600 dark:text-[#00e5ff] leading-none">{{ currentSpeedLimit }}</div>
-                    <div class="stat-unit text-[0.6rem] text-zinc-400 dark:text-[#4a5068] tracking-wider">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
+                <div class="stat-card relative overflow-hidden bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-lg p-2 flex flex-col gap-0.5">
+                    <div class="stat-label text-[9px] tracking-[1px] uppercase text-zinc-500 dark:text-[#4a5068]">STD</div>
+                    <div class="stat-value font-[Share_Tech_Mono] text-lg text-cyan-600 dark:text-[#00e5ff] leading-none">{{ currentSpeedLimit }}</div>
+                    <div class="stat-unit text-[0.55rem] text-zinc-400 dark:text-[#4a5068]">{{ unit === 'kmh' ? 'km/h' : 'mph' }}</div>
                 </div>
             </div>
 
-            <!-- Trip Bar (compact) -->
-            <div class="trip-bar w-full bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-xl p-3 px-3 flex justify-between items-center">
+            <!-- Trip Bar (compact inline) -->
+            <div class="trip-bar w-full bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-lg px-3 py-2 flex justify-between items-center">
                 <div class="trip-item text-center">
-                    <div class="trip-val font-[Share_Tech_Mono] text-[1.1rem] text-cyan-600 dark:text-[#00e5ff]">{{ tripDistance.toFixed(2) }}</div>
-                    <div class="trip-lbl text-[10px] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068] mt-[2px]">Jarak ({{ unit === 'kmh' ? 'km' : 'mi' }})</div>
+                    <div class="trip-val font-[Share_Tech_Mono] text-base text-cyan-600 dark:text-[#00e5ff] leading-none">{{ tripDistance.toFixed(2) }}</div>
+                    <div class="trip-lbl text-[9px] tracking-[1px] uppercase text-zinc-500 dark:text-[#4a5068] mt-0.5">{{ unit === 'kmh' ? 'km' : 'mi' }}</div>
                 </div>
-                <div class="trip-divider w-px h-7 bg-zinc-300 dark:bg-[#1e2230]" />
+                <div class="trip-divider w-px h-5 bg-zinc-300 dark:bg-[#1e2230]" />
                 <div class="trip-item text-center">
-                    <div class="trip-val font-[Share_Tech_Mono] text-[1.1rem] text-cyan-600 dark:text-[#00e5ff]">
+                    <div class="trip-val font-[Share_Tech_Mono] text-base text-cyan-600 dark:text-[#00e5ff] leading-none">
                         {{ Math.floor(tripStore.stats.duration / 60).toString().padStart(2, '0') }}:{{ (tripStore.stats.duration % 60).toString().padStart(2, '0') }}
                     </div>
-                    <div class="trip-lbl text-[10px] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068] mt-[2px]">Durasi</div>
+                    <div class="trip-lbl text-[9px] tracking-[1px] uppercase text-zinc-500 dark:text-[#4a5068] mt-0.5">Durasi</div>
                 </div>
-                <div class="trip-divider w-px h-7 bg-zinc-300 dark:bg-[#1e2230]" />
+                <div class="trip-divider w-px h-5 bg-zinc-300 dark:bg-[#1e2230]" />
                 <div class="trip-item text-center">
-                    <div class="trip-val font-[Share_Tech_Mono] text-[1.1rem] text-cyan-600 dark:text-[#00e5ff]">{{ tripStore.stats.violationCount }}</div>
-                    <div class="trip-lbl text-[10px] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068] mt-[2px]">Pelanggaran</div>
+                    <div class="trip-val font-[Share_Tech_Mono] text-base text-cyan-600 dark:text-[#00e5ff] leading-none">{{ tripStore.stats.violationCount }}</div>
+                    <div class="trip-lbl text-[9px] tracking-[1px] uppercase text-zinc-500 dark:text-[#4a5068] mt-0.5">Pelanggaran</div>
                 </div>
             </div>
 
             <!-- GPS Accuracy (compact) -->
-            <div class="accuracy-row w-full flex items-center gap-2 px-1">
-                <div class="accuracy-label text-[10px] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068] whitespace-nowrap">Akurasi GPS</div>
-                <div class="accuracy-bar flex-1 h-[3px] bg-zinc-300 dark:bg-[#1e2230] rounded-[2px] overflow-hidden">
+            <div class="accuracy-row w-full flex items-center gap-1.5 px-0.5">
+                <div class="accuracy-label text-[9px] tracking-[1px] uppercase text-zinc-500 dark:text-[#4a5068] whitespace-nowrap">GPS</div>
+                <div class="accuracy-bar flex-1 h-[2px] bg-zinc-300 dark:bg-[#1e2230] rounded-[2px] overflow-hidden">
                     <div
                         class="accuracy-fill h-full rounded-[2px] transition-all duration-500"
                         :style="{
@@ -483,29 +483,29 @@ onBeforeUnmount(() => {
                         }"
                     />
                 </div>
-                <div class="accuracy-text font-[Share_Tech_Mono] text-[0.65rem] text-zinc-500 dark:text-[#4a5068] min-w-[45px] text-right">
-                    {{ accuracy !== null ? Math.round(accuracy) + ' m' : '— m' }}
+                <div class="accuracy-text font-[Share_Tech_Mono] text-[0.6rem] text-zinc-500 dark:text-[#4a5068] min-w-[38px] text-right">
+                    {{ accuracy !== null ? Math.round(accuracy) + 'm' : '—' }}
                 </div>
             </div>
 
-            <!-- Shift & Vehicle Selection (shown before trip starts) -->
-            <div v-if="!tripStore.hasActiveTrip" class="w-full space-y-2">
+            <!-- Shift & Vehicle Selection (combined single card, shown before trip starts) -->
+            <div v-if="!tripStore.hasActiveTrip" class="w-full bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-lg p-2.5 space-y-2">
                 <!-- Shift Type -->
-                <div class="w-full bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-xl p-3">
-                    <div class="text-[10px] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068] mb-2">Shift</div>
-                    <div class="grid grid-cols-3 gap-1.5">
+                <div>
+                    <div class="text-[9px] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068] mb-1.5">Shift</div>
+                    <div class="grid grid-cols-3 gap-1">
                         <button
                             v-for="opt in [
                                 { value: 'non_shift', label: 'Non Shift' },
-                                { value: 'shift_pagi', label: 'Shift Pagi' },
-                                { value: 'shift_malam', label: 'Shift Malam' },
+                                { value: 'shift_pagi', label: 'Pagi' },
+                                { value: 'shift_malam', label: 'Malam' },
                             ]"
                             :key="opt.value"
                             type="button"
-                            class="rounded-lg px-2 py-2 text-xs font-medium transition-all duration-200 text-center"
+                            class="rounded-md px-1.5 py-1.5 text-[11px] font-medium transition-all duration-200 text-center"
                             :class="selectedShift === opt.value
                                 ? 'bg-cyan-600 text-white shadow-sm'
-                                : 'bg-white dark:bg-[#0a0c0f] text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-[#1e2230] hover:bg-zinc-50 dark:hover:bg-zinc-800'"
+                                : 'bg-white dark:bg-[#0a0c0f] text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-[#1e2230]'"
                             @click="selectedShift = opt.value"
                         >
                             {{ opt.label }}
@@ -514,9 +514,9 @@ onBeforeUnmount(() => {
                 </div>
 
                 <!-- Vehicle Type -->
-                <div class="w-full bg-zinc-100 dark:bg-[#111318] border border-zinc-200 dark:border-[#1e2230] rounded-xl p-3">
-                    <div class="text-[10px] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068] mb-2">Kendaraan</div>
-                    <div class="grid grid-cols-2 gap-1.5">
+                <div>
+                    <div class="text-[9px] tracking-[1.5px] uppercase text-zinc-500 dark:text-[#4a5068] mb-1.5">Kendaraan</div>
+                    <div class="grid grid-cols-2 gap-1">
                         <button
                             v-for="opt in [
                                 { value: 'mobil', label: 'Mobil' },
@@ -524,10 +524,10 @@ onBeforeUnmount(() => {
                             ]"
                             :key="opt.value"
                             type="button"
-                            class="rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200 text-center"
+                            class="rounded-md px-2 py-1.5 text-[11px] font-medium transition-all duration-200 text-center"
                             :class="selectedVehicle === opt.value
                                 ? 'bg-cyan-600 text-white shadow-sm'
-                                : 'bg-white dark:bg-[#0a0c0f] text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-[#1e2230] hover:bg-zinc-50 dark:hover:bg-zinc-800'"
+                                : 'bg-white dark:bg-[#0a0c0f] text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-[#1e2230]'"
                             @click="selectedVehicle = opt.value"
                         >
                             {{ opt.label }}
@@ -604,11 +604,60 @@ onBeforeUnmount(() => {
     opacity: 0.6;
 }
 
-/* Landscape mode optimizations (short screens) */
+/* Gauge scaling — shrink before trip to fit start button on screen */
+.gauge-wrapper {
+    overflow: hidden;
+}
+
+.gauge-idle {
+    max-height: 22vh;
+}
+
+.gauge-idle :deep(.gauge-container) {
+    transform: scale(0.72);
+    transform-origin: center center;
+}
+
+.gauge-active {
+    max-height: 32vh;
+}
+
+.gauge-active :deep(.gauge-container) {
+    transform: scale(0.85);
+    transform-origin: center center;
+}
+
+@media (min-height: 750px) {
+    .gauge-idle {
+        max-height: 26vh;
+    }
+
+    .gauge-idle :deep(.gauge-container) {
+        transform: scale(0.82);
+    }
+
+    .gauge-active {
+        max-height: 36vh;
+    }
+
+    .gauge-active :deep(.gauge-container) {
+        transform: scale(0.95);
+    }
+}
+
+/* Short screen / landscape optimizations */
+@media (max-height: 700px) {
+    .velo-main {
+        gap: 4px !important;
+        padding-top: 4px !important;
+        padding-bottom: 4px !important;
+    }
+}
+
 @media (orientation: landscape) and (max-height: 500px) {
     .velo-main {
-        padding: 8px 12px 12px !important;
-        gap: 6px !important;
+        padding: 4px 10px 8px !important;
+        gap: 3px !important;
     }
 
     .stats-grid,
@@ -618,7 +667,7 @@ onBeforeUnmount(() => {
     }
 
     .limit-banner {
-        padding: 6px 10px !important;
+        padding: 4px 8px !important;
     }
 }
 </style>

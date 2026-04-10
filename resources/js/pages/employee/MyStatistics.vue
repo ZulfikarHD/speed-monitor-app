@@ -20,8 +20,10 @@
 import { Link, router } from '@inertiajs/vue3';
 import { ArrowRight, BarChart3 } from '@lucide/vue';
 
-import { index as speedometerIndex } from '@/actions/App/Http/Controllers/Employee/SpeedometerController';
+import { index as speedometerRoutes } from '@/actions/App/Http/Controllers/Employee/SpeedometerController';
 import { index } from '@/actions/App/Http/Controllers/Employee/StatisticsController';
+
+const speedometerIndex = speedometerRoutes['/employee/speedometer'];
 import PeriodSelector from '@/components/statistics/PeriodSelector.vue';
 import StatCard from '@/components/statistics/StatCard.vue';
 import TripsChart from '@/components/statistics/TripsChart.vue';

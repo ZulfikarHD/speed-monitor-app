@@ -270,12 +270,12 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="w-full max-w-md mx-auto space-y-4">
+    <div class="w-full max-w-md mx-auto space-y-2">
 
         <!-- ============================================================
              Control Buttons
              ============================================================ -->
-        <div class="space-y-3">
+        <div class="space-y-2">
             <!-- Start Trip Button -->
             <AnimatePresence>
                 <motion.button
@@ -285,16 +285,16 @@ onBeforeUnmount(() => {
                     :animate="{ opacity: 1, scale: 1 }"
                     :exit="{ opacity: 0, scale: 0.9 }"
                     :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
-                    class="w-full min-h-[44px] py-4 px-6 rounded-lg font-semibold text-white transition-all duration-200 hover:shadow-lg active:scale-[0.98] focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-300/50 dark:focus-visible:ring-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 bg-linear-to-r from-emerald-600 to-green-700 dark:from-emerald-500 dark:to-green-600"
+                    class="w-full min-h-[44px] py-3 px-5 rounded-lg font-semibold text-white transition-all duration-200 hover:shadow-lg active:scale-[0.98] focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-300/50 dark:focus-visible:ring-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 bg-linear-to-r from-emerald-600 to-green-700 dark:from-emerald-500 dark:to-green-600"
                     :disabled="isLoading"
                     @click="handleStartTrip"
                 >
-                    <span v-if="tripStore.isStarting" class="flex items-center justify-center gap-3">
-                        <Loader2 :size="20" class="animate-spin shrink-0" />
+                    <span v-if="tripStore.isStarting" class="flex items-center justify-center gap-2">
+                        <Loader2 :size="18" class="animate-spin shrink-0" />
                         Memulai...
                     </span>
                     <span v-else class="inline-flex items-center justify-center gap-2">
-                        <Play :size="20" class="shrink-0" />
+                        <Play :size="18" class="shrink-0" />
                         Mulai Perjalanan
                     </span>
                 </motion.button>
@@ -309,16 +309,16 @@ onBeforeUnmount(() => {
                     :animate="{ opacity: 1, scale: 1 }"
                     :exit="{ opacity: 0, scale: 0.9 }"
                     :transition="{ type: 'spring', bounce: 0.4, duration: 0.5 }"
-                    class="w-full min-h-[44px] py-4 px-6 rounded-lg font-semibold text-white transition-all duration-200 hover:shadow-lg active:scale-[0.98] focus:outline-none focus-visible:ring-4 focus-visible:ring-red-300/50 dark:focus-visible:ring-red-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 bg-linear-to-r from-red-600 to-rose-700 dark:from-red-500 dark:to-rose-600"
+                    class="w-full min-h-[44px] py-3 px-5 rounded-lg font-semibold text-white transition-all duration-200 hover:shadow-lg active:scale-[0.98] focus:outline-none focus-visible:ring-4 focus-visible:ring-red-300/50 dark:focus-visible:ring-red-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 bg-linear-to-r from-red-600 to-rose-700 dark:from-red-500 dark:to-rose-600"
                     :disabled="isLoading"
                     @click="openStopConfirmation"
                 >
-                    <span v-if="tripStore.isEnding" class="flex items-center justify-center gap-3">
-                        <Loader2 :size="20" class="animate-spin shrink-0" />
+                    <span v-if="tripStore.isEnding" class="flex items-center justify-center gap-2">
+                        <Loader2 :size="18" class="animate-spin shrink-0" />
                         Mengakhiri...
                     </span>
                     <span v-else class="inline-flex items-center justify-center gap-2">
-                        <Square :size="20" class="shrink-0" />
+                        <Square :size="18" class="shrink-0" />
                         Akhiri Perjalanan
                     </span>
                 </motion.button>

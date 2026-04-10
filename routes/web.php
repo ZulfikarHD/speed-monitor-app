@@ -39,6 +39,10 @@ Route::middleware(['auth', 'role:employee'])->group(function () {
     Route::get('/employee/dashboard', [EmployeeDashboardController::class, 'index'])->name('employee.dashboard');
     Route::get('/employee/speedometer', [SpeedometerController::class, 'index'])->name('employee.speedometer');
     Route::get('/employee/my-trips', [MyTripsController::class, 'index'])->name('employee.my-trips');
+});
+
+// Statistics route (all authenticated users can view their own statistics)
+Route::middleware('auth')->group(function () {
     Route::get('/employee/statistics', [StatisticsController::class, 'index'])->name('employee.statistics');
 });
 

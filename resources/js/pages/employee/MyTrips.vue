@@ -21,7 +21,9 @@ import { router } from '@inertiajs/vue3';
 import { CloudUpload, Loader2 } from '@lucide/vue';
 import { computed, onMounted, ref, watch } from 'vue';
 
-import { index as speedometerIndex } from '@/actions/App/Http/Controllers/Employee/SpeedometerController';
+import { index as speedometerRoutes } from '@/actions/App/Http/Controllers/Employee/SpeedometerController';
+
+const speedometerIndex = speedometerRoutes['/employee/speedometer'];
 import Toast from '@/components/common/Toast.vue';
 import OfflineIndicator from '@/components/offline/OfflineIndicator.vue';
 import SyncProgressIndicator from '@/components/sync/SyncProgressIndicator.vue';
