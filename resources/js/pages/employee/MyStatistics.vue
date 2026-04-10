@@ -240,21 +240,24 @@ function handleApply(): void {
             <div class="space-y-6">
                 <!-- Average Speed vs Standard Chart -->
                 <AvgSpeedOverTimeChart
-                    :key="`avg-speed-chart-${currentPeriod}-${dateFrom}-${dateTo}`"
+                    :key="`avg-speed-chart-${currentPeriod}-${dateFrom}-${dateTo}-${chartType}`"
                     :data="statistics.charts.avg_speed_over_time"
+                    :chart-type="chartType"
                 />
 
                 <!-- Max Speed vs Standard Chart -->
                 <MaxSpeedChart
-                    :key="`max-speed-chart-${currentPeriod}-${dateFrom}-${dateTo}`"
+                    :key="`max-speed-chart-${currentPeriod}-${dateFrom}-${dateTo}-${chartType}`"
                     :data="statistics.charts.max_speed_over_time"
+                    :chart-type="chartType"
                 />
 
                 <!-- Violations Over Time Chart -->
                 <ViolationsChart
-                    :key="`violations-chart-${currentPeriod}-${dateFrom}-${dateTo}`"
+                    :key="`violations-chart-${currentPeriod}-${dateFrom}-${dateTo}-${chartType}`"
                     :data="statistics.charts.violations_over_time"
                     :period="currentPeriod"
+                    :chart-type="chartType"
                 />
             </div>
 
