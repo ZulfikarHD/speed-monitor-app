@@ -26,20 +26,23 @@ class AuthController extends Controller
     /**
      * Authenticate user and redirect to dashboard.
      *
-     * Validates credentials and logs user in using session auth.
-     * Redirects to role-based dashboard on success.
+     * Accepts either NPK or email as the identifier.
+     * Detects format by checking for '@' character.
      *
-     * @param  LoginRequest  $request  Validated email and password credentials
+     * @param  LoginRequest  $request  Validated identifier and password credentials
      * @return RedirectResponse Redirects to dashboard or back with errors
      */
     public function login(LoginRequest $request): RedirectResponse
     {
-        $credentials = $request->only('email', 'password');
+        $identifier = $request->input('identifier');
+        $password = $request->input('password');
 
-        if (auth()->attempt($credentials)) {
+        // WHY: NPK never contains '@', emails always do
+        $field = str_contains($identifier, '@') ? 'email' : 'npk';
+
+        if (auth()->attempt([$field => $identifier, 'password' => $password])) {
             $user = auth()->user();
 
-            // Redirect to role-based dashboard
             $redirectUrl = match ($user->role) {
                 'admin' => route('admin.dashboard'),
                 'superuser' => route('superuser.dashboard'),
@@ -50,8 +53,8 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->withInput($request->only('email'));
+            'identifier' => 'NPK atau email dan kata sandi tidak cocok.',
+        ])->withInput($request->only('identifier'));
     }
 
     /**

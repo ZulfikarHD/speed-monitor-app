@@ -16,7 +16,7 @@
  */
 
 import { Head, useForm } from '@inertiajs/vue3';
-import { Loader2, Lock, Mail, Moon, Route, Sun } from '@lucide/vue';
+import { Loader2, Lock, Moon, Route, Sun, User } from '@lucide/vue';
 import { motion } from 'motion-v';
 
 import { useTheme } from '@/composables/useTheme';
@@ -27,14 +27,8 @@ const { isDark, toggleTheme } = useTheme();
 // Form State
 // ========================================================================
 
-/**
- * Inertia form composable for authentication.
- *
- * WHY: useForm provides form state, validation errors, and loading state.
- * Automatically handles Laravel validation errors from backend.
- */
 const form = useForm({
-    email: '',
+    identifier: '',
     password: '',
 });
 
@@ -42,10 +36,6 @@ const form = useForm({
 // Methods
 // ========================================================================
 
-/**
- * Handle form submission.
- * Posts to Laravel backend authentication endpoint.
- */
 const handleSubmit = (): void => {
     form.post('/login');
 };
@@ -124,47 +114,47 @@ const handleSubmit = (): void => {
                     class="space-y-5"
                     novalidate
                 >
-                    <!-- Backend Error Message (Progressive Disclosure) -->
+                    <!-- Pesan Error Backend -->
                     <div
-                        v-if="form.errors.email"
+                        v-if="form.errors.identifier"
                         class="rounded-lg border border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300"
                         role="alert"
                         aria-live="polite"
                     >
-                        {{ form.errors.email }}
+                        {{ form.errors.identifier }}
                     </div>
 
-                    <!-- Email Input (Law of Proximity: label + input grouped) -->
+                    <!-- NPK / Email Input -->
                     <div>
                         <label
-                            for="email"
+                            for="identifier"
                             class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
                         >
-                            Alamat Email
+                            NPK atau Email
                         </label>
                         <div class="relative">
                             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-                                <Mail
+                                <User
                                     :size="18"
                                     class="text-zinc-400 dark:text-zinc-500"
                                 />
                             </div>
                             <input
-                                id="email"
-                                v-model="form.email"
-                                name="email"
-                                type="email"
-                                autocomplete="email"
-                                placeholder="your.email@example.com"
+                                id="identifier"
+                                v-model="form.identifier"
+                                name="identifier"
+                                type="text"
+                                autocomplete="username"
+                                placeholder="Masukkan NPK atau email"
                                 required
                                 class="w-full rounded-lg border pl-10 pr-4 py-2.5 text-sm transition-colors duration-200 bg-white dark:bg-zinc-800/50 border-zinc-300 dark:border-white/10 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900 focus:border-cyan-500 dark:focus:border-cyan-400/50 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                                 :class="{
                                     'border-red-300 dark:border-red-500/30 focus:border-red-500 dark:focus:border-red-400 focus:ring-red-500 dark:focus:ring-red-400/50':
-                                        form.errors.email,
+                                        form.errors.identifier,
                                 }"
                                 :disabled="form.processing"
-                                :aria-invalid="!!form.errors.email"
-                                aria-describedby="email-error"
+                                :aria-invalid="!!form.errors.identifier"
+                                aria-describedby="identifier-error"
                             />
                         </div>
                     </div>

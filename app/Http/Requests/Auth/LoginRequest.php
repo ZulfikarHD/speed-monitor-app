@@ -25,15 +25,14 @@ class LoginRequest extends FormRequest
     /**
      * Get the validation rules for login credentials.
      *
-     * Enforces email format and minimum password length to prevent
-     * invalid authentication attempts and reduce server load.
+     * Accepts either NPK or email as the identifier field.
      *
      * @return array<string, ValidationRule|array<mixed>|string> Validation rules
      */
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email', 'string', 'max:255'],
+            'identifier' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:8'],
         ];
     }
