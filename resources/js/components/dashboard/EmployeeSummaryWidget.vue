@@ -36,8 +36,8 @@ withDefaults(defineProps<Props>(), {
     >
         <!-- Header -->
         <div class="border-b border-zinc-200 dark:border-white/5 px-6 py-4">
-            <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">Employee Summary</h3>
-            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Activity overview for today</p>
+            <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">Ringkasan Karyawan</h3>
+            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Ringkasan aktivitas hari ini</p>
         </div>
 
         <!-- Loading Skeleton -->
@@ -60,13 +60,13 @@ withDefaults(defineProps<Props>(), {
         <div v-else class="space-y-4 p-6">
             <!-- Total Employees -->
             <div class="flex items-center justify-between">
-                <span class="text-sm text-zinc-500 dark:text-zinc-400">Total Employees</span>
+                <span class="text-sm text-zinc-500 dark:text-zinc-400">Total Karyawan</span>
                 <span class="text-xl font-bold text-zinc-900 dark:text-white">{{ summary.total_employees }}</span>
             </div>
 
             <!-- Active Today -->
             <div class="flex items-center justify-between">
-                <span class="text-sm text-zinc-500 dark:text-zinc-400">Active Today</span>
+                <span class="text-sm text-zinc-500 dark:text-zinc-400">Aktif Hari Ini</span>
                 <div class="flex items-center gap-2">
                     <span class="text-xl font-bold text-emerald-600 dark:text-emerald-400">{{ summary.active_today }}</span>
                     <span
@@ -84,11 +84,11 @@ withDefaults(defineProps<Props>(), {
             <!-- Top Performer -->
             <div class="flex items-center justify-between">
                 <div>
-                    <span class="text-sm text-zinc-500 dark:text-zinc-400">Top Performer</span>
+                    <span class="text-sm text-zinc-500 dark:text-zinc-400">Performa Terbaik</span>
                     <p v-if="summary.top_performer" class="mt-1 font-medium text-zinc-900 dark:text-white">
                         {{ summary.top_performer.name }}
                     </p>
-                    <p v-else class="mt-1 text-sm italic text-zinc-400 dark:text-zinc-500">No trips yet</p>
+                    <p v-else class="mt-1 text-sm italic text-zinc-400 dark:text-zinc-500">Belum ada perjalanan</p>
                 </div>
                 <div
                     v-if="summary.top_performer"
@@ -101,7 +101,7 @@ withDefaults(defineProps<Props>(), {
                         aria-hidden="true"
                     />
                     <span class="text-sm font-semibold text-amber-700 dark:text-amber-400">
-                        {{ summary.top_performer.trip_count }} trips
+                        {{ summary.top_performer.trip_count }} perjalanan
                     </span>
                 </div>
             </div>

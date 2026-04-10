@@ -31,7 +31,7 @@
     ]
   },
   "resources/css/app.css": {
-    "file": "assets/app-D7s1feeX.css",
+    "file": "assets/app-D7MI0Sds.css",
     "name": "app",
     "names": [
       "app.css"
@@ -40,7 +40,7 @@
     "isEntry": true
   },
   "resources/js/app.ts": {
-    "file": "assets/app-BF129o87.js",
+    "file": "assets/app-BrqWW2Ar.js",
     "name": "app",
     "src": "resources/js/app.ts",
     "isEntry": true,
@@ -52,7 +52,7 @@
       "_utils-vendor-Co4L5u9q.js"
     ],
     "css": [
-      "assets/app-B4_p5BCf.css"
+      "assets/app-Ct1VDkkH.css"
     ]
   }
 }

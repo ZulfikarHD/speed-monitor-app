@@ -6,9 +6,10 @@
  * Follows SafeTrack design system with lucide icons and theme-aware styling.
  *
  * Features:
- * - 5 navigation slots with lucide icons
- * - "More" overflow menu for superuser extra items (Semua Trip, Peringkat)
- * - Sync status badge on My Trips icon
+ * - Employee: 5 navigation slots (Dashboard, Speedometer, Trips, Statistics, Profile)
+ * - Superuser/Admin: 5 slots (Dashboard, Speedometer, Semua Trip, Peringkat, More)
+ * - "More" overflow menu for superuser items (Karyawan, Profil, Pengaturan)
+ * - Sync status badge on My Trips icon (employee only)
  * - Touch-friendly targets (>=44x44px) per Fitts's Law
  * - Safe area inset aware for notched devices
  * - Active state with gradient accent
@@ -61,14 +62,14 @@ const employeeNavItems: NavItem[] = [
 const superuserPrimaryNavItems: NavItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3, href: '/superuser/dashboard' },
     { id: 'speedometer', label: 'Speedometer', icon: Gauge, href: '/superuser/speedometer' },
-    { id: 'employees', label: 'Karyawan', icon: Users, href: '/superuser/employees' },
-    { id: 'profile', label: 'Profil', icon: User, href: '/profile' },
+    { id: 'trips', label: 'Semua Trip', icon: Motorbike, href: '/superuser/trips' },
+    { id: 'leaderboard', label: 'Peringkat', icon: Trophy, href: '/superuser/leaderboard' },
 ];
 
 /** Superuser/Admin overflow navigation items (mobile — shown in "More" menu) */
 const superuserOverflowNavItems: NavItem[] = [
-    { id: 'trips', label: 'Semua Trip', icon: Motorbike, href: '/superuser/trips' },
-    { id: 'leaderboard', label: 'Peringkat', icon: Trophy, href: '/superuser/leaderboard' },
+    { id: 'employees', label: 'Karyawan', icon: Users, href: '/superuser/employees' },
+    { id: 'profile', label: 'Profil', icon: User, href: '/profile' },
     { id: 'settings', label: 'Pengaturan', icon: Settings, href: '/admin/settings' },
 ];
 
@@ -130,9 +131,10 @@ const isOverflowActive = computed(() =>
 );
 
 /**
- * Grid columns based on whether overflow exists.
+ * Grid columns based on navigation items count.
+ * Both employee and superuser/admin have 5 items (4 primary + More button).
  */
-const gridCols = computed(() => (hasOverflow.value ? 'grid-cols-5' : 'grid-cols-5'));
+const gridCols = computed(() => 'grid-cols-5');
 
 /**
  * WHY: Only employees need sync badge — they track trips offline.
