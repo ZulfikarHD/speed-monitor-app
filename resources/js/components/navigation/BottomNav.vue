@@ -22,7 +22,7 @@ import {
     Gauge,
     Home,
     EllipsisVertical,
-    Road,
+    Motorbike,
     Settings,
     Trophy,
     User,
@@ -67,7 +67,7 @@ const superuserPrimaryNavItems: NavItem[] = [
 
 /** Superuser/Admin overflow navigation items (mobile — shown in "More" menu) */
 const superuserOverflowNavItems: NavItem[] = [
-    { id: 'trips', label: 'Semua Trip', icon: Road, href: '/superuser/trips' },
+    { id: 'trips', label: 'Semua Trip', icon: Motorbike, href: '/superuser/trips' },
     { id: 'leaderboard', label: 'Peringkat', icon: Trophy, href: '/superuser/leaderboard' },
     { id: 'settings', label: 'Pengaturan', icon: Settings, href: '/admin/settings' },
 ];

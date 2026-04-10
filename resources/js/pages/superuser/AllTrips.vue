@@ -18,7 +18,7 @@
  */
 
 import { Deferred, router } from '@inertiajs/vue3';
-import { Road } from '@lucide/vue';
+import { Motorbike } from '@lucide/vue';
 import { AnimatePresence, motion } from 'motion-v';
 import { computed, ref } from 'vue';
 
@@ -390,7 +390,7 @@ function getViolationColor(count: number): string {
                     :transition="{ duration: 0.3 }"
                     class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 px-6 py-12 text-center shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
                 >
-                    <Road :size="64" :stroke-width="1.5" class="mx-auto mb-4 text-zinc-400 dark:text-zinc-600" aria-hidden="true" />
+                    <Motorbike :size="64" :stroke-width="1.5" class="mx-auto mb-4 text-zinc-400 dark:text-zinc-600" aria-hidden="true" />
                     <p class="text-lg font-medium text-zinc-900 dark:text-white">
                         Tidak Ada Perjalanan
                     </p>

@@ -5,6 +5,7 @@
  * Doughnut chart showing the count of mobil vs motor trips.
  */
 
+import { PieChart } from '@lucide/vue';
 import {
     Chart as ChartJS,
     ArcElement,
@@ -13,7 +14,6 @@ import {
     Legend,
 } from 'chart.js';
 import type { ChartData, ChartOptions } from 'chart.js';
-import { PieChart } from '@lucide/vue';
 import { computed } from 'vue';
 import { Doughnut } from 'vue-chartjs';
 
@@ -77,6 +77,7 @@ const chartOptions = computed<ChartOptions<'doughnut'>>(() => ({
                 label: (ctx) => {
                     const total = props.data.mobil + props.data.motor;
                     const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : '0';
+
                     return `${ctx.label}: ${ctx.parsed} trip (${pct}%)`;
                 },
             },

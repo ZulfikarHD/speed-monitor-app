@@ -1,22 +1,22 @@
 <script setup lang="ts">
 /**
- * MaxSpeedChart Component
+ * AvgSpeedOverTimeChart Component
  *
- * Line chart displaying maximum speed over time with speed limit reference line.
+ * Line chart displaying average speed over time with speed limit reference line.
  * Built with Chart.js for high-performance rendering with SafeTrack dark theme.
  *
  * Features:
  * - Line chart with date (X-axis) and speed (Y-axis)
- * - Orange line for max speed
+ * - Cyan line for average speed
  * - Red dashed line for speed limit reference
- * - Gradient fill under max speed line
+ * - Gradient fill under avg speed line
  * - Responsive sizing with proper aspect ratio
  * - Tooltips showing exact speed on hover
  * - Loading skeleton state
  * - Empty state when no data available
  */
 
-import { TrendingUp } from '@lucide/vue';
+import { Zap } from '@lucide/vue';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -32,7 +32,7 @@ import type { ChartOptions, ChartData } from 'chart.js';
 import { computed } from 'vue';
 import { Line } from 'vue-chartjs';
 
-import type { MaxSpeedChartProps } from '@/types/statistics';
+import type { AvgSpeedChartProps } from '@/types/statistics';
 
 // ========================================================================
 // Chart.js Registration
@@ -53,7 +53,7 @@ ChartJS.register(
 // Component Props
 // ========================================================================
 
-const props = withDefaults(defineProps<MaxSpeedChartProps>(), {
+const props = withDefaults(defineProps<AvgSpeedChartProps>(), {
     isLoading: false,
 });
 
@@ -73,15 +73,15 @@ const chartData = computed<ChartData<'line'>>(() => {
         labels,
         datasets: [
             {
-                label: 'Kecepatan Maksimal',
+                label: 'Kecepatan Rata-Rata',
                 data: speeds,
-                borderColor: '#f97316', // Orange
+                borderColor: '#22d3ee', // Cyan
                 backgroundColor: (context) => {
                     const chart = context.chart;
                     const { ctx, chartArea } = chart;
 
                     if (!chartArea) {
-                        return 'rgba(249, 115, 22, 0.1)';
+                        return 'rgba(34, 211, 238, 0.1)';
                     }
 
                     const gradient = ctx.createLinearGradient(
@@ -90,8 +90,8 @@ const chartData = computed<ChartData<'line'>>(() => {
                         0,
                         chartArea.bottom,
                     );
-                    gradient.addColorStop(0, 'rgba(249, 115, 22, 0.3)');
-                    gradient.addColorStop(1, 'rgba(249, 115, 22, 0)');
+                    gradient.addColorStop(0, 'rgba(34, 211, 238, 0.3)');
+                    gradient.addColorStop(1, 'rgba(34, 211, 238, 0)');
 
                     return gradient;
                 },
@@ -100,7 +100,7 @@ const chartData = computed<ChartData<'line'>>(() => {
                 fill: true,
                 pointRadius: 3,
                 pointHoverRadius: 5,
-                pointBackgroundColor: '#f97316',
+                pointBackgroundColor: '#22d3ee',
                 pointBorderColor: '#fff',
                 pointBorderWidth: 2,
             },
@@ -203,8 +203,8 @@ const hasData = computed(() => props.data.length > 0);
 
 <template>
     <!-- ======================================================================
-        Max Speed Line Chart
-        Chart.js line chart with max speed and speed limit data
+        Average Speed Line Chart
+        Chart.js line chart with avg speed and speed limit data
     ======================================================================= -->
     <div
         class="rounded-lg border border-zinc-200/80 bg-white/95 p-6 shadow-lg shadow-zinc-900/5 ring-1 ring-white/20 dark:border-white/10 dark:bg-zinc-800/95 dark:shadow-cyan-500/5 dark:ring-white/5"
@@ -215,10 +215,10 @@ const hasData = computed(() => props.data.length > 0);
                 class="text-lg font-semibold text-zinc-900 dark:text-white"
                 style="font-family: 'Bebas Neue', sans-serif"
             >
-                Kecepatan Maksimal vs Standar Kec
+                Kecepatan Rata-Rata vs Standar Kec
             </h3>
             <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                Perbandingan kecepatan maksimal dengan batas kecepatan
+                Perbandingan kecepatan rata-rata dengan batas kecepatan
             </p>
         </div>
 
@@ -231,7 +231,7 @@ const hasData = computed(() => props.data.length > 0);
         >
             <div class="text-center">
                 <div
-                    class="mb-3 inline-block h-10 w-10 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"
+                    class="mb-3 inline-block h-10 w-10 animate-spin rounded-full border-4 border-cyan-500 border-t-transparent"
                 ></div>
                 <p class="text-sm text-zinc-600 dark:text-zinc-400">
                     Loading chart...
@@ -244,7 +244,7 @@ const hasData = computed(() => props.data.length > 0);
             v-else-if="!hasData"
             class="flex h-64 flex-col items-center justify-center rounded-lg bg-zinc-50 dark:bg-zinc-900/50"
         >
-            <TrendingUp
+            <Zap
                 :size="40"
                 class="mb-3 text-zinc-400"
                 aria-hidden="true"

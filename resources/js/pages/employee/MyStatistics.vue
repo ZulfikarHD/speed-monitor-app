@@ -2,33 +2,35 @@
 /**
  * My Statistics Page - Employee personal performance metrics.
  *
- * Displays summary statistics and charts for trips and violations over different time periods.
+ * Displays summary statistics and charts for trips and speed performance over different time periods.
  * Data is passed from StatisticsController via Inertia props for optimal performance.
  * Uses EmployeeLayout for consistent navigation across all employee pages.
  *
  * Features:
- * - Period selector (week/month/year)
- * - Summary statistics cards (trips, distance, speed, violations)
- * - Trips over time bar chart
- * - Violations over time line chart
+ * - Period selector (week/month/year/custom)
+ * - Summary statistics cards (avg distance, speed, violations, vehicle counts)
+ * - Average speed vs standard chart
+ * - Max speed vs standard chart
+ * - Violations over time chart
  * - Server-side data fetching with Inertia
  * - Responsive design (mobile-first)
  *
  * @example Route: /employee/statistics
  */
 
-import { ref } from 'vue';
 
 import { Link, router } from '@inertiajs/vue3';
 import { ArrowRight, BarChart3 } from '@lucide/vue';
+import { ref } from 'vue';
 
 import { index as speedometerRoutes } from '@/actions/App/Http/Controllers/Employee/SpeedometerController';
 import { index } from '@/actions/App/Http/Controllers/Employee/StatisticsController';
 
 const speedometerIndex = speedometerRoutes['/employee/speedometer'];
+import AvgSpeedOverTimeChart from '@/components/charts/AvgSpeedOverTimeChart.vue';
+import MaxSpeedChart from '@/components/charts/MaxSpeedChart.vue';
 import PeriodSelector from '@/components/statistics/PeriodSelector.vue';
 import StatCard from '@/components/statistics/StatCard.vue';
-import TripsChart from '@/components/statistics/TripsChart.vue';
 import ViolationsChart from '@/components/statistics/ViolationsChart.vue';
 import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
 import type { Period, UserStatistics } from '@/types/statistics';
@@ -138,31 +140,21 @@ function handleApply(): void {
             <!-- ================================================================
                 Summary Statistics Cards Grid
             ================================================================ -->
-            <div class="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <!-- Total Trips -->
+            <div class="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <!-- Average Distance Per Trip -->
                 <StatCard
-                    :key="`trips-${currentPeriod}-${dateFrom}-${dateTo}-${statistics.summary.total_trips}`"
-                    title="Total Perjalanan"
-                    :value="statistics.summary.total_trips"
-                    unit="perjalanan selesai"
-                    icon="car"
-                    color="blue"
-                />
-
-                <!-- Total Distance -->
-                <StatCard
-                    :key="`distance-${currentPeriod}-${dateFrom}-${dateTo}-${statistics.summary.total_distance}`"
-                    title="Total Jarak"
-                    :value="statistics.summary.total_distance"
-                    unit="kilometer"
+                    :key="`avg-distance-${currentPeriod}-${dateFrom}-${dateTo}-${statistics.summary.average_distance}`"
+                    title="Rata-Rata Jarak Tempuh"
+                    :value="statistics.summary.average_distance"
+                    unit="km per perjalanan"
                     icon="route"
-                    color="green"
+                    color="blue"
                 />
 
                 <!-- Average Speed -->
                 <StatCard
                     :key="`speed-${currentPeriod}-${dateFrom}-${dateTo}-${statistics.summary.average_speed}`"
-                    title="Kecepatan Rata-rata"
+                    title="Kecepatan Rata-Rata"
                     :value="statistics.summary.average_speed"
                     unit="km/h"
                     icon="zap"
@@ -172,11 +164,41 @@ function handleApply(): void {
                 <!-- Violations -->
                 <StatCard
                     :key="`violations-${currentPeriod}-${dateFrom}-${dateTo}-${statistics.summary.violation_count}`"
-                    title="Pelanggaran"
+                    title="Total Pelanggaran"
                     :value="statistics.summary.violation_count"
-                    unit="melampaui batas kecepatan"
+                    unit="melampaui batas"
                     icon="shield-alert"
                     :color="statistics.summary.violation_count > 0 ? 'red' : 'green'"
+                />
+
+                <!-- Motor Count -->
+                <StatCard
+                    :key="`motor-${currentPeriod}-${dateFrom}-${dateTo}-${statistics.summary.motor_count}`"
+                    title="Motor"
+                    :value="statistics.summary.motor_count"
+                    unit="perjalanan"
+                    icon="bike"
+                    color="green"
+                />
+
+                <!-- Mobil Count -->
+                <StatCard
+                    :key="`mobil-${currentPeriod}-${dateFrom}-${dateTo}-${statistics.summary.mobil_count}`"
+                    title="Mobil"
+                    :value="statistics.summary.mobil_count"
+                    unit="perjalanan"
+                    icon="car"
+                    color="orange"
+                />
+
+                <!-- Speed Limit Reference -->
+                <StatCard
+                    :key="`speed-limit-${currentPeriod}-${dateFrom}-${dateTo}-${statistics.summary.speed_limit}`"
+                    title="Batas Kecepatan"
+                    :value="statistics.summary.speed_limit"
+                    unit="km/h"
+                    icon="octagon-alert"
+                    color="red"
                 />
             </div>
 
@@ -184,11 +206,16 @@ function handleApply(): void {
                 Charts Section
             ================================================================ -->
             <div class="space-y-6">
-                <!-- Trips Over Time Chart -->
-                <TripsChart
-                    :key="`trips-chart-${currentPeriod}-${dateFrom}-${dateTo}`"
-                    :data="statistics.charts.trips_over_time"
-                    :period="currentPeriod"
+                <!-- Average Speed vs Standard Chart -->
+                <AvgSpeedOverTimeChart
+                    :key="`avg-speed-chart-${currentPeriod}-${dateFrom}-${dateTo}`"
+                    :data="statistics.charts.avg_speed_over_time"
+                />
+
+                <!-- Max Speed vs Standard Chart -->
+                <MaxSpeedChart
+                    :key="`max-speed-chart-${currentPeriod}-${dateFrom}-${dateTo}`"
+                    :data="statistics.charts.max_speed_over_time"
                 />
 
                 <!-- Violations Over Time Chart -->

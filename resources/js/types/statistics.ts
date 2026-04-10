@@ -17,8 +17,11 @@ export interface UserStatistics {
 
     /** Chart data for visualizations */
     charts: {
-        /** Trip count over time (bar chart data) */
-        trips_over_time: ChartDataPoint[];
+        /** Average speed over time with speed limit reference */
+        avg_speed_over_time: SpeedChartDataPoint[];
+
+        /** Maximum speed over time with speed limit reference */
+        max_speed_over_time: SpeedChartDataPoint[];
 
         /** Violation count over time (line chart data) */
         violations_over_time: ChartDataPoint[];
@@ -40,11 +43,26 @@ export interface StatisticsSummary {
     /** Total distance traveled in kilometers */
     total_distance: number;
 
+    /** Average distance per trip in kilometers */
+    average_distance: number;
+
     /** Average speed across all trips in km/h */
     average_speed: number;
 
     /** Total number of speed limit violations */
     violation_count: number;
+
+    /** Number of trips using motor vehicles */
+    motor_count: number;
+
+    /** Number of trips using mobil (car) vehicles */
+    mobil_count: number;
+
+    /** Maximum speed recorded across all trips in km/h */
+    max_speed: number;
+
+    /** Speed limit setting in km/h */
+    speed_limit: number;
 }
 
 /**
@@ -59,6 +77,22 @@ export interface ChartDataPoint {
 
     /** Count value (trips or violations) */
     count: number;
+}
+
+/**
+ * Speed chart data point with speed limit reference.
+ *
+ * Used for average speed and max speed over time charts.
+ */
+export interface SpeedChartDataPoint {
+    /** Date string in YYYY-MM-DD or YYYY-MM format */
+    date: string;
+
+    /** Speed value in km/h (average or max speed) */
+    speed: number;
+
+    /** Speed limit reference value in km/h */
+    speed_limit: number;
 }
 
 /**
@@ -135,6 +169,28 @@ export interface ViolationsChartProps {
 
     /** Period type for X-axis formatting */
     period: Period;
+
+    /** Loading state */
+    isLoading?: boolean;
+}
+
+/**
+ * Props for AvgSpeedChart component (Line chart).
+ */
+export interface AvgSpeedChartProps {
+    /** Chart data points with speed limit reference */
+    data: SpeedChartDataPoint[];
+
+    /** Loading state */
+    isLoading?: boolean;
+}
+
+/**
+ * Props for MaxSpeedChart component (Line chart).
+ */
+export interface MaxSpeedChartProps {
+    /** Chart data points with speed limit reference */
+    data: SpeedChartDataPoint[];
 
     /** Loading state */
     isLoading?: boolean;

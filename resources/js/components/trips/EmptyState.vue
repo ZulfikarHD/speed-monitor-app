@@ -20,7 +20,7 @@
  */
 
 import { Link } from '@inertiajs/vue3';
-import { ArrowRight, BarChart3, ClipboardList, Gauge, Road, Search } from '@lucide/vue';
+import { ArrowRight, BarChart3, ClipboardList, Gauge, Motorbike, Search } from '@lucide/vue';
 import { computed } from 'vue';
 import type { Component } from 'vue';
 
@@ -76,7 +76,7 @@ function resolveIconComponent(key: string | undefined): Component | null {
         clipboard: ClipboardList,
         search: Search,
         'bar-chart': BarChart3,
-        route: Road,
+        route: Motorbike,
         gauge: Gauge,
     };
 

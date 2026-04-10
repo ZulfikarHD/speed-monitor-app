@@ -5,6 +5,7 @@
  * Horizontal bar chart showing total violation counts per employee.
  */
 
+import { AlertTriangle } from '@lucide/vue';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -15,7 +16,6 @@ import {
     Legend,
 } from 'chart.js';
 import type { ChartData, ChartOptions } from 'chart.js';
-import { AlertTriangle } from '@lucide/vue';
 import { computed } from 'vue';
 import { Bar } from 'vue-chartjs';
 
@@ -50,6 +50,7 @@ const chartData = computed<ChartData<'bar'>>(() => {
                         'rgba(132, 204, 22, 0.7)',
                         'rgba(34, 211, 238, 0.7)',
                     ];
+
                     return colors[i % colors.length];
                 }),
                 borderColor: props.data.map((_, i) => {
@@ -60,6 +61,7 @@ const chartData = computed<ChartData<'bar'>>(() => {
                         'rgba(132, 204, 22, 1)',
                         'rgba(34, 211, 238, 1)',
                     ];
+
                     return colors[i % colors.length];
                 }),
                 borderWidth: 1,

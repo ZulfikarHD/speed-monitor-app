@@ -16,7 +16,7 @@
  */
 
 import { Head, useForm } from '@inertiajs/vue3';
-import { Loader2, Lock, Moon, Road, Sun, User } from '@lucide/vue';
+import { Loader2, Lock, Moon, Motorbike, Sun, User } from '@lucide/vue';
 import { motion } from 'motion-v';
 
 import { useTheme } from '@/composables/useTheme';
@@ -93,7 +93,7 @@ const handleSubmit = (): void => {
                         <div
                             class="flex h-16 w-16 items-center justify-center rounded-xl border border-cyan-200 dark:border-cyan-500/20 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-500/10 dark:to-blue-600/10 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/10"
                         >
-                            <Road
+                            <Motorbike
                                 :size="32"
                                 class="text-cyan-600 dark:text-cyan-400"
                             />

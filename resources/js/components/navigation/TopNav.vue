@@ -27,7 +27,7 @@ import {
     Gauge,
     Home,
     Moon,
-    Road,
+    Motorbike,
     Settings,
     Sun,
     Trophy,
@@ -66,7 +66,7 @@ const employeeNavItems: NavItem[] = [
 const superuserNavItems: NavItem[] = [
     { id: 'dashboard', label: 'Dasbor', icon: BarChart3, href: '/superuser/dashboard' },
     { id: 'speedometer', label: 'Speedometer', icon: Gauge, href: '/superuser/speedometer' },
-    { id: 'trips', label: 'Semua Trip', icon: Road, href: '/superuser/trips' },
+    { id: 'trips', label: 'Semua Trip', icon: Motorbike, href: '/superuser/trips' },
     { id: 'leaderboard', label: 'Peringkat', icon: Trophy, href: '/superuser/leaderboard' },
     { id: 'employees', label: 'Karyawan', icon: Users, href: '/superuser/employees' },
     { id: 'settings', label: 'Pengaturan', icon: Settings, href: '/admin/settings' },
@@ -146,7 +146,7 @@ function handleSyncBadgeClick(event: MouseEvent): void {
                         <div
                             class="relative flex h-10 w-10 items-center justify-center rounded-lg border border-cyan-200 dark:border-cyan-500/20 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-500/10 dark:to-blue-600/10 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/5 transition-colors duration-200 group-hover:border-cyan-300 dark:group-hover:border-cyan-400/40"
                         >
-                            <Road
+                            <Motorbike
                                 :size="20"
                                 class="text-cyan-600 dark:text-cyan-400"
                             />

@@ -7,7 +7,7 @@
  */
 
 import { Link } from '@inertiajs/vue3';
-import { Road, Trophy } from '@lucide/vue';
+import { Motorbike, Trophy } from '@lucide/vue';
 
 import { index as tripsIndex } from '@/actions/App/Http/Controllers/Superuser/AllTripsController';
 import { violations as leaderboardIndex } from '@/actions/App/Http/Controllers/Superuser/DashboardController';
@@ -21,7 +21,7 @@ import { violations as leaderboardIndex } from '@/actions/App/Http/Controllers/S
             class="group flex items-center gap-4 rounded-xl border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-5 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5 transition-all duration-200 hover:border-cyan-500/50 dark:hover:border-cyan-500/50 hover:shadow-xl active:scale-[0.98]"
         >
             <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-cyan-500/15 dark:bg-cyan-500/10">
-                <Road :size="24" :stroke-width="2" class="text-cyan-600 dark:text-cyan-400 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
+                <Motorbike :size="24" :stroke-width="2" class="text-cyan-600 dark:text-cyan-400 transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
             </div>
             <div>
                 <div class="text-sm font-semibold text-zinc-900 dark:text-white">Lihat Semua Perjalanan</div>

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\TripStatus;
+use App\Models\Setting;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
@@ -47,10 +48,13 @@ class StatisticsService
             ->orderBy('started_at', 'asc')
             ->get();
 
+        $speedLimit = Setting::getSpeedLimit();
+
         return [
-            'summary' => $this->calculateSummary($trips),
+            'summary' => $this->calculateSummary($trips, $speedLimit),
             'charts' => [
-                'trips_over_time' => $this->getTripsOverTime($trips, $chartPeriod),
+                'avg_speed_over_time' => $this->getAvgSpeedOverTime($trips, $chartPeriod, $speedLimit),
+                'max_speed_over_time' => $this->getMaxSpeedOverTime($trips, $chartPeriod, $speedLimit),
                 'violations_over_time' => $this->getViolationsOverTime($trips, $chartPeriod),
             ],
             'period' => [
@@ -80,20 +84,33 @@ class StatisticsService
     /**
      * Calculate summary statistics from trips.
      *
-     * Aggregates total trips, distance, average speed, and violation count.
+     * Aggregates total trips, distance, average speed, violation count, vehicle counts, and max speed.
      *
      * @param  Collection  $trips  Collection of Trip models
+     * @param  float  $speedLimit  Speed limit from settings
      * @return array Summary statistics
      */
-    private function calculateSummary(Collection $trips): array
+    private function calculateSummary(Collection $trips, float $speedLimit): array
     {
+        $totalTrips = $trips->count();
+        $totalDistance = $trips->sum('total_distance');
+
         return [
-            'total_trips' => $trips->count(),
-            'total_distance' => round($trips->sum('total_distance'), 2),
-            'average_speed' => $trips->count() > 0
+            'total_trips' => $totalTrips,
+            'total_distance' => round($totalDistance, 2),
+            'average_distance' => $totalTrips > 0
+                ? round($totalDistance / $totalTrips, 2)
+                : 0,
+            'average_speed' => $totalTrips > 0
                 ? round($trips->avg('average_speed'), 2)
                 : 0,
             'violation_count' => $trips->sum('violation_count'),
+            'motor_count' => $trips->where('vehicle_type', 'motor')->count(),
+            'mobil_count' => $trips->where('vehicle_type', 'mobil')->count(),
+            'max_speed' => $totalTrips > 0
+                ? round($trips->max('max_speed'), 2)
+                : 0,
+            'speed_limit' => $speedLimit,
         ];
     }
 
@@ -161,6 +178,74 @@ class StatisticsService
             return [
                 'date' => $date,
                 'count' => $group->sum('violation_count'),
+            ];
+        })->values()->toArray();
+    }
+
+    /**
+     * Get average speed over time for chart visualization.
+     *
+     * Groups average speed by date and includes speed limit reference line.
+     *
+     * @param  Collection  $trips  Collection of Trip models
+     * @param  string  $period  Period selector
+     * @param  float  $speedLimit  Speed limit from settings
+     * @return array Chart data points with date, speed, and speed_limit
+     */
+    private function getAvgSpeedOverTime(Collection $trips, string $period, float $speedLimit): array
+    {
+        // Determine grouping format based on period
+        $groupByFormat = match ($period) {
+            'week' => 'Y-m-d',    // Daily for week
+            'month' => 'Y-m-d',   // Daily for month
+            'year' => 'Y-m',      // Monthly for year
+        };
+
+        // Group trips by date and calculate average speed
+        $grouped = $trips->groupBy(function ($trip) use ($groupByFormat) {
+            return $trip->started_at->format($groupByFormat);
+        });
+
+        // Transform to chart data format
+        return $grouped->map(function ($group, $date) use ($speedLimit) {
+            return [
+                'date' => $date,
+                'speed' => round($group->avg('average_speed'), 2),
+                'speed_limit' => $speedLimit,
+            ];
+        })->values()->toArray();
+    }
+
+    /**
+     * Get maximum speed over time for chart visualization.
+     *
+     * Groups maximum speed by date and includes speed limit reference line.
+     *
+     * @param  Collection  $trips  Collection of Trip models
+     * @param  string  $period  Period selector
+     * @param  float  $speedLimit  Speed limit from settings
+     * @return array Chart data points with date, speed, and speed_limit
+     */
+    private function getMaxSpeedOverTime(Collection $trips, string $period, float $speedLimit): array
+    {
+        // Determine grouping format based on period
+        $groupByFormat = match ($period) {
+            'week' => 'Y-m-d',    // Daily for week
+            'month' => 'Y-m-d',   // Daily for month
+            'year' => 'Y-m',      // Monthly for year
+        };
+
+        // Group trips by date and find max speed
+        $grouped = $trips->groupBy(function ($trip) use ($groupByFormat) {
+            return $trip->started_at->format($groupByFormat);
+        });
+
+        // Transform to chart data format
+        return $grouped->map(function ($group, $date) use ($speedLimit) {
+            return [
+                'date' => $date,
+                'speed' => round($group->max('max_speed'), 2),
+                'speed_limit' => $speedLimit,
             ];
         })->values()->toArray();
     }

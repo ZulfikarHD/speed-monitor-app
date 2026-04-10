@@ -51,6 +51,7 @@ const authStore = useAuthStore();
 
 const LayoutComponent = computed(() => {
     const role = authStore.role;
+
     return role === 'superuser' || role === 'admin' ? SuperuserLayout : EmployeeLayout;
 });
 const { speedKmh, speedMps, accuracy, coords, locatedAt, stopTracking } = useGeolocation();

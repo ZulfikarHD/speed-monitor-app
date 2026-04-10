@@ -6,6 +6,7 @@
  * Uses Chart.js with vue-chartjs for rendering.
  */
 
+import { BarChart } from '@lucide/vue';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -18,7 +19,6 @@ import {
     Legend,
 } from 'chart.js';
 import type { ChartData, ChartOptions } from 'chart.js';
-import { BarChart } from '@lucide/vue';
 import { computed } from 'vue';
 import { Bar } from 'vue-chartjs';
 
