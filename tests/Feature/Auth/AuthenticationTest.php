@@ -18,7 +18,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/auth/login', [
-            'email' => 'test@example.com',
+            'identifier' => 'test@example.com',
             'password' => 'password123',
         ]);
 
@@ -37,7 +37,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/auth/login', [
-            'email' => 'test@example.com',
+            'identifier' => 'test@example.com',
             'password' => 'password123',
         ]);
 
@@ -61,7 +61,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/auth/login', [
-            'email' => 'wrong@example.com',
+            'identifier' => 'wrong@example.com',
             'password' => 'password123',
         ]);
 
@@ -79,7 +79,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/auth/login', [
-            'email' => 'test@example.com',
+            'identifier' => 'test@example.com',
             'password' => 'wrongpassword',
         ]);
 
@@ -97,7 +97,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/auth/login', [
-            'email' => 'test@example.com',
+            'identifier' => 'test@example.com',
             'password' => 'password123',
         ]);
 
@@ -172,7 +172,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/auth/login', [
-            'email' => 'admin@example.com',
+            'identifier' => 'admin@example.com',
             'password' => 'password123',
         ]);
 

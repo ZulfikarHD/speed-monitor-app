@@ -24,15 +24,16 @@ class AuthController extends Controller
     public function __construct(private AuthService $authService) {}
 
     /**
-     * Authenticate user and redirect to dashboard.
+     * Authenticate user and redirect to dashboard or return API token.
      *
      * Accepts either NPK or email as the identifier.
      * Detects format by checking for '@' character.
+     * Returns JSON token for API requests, redirect for Inertia.
      *
      * @param  LoginRequest  $request  Validated identifier and password credentials
-     * @return RedirectResponse Redirects to dashboard or back with errors
+     * @return RedirectResponse|JsonResponse Redirects to dashboard or returns token
      */
-    public function login(LoginRequest $request): RedirectResponse
+    public function login(LoginRequest $request): RedirectResponse|JsonResponse
     {
         $identifier = $request->input('identifier');
         $password = $request->input('password');
@@ -43,6 +44,21 @@ class AuthController extends Controller
         if (auth()->attempt([$field => $identifier, 'password' => $password])) {
             $user = auth()->user();
 
+            if ($request->expectsJson()) {
+                $token = $user->createToken('auth-token')->plainTextToken;
+
+                return response()->json([
+                    'token' => $token,
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $user->role,
+                        'is_active' => $user->is_active,
+                    ],
+                ], 200);
+            }
+
             $redirectUrl = match ($user->role) {
                 'admin' => route('admin.dashboard'),
                 'superuser' => route('superuser.dashboard'),
@@ -50,6 +66,12 @@ class AuthController extends Controller
             };
 
             return redirect()->intended($redirectUrl);
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Invalid credentials',
+            ], 401);
         }
 
         return back()->withErrors([
