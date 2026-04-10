@@ -167,20 +167,24 @@ function closeMoreMenu(): void {
 }
 
 /**
- * Close menu when clicking outside.
+ * Close menu when tapping outside.
+ *
+ * WHY: Using pointerdown instead of click avoids the race condition where
+ * the toggle button's click event bubbles up to the document listener
+ * on the same tick, immediately closing the menu after opening.
  */
-function handleClickOutside(event: MouseEvent): void {
+function handleClickOutside(event: PointerEvent): void {
     if (moreMenuRef.value && !moreMenuRef.value.contains(event.target as Node)) {
         closeMoreMenu();
     }
 }
 
 onMounted(() => {
-    document.addEventListener('click', handleClickOutside);
+    document.addEventListener('pointerdown', handleClickOutside);
 });
 
 onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside);
+    document.removeEventListener('pointerdown', handleClickOutside);
 });
 </script>
 
