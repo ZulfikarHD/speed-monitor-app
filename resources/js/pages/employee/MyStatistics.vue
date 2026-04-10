@@ -40,37 +40,65 @@ interface Props {
     statistics: UserStatistics;
     /** Currently selected period */
     currentPeriod: Period;
+    /** Custom date range start (YYYY-MM-DD) */
+    dateFrom?: string;
+    /** Custom date range end (YYYY-MM-DD) */
+    dateTo?: string;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+    dateFrom: '',
+    dateTo: '',
+});
+
+// ========================================================================
+// Local State
+// ========================================================================
+
+const selectedPeriod = ref<Period>(props.currentPeriod);
+const localDateFrom = ref(props.dateFrom);
+const localDateTo = ref(props.dateTo);
 
 // ========================================================================
 // Methods
 // ========================================================================
 
 /**
- * Handle period change - trigger server-side refetch.
- *
- * Uses Inertia router to fetch new data with selected period.
+ * Handle period preset change.
  */
 function handlePeriodChange(period: Period): void {
-    const url = index.url({ query: { period } });
-    console.log('Navigating to:', url, 'with period:', period);
-    
-    router.visit(url, {
-        only: ['statistics', 'currentPeriod'],
-        preserveScroll: true,
-        onSuccess: () => {
-            console.log('Statistics updated successfully for period:', period);
-        },
-        onError: (errors) => {
-            console.error('Failed to load statistics:', errors);
-        },
-    });
+    selectedPeriod.value = period;
 }
 
-// Use props to avoid unused warning
-const { statistics, currentPeriod } = props;
+/**
+ * Handle custom date range from/to changes.
+ */
+function handleDateFromChange(value: string): void {
+    localDateFrom.value = value;
+}
+
+function handleDateToChange(value: string): void {
+    localDateTo.value = value;
+}
+
+/**
+ * Apply filters - trigger server-side refetch.
+ */
+function handleApply(): void {
+    const query: Record<string, string> = { period: selectedPeriod.value };
+
+    if (selectedPeriod.value === 'custom') {
+        query.date_from = localDateFrom.value;
+        query.date_to = localDateTo.value;
+    }
+
+    const url = index.url({ query });
+
+    router.visit(url, {
+        only: ['statistics', 'currentPeriod', 'dateFrom', 'dateTo'],
+        preserveScroll: true,
+    });
+}
 </script>
 
 <template>

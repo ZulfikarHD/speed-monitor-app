@@ -82,7 +82,7 @@ export interface PeriodInfo {
  *
  * Available time period filters for statistics view.
  */
-export type Period = 'week' | 'month' | 'year';
+export type Period = 'week' | 'month' | 'year' | 'custom';
 
 /**
  * Props for StatCard component.

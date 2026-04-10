@@ -83,6 +83,7 @@ export const useTripStore = defineStore('trip', () => {
     // Dependencies
     // ========================================================================
 
+    const authStore = useAuthStore();
     const settingsStore = useSettingsStore();
 
     // ========================================================================

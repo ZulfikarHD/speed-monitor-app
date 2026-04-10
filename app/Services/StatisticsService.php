@@ -20,15 +20,25 @@ class StatisticsService
      * Get user statistics for a given period.
      *
      * Calculates summary metrics and chart data for trips within the specified period.
-     * Period can be 'week', 'month', or 'year', limited to last 12 months maximum.
+     * Period can be 'week', 'month', 'year', or 'custom' with explicit dates.
      *
      * @param  User  $user  The user to calculate statistics for
-     * @param  string  $period  Period selector ('week', 'month', 'year')
+     * @param  string  $period  Period selector ('week', 'month', 'year', 'custom')
+     * @param  string|null  $dateFrom  Custom start date (YYYY-MM-DD), required when period is 'custom'
+     * @param  string|null  $dateTo  Custom end date (YYYY-MM-DD), required when period is 'custom'
      * @return array Statistics data including summary, charts, and period info
      */
-    public function getUserStatistics(User $user, string $period): array
+    public function getUserStatistics(User $user, string $period, ?string $dateFrom = null, ?string $dateTo = null): array
     {
-        [$startDate, $endDate] = $this->getPeriodDates($period);
+        if ($period === 'custom' && $dateFrom && $dateTo) {
+            $startDate = Carbon::parse($dateFrom)->startOfDay();
+            $endDate = Carbon::parse($dateTo)->endOfDay();
+        } else {
+            [$startDate, $endDate] = $this->getPeriodDates($period);
+        }
+
+        // Determine chart grouping based on date span
+        $chartPeriod = $this->resolveChartPeriod($period, $startDate, $endDate);
 
         // Fetch completed trips within period
         $trips = $user->trips()
@@ -40,15 +50,31 @@ class StatisticsService
         return [
             'summary' => $this->calculateSummary($trips),
             'charts' => [
-                'trips_over_time' => $this->getTripsOverTime($trips, $period),
-                'violations_over_time' => $this->getViolationsOverTime($trips, $period),
+                'trips_over_time' => $this->getTripsOverTime($trips, $chartPeriod),
+                'violations_over_time' => $this->getViolationsOverTime($trips, $chartPeriod),
             ],
             'period' => [
                 'start' => $startDate->toDateString(),
-                'end' => $endDate->toDateString(),
-                'label' => $this->getPeriodLabel($period, $startDate),
+                'end' => $endDate instanceof Carbon ? $endDate->toDateString() : Carbon::parse($endDate)->toDateString(),
+                'label' => $this->getPeriodLabel($period, $startDate, $endDate),
             ],
         ];
+    }
+
+    /**
+     * Resolve chart grouping period based on date span.
+     *
+     * For custom ranges, uses daily grouping for <=31 days and monthly for >31 days.
+     */
+    private function resolveChartPeriod(string $period, CarbonInterface $startDate, CarbonInterface $endDate): string
+    {
+        if ($period !== 'custom') {
+            return $period;
+        }
+
+        $daySpan = $startDate->diffInDays($endDate);
+
+        return $daySpan > 31 ? 'year' : 'month';
     }
 
     /**
@@ -182,14 +208,16 @@ class StatisticsService
      *
      * @param  string  $period  Period selector
      * @param  CarbonInterface  $startDate  Period start date
+     * @param  CarbonInterface|null  $endDate  Period end date (used for custom range)
      * @return string Formatted period label
      */
-    private function getPeriodLabel(string $period, CarbonInterface $startDate): string
+    private function getPeriodLabel(string $period, CarbonInterface $startDate, ?CarbonInterface $endDate = null): string
     {
         return match ($period) {
             'week' => 'Minggu '.$startDate->format('W, Y'),
             'month' => $startDate->translatedFormat('F Y'),
             'year' => 'Last 12 Months',
+            'custom' => $startDate->translatedFormat('d M Y').' - '.($endDate ? $endDate->translatedFormat('d M Y') : ''),
             default => $startDate->translatedFormat('F Y'),
         };
     }
