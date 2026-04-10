@@ -6,9 +6,12 @@
  * Follows SafeTrack design system with lucide icons and theme-aware styling.
  *
  * Features:
- * - Employee: 5 navigation slots (Dashboard, Speedometer, Trips, Statistics, Profile)
+ * - Employee: 5 slots (Dashboard, Speedometer, Trips, Statistics, More)
+ *   - More menu: Profil, Theme Toggle, Logout
  * - Superuser/Admin: 5 slots (Dashboard, Speedometer, Semua Trip, Peringkat, More)
- * - "More" overflow menu for superuser items (Karyawan, Profil, Pengaturan)
+ *   - More menu: Karyawan, Profil, Pengaturan Aplikasi, Theme Toggle, Logout
+ * - Dynamic theme toggle (Moon/Sun icon changes with mode)
+ * - Logout with destructive styling
  * - Sync status badge on My Trips icon (employee only)
  * - Touch-friendly targets (>=44x44px) per Fitts's Law
  * - Safe area inset aware for notched devices
@@ -16,15 +19,18 @@
  * - ARIA accessibility
  */
 
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import {
     BarChart3,
     ClipboardList,
     Gauge,
     Home,
     EllipsisVertical,
+    LogOut,
+    Moon,
     Motorbike,
     Settings,
+    Sun,
     Trophy,
     User,
     Users,
@@ -36,6 +42,7 @@ import { computed, ref, onMounted, onUnmounted } from 'vue';
 import SyncBadge from '@/components/sync/SyncBadge.vue';
 import { useActiveRoute } from '@/composables/useActiveRoute';
 import { useSyncQueue } from '@/composables/useSyncQueue';
+import { useTheme } from '@/composables/useTheme';
 import { useAuthStore } from '@/stores/auth';
 
 // ========================================================================
@@ -46,7 +53,9 @@ interface NavItem {
     id: string;
     label: string;
     icon: Component;
-    href: string;
+    href?: string;
+    action?: () => void;
+    isDynamic?: boolean; // For theme toggle that changes icon
 }
 
 /** Employee navigation items (mobile) */
@@ -55,7 +64,13 @@ const employeeNavItems: NavItem[] = [
     { id: 'speedometer', label: 'Speedometer', icon: Gauge, href: '/employee/speedometer' },
     { id: 'trips', label: 'Perjalanan', icon: ClipboardList, href: '/employee/my-trips' },
     { id: 'statistics', label: 'Statistik', icon: BarChart3, href: '/employee/statistics' },
+];
+
+/** Employee overflow navigation items (mobile — shown in "More" menu) */
+const employeeOverflowNavItems: NavItem[] = [
     { id: 'profile', label: 'Profil', icon: User, href: '/profile' },
+    { id: 'theme', label: 'Mode Gelap', icon: Moon, isDynamic: true },
+    { id: 'logout', label: 'Keluar', icon: LogOut },
 ];
 
 /** Superuser/Admin primary navigation items (mobile — shown in bottom bar) */
@@ -70,7 +85,9 @@ const superuserPrimaryNavItems: NavItem[] = [
 const superuserOverflowNavItems: NavItem[] = [
     { id: 'employees', label: 'Karyawan', icon: Users, href: '/superuser/employees' },
     { id: 'profile', label: 'Profil', icon: User, href: '/profile' },
-    { id: 'settings', label: 'Pengaturan', icon: Settings, href: '/admin/settings' },
+    { id: 'settings', label: 'Pengaturan Aplikasi', icon: Settings, href: '/admin/settings' },
+    { id: 'theme', label: 'Mode Gelap', icon: Moon, isDynamic: true },
+    { id: 'logout', label: 'Keluar', icon: LogOut },
 ];
 
 // ========================================================================
@@ -80,6 +97,7 @@ const superuserOverflowNavItems: NavItem[] = [
 const authStore = useAuthStore();
 const { isActive } = useActiveRoute();
 const { openModal } = useSyncQueue();
+const { isDark, toggleTheme } = useTheme();
 
 // ========================================================================
 // State
@@ -106,7 +124,8 @@ const navItems = computed((): NavItem[] => {
 });
 
 /**
- * Get overflow navigation items (superuser/admin only).
+ * Get overflow navigation items based on user role.
+ * Both employees and superuser/admin have overflow items now (theme, logout, etc).
  */
 const overflowItems = computed((): NavItem[] => {
     const role = authStore.role;
@@ -115,11 +134,12 @@ const overflowItems = computed((): NavItem[] => {
         return superuserOverflowNavItems;
     }
 
-    return [];
+    return employeeOverflowNavItems;
 });
 
 /**
  * Whether the "More" button should be shown.
+ * Always shown now since all roles have overflow items.
  */
 const hasOverflow = computed(() => overflowItems.value.length > 0);
 
@@ -179,6 +199,45 @@ function handleClickOutside(event: PointerEvent): void {
     if (moreMenuRef.value && !moreMenuRef.value.contains(event.target as Node)) {
         closeMoreMenu();
     }
+}
+
+/**
+ * Handle overflow item click - either navigate or execute action.
+ */
+function handleOverflowItemClick(item: NavItem): void {
+    if (item.id === 'theme') {
+        toggleTheme();
+        return;
+    }
+
+    if (item.id === 'logout') {
+        router.post('/logout');
+        closeMoreMenu();
+        return;
+    }
+
+    // For regular navigation items, close menu (Link will handle navigation)
+    closeMoreMenu();
+}
+
+/**
+ * Get the appropriate icon for dynamic items (e.g., theme toggle).
+ */
+function getItemIcon(item: NavItem): Component {
+    if (item.id === 'theme') {
+        return isDark.value ? Sun : Moon;
+    }
+    return item.icon;
+}
+
+/**
+ * Get the appropriate label for dynamic items (e.g., theme toggle).
+ */
+function getItemLabel(item: NavItem): string {
+    if (item.id === 'theme') {
+        return isDark.value ? 'Mode Terang' : 'Mode Gelap';
+    }
+    return item.label;
 }
 
 onMounted(() => {
@@ -338,31 +397,55 @@ onUnmounted(() => {
                         class="absolute bottom-full right-0 mb-2 w-48 rounded-xl border border-zinc-200/80 dark:border-white/10 bg-white/95 dark:bg-zinc-900/98 shadow-xl shadow-zinc-900/10 dark:shadow-cyan-500/10 ring-1 ring-white/20 dark:ring-white/5 overflow-hidden"
                     >
                         <div class="py-1.5">
+                            <!-- Navigation Items -->
                             <Link
-                                v-for="item in overflowItems"
+                                v-for="item in overflowItems.filter((i) => i.href)"
                                 :key="item.id"
-                                :href="item.href"
+                                :href="item.href!"
                                 class="flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors duration-150"
                                 :class="
-                                    isActive(item.href)
+                                    isActive(item.href!)
                                         ? 'bg-cyan-50 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400'
                                         : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-zinc-200'
                                 "
-                                :aria-current="isActive(item.href) ? 'page' : undefined"
-                                @click="closeMoreMenu"
+                                :aria-current="isActive(item.href!) ? 'page' : undefined"
+                                @click="handleOverflowItemClick(item)"
                             >
                                 <component
-                                    :is="item.icon"
+                                    :is="getItemIcon(item)"
                                     :size="18"
                                     class="transition-colors duration-200"
                                     :class="
-                                        isActive(item.href)
+                                        isActive(item.href!)
                                             ? 'text-cyan-600 dark:text-cyan-400'
                                             : 'text-zinc-500 dark:text-zinc-500'
                                     "
                                 />
-                                <span>{{ item.label }}</span>
+                                <span>{{ getItemLabel(item) }}</span>
                             </Link>
+
+                            <!-- Action Items (Theme, Logout) -->
+                            <button
+                                v-for="item in overflowItems.filter((i) => !i.href)"
+                                :key="item.id"
+                                type="button"
+                                class="flex w-full items-center gap-3 px-4 py-3 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors duration-150"
+                                :class="{
+                                    'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300':
+                                        item.id === 'logout',
+                                }"
+                                @click="handleOverflowItemClick(item)"
+                            >
+                                <component
+                                    :is="getItemIcon(item)"
+                                    :size="18"
+                                    class="text-zinc-500 dark:text-zinc-500 transition-colors duration-200"
+                                    :class="{
+                                        'text-red-500 dark:text-red-400': item.id === 'logout',
+                                    }"
+                                />
+                                <span>{{ getItemLabel(item) }}</span>
+                            </button>
                         </div>
                     </div>
                 </Transition>
