@@ -385,7 +385,7 @@ async function handleManualRefresh(): Promise<void> {
                         :transition="{ delay: 0.3, duration: 0.3 }"
                     >
                         <TrendStatCard
-                            title="Rata-Rata Kec. Mobil"
+                            title="Kecepatan Rata - Rata Pengguna Mobil"
                             :value="`${averageSpeedMobil} km/h`"
                             :trend-percentage="0"
                             :is-loading="isLoading"
@@ -399,7 +399,7 @@ async function handleManualRefresh(): Promise<void> {
                         :transition="{ delay: 0.35, duration: 0.3 }"
                     >
                         <TrendStatCard
-                            title="Rata-Rata Kec. Motor"
+                            title="Kecepatan Rata - Rata Pengguna Motor"
                             :value="`${averageSpeedMotor} km/h`"
                             :trend-percentage="0"
                             :is-loading="isLoading"

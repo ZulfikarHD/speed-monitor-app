@@ -18,7 +18,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import type { ChartData, ChartOptions } from 'chart.js';
+import type { ChartOptions } from 'chart.js';
 import { computed } from 'vue';
 import { Bar } from 'vue-chartjs';
 

@@ -327,7 +327,7 @@ function toggleSortOrder(): void {
             <div class="overflow-hidden">
                 <div class="mt-3 rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 p-4 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5">
                     <!-- Filter Controls Grid -->
-                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-7">
+                    <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
                         <!-- Employee Dropdown -->
                         <div>
                             <label

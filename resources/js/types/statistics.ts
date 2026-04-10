@@ -161,7 +161,7 @@ export interface TripsChartProps {
 }
 
 /**
- * Props for ViolationsChart component (Line chart).
+ * Props for ViolationsChart component (Line/Bar chart).
  */
 export interface ViolationsChartProps {
     /** Chart data points */
@@ -170,27 +170,36 @@ export interface ViolationsChartProps {
     /** Period type for X-axis formatting */
     period: Period;
 
+    /** Chart type (line or bar) */
+    chartType?: 'line' | 'bar';
+
     /** Loading state */
     isLoading?: boolean;
 }
 
 /**
- * Props for AvgSpeedChart component (Line chart).
+ * Props for AvgSpeedChart component (Line/Bar chart).
  */
 export interface AvgSpeedChartProps {
     /** Chart data points with speed limit reference */
     data: SpeedChartDataPoint[];
 
+    /** Chart type (line or bar) */
+    chartType?: 'line' | 'bar';
+
     /** Loading state */
     isLoading?: boolean;
 }
 
 /**
- * Props for MaxSpeedChart component (Line chart).
+ * Props for MaxSpeedChart component (Line/Bar chart).
  */
 export interface MaxSpeedChartProps {
     /** Chart data points with speed limit reference */
     data: SpeedChartDataPoint[];
+
+    /** Chart type (line or bar) */
+    chartType?: 'line' | 'bar';
 
     /** Loading state */
     isLoading?: boolean;

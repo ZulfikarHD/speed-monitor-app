@@ -2,14 +2,14 @@
 /**
  * MaxSpeedChart Component
  *
- * Line chart displaying maximum speed over time with speed limit reference line.
+ * Line/Bar chart displaying maximum speed over time with speed limit reference line.
  * Built with Chart.js for high-performance rendering with SafeTrack dark theme.
  *
  * Features:
- * - Line chart with date (X-axis) and speed (Y-axis)
- * - Orange line for max speed
+ * - Line or bar chart with date (X-axis) and speed (Y-axis)
+ * - Orange line/bars for max speed
  * - Red dashed line for speed limit reference
- * - Gradient fill under max speed line
+ * - Gradient fill under max speed line/bars
  * - Responsive sizing with proper aspect ratio
  * - Tooltips showing exact speed on hover
  * - Loading skeleton state
@@ -23,6 +23,7 @@ import {
     LinearScale,
     PointElement,
     LineElement,
+    BarElement,
     Title,
     Tooltip,
     Legend,
@@ -30,7 +31,7 @@ import {
 } from 'chart.js';
 import type { ChartOptions, ChartData } from 'chart.js';
 import { computed } from 'vue';
-import { Line } from 'vue-chartjs';
+import { Line, Bar } from 'vue-chartjs';
 
 import type { MaxSpeedChartProps } from '@/types/statistics';
 
@@ -43,6 +44,7 @@ ChartJS.register(
     LinearScale,
     PointElement,
     LineElement,
+    BarElement,
     Title,
     Tooltip,
     Legend,
@@ -55,6 +57,7 @@ ChartJS.register(
 
 const props = withDefaults(defineProps<MaxSpeedChartProps>(), {
     isLoading: false,
+    chartType: 'line',
 });
 
 // ========================================================================
@@ -64,49 +67,67 @@ const props = withDefaults(defineProps<MaxSpeedChartProps>(), {
 /**
  * Transform data into Chart.js format.
  */
-const chartData = computed<ChartData<'line'>>(() => {
+const chartData = computed<ChartData<'line' | 'bar'>>(() => {
     const labels = props.data.map((point) => point.date);
     const speeds = props.data.map((point) => point.speed);
     const speedLimits = props.data.map((point) => point.speed_limit);
+
+    const baseDataset = {
+        label: 'Kecepatan Maksimal',
+        data: speeds,
+        borderColor: '#f97316', // Orange
+        backgroundColor: (context: any) => {
+            const chart = context.chart;
+            const { ctx, chartArea } = chart;
+
+            if (!chartArea) {
+                return props.chartType === 'bar' ? 'rgba(249, 115, 22, 0.8)' : 'rgba(249, 115, 22, 0.1)';
+            }
+
+            const gradient = ctx.createLinearGradient(
+                0,
+                chartArea.top,
+                0,
+                chartArea.bottom,
+            );
+            
+            if (props.chartType === 'bar') {
+                gradient.addColorStop(0, 'rgba(249, 115, 22, 0.9)');
+                gradient.addColorStop(1, 'rgba(249, 115, 22, 0.6)');
+            } else {
+                gradient.addColorStop(0, 'rgba(249, 115, 22, 0.3)');
+                gradient.addColorStop(1, 'rgba(249, 115, 22, 0)');
+            }
+
+            return gradient;
+        },
+        borderWidth: 2,
+    };
+
+    const lineSpecificProps = props.chartType === 'line' ? {
+        tension: 0.4,
+        fill: true,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        pointBackgroundColor: '#f97316',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+    } : {
+        borderRadius: 4,
+        borderSkipped: false,
+    };
 
     return {
         labels,
         datasets: [
             {
-                label: 'Kecepatan Maksimal',
-                data: speeds,
-                borderColor: '#f97316', // Orange
-                backgroundColor: (context) => {
-                    const chart = context.chart;
-                    const { ctx, chartArea } = chart;
-
-                    if (!chartArea) {
-                        return 'rgba(249, 115, 22, 0.1)';
-                    }
-
-                    const gradient = ctx.createLinearGradient(
-                        0,
-                        chartArea.top,
-                        0,
-                        chartArea.bottom,
-                    );
-                    gradient.addColorStop(0, 'rgba(249, 115, 22, 0.3)');
-                    gradient.addColorStop(1, 'rgba(249, 115, 22, 0)');
-
-                    return gradient;
-                },
-                borderWidth: 2,
-                tension: 0.4,
-                fill: true,
-                pointRadius: 3,
-                pointHoverRadius: 5,
-                pointBackgroundColor: '#f97316',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-            },
+                ...baseDataset,
+                ...lineSpecificProps,
+            } as any,
             {
                 label: 'Batas Kecepatan',
                 data: speedLimits,
+                type: 'line' as const,
                 borderColor: '#ef4444', // Red
                 backgroundColor: 'transparent',
                 borderWidth: 2,
@@ -123,7 +144,7 @@ const chartData = computed<ChartData<'line'>>(() => {
 /**
  * Chart.js configuration options.
  */
-const chartOptions = computed<ChartOptions<'line'>>(() => ({
+const chartOptions = computed<ChartOptions<'line' | 'bar'>>(() => ({
     responsive: true,
     maintainAspectRatio: true,
     aspectRatio: 2,
@@ -264,7 +285,8 @@ const hasData = computed(() => props.data.length > 0);
 
         <!-- Chart Canvas -->
         <div v-else class="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-900/50">
-            <Line :data="chartData" :options="chartOptions" />
+            <Line v-if="chartType === 'line'" :data="chartData" :options="chartOptions" />
+            <Bar v-else :data="chartData" :options="chartOptions" />
         </div>
     </div>
 </template>
