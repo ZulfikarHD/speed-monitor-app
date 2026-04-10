@@ -797,13 +797,15 @@ export const useTripStore = defineStore('trip', () => {
         try {
             error.value = null;
 
-            // Fetch active trips (in_progress status)
+            // Fetch only the current user's active trip
+            const userId = authStore.user?.id;
             const response = await http.get<{ data: Trip[]; meta: any }>(
                 TripController.index.url(),
                 {
                     params: {
                         status: 'in_progress',
                         per_page: 1,
+                        ...(userId ? { user_id: userId } : {}),
                     },
                 }
             );

@@ -71,7 +71,9 @@ class TripPolicy
      */
     public function update(User $user, Trip $trip): bool
     {
-        return $user->id === $trip->user_id;
+        return $user->id === $trip->user_id
+            || $user->isSuperuser()
+            || $user->isAdmin();
     }
 
     /**
