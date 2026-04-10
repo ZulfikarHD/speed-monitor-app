@@ -33,8 +33,8 @@ class WelcomeController extends Controller
                 return redirect()->route('admin.dashboard');
             }
 
-            if ($user->isSupervisor()) {
-                return redirect()->route('supervisor.dashboard');
+            if ($user->isSuperuser()) {
+                return redirect()->route('superuser.dashboard');
             }
 
             return redirect()->route('employee.dashboard');

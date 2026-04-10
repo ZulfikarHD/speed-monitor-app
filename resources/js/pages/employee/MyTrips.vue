@@ -255,7 +255,7 @@ const updatePendingSyncCount = async (): Promise<void> => {
 </script>
 
 <template>
-    <EmployeeLayout title="My Trips">
+    <EmployeeLayout title="Perjalanan Saya">
         <!-- ============================================================ -->
         <!-- TOAST NOTIFICATIONS (Fixed position, global) -->
         <!-- ============================================================ -->
@@ -292,10 +292,10 @@ const updatePendingSyncCount = async (): Promise<void> => {
                         class="text-3xl font-bold text-zinc-900 dark:text-white"
                         style="font-family: 'Bebas Neue', sans-serif"
                     >
-                        My Trips
+                        Perjalanan Saya
                     </h1>
                     <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                        View and filter your trip history
+                        Lihat dan filter riwayat perjalanan Anda
                     </p>
                 </div>
 

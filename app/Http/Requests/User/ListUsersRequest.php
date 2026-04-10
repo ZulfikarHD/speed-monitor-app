@@ -35,7 +35,7 @@ class ListUsersRequest extends FormRequest
     {
         return [
             'search' => ['nullable', 'string', 'max:255'],
-            'role' => ['nullable', 'string', 'in:employee,supervisor,admin'],
+            'role' => ['nullable', 'string', 'in:employee,superuser,admin'],
             'status' => ['nullable', 'string', 'in:active,inactive'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ];

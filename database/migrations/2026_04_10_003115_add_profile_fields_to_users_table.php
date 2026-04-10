@@ -12,18 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('role', ['employee', 'superuser', 'admin'])->default('employee')->after('email');
-            $table->boolean('is_active')->default(true)->after('role');
+            $table->string('npk')->nullable()->unique()->after('name');
+            $table->string('divisi')->nullable()->after('npk');
+            $table->string('departement')->nullable()->after('divisi');
+            $table->string('section')->nullable()->after('departement');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['role', 'is_active']);
+            $table->dropColumn(['npk', 'divisi', 'departement', 'section']);
         });
     }
 };

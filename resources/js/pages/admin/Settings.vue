@@ -42,8 +42,8 @@ import { motion } from 'motion-v';
 import { computed } from 'vue';
 
 import { update } from '@/actions/App/Http/Controllers/Admin/SettingsController';
-import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
-import { dashboard } from '@/routes/supervisor';
+import SuperuserLayout from '@/layouts/SuperuserLayout.vue';
+import { dashboard } from '@/routes/superuser';
 import { useSettingsStore } from '@/stores/settings';
 
 // ========================================================================
@@ -131,7 +131,7 @@ function handleSubmit(): void {
 /**
  * Handle cancel button click.
  *
- * Returns to supervisor dashboard without saving changes.
+ * Returns to superuser dashboard without saving changes.
  */
 function handleCancel(): void {
     router.visit(dashboard.url());
@@ -139,7 +139,7 @@ function handleCancel(): void {
 </script>
 
 <template>
-    <SupervisorLayout title="Pengaturan Aplikasi">
+    <SuperuserLayout title="Pengaturan Aplikasi">
         <div class="p-4 md:p-6 lg:p-8">
             <div class="mx-auto max-w-4xl space-y-6">
                 <!-- Header Section -->
@@ -450,5 +450,5 @@ function handleCancel(): void {
                 </div>
             </div>
         </div>
-    </SupervisorLayout>
+    </SuperuserLayout>
 </template>

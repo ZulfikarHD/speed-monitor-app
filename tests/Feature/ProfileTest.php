@@ -274,11 +274,11 @@ class ProfileTest extends TestCase
     public function test_all_roles_can_access_profile_page(): void
     {
         $employee = User::factory()->create(['role' => 'employee']);
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
         $admin = User::factory()->create(['role' => 'admin']);
 
         $this->actingAs($employee)->get('/profile')->assertStatus(200);
-        $this->actingAs($supervisor)->get('/profile')->assertStatus(200);
+        $this->actingAs($superuser)->get('/profile')->assertStatus(200);
         $this->actingAs($admin)->get('/profile')->assertStatus(200);
     }
 

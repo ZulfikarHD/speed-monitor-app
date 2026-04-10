@@ -3,7 +3,7 @@
  * AlertsWidget - Displays recent high-violation alerts.
  *
  * Shows trips with high violation counts from the last hour requiring
- * supervisor attention. Uses severity-based color coding for quick
+ * superuser attention. Uses severity-based color coding for quick
  * visual identification of critical incidents.
  *
  * Features:
@@ -76,8 +76,8 @@ function getSeverityBadge(count: number): string {
                     />
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">Recent Alerts</h3>
-                    <p class="text-sm text-zinc-500 dark:text-zinc-400">High violations in the last hour</p>
+                    <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">Peringatan Terbaru</h3>
+                    <p class="text-sm text-zinc-500 dark:text-zinc-400">Pelanggaran tinggi dalam satu jam terakhir</p>
                 </div>
             </div>
         </div>
@@ -101,8 +101,8 @@ function getSeverityBadge(count: number): string {
                 class="mx-auto mb-2 text-emerald-500 dark:text-emerald-400"
                 aria-hidden="true"
             />
-            <p class="text-sm font-medium text-zinc-900 dark:text-white">No Recent Alerts</p>
-            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">All trips are within acceptable limits</p>
+            <p class="text-sm font-medium text-zinc-900 dark:text-white">Tidak Ada Peringatan Terbaru</p>
+            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Semua perjalanan dalam batas yang dapat diterima</p>
         </div>
 
         <!-- Alerts List -->
@@ -126,7 +126,7 @@ function getSeverityBadge(count: number): string {
                     class="flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold"
                 >
                     <ShieldAlert :size="12" :stroke-width="2" aria-hidden="true" />
-                    <span>{{ alert.violation_count }} violations</span>
+                    <span>{{ alert.violation_count }} pelanggaran</span>
                 </div>
             </div>
         </div>
@@ -134,7 +134,7 @@ function getSeverityBadge(count: number): string {
         <!-- Footer Note -->
         <div v-if="alerts.length > 0" class="border-t border-zinc-200 dark:border-white/5 px-6 py-3">
             <p class="text-xs text-zinc-500 dark:text-zinc-500">
-                Showing trips with 5+ violations from the last hour
+                Menampilkan perjalanan dengan 5+ pelanggaran dari satu jam terakhir
             </p>
         </div>
     </div>

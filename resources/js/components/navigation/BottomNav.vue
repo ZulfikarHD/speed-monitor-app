@@ -17,10 +17,10 @@
 import { Link } from '@inertiajs/vue3';
 import {
     BarChart3,
-    Car,
     ClipboardList,
     Gauge,
     Home,
+    Route,
     Trophy,
     User,
     Users,
@@ -46,20 +46,20 @@ interface NavItem {
 
 /** Employee navigation items (mobile) */
 const employeeNavItems: NavItem[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home, href: '/employee/dashboard' },
+    { id: 'dashboard', label: 'Dasbor', icon: Home, href: '/employee/dashboard' },
     { id: 'speedometer', label: 'Speedometer', icon: Gauge, href: '/employee/speedometer' },
-    { id: 'trips', label: 'My Trips', icon: ClipboardList, href: '/employee/my-trips' },
-    { id: 'statistics', label: 'Statistics', icon: BarChart3, href: '/employee/statistics' },
-    { id: 'profile', label: 'Profile', icon: User, href: '/profile' },
+    { id: 'trips', label: 'Perjalanan', icon: ClipboardList, href: '/employee/my-trips' },
+    { id: 'statistics', label: 'Statistik', icon: BarChart3, href: '/employee/statistics' },
+    { id: 'profile', label: 'Profil', icon: User, href: '/profile' },
 ];
 
-/** Supervisor/Admin navigation items (mobile) */
-const supervisorNavItems: NavItem[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: BarChart3, href: '/supervisor/dashboard' },
-    { id: 'trips', label: 'All Trips', icon: Car, href: '/supervisor/trips' },
-    { id: 'leaderboard', label: 'Leaderboard', icon: Trophy, href: '/supervisor/leaderboard' },
-    { id: 'employees', label: 'Employees', icon: Users, href: '/supervisor/employees' },
-    { id: 'profile', label: 'Profile', icon: User, href: '/profile' },
+/** Superuser/Admin navigation items (mobile) */
+const superuserNavItems: NavItem[] = [
+    { id: 'dashboard', label: 'Dasbor', icon: BarChart3, href: '/superuser/dashboard' },
+    { id: 'trips', label: 'Semua Trip', icon: Route, href: '/superuser/trips' },
+    { id: 'leaderboard', label: 'Peringkat', icon: Trophy, href: '/superuser/leaderboard' },
+    { id: 'employees', label: 'Karyawan', icon: Users, href: '/superuser/employees' },
+    { id: 'profile', label: 'Profil', icon: User, href: '/profile' },
 ];
 
 // ========================================================================
@@ -77,13 +77,13 @@ const { openModal } = useSyncQueue();
 /**
  * Get navigation items based on user role.
  *
- * WHY: Supervisors/admins see monitoring tools while employees see trip tracking.
+ * WHY: Superusers/admins see monitoring tools while employees see trip tracking.
  */
 const navItems = computed((): NavItem[] => {
     const role = authStore.role;
 
-    if (role === 'supervisor' || role === 'admin') {
-        return supervisorNavItems;
+    if (role === 'superuser' || role === 'admin') {
+        return superuserNavItems;
     }
 
     return employeeNavItems;
@@ -116,7 +116,7 @@ function handleSyncBadgeClick(event: MouseEvent): void {
     <nav
         class="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/95 dark:bg-zinc-900/98 border-t border-zinc-200/80 dark:border-white/10 ring-1 ring-white/20 dark:ring-white/5 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5 pb-safe"
         role="navigation"
-        aria-label="Mobile bottom navigation"
+        aria-label="Navigasi bawah seluler"
     >
         <!-- Grid pattern overlay (32px, theme-aware) -->
         <div

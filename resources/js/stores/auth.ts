@@ -30,7 +30,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
 /** User role types for role-based access control */
-export type UserRole = 'employee' | 'supervisor' | 'admin';
+export type UserRole = 'employee' | 'superuser' | 'admin';
 
 /**
  * User entity - authenticated user data.
@@ -44,6 +44,14 @@ export interface User {
     name: string;
     /** Email address (used for login) */
     email: string;
+    /** Nomor Pokok Karyawan */
+    npk: string | null;
+    /** Division name */
+    divisi: string | null;
+    /** Department name */
+    departement: string | null;
+    /** Section name */
+    section: string | null;
     /** User role determining access permissions */
     role: UserRole;
     /** Account status - inactive users cannot login */
@@ -77,8 +85,8 @@ export const useAuthStore = defineStore('auth', () => {
     /** Whether current user has employee role */
     const isEmployee = computed(() => role.value === 'employee');
 
-    /** Whether current user has supervisor role */
-    const isSupervisor = computed(() => role.value === 'supervisor');
+    /** Whether current user has superuser role */
+    const isSuperuser = computed(() => role.value === 'superuser');
 
     /** Whether current user has admin role */
     const isAdmin = computed(() => role.value === 'admin');
@@ -174,7 +182,7 @@ export const useAuthStore = defineStore('auth', () => {
         isAuthenticated,
         role,
         isEmployee,
-        isSupervisor,
+        isSuperuser,
         isAdmin,
         setUser,
         setToken,

@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Check if authenticated user has the required role.
  *
- * Middleware to restrict route access based on user roles (employee, supervisor, admin).
+ * Middleware to restrict route access based on user roles (employee, superuser, admin).
  * Redirects unauthorized users to the login page.
  */
 class CheckRole
@@ -23,7 +23,7 @@ class CheckRole
      *
      * @param  Request  $request  The incoming HTTP request
      * @param  Closure(Request): (Response)  $next  The next middleware/handler
-     * @param  string  $role  The required role(s) (employee, supervisor, admin or comma-separated like "supervisor,admin")
+     * @param  string  $role  The required role(s) (employee, superuser, admin or comma-separated like "superuser,admin")
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
@@ -32,7 +32,7 @@ class CheckRole
         }
 
         // WHY: Support multiple roles with comma-separated values for flexible access control
-        // This allows routes to be accessible by multiple roles (e.g., role:supervisor,admin)
+        // This allows routes to be accessible by multiple roles (e.g., role:superuser,admin)
         $allowedRoles = array_map('trim', explode(',', $role));
 
         if (! in_array($request->user()->role, $allowedRoles, true)) {

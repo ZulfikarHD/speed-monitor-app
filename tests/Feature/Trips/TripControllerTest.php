@@ -18,9 +18,9 @@ class TripControllerTest extends TestCase
         return User::factory()->employee()->create();
     }
 
-    private function actingAsSupervisor(): User
+    private function actingAsSuperuser(): User
     {
-        return User::factory()->supervisor()->create();
+        return User::factory()->superuser()->create();
     }
 
     private function actingAsAdmin(): User
@@ -118,9 +118,9 @@ class TripControllerTest extends TestCase
             ->assertJsonValidationErrors(['notes']);
     }
 
-    public function test_supervisor_can_start_trip(): void
+    public function test_superuser_can_start_trip(): void
     {
-        $user = $this->actingAsSupervisor();
+        $user = $this->actingAsSuperuser();
 
         $response = $this->actingAs($user, 'sanctum')
             ->postJson('/api/trips', []);
@@ -317,32 +317,32 @@ class TripControllerTest extends TestCase
         }
     }
 
-    public function test_supervisor_can_list_all_trips(): void
+    public function test_superuser_can_list_all_trips(): void
     {
-        $supervisor = $this->actingAsSupervisor();
+        $superuser = $this->actingAsSuperuser();
         $employee1 = User::factory()->employee()->create();
         $employee2 = User::factory()->employee()->create();
 
         Trip::factory()->create(['user_id' => $employee1->id]);
         Trip::factory()->create(['user_id' => $employee2->id]);
 
-        $response = $this->actingAs($supervisor, 'sanctum')
+        $response = $this->actingAs($superuser, 'sanctum')
             ->getJson('/api/trips');
 
         $response->assertStatus(200)
             ->assertJsonCount(2, 'data');
     }
 
-    public function test_supervisor_can_filter_trips_by_user_id(): void
+    public function test_superuser_can_filter_trips_by_user_id(): void
     {
-        $supervisor = $this->actingAsSupervisor();
+        $superuser = $this->actingAsSuperuser();
         $employee1 = User::factory()->employee()->create();
         $employee2 = User::factory()->employee()->create();
 
         Trip::factory()->count(2)->create(['user_id' => $employee1->id]);
         Trip::factory()->count(3)->create(['user_id' => $employee2->id]);
 
-        $response = $this->actingAs($supervisor, 'sanctum')
+        $response = $this->actingAs($superuser, 'sanctum')
             ->getJson("/api/trips?user_id={$employee1->id}");
 
         $response->assertStatus(200)
@@ -490,13 +490,13 @@ class TripControllerTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_supervisor_can_view_any_trip(): void
+    public function test_superuser_can_view_any_trip(): void
     {
-        $supervisor = $this->actingAsSupervisor();
+        $superuser = $this->actingAsSuperuser();
         $employee = User::factory()->employee()->create();
         $trip = Trip::factory()->create(['user_id' => $employee->id]);
 
-        $response = $this->actingAs($supervisor, 'sanctum')
+        $response = $this->actingAs($superuser, 'sanctum')
             ->getJson("/api/trips/{$trip->id}");
 
         $response->assertStatus(200)
@@ -783,9 +783,9 @@ class TripControllerTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_supervisor_cannot_add_speed_logs_to_employee_trip(): void
+    public function test_superuser_cannot_add_speed_logs_to_employee_trip(): void
     {
-        $supervisor = $this->actingAsSupervisor();
+        $superuser = $this->actingAsSuperuser();
         $employee = User::factory()->employee()->create();
         $trip = Trip::factory()->create([
             'user_id' => $employee->id,
@@ -796,7 +796,7 @@ class TripControllerTest extends TestCase
             ['speed' => 50.0, 'recorded_at' => '2026-03-30 10:00:00'],
         ];
 
-        $response = $this->actingAs($supervisor, 'sanctum')
+        $response = $this->actingAs($superuser, 'sanctum')
             ->postJson("/api/trips/{$trip->id}/speed-logs", [
                 'speed_logs' => $speedLogs,
             ]);

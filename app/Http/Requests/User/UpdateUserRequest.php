@@ -45,8 +45,17 @@ class UpdateUserRequest extends FormRequest
                 'max:255',
                 Rule::unique('users', 'email')->ignore($this->route('user')),
             ],
+            'npk' => [
+                'nullable',
+                'string',
+                'max:50',
+                Rule::unique('users', 'npk')->ignore($this->route('user')),
+            ],
+            'divisi' => ['nullable', 'string', 'max:100'],
+            'departement' => ['nullable', 'string', 'max:100'],
+            'section' => ['nullable', 'string', 'max:100'],
             'password' => ['nullable', 'string', 'min:8', Password::defaults()],
-            'role' => ['sometimes', 'required', 'string', 'in:employee,supervisor,admin'],
+            'role' => ['sometimes', 'required', 'string', 'in:employee,superuser,admin'],
             'is_active' => ['sometimes', 'required', 'boolean'],
         ];
     }

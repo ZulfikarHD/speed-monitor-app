@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Confirm Deactivate Modal Component (Supervisor)
+ * Confirm Deactivate Modal Component (Superuser)
  *
  * Confirmation dialog for deactivating user accounts.
  * Prevents accidental deactivation with explicit user confirmation.
@@ -21,7 +21,7 @@ import { AlertTriangle, X } from '@lucide/vue';
 import { AnimatePresence, motion } from 'motion-v';
 import { ref } from 'vue';
 
-import { deactivate } from '@/actions/App/Http/Controllers/Supervisor/EmployeesController';
+import { deactivate } from '@/actions/App/Http/Controllers/Superuser/EmployeesController';
 import Button from '@/components/ui/Button.vue';
 import type { User } from '@/types/auth';
 
@@ -179,7 +179,7 @@ if (typeof window !== 'undefined') {
                                             :class="
                                                 user.role === 'admin'
                                                     ? 'border-purple-500/30 bg-purple-500/20 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300'
-                                                    : user.role === 'supervisor'
+                                                    : user.role === 'superuser'
                                                         ? 'border-blue-500/30 bg-blue-500/20 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300'
                                                         : 'border-emerald-500/30 bg-emerald-500/20 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
                                             "
@@ -187,8 +187,8 @@ if (typeof window !== 'undefined') {
                                             {{
                                                 user.role === 'admin'
                                                     ? 'Admin'
-                                                    : user.role === 'supervisor'
-                                                        ? 'Supervisor'
+                                                    : user.role === 'superuser'
+                                                        ? 'Superuser'
                                                         : 'Karyawan'
                                             }}
                                         </span>

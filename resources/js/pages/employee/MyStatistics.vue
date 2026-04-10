@@ -72,7 +72,7 @@ const { statistics, currentPeriod } = props;
 </script>
 
 <template>
-    <EmployeeLayout title="My Statistics">
+    <EmployeeLayout title="Statistik Saya">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- ================================================================
                 Page Header with Period Selector
@@ -84,10 +84,10 @@ const { statistics, currentPeriod } = props;
                         class="text-3xl font-bold text-zinc-900 dark:text-white"
                         style="font-family: 'Bebas Neue', sans-serif"
                     >
-                        My Statistics
+                        Statistik Saya
                     </h1>
                     <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                        Your driving performance for {{ statistics.period.label }}
+                        Performa berkendara Anda untuk {{ statistics.period.label }}
                     </p>
                 </div>
 
@@ -105,9 +105,9 @@ const { statistics, currentPeriod } = props;
                 <!-- Total Trips -->
                 <StatCard
                     :key="`trips-${currentPeriod}-${statistics.summary.total_trips}`"
-                    title="Total Trips"
+                    title="Total Perjalanan"
                     :value="statistics.summary.total_trips"
-                    unit="trips completed"
+                    unit="perjalanan selesai"
                     icon="car"
                     color="blue"
                 />
@@ -115,9 +115,9 @@ const { statistics, currentPeriod } = props;
                 <!-- Total Distance -->
                 <StatCard
                     :key="`distance-${currentPeriod}-${statistics.summary.total_distance}`"
-                    title="Total Distance"
+                    title="Total Jarak"
                     :value="statistics.summary.total_distance"
-                    unit="kilometers"
+                    unit="kilometer"
                     icon="route"
                     color="green"
                 />
@@ -125,7 +125,7 @@ const { statistics, currentPeriod } = props;
                 <!-- Average Speed -->
                 <StatCard
                     :key="`speed-${currentPeriod}-${statistics.summary.average_speed}`"
-                    title="Average Speed"
+                    title="Kecepatan Rata-rata"
                     :value="statistics.summary.average_speed"
                     unit="km/h"
                     icon="zap"
@@ -135,9 +135,9 @@ const { statistics, currentPeriod } = props;
                 <!-- Violations -->
                 <StatCard
                     :key="`violations-${currentPeriod}-${statistics.summary.violation_count}`"
-                    title="Violations"
+                    title="Pelanggaran"
                     :value="statistics.summary.violation_count"
-                    unit="speed limit exceeded"
+                    unit="melampaui batas kecepatan"
                     icon="shield-alert"
                     :color="statistics.summary.violation_count > 0 ? 'red' : 'green'"
                 />
@@ -179,16 +179,16 @@ const { statistics, currentPeriod } = props;
                     class="mb-2 text-xl font-semibold text-zinc-900 dark:text-white"
                     style="font-family: 'Bebas Neue', sans-serif"
                 >
-                    No Trip Data Yet
+                    Belum Ada Data Perjalanan
                 </h3>
                 <p class="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
-                    Start tracking your trips with the speedometer to see your statistics here.
+                    Mulai lacak perjalanan Anda dengan speedometer untuk melihat statistik di sini.
                 </p>
                 <Link
                     :href="speedometerIndex.url()"
                     class="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:shadow-lg dark:from-cyan-500 dark:to-blue-600 dark:hover:shadow-cyan-500/25"
                 >
-                    <span>Start Speedometer</span>
+                    <span>Mulai Speedometer</span>
                     <ArrowRight :size="16" :stroke-width="2" aria-hidden="true" />
                 </Link>
             </div>

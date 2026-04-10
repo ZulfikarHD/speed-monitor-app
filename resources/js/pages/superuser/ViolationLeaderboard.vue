@@ -2,7 +2,7 @@
 /**
  * Violation Leaderboard Page
  *
- * Supervisor-only page showing employees ranked by speed violations with
+ * Superuser-only page showing employees ranked by speed violations with
  * date filtering, violation rate calculations, and navigation to employee trips.
  *
  * Features:
@@ -16,7 +16,7 @@
  * - Empty state with SVG icon
  * - Full light/dark theme support
  *
- * @example Route: /supervisor/leaderboard?date_from=2026-03-01&date_to=2026-04-01
+ * @example Route: /superuser/leaderboard?date_from=2026-03-01&date_to=2026-04-01
  */
 
 import { Link, router } from '@inertiajs/vue3';
@@ -24,8 +24,8 @@ import { AlertTriangle, Medal, Trophy } from '@lucide/vue';
 import { motion } from 'motion-v';
 import { computed, ref } from 'vue';
 
-import { index as allTripsIndex } from '@/actions/App/Http/Controllers/Supervisor/AllTripsController';
-import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
+import { index as allTripsIndex } from '@/actions/App/Http/Controllers/Superuser/AllTripsController';
+import SuperuserLayout from '@/layouts/SuperuserLayout.vue';
 import type {
     LeaderboardFilters,
     ViolationLeaderboardEntry,
@@ -133,12 +133,12 @@ function formatRate(rate: number): string {
  */
 function applyFilters(): void {
     if (localFilters.value.date_from > localFilters.value.date_to) {
-        alert('Start date must be before or equal to end date');
+        alert('Tanggal mulai harus sebelum atau sama dengan tanggal akhir');
 
         return;
     }
 
-    router.visit('/supervisor/leaderboard', {
+    router.visit('/superuser/leaderboard', {
         data: {
             date_from: localFilters.value.date_from,
             date_to: localFilters.value.date_to,
@@ -183,7 +183,7 @@ function getEmployeeTripsUrl(userId: number): string {
 </script>
 
 <template>
-    <SupervisorLayout title="Violation Leaderboard">
+    <SuperuserLayout title="Papan Peringkat Pelanggaran">
         <div class="min-h-screen p-4 md:p-6 lg:p-8">
             <div class="mx-auto max-w-7xl space-y-6">
                 <!-- Header Section -->
@@ -196,10 +196,10 @@ function getEmployeeTripsUrl(userId: number): string {
                         <!-- Title -->
                         <div>
                             <h1 class="text-3xl font-bold text-zinc-900 dark:text-white md:text-4xl">
-                                Violation Leaderboard
+                                Papan Peringkat Pelanggaran
                             </h1>
                             <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                                Employees ranked by speed violations
+                                Peringkat karyawan berdasarkan pelanggaran kecepatan
                             </p>
                         </div>
 
@@ -213,7 +213,7 @@ function getEmployeeTripsUrl(userId: number): string {
                                     for="date-from"
                                     class="mb-1 block text-sm font-medium text-zinc-900 dark:text-white"
                                 >
-                                    From Date
+                                    Dari Tanggal
                                 </label>
                                 <input
                                     id="date-from"
@@ -229,7 +229,7 @@ function getEmployeeTripsUrl(userId: number): string {
                                     for="date-to"
                                     class="mb-1 block text-sm font-medium text-zinc-900 dark:text-white"
                                 >
-                                    To Date
+                                    Sampai Tanggal
                                 </label>
                                 <input
                                     id="date-to"
@@ -244,10 +244,10 @@ function getEmployeeTripsUrl(userId: number): string {
                                 <button
                                     :disabled="!filtersModified"
                                     class="rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 px-4 py-2 font-medium text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
-                                    aria-label="Apply filters"
+                                    aria-label="Terapkan filter"
                                     @click="applyFilters"
                                 >
-                                    Apply
+                                    Terapkan
                                 </button>
 
                                 <button
@@ -273,11 +273,11 @@ function getEmployeeTripsUrl(userId: number): string {
                     <div class="mx-auto max-w-md">
                         <Trophy :size="64" :stroke-width="1.5" class="mx-auto text-zinc-400 dark:text-zinc-600" aria-hidden="true" />
                         <h3 class="mt-4 text-xl font-semibold text-zinc-900 dark:text-white">
-                            No Violations Recorded
+                            Tidak Ada Pelanggaran Tercatat
                         </h3>
                         <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                            No speed violations were recorded in the selected period.
-                            All employees are driving safely!
+                            Tidak ada pelanggaran kecepatan yang tercatat pada periode yang dipilih.
+                            Semua karyawan berkendara dengan aman!
                         </p>
                     </div>
                 </motion.div>
@@ -294,12 +294,12 @@ function getEmployeeTripsUrl(userId: number): string {
                         <!-- Table Header -->
                         <thead class="border-b border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
                             <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Rank</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Employee</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Violations</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Total Trips</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Violation Rate</th>
-                                <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Actions</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Peringkat</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Karyawan</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Pelanggaran</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Total Perjalanan</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Rasio Pelanggaran</th>
+                                <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Aksi</th>
                             </tr>
                         </thead>
 
@@ -367,7 +367,7 @@ function getEmployeeTripsUrl(userId: number): string {
                                         class="inline-block rounded-lg border border-cyan-500/30 bg-cyan-500/20 dark:bg-cyan-500/15 px-4 py-2 text-sm font-medium text-cyan-600 dark:text-cyan-400 transition-all duration-200 hover:bg-cyan-500/30 dark:hover:bg-cyan-500/25"
                                         :aria-label="`View trips for ${entry.user.name}`"
                                     >
-                                        View Trips
+                                        Lihat Perjalanan
                                     </Link>
                                 </td>
                             </motion.tr>
@@ -395,7 +395,7 @@ function getEmployeeTripsUrl(userId: number): string {
                         >
                             <div class="flex items-center gap-2">
                                 <span class="text-lg font-bold">
-                                    Rank #{{ entry.rank }}
+                                    Peringkat #{{ entry.rank }}
                                 </span>
                                 <Medal
                                     v-if="hasMedal(entry.rank)"
@@ -419,15 +419,15 @@ function getEmployeeTripsUrl(userId: number): string {
                             <div class="grid grid-cols-3 gap-4">
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ entry.violation_count }}</div>
-                                    <div class="text-xs text-zinc-500 dark:text-zinc-400">Violations</div>
+                                    <div class="text-xs text-zinc-500 dark:text-zinc-400">Pelanggaran</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-zinc-900 dark:text-white">{{ entry.total_trips }}</div>
-                                    <div class="text-xs text-zinc-500 dark:text-zinc-400">Trips</div>
+                                    <div class="text-xs text-zinc-500 dark:text-zinc-400">Perjalanan</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ entry.violation_rate.toFixed(2) }}</div>
-                                    <div class="text-xs text-zinc-500 dark:text-zinc-400">Rate</div>
+                                    <div class="text-xs text-zinc-500 dark:text-zinc-400">Rasio</div>
                                 </div>
                             </div>
 
@@ -437,12 +437,12 @@ function getEmployeeTripsUrl(userId: number): string {
                                 class="block w-full rounded-lg bg-gradient-to-r from-cyan-600 to-blue-700 dark:from-cyan-500 dark:to-blue-600 py-3 text-center font-medium text-white shadow-lg shadow-cyan-200 dark:shadow-cyan-500/25 transition-all duration-200 hover:shadow-xl active:scale-95"
                                 :aria-label="`View trips for ${entry.user.name}`"
                             >
-                                View Trips
+                                Lihat Perjalanan
                             </Link>
                         </div>
                     </motion.div>
                 </div>
             </div>
         </div>
-    </SupervisorLayout>
+    </SuperuserLayout>
 </template>

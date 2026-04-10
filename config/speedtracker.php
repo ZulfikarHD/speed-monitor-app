@@ -52,7 +52,7 @@ return [
     /**
      * Alert threshold for suspicious trip patterns.
      *
-     * WHY: Notify supervisors when employee creates too many trips
+     * WHY: Notify superusers when employee creates too many trips
      * in short period, indicating potential gaming behavior.
      *
      * Example: 3 trips within 2 hours = suspicious

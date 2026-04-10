@@ -11,13 +11,13 @@ use Carbon\CarbonInterface;
 /**
  * Dashboard Service
  *
- * Handles supervisor/admin dashboard statistics aggregation including
+ * Handles superuser/admin dashboard statistics aggregation including
  * real-time trip monitoring, violation tracking, and performance metrics.
  */
 class DashboardService
 {
     /**
-     * Get complete dashboard overview for supervisors/admins.
+     * Get complete dashboard overview for superusers/admins.
      *
      * Aggregates summary statistics for specified date range, active trips,
      * top violators, and overall performance metrics for employee monitoring.
@@ -235,7 +235,7 @@ class DashboardService
      * Get recent high-violation alerts from the last hour.
      *
      * Retrieves trips with high violation counts (>= 5) from the past hour
-     * to provide real-time alerts for supervisor intervention.
+     * to provide real-time alerts for superuser intervention.
      *
      * @return array Array of recent alerts with user and violation data
      */
@@ -346,7 +346,7 @@ class DashboardService
      * Calculate average speed across all employees for today.
      *
      * Computes the average speed from all completed trips today to provide
-     * overall performance metric for supervisor monitoring.
+     * overall performance metric for superuser monitoring.
      *
      * @return float Average speed in km/h (rounded to 2 decimals)
      */

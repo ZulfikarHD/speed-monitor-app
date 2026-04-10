@@ -16,8 +16,12 @@
  */
 
 import { Head, useForm } from '@inertiajs/vue3';
-import { Car, Loader2, Lock, Mail } from '@lucide/vue';
+import { Loader2, Lock, Mail, Moon, Route, Sun } from '@lucide/vue';
 import { motion } from 'motion-v';
+
+import { useTheme } from '@/composables/useTheme';
+
+const { isDark, toggleTheme } = useTheme();
 
 // ========================================================================
 // Form State
@@ -48,7 +52,7 @@ const handleSubmit = (): void => {
 </script>
 
 <template>
-    <Head title="Login - SpeedMonitor" />
+    <Head title="Masuk - SpeedMonitor" />
 
     <!-- ======================================================================
         Login Page Container
@@ -57,6 +61,17 @@ const handleSubmit = (): void => {
     <div
         class="relative flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-black dark:via-zinc-950 dark:to-black px-4 py-6 sm:px-6"
     >
+        <!-- Theme Toggle (top-right corner) -->
+        <button
+            type="button"
+            class="fixed top-4 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 shadow-lg transition-all duration-200 hover:bg-zinc-100 dark:hover:bg-white/10 hover:text-zinc-900 dark:hover:text-zinc-200"
+            :aria-label="isDark ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'"
+            @click="toggleTheme"
+        >
+            <Moon v-if="!isDark" :size="20" />
+            <Sun v-else :size="20" />
+        </button>
+
         <!-- Tech Grid Background (64px pattern, theme-aware) -->
         <div
             class="pointer-events-none fixed inset-0 bg-[linear-gradient(rgba(6,182,212,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,.08)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(6,182,212,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,.02)_1px,transparent_1px)] bg-[size:64px_64px]"
@@ -88,7 +103,7 @@ const handleSubmit = (): void => {
                         <div
                             class="flex h-16 w-16 items-center justify-center rounded-xl border border-cyan-200 dark:border-cyan-500/20 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-500/10 dark:to-blue-600/10 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/10"
                         >
-                            <Car
+                            <Route
                                 :size="32"
                                 class="text-cyan-600 dark:text-cyan-400"
                             />
@@ -96,10 +111,10 @@ const handleSubmit = (): void => {
                     </div>
 
                     <h1 class="mb-2 text-2xl font-semibold text-zinc-900 dark:text-white">
-                        Welcome Back
+                        Selamat Datang
                     </h1>
                     <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                        Sign in to your SpeedMonitor account
+                        Masuk ke akun SpeedMonitor Anda
                     </p>
                 </div>
 
@@ -125,7 +140,7 @@ const handleSubmit = (): void => {
                             for="email"
                             class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
                         >
-                            Email Address
+                            Alamat Email
                         </label>
                         <div class="relative">
                             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
@@ -160,7 +175,7 @@ const handleSubmit = (): void => {
                             for="password"
                             class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
                         >
-                            Password
+                            Kata Sandi
                         </label>
                         <div class="relative">
                             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
@@ -175,7 +190,7 @@ const handleSubmit = (): void => {
                                 name="password"
                                 type="password"
                                 autocomplete="current-password"
-                                placeholder="Enter your password"
+                                placeholder="Masukkan kata sandi"
                                 required
                                 class="w-full rounded-lg border pl-10 pr-4 py-2.5 text-sm transition-colors duration-200 bg-white dark:bg-zinc-800/50 border-zinc-300 dark:border-white/10 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900 focus:border-cyan-500 dark:focus:border-cyan-400/50 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                                 :class="{
@@ -204,9 +219,9 @@ const handleSubmit = (): void => {
                                 :size="18"
                                 class="animate-spin"
                             />
-                            <span>Signing in...</span>
+                            <span>Masuk...</span>
                         </span>
-                        <span v-else>Sign In</span>
+                        <span v-else>Masuk</span>
                     </button>
                 </form>
 
@@ -215,14 +230,14 @@ const handleSubmit = (): void => {
                     class="mt-8 rounded-lg border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-zinc-800/30 px-4 py-3"
                 >
                     <p class="mb-2 text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                        Development Test Accounts
+                        Akun Uji Coba
                     </p>
                     <div class="space-y-1 text-xs text-zinc-600 dark:text-zinc-400 font-mono">
                         <p>Admin: admin@example.com</p>
-                        <p>Supervisor: supervisor@example.com</p>
+                        <p>Superuser: superuser@example.com</p>
                         <p>Employee: employee@example.com</p>
                         <p class="mt-2 pt-2 border-t border-zinc-200 dark:border-white/10">
-                            Password: <span class="text-zinc-700 dark:text-zinc-300">password</span>
+                            Kata sandi: <span class="text-zinc-700 dark:text-zinc-300">password</span>
                         </p>
                     </div>
                 </div>

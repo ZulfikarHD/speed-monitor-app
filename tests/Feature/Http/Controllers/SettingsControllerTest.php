@@ -71,11 +71,11 @@ class SettingsControllerTest extends TestCase
         $this->assertEquals('2400', Setting::get('auto_stop_duration'));
     }
 
-    public function test_supervisor_cannot_update_settings(): void
+    public function test_superuser_cannot_update_settings(): void
     {
-        $supervisor = User::factory()->supervisor()->create();
+        $superuser = User::factory()->superuser()->create();
 
-        $response = $this->actingAs($supervisor, 'sanctum')
+        $response = $this->actingAs($superuser, 'sanctum')
             ->putJson('/api/settings', [
                 'speed_limit' => 70,
             ]);

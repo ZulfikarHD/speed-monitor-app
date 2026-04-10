@@ -9,15 +9,15 @@ use App\Models\User;
  * Trip Policy
  *
  * Defines authorization rules for trip operations ensuring employees
- * can only manage their own trips while supervisors and admins have
- * broader access for monitoring purposes.
+ * can only manage their own trips while superusers and admins have
+ * broader access for monitoring purposes. (superusers and admins)
  */
 class TripPolicy
 {
     /**
      * Determine if the user can view any trips.
      *
-     * Employees can view their own trips, while supervisors and admins
+     * Employees can view their own trips, while superusers and admins
      * can view all trips for monitoring purposes.
      *
      * @param  User  $user  The authenticated user
@@ -31,7 +31,7 @@ class TripPolicy
     /**
      * Determine if the user can view a specific trip.
      *
-     * Trip owners can view their own trips. Supervisors and admins
+     * Trip owners can view their own trips. Superusers and admins
      * can view any trip for monitoring and reporting purposes.
      *
      * @param  User  $user  The authenticated user
@@ -41,14 +41,14 @@ class TripPolicy
     public function view(User $user, Trip $trip): bool
     {
         return $user->id === $trip->user_id
-            || $user->isSupervisor()
+            || $user->isSuperuser()
             || $user->isAdmin();
     }
 
     /**
      * Determine if the user can create trips.
      *
-     * All authenticated users (employees, supervisors, admins)
+     * All authenticated users (employees, superusers, admins)
      * can start their own trips.
      *
      * @param  User  $user  The authenticated user
@@ -77,7 +77,7 @@ class TripPolicy
     /**
      * Determine if the user can delete a specific trip.
      *
-     * Only supervisors and admins can delete trips for data management
+     * Only superusers and admins can delete trips for data management
      * and correction purposes. Employees cannot delete their own trips.
      *
      * @param  User  $user  The authenticated user
@@ -86,7 +86,7 @@ class TripPolicy
      */
     public function delete(User $user, Trip $trip): bool
     {
-        return $user->isSupervisor() || $user->isAdmin();
+        return $user->isSuperuser() || $user->isAdmin();
     }
 
     /**
@@ -94,7 +94,7 @@ class TripPolicy
      *
      * Only the trip owner can add speed logs to their own trip. This ensures
      * data integrity by preventing employees from modifying other users' trip
-     * data. Supervisors and admins cannot add logs to maintain audit trail accuracy.
+     * data. Superusers and admins cannot add logs to maintain audit trail accuracy.
      *
      * @param  User  $user  The authenticated user
      * @param  Trip  $trip  The trip to add speed logs to

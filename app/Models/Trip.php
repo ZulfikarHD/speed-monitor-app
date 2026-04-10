@@ -27,6 +27,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'violation_count',
     'duration_seconds',
     'notes',
+    'shift_type',
+    'vehicle_type',
     'synced_at',
 ])]
 class Trip extends Model
@@ -54,6 +56,8 @@ class Trip extends Model
             'duration_seconds' => 'integer',
             'is_suspicious' => 'boolean',
             'suspicious_reasons' => 'array',
+            'shift_type' => 'string',
+            'vehicle_type' => 'string',
         ];
     }
 

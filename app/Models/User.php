@@ -12,7 +12,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'role', 'is_active'])]
+#[Fillable(['name', 'npk', 'divisi', 'departement', 'section', 'email', 'password', 'role', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -45,13 +45,13 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user has supervisor role.
+     * Check if user has superuser role.
      *
-     * @return bool True if user is a supervisor
+     * @return bool True if user is a superuser
      */
-    public function isSupervisor(): bool
+    public function isSuperuser(): bool
     {
-        return $this->role === 'supervisor';
+        return $this->role === 'superuser';
     }
 
     /**

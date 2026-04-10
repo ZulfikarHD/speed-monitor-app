@@ -22,7 +22,7 @@ use Inertia\Response;
 |
 | Handles trip management endpoints for starting, ending, listing, and
 | viewing trips. Implements role-based authorization ensuring employees
-| can only manage their own trips while supervisors and admins have
+| can only manage their own trips while superusers and admins have
 | broader access for monitoring purposes.
 |
 */
@@ -36,7 +36,7 @@ class TripController extends Controller
     /**
      * List trips with filtering and pagination.
      *
-     * Employees can only view their own trips. Supervisors and admins
+     * Employees can only view their own trips. Superusers and admins
      * can view all trips with optional user_id filtering for monitoring.
      * Supports date range, status filtering, and pagination.
      *
@@ -51,10 +51,10 @@ class TripController extends Controller
 
         // Employees can only see their own trips
         $user = auth()->user();
-        if ($user->isEmployee() && ! $user->isSupervisor() && ! $user->isAdmin()) {
+        if ($user->isEmployee() && ! $user->isSuperuser() && ! $user->isAdmin()) {
             $query->where('user_id', $user->id);
         } else {
-            // Supervisors and admins can filter by user_id
+            // Superusers and admins can filter by user_id
             if ($request->has('user_id')) {
                 $query->where('user_id', $request->input('user_id'));
             }
@@ -118,7 +118,8 @@ class TripController extends Controller
 
         $trip = $this->tripService->startTrip(
             auth()->user(),
-            $request->input('notes')
+            $request->input('notes'),
+            $request->only(['shift_type', 'vehicle_type'])
         );
 
         return response()->json([
@@ -130,7 +131,7 @@ class TripController extends Controller
      * Get detailed trip information including speed logs.
      *
      * Returns complete trip data with associated user and speed log records.
-     * Trip owner, supervisors, and admins can view trip details.
+     * Trip owner, superusers, and admins can view trip details.
      *
      * @param  Trip  $trip  The trip to view (route model binding)
      * @return JsonResponse Trip details with user and speed logs (200)

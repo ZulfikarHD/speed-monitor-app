@@ -154,7 +154,7 @@ function submitPassword(): void {
 
 <template>
     <EmployeeLayout>
-        <Head title="Change Password" />
+        <Head title="Ubah Kata Sandi" />
 
         <!-- Container -->
         <div class="mx-auto max-w-2xl px-4 py-6 sm:px-6 lg:px-8">
@@ -171,7 +171,7 @@ function submitPassword(): void {
                     class="mb-4 inline-flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
                 >
                     <ArrowLeft :size="16" />
-                    <span>Back to Profile</span>
+                    <span>Kembali ke Profil</span>
                 </Link>
 
                 <div class="flex items-center gap-3 mb-2">
@@ -187,10 +187,10 @@ function submitPassword(): void {
                         <h1
                             class="text-2xl font-semibold text-zinc-900 dark:text-white"
                         >
-                            Change Password
+                            Ubah Kata Sandi
                         </h1>
                         <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                            Update your password to keep your account secure
+                            Perbarui kata sandi untuk menjaga keamanan akun
                         </p>
                     </div>
                 </div>
@@ -224,7 +224,7 @@ function submitPassword(): void {
                             type="button"
                             @click="dismissSuccess"
                             class="flex-shrink-0 rounded p-1 hover:bg-emerald-200 dark:hover:bg-emerald-500/20 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400/50"
-                            aria-label="Dismiss success message"
+                            aria-label="Tutup pesan berhasil"
                         >
                             <X
                                 :size="18"
@@ -259,7 +259,7 @@ function submitPassword(): void {
                                 >
                                     {{
                                         errorMessage ||
-                                        'Please fix the errors below'
+                                        'Mohon perbaiki kesalahan berikut'
                                     }}
                                 </p>
                                 <ul
@@ -279,7 +279,7 @@ function submitPassword(): void {
                             type="button"
                             @click="dismissError"
                             class="flex-shrink-0 rounded p-1 hover:bg-red-200 dark:hover:bg-red-500/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400/50"
-                            aria-label="Dismiss error message"
+                            aria-label="Tutup pesan kesalahan"
                         >
                             <X
                                 :size="18"
@@ -302,7 +302,7 @@ function submitPassword(): void {
                     <h2
                         class="text-lg font-semibold text-zinc-900 dark:text-white"
                     >
-                        Update Password
+                        Perbarui Kata Sandi
                     </h2>
                 </div>
 
@@ -310,7 +310,7 @@ function submitPassword(): void {
                     <!-- Current Password -->
                     <div>
                         <Label for="current-password" required>
-                            Current Password
+                            Kata Sandi Saat Ini
                         </Label>
                         <div class="relative">
                             <div
@@ -325,7 +325,7 @@ function submitPassword(): void {
                                 id="current-password"
                                 v-model="passwordForm.current_password"
                                 type="password"
-                                placeholder="Enter your current password"
+                                placeholder="Masukkan kata sandi saat ini"
                                 :disabled="passwordForm.processing"
                                 :error="passwordForm.errors.current_password"
                                 autocomplete="current-password"
@@ -336,7 +336,7 @@ function submitPassword(): void {
 
                     <!-- New Password -->
                     <div>
-                        <Label for="new-password" required>New Password</Label>
+                        <Label for="new-password" required>Kata Sandi Baru</Label>
                         <div class="relative">
                             <div
                                 class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
@@ -350,7 +350,7 @@ function submitPassword(): void {
                                 id="new-password"
                                 v-model="passwordForm.new_password"
                                 type="password"
-                                placeholder="Enter your new password"
+                                placeholder="Masukkan kata sandi baru"
                                 :disabled="passwordForm.processing"
                                 :error="passwordForm.errors.new_password"
                                 autocomplete="new-password"
@@ -360,14 +360,14 @@ function submitPassword(): void {
                         <p
                             class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400"
                         >
-                            Minimum 8 characters
+                            Minimal 8 karakter
                         </p>
                     </div>
 
                     <!-- Confirm New Password -->
                     <div>
                         <Label for="confirm-password" required>
-                            Confirm New Password
+                            Konfirmasi Kata Sandi Baru
                         </Label>
                         <div class="relative">
                             <div
@@ -382,7 +382,7 @@ function submitPassword(): void {
                                 id="confirm-password"
                                 v-model="passwordForm.new_password_confirmation"
                                 type="password"
-                                placeholder="Confirm your new password"
+                                placeholder="Konfirmasi kata sandi baru Anda"
                                 :disabled="passwordForm.processing"
                                 autocomplete="new-password"
                                 class="pl-10"
@@ -398,7 +398,7 @@ function submitPassword(): void {
                         :disabled="passwordForm.processing"
                         full-width
                     >
-                        Change Password
+                        Perbarui Kata Sandi
                     </Button>
                 </form>
             </motion.section>
@@ -419,13 +419,13 @@ function submitPassword(): void {
                         <p
                             class="text-sm font-medium text-cyan-900 dark:text-cyan-200"
                         >
-                            Security Tip
+                            Tips Keamanan
                         </p>
                         <p
                             class="mt-1 text-sm text-cyan-800 dark:text-cyan-300"
                         >
-                            Use a strong password with at least 8 characters,
-                            including letters, numbers, and special characters.
+                            Gunakan kata sandi yang kuat setidaknya 8 karakter,
+                            termasuk huruf, angka, dan karakter khusus.
                         </p>
                     </div>
                 </div>

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 /**
- * Employee Management Page (Supervisor)
+ * Employee Management Page (Superuser)
  *
- * Comprehensive user management page for supervisors with CRUD operations,
+ * Comprehensive user management page for superusers with CRUD operations,
  * search functionality, role/status filtering, and pagination.
  *
  * Features:
  * - User listing with search by name/email
- * - Filter by role (employee/supervisor/admin) and status (active/inactive)
+ * - Filter by role (employee/superuser/admin) and status (active/inactive)
  * - Add new user with modal form
  * - Edit user details with modal form
  * - Deactivate user with confirmation modal
@@ -17,7 +17,7 @@
  * - Empty states and success flash messages
  * - Full light/dark theme support
  *
- * @example Route: /supervisor/employees
+ * @example Route: /superuser/employees
  */
 
 import { router, usePage } from '@inertiajs/vue3';
@@ -25,11 +25,11 @@ import { Ban, CheckCircle, Pencil, Plus } from '@lucide/vue';
 import { motion } from 'motion-v';
 import { computed, ref, watch } from 'vue';
 
-import { index } from '@/actions/App/Http/Controllers/Supervisor/EmployeesController';
-import ConfirmDeactivateModal from '@/components/supervisor/ConfirmDeactivateModal.vue';
-import UserFormModal from '@/components/supervisor/UserFormModal.vue';
+import { index } from '@/actions/App/Http/Controllers/Superuser/EmployeesController';
+import ConfirmDeactivateModal from '@/components/superuser/ConfirmDeactivateModal.vue';
+import UserFormModal from '@/components/superuser/UserFormModal.vue';
 import Pagination from '@/components/trips/Pagination.vue';
-import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
+import SuperuserLayout from '@/layouts/SuperuserLayout.vue';
 import { useAuthStore } from '@/stores/auth';
 import type { User, UserListFilters } from '@/types/auth';
 
@@ -258,7 +258,7 @@ function getRoleBadgeColor(role: string): string {
     switch (role) {
         case 'admin':
             return 'bg-purple-500/20 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30';
-        case 'supervisor':
+        case 'superuser':
             return 'bg-blue-500/20 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30';
         case 'employee':
             return 'bg-emerald-500/20 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30';
@@ -277,8 +277,8 @@ function getRoleLabel(role: string): string {
     switch (role) {
         case 'admin':
             return 'Admin';
-        case 'supervisor':
-            return 'Supervisor';
+        case 'superuser':
+            return 'Superuser';
         case 'employee':
             return 'Karyawan';
         default:
@@ -310,7 +310,7 @@ function getStatusLabel(isActive: boolean): string {
 </script>
 
 <template>
-    <SupervisorLayout title="Kelola Karyawan">
+    <SuperuserLayout title="Kelola Karyawan">
         <div class="min-h-screen p-4 md:p-6 lg:p-8">
             <div class="mx-auto max-w-7xl space-y-6">
                 <!-- Header Section -->
@@ -402,7 +402,7 @@ function getStatusLabel(isActive: boolean): string {
                             >
                                 <option value="">Semua Role</option>
                                 <option value="employee">Karyawan</option>
-                                <option value="supervisor">Supervisor</option>
+                                <option value="superuser">Superuser</option>
                                 <option value="admin">Admin</option>
                             </select>
                         </div>
@@ -492,7 +492,7 @@ function getStatusLabel(isActive: boolean): string {
                                             <button
                                                 v-if="user.id !== authStore.user?.id"
                                                 class="rounded-lg bg-blue-500/20 dark:bg-blue-500/15 p-2 text-blue-600 dark:text-blue-400 transition-colors duration-200 hover:bg-blue-500/30 dark:hover:bg-blue-500/25"
-                                                title="Edit"
+                                                title="Ubah"
                                                 @click="openEditModal(user)"
                                             >
                                                 <Pencil :size="18" :stroke-width="2" aria-hidden="true" />
@@ -575,7 +575,7 @@ function getStatusLabel(isActive: boolean): string {
                                     class="flex-1 rounded-lg bg-blue-500/20 dark:bg-blue-500/15 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 transition-colors duration-200 hover:bg-blue-500/30 dark:hover:bg-blue-500/25"
                                     @click="openEditModal(user)"
                                 >
-                                    Edit
+                                    Ubah
                                 </button>
                                 <button
                                     v-if="user.is_active"
@@ -643,5 +643,5 @@ function getStatusLabel(isActive: boolean): string {
             :user="deactivatingUser"
             @close="closeDeactivateModal"
         />
-    </SupervisorLayout>
+    </SuperuserLayout>
 </template>

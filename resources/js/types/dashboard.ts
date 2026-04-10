@@ -1,14 +1,14 @@
 /**
  * Dashboard Type Definitions
  *
- * TypeScript interfaces for supervisor dashboard API data including overview
+ * TypeScript interfaces for superuser dashboard API data including overview
  * statistics, active trips monitoring, and violation tracking.
  */
 
 /**
  * Complete dashboard overview response from backend.
  *
- * Contains all dashboard metrics for supervisor/admin monitoring including
+ * Contains all dashboard metrics for superuser/admin monitoring including
  * today's summary, historical trends, currently active trips, top violators,
  * average speed, employee summary, and recent alerts.
  */
@@ -93,7 +93,7 @@ export interface EmployeeSummary {
  * Recent alert for high-violation trips.
  *
  * Alert entry for trips with high violation counts from the last hour,
- * requiring supervisor attention and potential intervention.
+ * requiring superuser attention and potential intervention.
  */
 export interface RecentAlert {
     /** Trip ID */
@@ -119,7 +119,7 @@ export interface RecentAlert {
  * Active trip information.
  *
  * Represents a currently in-progress trip with employee details and
- * real-time duration tracking for supervisor monitoring.
+ * real-time duration tracking for superuser monitoring.
  */
 export interface ActiveTrip {
     /** Trip ID */
@@ -167,6 +167,7 @@ export interface TopViolator {
  * Complete ranking entry for violation leaderboard page, including employee
  * information, violation counts, trip statistics, and calculated rates for
  * comprehensive driver compliance monitoring.
+ 
  */
 export interface ViolationLeaderboardEntry {
     /** Leaderboard rank (1-indexed) */

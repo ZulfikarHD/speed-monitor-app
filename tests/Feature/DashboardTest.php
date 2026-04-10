@@ -11,7 +11,7 @@ use Tests\TestCase;
 /**
  * Dashboard API Tests
  *
- * Tests the supervisor/admin dashboard overview endpoint including
+ * Tests the superuser/admin dashboard overview endpoint including
  * authorization, data structure, accuracy, and caching behavior.
  */
 class DashboardTest extends TestCase
@@ -22,11 +22,11 @@ class DashboardTest extends TestCase
     // Authorization Tests
     // ========================================================================
 
-    public function test_supervisor_can_access_dashboard_overview(): void
+    public function test_superuser_can_access_dashboard_overview(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
 
-        $response = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $response = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         $response->assertStatus(200);
     }
@@ -62,9 +62,9 @@ class DashboardTest extends TestCase
 
     public function test_dashboard_returns_correct_data_structure(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
 
-        $response = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $response = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -84,7 +84,7 @@ class DashboardTest extends TestCase
 
     public function test_today_summary_counts_trips_from_today(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
         $employee = User::factory()->create(['role' => 'employee']);
 
         // Create trips today
@@ -99,7 +99,7 @@ class DashboardTest extends TestCase
             'started_at' => now()->subDay(),
         ]);
 
-        $response = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $response = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -111,7 +111,7 @@ class DashboardTest extends TestCase
 
     public function test_today_summary_counts_violations_correctly(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
         $employee = User::factory()->create(['role' => 'employee']);
 
         // Create trips with violations today
@@ -134,7 +134,7 @@ class DashboardTest extends TestCase
             'violation_count' => 10,
         ]);
 
-        $response = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $response = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -150,7 +150,7 @@ class DashboardTest extends TestCase
 
     public function test_active_trips_returns_only_in_progress_trips(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
         $employee = User::factory()->create(['role' => 'employee']);
 
         // Create active trips
@@ -163,7 +163,7 @@ class DashboardTest extends TestCase
             'user_id' => $employee->id,
         ]);
 
-        $response = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $response = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         $response->assertStatus(200);
 
@@ -173,7 +173,7 @@ class DashboardTest extends TestCase
 
     public function test_active_trips_includes_user_information(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
         $employee = User::factory()->create([
             'role' => 'employee',
             'name' => 'John Doe',
@@ -182,7 +182,7 @@ class DashboardTest extends TestCase
 
         Trip::factory()->create(['user_id' => $employee->id]);
 
-        $response = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $response = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         $response->assertStatus(200)
             ->assertJsonPath('active_trips.0.user.name', 'John Doe')
@@ -191,7 +191,7 @@ class DashboardTest extends TestCase
 
     public function test_active_trips_includes_duration(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
         $employee = User::factory()->create(['role' => 'employee']);
 
         Trip::factory()->create([
@@ -199,7 +199,7 @@ class DashboardTest extends TestCase
             'started_at' => now()->subMinutes(30),
         ]);
 
-        $response = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $response = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         $response->assertStatus(200);
 
@@ -214,7 +214,7 @@ class DashboardTest extends TestCase
 
     public function test_top_violators_returns_only_trips_with_violations_from_today(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
         $employee1 = User::factory()->create(['role' => 'employee', 'name' => 'High Violator']);
         $employee2 = User::factory()->create(['role' => 'employee', 'name' => 'Low Violator']);
         $employee3 = User::factory()->create(['role' => 'employee', 'name' => 'No Violations']);
@@ -247,7 +247,7 @@ class DashboardTest extends TestCase
             'violation_count' => 20,
         ]);
 
-        $response = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $response = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         $response->assertStatus(200);
 
@@ -259,7 +259,7 @@ class DashboardTest extends TestCase
 
     public function test_top_violators_orders_by_violation_count_descending(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
 
         // Create trips with different violation counts
         $employees = [
@@ -279,7 +279,7 @@ class DashboardTest extends TestCase
             ]);
         }
 
-        $response = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $response = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         $response->assertStatus(200);
 
@@ -291,7 +291,7 @@ class DashboardTest extends TestCase
 
     public function test_top_violators_limits_to_five_results(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
 
         // Create 10 trips with violations
         for ($i = 1; $i <= 10; $i++) {
@@ -303,7 +303,7 @@ class DashboardTest extends TestCase
             ]);
         }
 
-        $response = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $response = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         $response->assertStatus(200);
 
@@ -317,7 +317,7 @@ class DashboardTest extends TestCase
 
     public function test_average_speed_calculates_from_completed_trips_today(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
         $employee = User::factory()->create(['role' => 'employee']);
 
         // Create completed trips today
@@ -340,7 +340,7 @@ class DashboardTest extends TestCase
             'average_speed' => null,
         ]);
 
-        $response = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $response = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -350,9 +350,9 @@ class DashboardTest extends TestCase
 
     public function test_average_speed_returns_zero_when_no_completed_trips(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
 
-        $response = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $response = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -366,13 +366,13 @@ class DashboardTest extends TestCase
 
     public function test_dashboard_data_is_cached(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
 
         // Clear cache before test
         Cache::forget('dashboard:overview');
 
         // First request - should cache data
-        $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         // Verify cache exists
         $this->assertTrue(Cache::has('dashboard:overview'));
@@ -380,7 +380,7 @@ class DashboardTest extends TestCase
 
     public function test_cached_data_is_returned_on_subsequent_requests(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
         $employee = User::factory()->create(['role' => 'employee']);
 
         // Clear cache
@@ -393,7 +393,7 @@ class DashboardTest extends TestCase
         ]);
 
         // First request - caches data with 1 trip
-        $firstResponse = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $firstResponse = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
         $firstResponse->assertJson(['today_summary' => ['total_trips' => 1]]);
 
         // Create another trip after cache is set
@@ -403,13 +403,13 @@ class DashboardTest extends TestCase
         ]);
 
         // Second request - should still return cached data (1 trip)
-        $secondResponse = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $secondResponse = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
         $secondResponse->assertJson(['today_summary' => ['total_trips' => 1]]);
     }
 
     public function test_cache_can_be_cleared_to_get_fresh_data(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
         $employee = User::factory()->create(['role' => 'employee']);
 
         // Clear cache
@@ -422,7 +422,7 @@ class DashboardTest extends TestCase
         ]);
 
         // First request
-        $this->actingAs($supervisor)->getJson('/api/dashboard/overview')
+        $this->actingAs($superuser)->getJson('/api/dashboard/overview')
             ->assertJson(['today_summary' => ['total_trips' => 1]]);
 
         // Create another trip
@@ -435,7 +435,7 @@ class DashboardTest extends TestCase
         Cache::forget('dashboard:overview');
 
         // Request after cache clear - should show updated data
-        $this->actingAs($supervisor)->getJson('/api/dashboard/overview')
+        $this->actingAs($superuser)->getJson('/api/dashboard/overview')
             ->assertJson(['today_summary' => ['total_trips' => 2]]);
     }
 }

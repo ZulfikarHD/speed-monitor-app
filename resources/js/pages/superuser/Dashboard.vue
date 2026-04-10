@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
- * Supervisor Dashboard Page
+ * Superuser Dashboard Page
  *
- * Central monitoring hub for supervisors with real-time employee tracking,
+ * Central monitoring hub for superusers with real-time employee tracking,
  * trend analysis, quick actions, and violation alerts.
  *
  * Features:
@@ -24,8 +24,8 @@ import { AlertTriangle, RefreshCw } from '@lucide/vue';
 import { motion } from 'motion-v';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
-import { index as tripsIndex } from '@/actions/App/Http/Controllers/Supervisor/AllTripsController';
-import { violations as leaderboardIndex } from '@/actions/App/Http/Controllers/Supervisor/DashboardController';
+import { index as tripsIndex } from '@/actions/App/Http/Controllers/Superuser/AllTripsController';
+import { violations as leaderboardIndex } from '@/actions/App/Http/Controllers/Superuser/DashboardController';
 import ActiveTripsTable from '@/components/dashboard/ActiveTripsTable.vue';
 import AlertsWidget from '@/components/dashboard/AlertsWidget.vue';
 import DateRangeFilter from '@/components/dashboard/DateRangeFilter.vue';
@@ -33,7 +33,7 @@ import EmployeeSummaryWidget from '@/components/dashboard/EmployeeSummaryWidget.
 import QuickActionsBar from '@/components/dashboard/QuickActionsBar.vue';
 import RecentViolationsList from '@/components/dashboard/RecentViolationsList.vue';
 import TrendStatCard from '@/components/dashboard/TrendStatCard.vue';
-import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
+import SuperuserLayout from '@/layouts/SuperuserLayout.vue';
 import type { DashboardOverview } from '@/types/dashboard';
 
 // ========================================================================
@@ -152,18 +152,18 @@ const recentAlerts = computed(() => {
 /** Format last updated time. */
 const lastUpdatedText = computed(() => {
     if (!lastUpdated.value) {
-        return 'Never';
+        return 'Belum pernah';
     }
 
     const now = new Date();
     const diff = Math.floor((now.getTime() - lastUpdated.value.getTime()) / 1000);
 
     if (diff < 60) {
-        return `${diff}s ago`;
+        return `${diff} detik lalu`;
     }
 
     if (diff < 3600) {
-        return `${Math.floor(diff / 60)}m ago`;
+        return `${Math.floor(diff / 60)} menit lalu`;
     }
 
     return lastUpdated.value.toLocaleTimeString('id-ID', {
@@ -224,7 +224,7 @@ async function handleManualRefresh(): Promise<void> {
 </script>
 
 <template>
-    <SupervisorLayout title="Dashboard Overview">
+    <SuperuserLayout title="Ringkasan Dasbor">
         <div class="min-h-screen p-4 md:p-6 lg:p-8">
             <div class="mx-auto max-w-7xl space-y-6">
                 <!-- Header Section with Date Filter -->
@@ -237,10 +237,10 @@ async function handleManualRefresh(): Promise<void> {
                     <!-- Title -->
                     <div class="flex-1">
                         <h1 class="text-3xl font-bold text-zinc-900 dark:text-white md:text-4xl">
-                            Dashboard Overview
+                            Ringkasan Dasbor
                         </h1>
                         <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                            Real-time monitoring of employee trip compliance
+                            Pemantauan kepatuhan perjalanan karyawan secara real-time
                         </p>
                     </div>
 
@@ -250,20 +250,20 @@ async function handleManualRefresh(): Promise<void> {
                         <DateRangeFilter v-model="selectedDateRange" />
 
                         <!-- Last Updated -->
-                        <div class="text-sm text-zinc-500 dark:text-zinc-400">Updated: {{ lastUpdatedText }}</div>
+                        <div class="text-sm text-zinc-500 dark:text-zinc-400">Diperbarui: {{ lastUpdatedText }}</div>
 
                         <!-- Auto-refresh Badge -->
                         <div
                             class="rounded-full border border-cyan-500/20 bg-cyan-500/10 dark:bg-cyan-500/15 px-3 py-1 text-xs font-medium text-cyan-600 dark:text-cyan-400"
                         >
-                            Next in {{ countdown }}s
+                            Berikutnya {{ countdown }}s
                         </div>
 
                         <!-- Manual Refresh Button -->
                         <button
                             :disabled="isLoading"
                             class="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-white transition-colors duration-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-50"
-                            aria-label="Refresh dashboard"
+                            aria-label="Segarkan dasbor"
                             @click="handleManualRefresh"
                         >
                             <RefreshCw :size="18" :stroke-width="2" aria-hidden="true" />
@@ -282,7 +282,7 @@ async function handleManualRefresh(): Promise<void> {
                     <div class="flex items-start gap-3">
                         <AlertTriangle :size="24" :stroke-width="2" class="text-red-600 dark:text-red-400" aria-hidden="true" />
                         <div class="flex-1">
-                            <h3 class="font-semibold text-red-800 dark:text-red-400">Failed to Load Dashboard Data</h3>
+                            <h3 class="font-semibold text-red-800 dark:text-red-400">Gagal Memuat Data Dasbor</h3>
                             <p class="mt-1 text-sm text-red-700 dark:text-red-300">
                                 {{ error }}
                             </p>
@@ -290,7 +290,7 @@ async function handleManualRefresh(): Promise<void> {
                                 class="mt-3 rounded-lg border border-red-500/30 bg-red-500/20 px-4 py-2 text-sm font-medium text-red-700 dark:text-red-400 transition-colors duration-200 hover:bg-red-500/30"
                                 @click="handleManualRefresh"
                             >
-                                Try Again
+                                Coba Lagi
                             </button>
                         </div>
                     </div>
@@ -313,7 +313,7 @@ async function handleManualRefresh(): Promise<void> {
                         :transition="{ delay: 0.1, duration: 0.3 }"
                     >
                         <TrendStatCard
-                            title="Active Trips"
+                            title="Trip Aktif"
                             :value="activeTripsCount"
                             :trend-percentage="0"
                             :is-loading="isLoading"
@@ -326,7 +326,7 @@ async function handleManualRefresh(): Promise<void> {
                         :transition="{ delay: 0.15, duration: 0.3 }"
                     >
                         <TrendStatCard
-                            title="Total Trips Today"
+                            title="Total Perjalanan Hari Ini"
                             :value="totalTripsToday"
                             :trend-percentage="trends.trips_change"
                             :is-loading="isLoading"
@@ -339,7 +339,7 @@ async function handleManualRefresh(): Promise<void> {
                         :transition="{ delay: 0.2, duration: 0.3 }"
                     >
                         <TrendStatCard
-                            title="Violations Today"
+                            title="Pelanggaran Hari Ini"
                             :value="violationsCount"
                             :trend-percentage="trends.violations_change"
                             :is-loading="isLoading"
@@ -352,7 +352,7 @@ async function handleManualRefresh(): Promise<void> {
                         :transition="{ delay: 0.25, duration: 0.3 }"
                     >
                         <TrendStatCard
-                            title="Average Speed"
+                            title="Kecepatan Rata-rata"
                             :value="`${averageSpeed} km/h`"
                             :trend-percentage="0"
                             :is-loading="isLoading"
@@ -386,7 +386,7 @@ async function handleManualRefresh(): Promise<void> {
                                     :href="tripsIndex.url()"
                                     class="text-sm font-medium text-cyan-600 dark:text-cyan-400 transition-colors duration-200 hover:text-cyan-700 dark:hover:text-cyan-300"
                                 >
-                                    View All →
+                                    Lihat Semua →
                                 </Link>
                             </template>
                         </ActiveTripsTable>
@@ -408,10 +408,10 @@ async function handleManualRefresh(): Promise<void> {
                                         :href="leaderboardIndex.url()"
                                         class="text-sm font-medium text-cyan-600 dark:text-cyan-400 transition-colors duration-200 hover:text-cyan-700 dark:hover:text-cyan-300"
                                     >
-                                        View All →
-                                    </Link>
-                                </template>
-                            </RecentViolationsList>
+                                    Lihat Semua →
+                                </Link>
+                            </template>
+                        </RecentViolationsList>
                         </motion.div>
 
                         <motion.div
@@ -425,5 +425,5 @@ async function handleManualRefresh(): Promise<void> {
                 </div>
             </div>
         </div>
-    </SupervisorLayout>
+    </SuperuserLayout>
 </template>

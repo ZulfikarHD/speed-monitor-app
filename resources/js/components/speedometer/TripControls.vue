@@ -31,6 +31,13 @@ import { computed, onBeforeUnmount, ref } from 'vue';
 import { useGeolocation } from '@/composables/useGeolocation';
 import { useTripStore } from '@/stores/trip';
 
+interface Props {
+    shiftType?: string;
+    vehicleType?: string;
+}
+
+const props = defineProps<Props>();
+
 // ========================================================================
 // Store and Composable Integration
 // ========================================================================
@@ -131,7 +138,10 @@ async function handleStartTrip(): Promise<void> {
          * WHY: Trip must exist before logging speed data.
          * WHY: Backend generates trip ID needed for speed log API calls.
          */
-        await tripStore.startTrip();
+        await tripStore.startTrip({
+            shift_type: props.shiftType,
+            vehicle_type: props.vehicleType,
+        });
 
         /**
          * Step 3: Start GPS speed tracking.

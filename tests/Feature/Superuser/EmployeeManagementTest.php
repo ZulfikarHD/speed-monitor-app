@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Supervisor;
+namespace Tests\Feature\Superuser;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -8,9 +8,9 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 /**
- * Employee Management Feature Tests (Supervisor)
+ * Employee Management Feature Tests (Superuser)
  *
- * Tests supervisor user management functionality including authorization,
+ * Tests superuser user management functionality including authorization,
  * CRUD operations, search, filtering, and validation.
  */
 class EmployeeManagementTest extends TestCase
@@ -18,20 +18,20 @@ class EmployeeManagementTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Test supervisor can view employees list page.
+     * Test superuser can view employees list page.
      */
-    public function test_supervisor_can_view_employees_list(): void
+    public function test_superuser_can_view_employees_list(): void
     {
-        $supervisor = User::factory()->supervisor()->create();
+        $superuser = User::factory()->superuser()->create();
         $employees = User::factory()->employee()->count(5)->create();
 
-        $response = $this->actingAs($supervisor)
-            ->get(route('supervisor.employees'));
+        $response = $this->actingAs($superuser)
+            ->get(route('superuser.employees'));
 
         $response->assertOk();
         $response->assertInertia(
             fn (Assert $page) => $page
-                ->component('supervisor/Employees')
+                ->component('superuser/Employees')
                 ->has('users', 6)
                 ->has('meta')
                 ->has('filters')
@@ -46,17 +46,17 @@ class EmployeeManagementTest extends TestCase
         $employee = User::factory()->employee()->create();
 
         $response = $this->actingAs($employee)
-            ->get(route('supervisor.employees'));
+            ->get(route('superuser.employees'));
 
         $response->assertRedirect();
     }
 
     /**
-     * Test supervisor can create new user.
+     * Test superuser can create new user.
      */
-    public function test_supervisor_can_create_new_user(): void
+    public function test_superuser_can_create_new_user(): void
     {
-        $supervisor = User::factory()->supervisor()->create();
+        $superuser = User::factory()->superuser()->create();
 
         $userData = [
             'name' => 'John Doe',
@@ -66,8 +66,8 @@ class EmployeeManagementTest extends TestCase
             'is_active' => true,
         ];
 
-        $response = $this->actingAs($supervisor)
-            ->post(route('supervisor.employees.store'), $userData);
+        $response = $this->actingAs($superuser)
+            ->post(route('superuser.employees.store'), $userData);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -81,22 +81,22 @@ class EmployeeManagementTest extends TestCase
     }
 
     /**
-     * Test supervisor can update user details.
+     * Test superuser can update user details.
      */
-    public function test_supervisor_can_update_user_details(): void
+    public function test_superuser_can_update_user_details(): void
     {
-        $supervisor = User::factory()->supervisor()->create();
+        $superuser = User::factory()->superuser()->create();
         $employee = User::factory()->employee()->create();
 
         $updateData = [
             'name' => 'Updated Name',
             'email' => 'updated@example.com',
-            'role' => 'supervisor',
+            'role' => 'superuser',
             'is_active' => true,
         ];
 
-        $response = $this->actingAs($supervisor)
-            ->put(route('supervisor.employees.update', $employee), $updateData);
+        $response = $this->actingAs($superuser)
+            ->put(route('superuser.employees.update', $employee), $updateData);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -105,39 +105,39 @@ class EmployeeManagementTest extends TestCase
             'id' => $employee->id,
             'name' => 'Updated Name',
             'email' => 'updated@example.com',
-            'role' => 'supervisor',
+            'role' => 'superuser',
         ]);
     }
 
     /**
-     * Test supervisor cannot update themselves.
+     * Test superuser cannot update themselves.
      */
-    public function test_supervisor_cannot_update_themselves(): void
+    public function test_superuser_cannot_update_themselves(): void
     {
-        $supervisor = User::factory()->supervisor()->create();
+        $superuser = User::factory()->superuser()->create();
 
         $updateData = [
-            'name' => 'Updated Supervisor Name',
+            'name' => 'Updated Superuser Name',
             'email' => 'updated@example.com',
-            'role' => 'supervisor',
+            'role' => 'superuser',
         ];
 
-        $response = $this->actingAs($supervisor)
-            ->put(route('supervisor.employees.update', $supervisor), $updateData);
+        $response = $this->actingAs($superuser)
+            ->put(route('superuser.employees.update', $superuser), $updateData);
 
         $response->assertForbidden();
     }
 
     /**
-     * Test supervisor can deactivate user.
+     * Test superuser can deactivate user.
      */
-    public function test_supervisor_can_deactivate_user(): void
+    public function test_superuser_can_deactivate_user(): void
     {
-        $supervisor = User::factory()->supervisor()->create();
+        $superuser = User::factory()->superuser()->create();
         $employee = User::factory()->employee()->create();
 
-        $response = $this->actingAs($supervisor)
-            ->delete(route('supervisor.employees.deactivate', $employee));
+        $response = $this->actingAs($superuser)
+            ->delete(route('superuser.employees.deactivate', $employee));
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -149,19 +149,19 @@ class EmployeeManagementTest extends TestCase
     }
 
     /**
-     * Test supervisor cannot deactivate themselves.
+     * Test superuser cannot deactivate themselves.
      */
-    public function test_supervisor_cannot_deactivate_themselves(): void
+    public function test_superuser_cannot_deactivate_themselves(): void
     {
-        $supervisor = User::factory()->supervisor()->create();
+        $superuser = User::factory()->superuser()->create();
 
-        $response = $this->actingAs($supervisor)
-            ->delete(route('supervisor.employees.deactivate', $supervisor));
+        $response = $this->actingAs($superuser)
+            ->delete(route('superuser.employees.deactivate', $superuser));
 
         $response->assertForbidden();
 
         $this->assertDatabaseHas('users', [
-            'id' => $supervisor->id,
+            'id' => $superuser->id,
             'is_active' => true,
         ]);
     }
@@ -171,18 +171,18 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_search_filters_users_correctly(): void
     {
-        $supervisor = User::factory()->supervisor()->create();
+        $superuser = User::factory()->superuser()->create();
         User::factory()->create(['name' => 'John Smith', 'email' => 'john@example.com']);
         User::factory()->create(['name' => 'Jane Doe', 'email' => 'jane@example.com']);
         User::factory()->create(['name' => 'Bob Wilson', 'email' => 'bob@example.com']);
 
-        $response = $this->actingAs($supervisor)
-            ->get(route('supervisor.employees', ['search' => 'john']));
+        $response = $this->actingAs($superuser)
+            ->get(route('superuser.employees', ['search' => 'john']));
 
         $response->assertOk();
         $response->assertInertia(
             fn (Assert $page) => $page
-                ->component('supervisor/Employees')
+                ->component('superuser/Employees')
                 ->has('users', 1)
                 ->where('users.0.name', 'John Smith')
         );
@@ -193,17 +193,17 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_role_filter_works_correctly(): void
     {
-        $supervisor = User::factory()->supervisor()->create();
+        $superuser = User::factory()->superuser()->create();
         User::factory()->employee()->count(3)->create();
-        User::factory()->supervisor()->count(2)->create();
+        User::factory()->superuser()->count(2)->create();
 
-        $response = $this->actingAs($supervisor)
-            ->get(route('supervisor.employees', ['role' => 'supervisor']));
+        $response = $this->actingAs($superuser)
+            ->get(route('superuser.employees', ['role' => 'superuser']));
 
         $response->assertOk();
         $response->assertInertia(
             fn (Assert $page) => $page
-                ->component('supervisor/Employees')
+                ->component('superuser/Employees')
                 ->has('users', 3)
         );
     }
@@ -213,17 +213,17 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_status_filter_works_correctly(): void
     {
-        $supervisor = User::factory()->supervisor()->create();
+        $superuser = User::factory()->superuser()->create();
         User::factory()->employee()->count(3)->create();
         User::factory()->employee()->inactive()->count(2)->create();
 
-        $response = $this->actingAs($supervisor)
-            ->get(route('supervisor.employees', ['status' => 'inactive']));
+        $response = $this->actingAs($superuser)
+            ->get(route('superuser.employees', ['status' => 'inactive']));
 
         $response->assertOk();
         $response->assertInertia(
             fn (Assert $page) => $page
-                ->component('supervisor/Employees')
+                ->component('superuser/Employees')
                 ->has('users', 2)
         );
     }
@@ -233,10 +233,10 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_validation_errors_for_user_creation(): void
     {
-        $supervisor = User::factory()->supervisor()->create();
+        $superuser = User::factory()->superuser()->create();
 
-        $response = $this->actingAs($supervisor)
-            ->post(route('supervisor.employees.store'), [
+        $response = $this->actingAs($superuser)
+            ->post(route('superuser.employees.store'), [
                 'name' => '',
                 'email' => 'invalid-email',
                 'password' => '123',
@@ -251,11 +251,11 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_email_must_be_unique(): void
     {
-        $supervisor = User::factory()->supervisor()->create();
+        $superuser = User::factory()->superuser()->create();
         $existingUser = User::factory()->create(['email' => 'existing@example.com']);
 
-        $response = $this->actingAs($supervisor)
-            ->post(route('supervisor.employees.store'), [
+        $response = $this->actingAs($superuser)
+            ->post(route('superuser.employees.store'), [
                 'name' => 'New User',
                 'email' => 'existing@example.com',
                 'password' => 'password123',
@@ -270,12 +270,12 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_password_is_optional_when_updating_user(): void
     {
-        $supervisor = User::factory()->supervisor()->create();
+        $superuser = User::factory()->superuser()->create();
         $employee = User::factory()->employee()->create();
         $originalPassword = $employee->password;
 
-        $response = $this->actingAs($supervisor)
-            ->put(route('supervisor.employees.update', $employee), [
+        $response = $this->actingAs($superuser)
+            ->put(route('superuser.employees.update', $employee), [
                 'name' => 'Updated Name',
                 'email' => $employee->email,
                 'role' => 'employee',
@@ -293,10 +293,10 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_password_is_hashed_when_provided(): void
     {
-        $supervisor = User::factory()->supervisor()->create();
+        $superuser = User::factory()->superuser()->create();
 
-        $response = $this->actingAs($supervisor)
-            ->post(route('supervisor.employees.store'), [
+        $response = $this->actingAs($superuser)
+            ->post(route('superuser.employees.store'), [
                 'name' => 'Test User',
                 'email' => 'test@example.com',
                 'password' => 'plaintext123',
@@ -315,16 +315,16 @@ class EmployeeManagementTest extends TestCase
      */
     public function test_pagination_works_correctly(): void
     {
-        $supervisor = User::factory()->supervisor()->create();
+        $superuser = User::factory()->superuser()->create();
         User::factory()->employee()->count(25)->create();
 
-        $response = $this->actingAs($supervisor)
-            ->get(route('supervisor.employees'));
+        $response = $this->actingAs($superuser)
+            ->get(route('superuser.employees'));
 
         $response->assertOk();
         $response->assertInertia(
             fn (Assert $page) => $page
-                ->component('supervisor/Employees')
+                ->component('superuser/Employees')
                 ->has('users', 20)
                 ->where('meta.total', 26)
                 ->where('meta.last_page', 2)

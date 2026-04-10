@@ -21,9 +21,13 @@
 
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import {
+    Briefcase,
+    Building2,
     CheckCircle,
     ChevronRight,
+    Hash,
     KeyRound,
+    Layers,
     Loader2,
     LogOut,
     Mail,
@@ -175,7 +179,7 @@ function submitProfile(): void {
 
 <template>
     <EmployeeLayout>
-        <Head title="Profile Settings" />
+        <Head title="Pengaturan Profil" />
 
         <!-- Container -->
         <div class="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
@@ -199,10 +203,10 @@ function submitProfile(): void {
                         <h1
                             class="text-2xl font-semibold text-zinc-900 dark:text-white"
                         >
-                            Profile Settings
+                            Pengaturan Profil
                         </h1>
                         <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                            Manage your account information
+                            Kelola informasi akun Anda
                         </p>
                     </div>
                 </div>
@@ -236,7 +240,7 @@ function submitProfile(): void {
                             type="button"
                             @click="dismissSuccess"
                             class="flex-shrink-0 rounded p-1 hover:bg-emerald-200 dark:hover:bg-emerald-500/20 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400/50"
-                            aria-label="Dismiss success message"
+                            aria-label="Tutup pesan berhasil"
                         >
                             <X
                                 :size="18"
@@ -271,7 +275,7 @@ function submitProfile(): void {
                                 >
                                     {{
                                         errorMessage ||
-                                        'Please fix the errors below'
+                                        'Mohon perbaiki kesalahan berikut'
                                     }}
                                 </p>
                                 <ul
@@ -291,7 +295,7 @@ function submitProfile(): void {
                             type="button"
                             @click="dismissError"
                             class="flex-shrink-0 rounded p-1 hover:bg-red-200 dark:hover:bg-red-500/20 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400/50"
-                            aria-label="Dismiss error message"
+                            aria-label="Tutup pesan kesalahan"
                         >
                             <X
                                 :size="18"
@@ -317,14 +321,14 @@ function submitProfile(): void {
                     <h2
                         class="text-lg font-semibold text-zinc-900 dark:text-white"
                     >
-                        Profile Information
+                        Informasi Profil
                     </h2>
                 </div>
 
                 <form @submit.prevent="submitProfile" class="space-y-5">
                     <!-- Name Field -->
                     <div>
-                        <Label for="profile-name" required>Name</Label>
+                        <Label for="profile-name" required>Nama</Label>
                         <div class="relative">
                             <div
                                 class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
@@ -338,7 +342,7 @@ function submitProfile(): void {
                                 id="profile-name"
                                 v-model="profileForm.name"
                                 type="text"
-                                placeholder="Enter your full name"
+                                placeholder="Masukkan nama lengkap"
                                 :disabled="profileForm.processing"
                                 :error="profileForm.errors.name"
                                 autocomplete="name"
@@ -349,7 +353,7 @@ function submitProfile(): void {
 
                     <!-- Email Field -->
                     <div>
-                        <Label for="profile-email" required>Email</Label>
+                        <Label for="profile-email" required>Alamat Email</Label>
                         <div class="relative">
                             <div
                                 class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
@@ -363,7 +367,7 @@ function submitProfile(): void {
                                 id="profile-email"
                                 v-model="profileForm.email"
                                 type="email"
-                                placeholder="Enter your email address"
+                                placeholder="Masukkan alamat email"
                                 :disabled="profileForm.processing"
                                 :error="profileForm.errors.email"
                                 autocomplete="email"
@@ -374,7 +378,7 @@ function submitProfile(): void {
 
                     <!-- Role Field -->
                     <div>
-                        <Label>Role</Label>
+                        <Label>Peran</Label>
                         <div
                             class="flex items-center gap-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 px-4 py-3"
                         >
@@ -390,14 +394,134 @@ function submitProfile(): void {
                             <span
                                 class="rounded-full bg-cyan-100 dark:bg-cyan-500/20 px-2.5 py-1 text-xs font-medium text-cyan-700 dark:text-cyan-300"
                             >
-                                Read-only
+                                Hanya-baca
                             </span>
                         </div>
                         <p
                             class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400"
                         >
-                            Contact administrator to change your role
+                            Hubungi administrator untuk mengubah peran Anda
                         </p>
+                    </div>
+
+                    <!-- NPK Field -->
+                    <div>
+                        <Label>NPK</Label>
+                        <div
+                            class="flex items-center gap-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 px-4 py-3"
+                        >
+                            <Hash
+                                :size="18"
+                                class="text-zinc-500 dark:text-zinc-400"
+                            />
+                            <span
+                                v-if="user.npk"
+                                class="flex-1 text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                            >
+                                {{ user.npk }}
+                            </span>
+                            <span
+                                v-else
+                                class="flex-1 text-sm text-zinc-400 dark:text-zinc-500 italic"
+                            >
+                                Belum diisi
+                            </span>
+                            <span
+                                class="rounded-full bg-cyan-100 dark:bg-cyan-500/20 px-2.5 py-1 text-xs font-medium text-cyan-700 dark:text-cyan-300"
+                            >
+                                Hanya-baca
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Divisi Field -->
+                    <div>
+                        <Label>Divisi</Label>
+                        <div
+                            class="flex items-center gap-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 px-4 py-3"
+                        >
+                            <Building2
+                                :size="18"
+                                class="text-zinc-500 dark:text-zinc-400"
+                            />
+                            <span
+                                v-if="user.divisi"
+                                class="flex-1 text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                            >
+                                {{ user.divisi }}
+                            </span>
+                            <span
+                                v-else
+                                class="flex-1 text-sm text-zinc-400 dark:text-zinc-500 italic"
+                            >
+                                Belum diisi
+                            </span>
+                            <span
+                                class="rounded-full bg-cyan-100 dark:bg-cyan-500/20 px-2.5 py-1 text-xs font-medium text-cyan-700 dark:text-cyan-300"
+                            >
+                                Hanya-baca
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Departement Field -->
+                    <div>
+                        <Label>Departement</Label>
+                        <div
+                            class="flex items-center gap-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 px-4 py-3"
+                        >
+                            <Briefcase
+                                :size="18"
+                                class="text-zinc-500 dark:text-zinc-400"
+                            />
+                            <span
+                                v-if="user.departement"
+                                class="flex-1 text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                            >
+                                {{ user.departement }}
+                            </span>
+                            <span
+                                v-else
+                                class="flex-1 text-sm text-zinc-400 dark:text-zinc-500 italic"
+                            >
+                                Belum diisi
+                            </span>
+                            <span
+                                class="rounded-full bg-cyan-100 dark:bg-cyan-500/20 px-2.5 py-1 text-xs font-medium text-cyan-700 dark:text-cyan-300"
+                            >
+                                Hanya-baca
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Section Field -->
+                    <div>
+                        <Label>Section</Label>
+                        <div
+                            class="flex items-center gap-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50 px-4 py-3"
+                        >
+                            <Layers
+                                :size="18"
+                                class="text-zinc-500 dark:text-zinc-400"
+                            />
+                            <span
+                                v-if="user.section"
+                                class="flex-1 text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                            >
+                                {{ user.section }}
+                            </span>
+                            <span
+                                v-else
+                                class="flex-1 text-sm text-zinc-400 dark:text-zinc-500 italic"
+                            >
+                                Belum diisi
+                            </span>
+                            <span
+                                class="rounded-full bg-cyan-100 dark:bg-cyan-500/20 px-2.5 py-1 text-xs font-medium text-cyan-700 dark:text-cyan-300"
+                            >
+                                Hanya-baca
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Submit Button -->
@@ -408,7 +532,7 @@ function submitProfile(): void {
                         :disabled="profileForm.processing"
                         full-width
                     >
-                        Save Changes
+                        Simpan Perubahan
                     </Button>
                 </form>
             </motion.section>
@@ -437,12 +561,12 @@ function submitProfile(): void {
                             <p
                                 class="font-medium text-zinc-900 dark:text-white"
                             >
-                                Change Password
+                                Ubah Kata Sandi
                             </p>
                             <p
                                 class="text-sm text-zinc-600 dark:text-zinc-400"
                             >
-                                Update your password to keep your account secure
+                                Perbarui kata sandi untuk menjaga keamanan akun
                             </p>
                         </div>
                     </div>
@@ -485,12 +609,12 @@ function submitProfile(): void {
                             <p
                                 class="font-medium text-zinc-900 dark:text-white"
                             >
-                                {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
+                                {{ isLoggingOut ? 'Keluar...' : 'Keluar' }}
                             </p>
                             <p
                                 class="text-sm text-zinc-600 dark:text-zinc-400"
                             >
-                                Sign out from your account
+                                Keluar dari akun Anda
                             </p>
                         </div>
                     </div>

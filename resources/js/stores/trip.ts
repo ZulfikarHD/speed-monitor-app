@@ -231,7 +231,7 @@ export const useTripStore = defineStore('trip', () => {
      * }
      * ```
      */
-    async function startTrip(notes?: string): Promise<void> {
+    async function startTrip(options?: { notes?: string; shift_type?: string; vehicle_type?: string }): Promise<void> {
         error.value = null;
         isStarting.value = true;
 
@@ -239,15 +239,13 @@ export const useTripStore = defineStore('trip', () => {
             const isOnline = navigator.onLine;
 
             if (isOnline) {
-                /**
-                 * ONLINE: POST to /api/trips to create new trip.
-                 *
-                 * WHY: Use Wayfinder store() for type-safe route generation.
-                 * WHY: http client provides automatic CSRF token handling.
-                 */
                 const response = await http.post<StartTripResponse>(
                     TripController.store().url,
-                    { notes },
+                    {
+                        notes: options?.notes,
+                        shift_type: options?.shift_type,
+                        vehicle_type: options?.vehicle_type,
+                    },
                 );
 
                 // Store the newly created trip
@@ -278,7 +276,7 @@ export const useTripStore = defineStore('trip', () => {
                     averageSpeed: null,
                     violationCount: 0,
                     durationSeconds: null,
-                    notes: notes || null,
+                    notes: options?.notes || null,
                     syncedAt: null,
                 };
 
@@ -287,9 +285,8 @@ export const useTripStore = defineStore('trip', () => {
                 localTripId.value = tripId;
                 isOfflineTrip.value = true;
 
-                // Create pseudo Trip object for state management
                 currentTrip.value = {
-                    id: -1, // Temporary ID for offline trip
+                    id: -1,
                     user_id: userId,
                     started_at: offlineTrip.startedAt,
                     ended_at: null,
@@ -299,7 +296,9 @@ export const useTripStore = defineStore('trip', () => {
                     average_speed: null,
                     violation_count: 0,
                     duration_seconds: null,
-                    notes: notes || null,
+                    notes: options?.notes || null,
+                    shift_type: (options?.shift_type as any) || null,
+                    vehicle_type: (options?.vehicle_type as any) || null,
                     synced_at: null,
                     created_at: offlineTrip.startedAt,
                     updated_at: offlineTrip.startedAt,

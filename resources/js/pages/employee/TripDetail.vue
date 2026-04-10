@@ -98,7 +98,7 @@ function formatSpeed(speed: number | string | null): string {
                 class="mb-6 inline-flex min-h-[44px] items-center gap-2 px-4 py-3 text-sm font-medium text-cyan-600 transition-colors duration-200 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300"
             >
                 <ChevronLeft :size="16" :stroke-width="2" aria-hidden="true" />
-                Back to My Trips
+                Kembali ke Perjalanan Saya
             </Link>
 
             <!-- Page Header -->

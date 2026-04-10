@@ -7,7 +7,7 @@
  */
 
 import { Link } from '@inertiajs/vue3';
-import { BarChart3, Car, ClipboardList, Mail, Shield, User } from '@lucide/vue';
+import { BarChart3, ClipboardList, Mail, Route, Shield, User } from '@lucide/vue';
 
 import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
 import { useAuthStore } from '@/stores/auth';
@@ -16,7 +16,7 @@ const authStore = useAuthStore();
 </script>
 
 <template>
-    <EmployeeLayout title="Dashboard">
+    <EmployeeLayout title="Dasbor">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- ============================================================
                 Page Header
@@ -26,10 +26,10 @@ const authStore = useAuthStore();
                     class="text-3xl font-bold text-zinc-900 dark:text-white"
                     style="font-family: 'Bebas Neue', sans-serif"
                 >
-                    Dashboard
+                    Dasbor
                 </h1>
                 <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                    Welcome back, {{ authStore.user?.name }}!
+                    Selamat datang, {{ authStore.user?.name }}!
                 </p>
             </div>
 
@@ -46,14 +46,14 @@ const authStore = useAuthStore();
                         <div
                             class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg shadow-zinc-200 dark:from-blue-500 dark:to-indigo-600 dark:shadow-blue-500/25"
                         >
-                            <Car :size="28" :stroke-width="2" class="text-white" />
+                            <Route :size="28" :stroke-width="2" class="text-white" />
                         </div>
                         <div class="flex-1">
                             <h3 class="mb-1 text-lg font-semibold text-zinc-900 transition-colors duration-200 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-                                Start Speedometer
+                                Mulai Speedometer
                             </h3>
                             <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                                Track your trip speed and distance in real-time
+                                Lacak kecepatan dan jarak perjalanan Anda secara real-time
                             </p>
                         </div>
                     </div>
@@ -72,10 +72,10 @@ const authStore = useAuthStore();
                         </div>
                         <div class="flex-1">
                             <h3 class="mb-1 text-lg font-semibold text-zinc-900 transition-colors duration-200 group-hover:text-cyan-600 dark:text-white dark:group-hover:text-cyan-400">
-                                Trip History
+                                Riwayat Perjalanan
                             </h3>
                             <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                                View your past trips and detailed statistics
+                                Lihat perjalanan sebelumnya dan statistik detail
                             </p>
                         </div>
                     </div>
@@ -94,10 +94,10 @@ const authStore = useAuthStore();
                         </div>
                         <div class="flex-1">
                             <h3 class="mb-1 text-lg font-semibold text-zinc-900 transition-colors duration-200 group-hover:text-purple-600 dark:text-white dark:group-hover:text-purple-400">
-                                My Statistics
+                                Statistik Saya
                             </h3>
                             <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                                Track your performance and driving metrics
+                                Pantau performa dan metrik berkendara Anda
                             </p>
                         </div>
                     </div>
@@ -109,13 +109,13 @@ const authStore = useAuthStore();
             ============================================================ -->
             <div class="mt-8 rounded-lg border border-zinc-200/80 bg-white/95 p-6 shadow-lg shadow-zinc-900/5 ring-1 ring-white/20 dark:border-white/10 dark:bg-zinc-800/95 dark:shadow-cyan-500/5 dark:ring-white/5">
                 <h2 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-white">
-                    Your Profile
+                    Profil Anda
                 </h2>
                 <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     <div class="flex items-center gap-3 rounded-lg bg-zinc-100/90 p-4 dark:bg-zinc-900/50">
                         <User :size="18" :stroke-width="2" class="shrink-0 text-zinc-500 dark:text-zinc-400" aria-hidden="true" />
                         <div>
-                            <p class="text-xs text-zinc-500 dark:text-zinc-400">Name</p>
+                            <p class="text-xs text-zinc-500 dark:text-zinc-400">Nama</p>
                             <p class="mt-0.5 text-sm font-medium text-zinc-900 dark:text-white">
                                 {{ authStore.user?.name }}
                             </p>
@@ -133,7 +133,7 @@ const authStore = useAuthStore();
                     <div class="flex items-center gap-3 rounded-lg bg-zinc-100/90 p-4 dark:bg-zinc-900/50">
                         <Shield :size="18" :stroke-width="2" class="shrink-0 text-zinc-500 dark:text-zinc-400" aria-hidden="true" />
                         <div>
-                            <p class="text-xs text-zinc-500 dark:text-zinc-400">Role</p>
+                            <p class="text-xs text-zinc-500 dark:text-zinc-400">Peran</p>
                             <p class="mt-0.5">
                                 <span class="inline-flex items-center rounded-full bg-cyan-100 px-3 py-1 text-xs font-medium text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-300">
                                     {{ authStore.user?.role }}

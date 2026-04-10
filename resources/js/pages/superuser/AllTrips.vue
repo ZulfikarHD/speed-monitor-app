@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
- * All Trips Page - Supervisor trip monitoring view.
+ * All Trips Page - Superuser trip monitoring view.
  *
- * Comprehensive trip monitoring page for supervisors and admins with
+ * Comprehensive trip monitoring page for superusers and admins with
  * advanced filtering, sorting, and pagination capabilities.
  *
  * Features:
@@ -15,18 +15,18 @@
  * - Empty states with SVG icons
  * - Full light/dark theme support
  *
- * @example Route: /supervisor/trips
+ * @example Route: /superuser/trips
  */
 
 import { router } from '@inertiajs/vue3';
-import { Car, Download, Loader2 } from '@lucide/vue';
+import { Download, Loader2, Route } from '@lucide/vue';
 import { AnimatePresence, motion } from 'motion-v';
 import { computed, ref } from 'vue';
 
 import { showWeb } from '@/actions/App/Http/Controllers/TripController';
 import Pagination from '@/components/trips/Pagination.vue';
-import SupervisorTripFilters from '@/components/trips/SupervisorTripFilters.vue';
-import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
+import SuperuserTripFilters from '@/components/trips/SuperuserTripFilters.vue';
+import SuperuserLayout from '@/layouts/SuperuserLayout.vue';
 import type { EmployeeSummary, Trip, TripStatus } from '@/types/trip';
 import {
     formatDate,
@@ -144,7 +144,7 @@ function getEmployeeEmail(userId: number): string {
  */
 function handleApplyFilters(): void {
     router.get(
-        '/supervisor/trips',
+        '/superuser/trips',
         {
             user_id: localFilters.value.employee || undefined,
             date_from: localFilters.value.dateFrom || undefined,
@@ -180,7 +180,7 @@ function handleResetFilters(): void {
     };
 
     router.get(
-        '/supervisor/trips',
+        '/superuser/trips',
         { page: 1 },
         {
             preserveState: true,
@@ -196,7 +196,7 @@ function handleResetFilters(): void {
  */
 function handlePageChange(page: number): void {
     router.get(
-        '/supervisor/trips',
+        '/superuser/trips',
         {
             page,
             user_id: props.filters.user_id || undefined,
@@ -261,7 +261,7 @@ function handleExport(): void {
         params.append('violations_only', 'true');
     }
 
-    const exportUrl = '/supervisor/trips/export?' + params.toString();
+    const exportUrl = '/superuser/trips/export?' + params.toString();
     window.location.href = exportUrl;
 
     setTimeout(() => {
@@ -328,7 +328,7 @@ function getViolationColor(count: number): string {
 </script>
 
 <template>
-    <SupervisorLayout title="All Trips">
+    <SuperuserLayout title="Semua Perjalanan">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <!-- Page Header -->
             <motion.div
@@ -339,10 +339,10 @@ function getViolationColor(count: number): string {
             >
                 <div class="flex-1">
                     <h1 class="text-3xl font-bold text-zinc-900 dark:text-white md:text-4xl">
-                        All Trips
+                        Semua Perjalanan
                     </h1>
                     <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                        Monitor all employee trips with advanced filtering
+                        Pantau semua perjalanan karyawan dengan filter lanjutan
                     </p>
                 </div>
 
@@ -357,10 +357,10 @@ function getViolationColor(count: number): string {
                     ]"
                     :title="
                         showEmptyState
-                            ? 'Tidak ada data untuk di-export'
-                            : 'Export trips to CSV'
+                            ? 'Tidak ada data untuk diekspor'
+                            : 'Ekspor perjalanan ke CSV'
                     "
-                    aria-label="Export trips to CSV"
+                    aria-label="Ekspor perjalanan ke CSV"
                     @click="handleExport"
                 >
                     <Loader2
@@ -377,7 +377,7 @@ function getViolationColor(count: number): string {
                         aria-hidden="true"
                     />
                     <span class="hidden sm:inline">
-                        {{ isExporting ? 'Exporting...' : 'Export CSV' }}
+                        {{ isExporting ? 'Mengekspor...' : 'Ekspor CSV' }}
                     </span>
                 </button>
             </motion.div>
@@ -389,7 +389,7 @@ function getViolationColor(count: number): string {
                 :transition="{ delay: 0.05, duration: 0.3 }"
                 class="mb-6"
             >
-                <SupervisorTripFilters
+                <SuperuserTripFilters
                     :employees="employees"
                     v-model:employee="localFilters.employee"
                     v-model:date-from="localFilters.dateFrom"
@@ -429,7 +429,7 @@ function getViolationColor(count: number): string {
                     :transition="{ duration: 0.3 }"
                     class="rounded-lg border border-zinc-200 dark:border-white/5 bg-white/95 dark:bg-zinc-800/95 ring-1 ring-white/20 dark:ring-white/5 px-6 py-12 text-center shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
                 >
-                    <Car :size="64" :stroke-width="1.5" class="mx-auto mb-4 text-zinc-400 dark:text-zinc-600" aria-hidden="true" />
+                    <Route :size="64" :stroke-width="1.5" class="mx-auto mb-4 text-zinc-400 dark:text-zinc-600" aria-hidden="true" />
                     <p class="text-lg font-medium text-zinc-900 dark:text-white">
                         Tidak Ada Perjalanan
                     </p>
@@ -453,7 +453,7 @@ function getViolationColor(count: number): string {
                     <table
                         class="w-full"
                         role="table"
-                        aria-label="All employee trips"
+                        aria-label="Semua perjalanan karyawan"
                     >
                         <thead>
                             <tr class="border-b border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
@@ -584,5 +584,5 @@ function getViolationColor(count: number): string {
                 </div>
             </div>
         </div>
-    </SupervisorLayout>
+    </SuperuserLayout>
 </template>

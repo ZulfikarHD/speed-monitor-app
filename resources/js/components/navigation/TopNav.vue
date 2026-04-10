@@ -23,11 +23,13 @@
 import { Link } from '@inertiajs/vue3';
 import {
     BarChart3,
-    Car,
     ClipboardList,
     Gauge,
     Home,
+    Moon,
+    Route,
     Settings,
+    Sun,
     Trophy,
     Users,
 } from '@lucide/vue';
@@ -38,6 +40,7 @@ import UserProfileDropdown from '@/components/navigation/UserProfileDropdown.vue
 import SyncBadge from '@/components/sync/SyncBadge.vue';
 import { useActiveRoute } from '@/composables/useActiveRoute';
 import { useSyncQueue } from '@/composables/useSyncQueue';
+import { useTheme } from '@/composables/useTheme';
 import { useAuthStore } from '@/stores/auth';
 
 // ========================================================================
@@ -53,19 +56,19 @@ interface NavItem {
 
 /** Employee navigation items */
 const employeeNavItems: NavItem[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home, href: '/employee/dashboard' },
+    { id: 'dashboard', label: 'Dasbor', icon: Home, href: '/employee/dashboard' },
     { id: 'speedometer', label: 'Speedometer', icon: Gauge, href: '/employee/speedometer' },
-    { id: 'trips', label: 'My Trips', icon: ClipboardList, href: '/employee/my-trips' },
-    { id: 'statistics', label: 'Statistics', icon: BarChart3, href: '/employee/statistics' },
+    { id: 'trips', label: 'Perjalanan', icon: ClipboardList, href: '/employee/my-trips' },
+    { id: 'statistics', label: 'Statistik', icon: BarChart3, href: '/employee/statistics' },
 ];
 
-/** Supervisor/Admin navigation items */
-const supervisorNavItems: NavItem[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: BarChart3, href: '/supervisor/dashboard' },
-    { id: 'trips', label: 'All Trips', icon: Car, href: '/supervisor/trips' },
-    { id: 'leaderboard', label: 'Leaderboard', icon: Trophy, href: '/supervisor/leaderboard' },
-    { id: 'employees', label: 'Employees', icon: Users, href: '/supervisor/employees' },
-    { id: 'settings', label: 'Settings', icon: Settings, href: '/admin/settings' },
+/** Superuser/Admin navigation items */
+const superuserNavItems: NavItem[] = [
+    { id: 'dashboard', label: 'Dasbor', icon: BarChart3, href: '/superuser/dashboard' },
+    { id: 'trips', label: 'Semua Trip', icon: Route, href: '/superuser/trips' },
+    { id: 'leaderboard', label: 'Peringkat', icon: Trophy, href: '/superuser/leaderboard' },
+    { id: 'employees', label: 'Karyawan', icon: Users, href: '/superuser/employees' },
+    { id: 'settings', label: 'Pengaturan', icon: Settings, href: '/admin/settings' },
 ];
 
 // ========================================================================
@@ -75,6 +78,7 @@ const supervisorNavItems: NavItem[] = [
 const authStore = useAuthStore();
 const { isActive } = useActiveRoute();
 const { openModal } = useSyncQueue();
+const { isDark, toggleTheme } = useTheme();
 
 // ========================================================================
 // Computed
@@ -83,13 +87,13 @@ const { openModal } = useSyncQueue();
 /**
  * Get navigation items based on user role.
  *
- * WHY: Supervisors/admins see monitoring tools while employees see trip tracking.
+ * WHY: Superusers/admins see monitoring tools while employees see trip tracking.
  */
 const navItems = computed((): NavItem[] => {
     const role = authStore.role;
 
-    if (role === 'supervisor' || role === 'admin') {
-        return supervisorNavItems;
+    if (role === 'superuser' || role === 'admin') {
+        return superuserNavItems;
     }
 
     return employeeNavItems;
@@ -122,7 +126,7 @@ function handleSyncBadgeClick(event: MouseEvent): void {
     <nav
         class="fixed top-0 left-0 right-0 z-50 hidden md:block bg-white/95 dark:bg-zinc-900/98 border-b border-zinc-200/80 dark:border-white/10 ring-1 ring-white/20 dark:ring-white/5 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5"
         role="navigation"
-        aria-label="Main navigation"
+        aria-label="Navigasi utama"
     >
         <!-- Grid pattern overlay (32px, theme-aware) -->
         <div
@@ -141,7 +145,7 @@ function handleSyncBadgeClick(event: MouseEvent): void {
                         <div
                             class="relative flex h-10 w-10 items-center justify-center rounded-lg border border-cyan-200 dark:border-cyan-500/20 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-500/10 dark:to-blue-600/10 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/5 transition-colors duration-200 group-hover:border-cyan-300 dark:group-hover:border-cyan-400/40"
                         >
-                            <Car
+                            <Route
                                 :size="20"
                                 class="text-cyan-600 dark:text-cyan-400"
                             />
@@ -200,8 +204,17 @@ function handleSyncBadgeClick(event: MouseEvent): void {
                     </div>
                 </div>
 
-                <!-- Right: User Profile -->
-                <div class="flex items-center">
+                <!-- Right: Theme Toggle + User Profile -->
+                <div class="flex items-center gap-2">
+                    <button
+                        type="button"
+                        class="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-200/80 dark:border-white/10 bg-white/80 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 transition-all duration-200 hover:bg-zinc-100 dark:hover:bg-white/10 hover:text-zinc-900 dark:hover:text-zinc-200"
+                        :aria-label="isDark ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'"
+                        @click="toggleTheme"
+                    >
+                        <Moon v-if="!isDark" :size="18" />
+                        <Sun v-else :size="18" />
+                    </button>
                     <UserProfileDropdown />
                 </div>
             </div>

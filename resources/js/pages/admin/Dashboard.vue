@@ -3,8 +3,8 @@
  * Admin Dashboard - Central overview page for admin role.
  *
  * Provides user profile overview, quick navigation to admin features,
- * and system development status. Uses SupervisorLayout for consistent
- * navigation across all supervisor/admin pages.
+ * and system development status. Uses SuperuserLayout for consistent
+ * navigation across all superuser/admin pages.
  *
  * Features:
  * - Profile card with avatar and role badge
@@ -38,7 +38,7 @@ import {
 import { motion } from 'motion-v';
 
 import { useAuth } from '@/composables/useAuth';
-import SupervisorLayout from '@/layouts/SupervisorLayout.vue';
+import SuperuserLayout from '@/layouts/SuperuserLayout.vue';
 import { useAuthStore } from '@/stores/auth';
 
 // ========================================================================
@@ -50,7 +50,7 @@ const { handleLogout, isLoading } = useAuth();
 </script>
 
 <template>
-    <SupervisorLayout title="Admin Dashboard">
+    <SuperuserLayout title="Dasbor Admin">
         <div class="p-4 md:p-6 lg:p-8">
             <div class="mx-auto max-w-5xl space-y-6">
                 <!-- Header Section -->
@@ -60,7 +60,7 @@ const { handleLogout, isLoading } = useAuth();
                     :transition="{ duration: 0.25 }"
                 >
                     <h1 class="text-2xl font-semibold text-zinc-900 dark:text-white md:text-3xl">
-                        Admin Dashboard
+                        Dasbor Admin
                     </h1>
                     <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                         Kelola sistem dan konfigurasi aplikasi
@@ -119,7 +119,7 @@ const { handleLogout, isLoading } = useAuth();
                             @click="handleLogout"
                         >
                             <LogOut :size="16" />
-                            <span>{{ isLoading ? 'Logging out...' : 'Logout' }}</span>
+                            <span>{{ isLoading ? 'Keluar...' : 'Keluar' }}</span>
                         </button>
                     </motion.div>
 
@@ -163,11 +163,11 @@ const { handleLogout, isLoading } = useAuth();
                                 </p>
                             </Link>
 
-                            <!-- Supervisor Dashboard Action Card -->
+                            <!-- Superuser Dashboard Action Card -->
                             <Link
-                                href="/supervisor/dashboard"
+                                href="/superuser/dashboard"
                                 class="group rounded-lg bg-white/95 dark:bg-zinc-800/95 border border-zinc-200/80 dark:border-white/10 ring-1 ring-white/20 dark:ring-white/5 p-5 shadow-lg shadow-zinc-900/5 dark:shadow-cyan-500/5 transition-all duration-200 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-100 dark:hover:border-blue-500/30 dark:hover:shadow-blue-500/10"
-                                aria-label="Buka Supervisor Dashboard"
+                                aria-label="Buka Superuser Dashboard"
                             >
                                 <div class="mb-3 flex items-start justify-between">
                                     <div
@@ -184,7 +184,7 @@ const { handleLogout, isLoading } = useAuth();
                                     />
                                 </div>
                                 <h4 class="text-sm font-semibold text-zinc-900 dark:text-white">
-                                    Supervisor Dashboard
+                                    Dasbor Superuser
                                 </h4>
                                 <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                                     Monitoring perjalanan, statistik, dan data karyawan
@@ -219,5 +219,5 @@ const { handleLogout, isLoading } = useAuth();
                 </motion.div>
             </div>
         </div>
-    </SupervisorLayout>
+    </SuperuserLayout>
 </template>

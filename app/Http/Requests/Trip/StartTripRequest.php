@@ -36,6 +36,8 @@ class StartTripRequest extends FormRequest
     {
         return [
             'notes' => ['nullable', 'string', 'max:1000'],
+            'shift_type' => ['nullable', 'string', 'in:non_shift,shift_pagi,shift_malam'],
+            'vehicle_type' => ['nullable', 'string', 'in:mobil,motor'],
         ];
     }
 }

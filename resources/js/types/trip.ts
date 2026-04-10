@@ -79,6 +79,12 @@ export interface Trip {
     /** Optional user notes about the trip */
     notes: string | null;
 
+    /** Shift type selected when starting the trip */
+    shift_type: 'non_shift' | 'shift_pagi' | 'shift_malam' | null;
+
+    /** Vehicle type selected when starting the trip */
+    vehicle_type: 'mobil' | 'motor' | null;
+
     /** Timestamp of last successful sync (for offline sync tracking) */
     synced_at: string | null;
 
@@ -240,7 +246,7 @@ export interface BulkSpeedLogsResponse {
  * Used for filtering and paginating trip lists via GET /api/trips
  */
 export interface TripListParams {
-    /** Filter by specific user ID (supervisor/admin only) */
+    /** Filter by specific user ID (superuser/admin only) */
     user_id?: number;
 
     /** Filter by trip status */
@@ -285,7 +291,7 @@ export interface TripListResponse {
  * Employee summary for filter dropdown.
  *
  * Minimal user data for displaying employee selection
- * in supervisor trip filtering interface.
+ * in superuser trip filtering interface.
  */
 export interface EmployeeSummary {
     /** Unique user identifier */
@@ -297,12 +303,12 @@ export interface EmployeeSummary {
 }
 
 /**
- * Trip list query parameters for supervisors.
+ * Trip list query parameters for superusers.
  *
  * Extends base TripListParams with additional filtering
- * and sorting options available to supervisors and admins.
+ * and sorting options available to superusers and admins.
  */
-export interface SupervisorTripListParams extends TripListParams {
+export interface SuperuserTripListParams extends TripListParams {
     /** Filter to show only trips with violations */
     violations_only?: boolean;
 

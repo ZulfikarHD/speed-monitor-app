@@ -9,7 +9,7 @@ use Carbon\Carbon;
  * Trip Analysis Service
  *
  * Analyzes trip patterns to detect suspicious behavior that indicates gaming.
- * 
+ *
  * Suspicious patterns detected:
  * - Very short trips (< 5 min) - cherry-picking slow segments
  * - Too many trips in one day - splitting to hide speeding
@@ -80,7 +80,7 @@ class TripAnalysisService
         if ($trip->total_distance && $trip->duration_seconds) {
             // Average speed in m/s
             $avgSpeed = $trip->total_distance / $trip->duration_seconds;
-            
+
             // If average speed < 1 m/s (3.6 km/h), likely parked/fake
             if ($avgSpeed < 1) {
                 $reasons[] = [
@@ -117,7 +117,7 @@ class TripAnalysisService
         }
 
         // Flag trip if any suspicious reasons found
-        if (!empty($reasons)) {
+        if (! empty($reasons)) {
             $trip->is_suspicious = true;
             $trip->suspicious_reasons = $reasons;
             $trip->flagged_at = now();
@@ -127,7 +127,7 @@ class TripAnalysisService
     }
 
     /**
-     * Get suspicious trips for supervisor review.
+     * Get suspicious trips for superuser review.
      */
     public function getSuspiciousTrips(int $limit = 50)
     {
@@ -171,7 +171,7 @@ class TripAnalysisService
         foreach ($suspiciousTrips as $trip) {
             foreach ($trip->suspicious_reasons ?? [] as $reason) {
                 $code = $reason['code'];
-                if (!isset($reasonCounts[$code])) {
+                if (! isset($reasonCounts[$code])) {
                     $reasonCounts[$code] = [
                         'code' => $code,
                         'message' => $reason['message'],
@@ -185,8 +185,8 @@ class TripAnalysisService
         return [
             'total_trips' => $trips->count(),
             'suspicious_trips' => $suspiciousTrips->count(),
-            'suspicious_percentage' => $trips->count() > 0 
-                ? round(($suspiciousTrips->count() / $trips->count()) * 100, 2) 
+            'suspicious_percentage' => $trips->count() > 0
+                ? round(($suspiciousTrips->count() / $trips->count()) * 100, 2)
                 : 0,
             'reason_breakdown' => array_values($reasonCounts),
             'risk_level' => $this->calculateRiskLevel($suspiciousTrips->count(), $trips->count()),

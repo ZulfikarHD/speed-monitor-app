@@ -1,9 +1,13 @@
-export type UserRole = 'employee' | 'supervisor' | 'admin';
+export type UserRole = 'employee' | 'superuser' | 'admin';
 
 export type User = {
     id: number;
     name: string;
     email: string;
+    npk: string | null;
+    divisi: string | null;
+    departement: string | null;
+    section: string | null;
     role: UserRole;
     is_active: boolean;
     avatar?: string;
@@ -20,6 +24,10 @@ export type Auth = {
 export type UserFormData = {
     name: string;
     email: string;
+    npk?: string;
+    divisi?: string;
+    departement?: string;
+    section?: string;
     password?: string;
     role: UserRole;
     is_active: boolean;

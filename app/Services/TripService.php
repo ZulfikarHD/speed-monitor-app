@@ -36,13 +36,18 @@ class TripService
      * @param  string|null  $notes  Optional notes about the trip
      * @return Trip Newly created trip with InProgress status
      */
-    public function startTrip(User $user, ?string $notes = null): Trip
+    /**
+     * @param  array{shift_type?: string|null, vehicle_type?: string|null}  $options
+     */
+    public function startTrip(User $user, ?string $notes = null, array $options = []): Trip
     {
         return Trip::create([
             'user_id' => $user->id,
             'started_at' => now(),
             'status' => TripStatus::InProgress,
             'notes' => $notes,
+            'shift_type' => $options['shift_type'] ?? null,
+            'vehicle_type' => $options['vehicle_type'] ?? null,
             'violation_count' => 0,
         ]);
     }

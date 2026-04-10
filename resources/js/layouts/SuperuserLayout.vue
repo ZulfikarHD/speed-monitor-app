@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
- * Supervisor Layout Component
+ * Superuser Layout Component
  *
- * Reusable layout wrapper for all supervisor/admin pages with responsive navigation.
+ * Reusable layout wrapper for all superuser/admin pages with responsive navigation.
  * Provides consistent navigation structure and global overlays.
  *
  * Navigation Structure:
@@ -38,7 +38,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    title: 'SpeedMonitor - Supervisor',
+    title: 'SpeedMonitor - Superuser',
 });
 
 // ========================================================================
@@ -52,7 +52,7 @@ const handleUpdate = async (): Promise<void> => {
     try {
         await applyUpdate();
     } catch (error) {
-        console.error('[SupervisorLayout] Failed to apply update:', error);
+        console.error('[SuperuserLayout] Failed to apply update:', error);
     }
 };
 
@@ -70,7 +70,7 @@ const handleInstall = async (): Promise<void> => {
     try {
         await install();
     } catch (error) {
-        console.error('[SupervisorLayout] PWA installation failed:', error);
+        console.error('[SuperuserLayout] PWA installation failed:', error);
     }
 };
 
@@ -84,7 +84,7 @@ const handleInstallDismiss = (): void => {
     <Head :title="props.title" />
 
     <!-- ======================================================================
-        Supervisor Layout
+        Superuser Layout
         Theme-aware with extra dark mode (black/zinc-950 base)
     ======================================================================= -->
     <div class="relative min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-black dark:via-zinc-950 dark:to-black">

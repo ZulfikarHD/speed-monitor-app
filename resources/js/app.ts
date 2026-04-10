@@ -1,4 +1,4 @@
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createInertiaApp, router } from '@inertiajs/vue3';
 import { createPinia } from 'pinia';
 import { createApp, h } from 'vue';
 import type { DefineComponent } from 'vue';
@@ -32,11 +32,20 @@ createInertiaApp({
         authStore.initializeAuth();
 
         // Sync user data from Inertia page props (session-based auth)
-        // WHY: Backend uses session auth and shares user via Inertia middleware
-        // Frontend needs this data in the auth store for navigation/role checks
         if (props.initialPage.props.auth?.user) {
             authStore.setUser(props.initialPage.props.auth.user);
         }
+
+        // Keep auth store in sync on every Inertia navigation
+        // WHY: Without this, role-based navigation (BottomNav/TopNav) can show
+        // wrong items if localStorage has stale data from a previous session
+        router.on('navigate', (event) => {
+            const user = event.detail.page.props.auth?.user;
+
+            if (user) {
+                authStore.setUser(user);
+            }
+        });
 
         // Register Service Worker for PWA offline support
         // Deferred to window.load to avoid blocking initial render

@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 /**
  * User Seeder
  *
- * Seeds test users for development: 1 admin, 2 supervisors, and 10 employees.
+ * Seeds test users for development: 1 admin, 2 superusers, and 10 employees.
  * All users have default password 'password' for easy testing.
  */
 class UserSeeder extends Seeder
@@ -25,9 +25,9 @@ class UserSeeder extends Seeder
         ]);
 
         // Create primary test accounts with simple emails
-        User::factory()->supervisor()->create([
-            'name' => 'Supervisor User',
-            'email' => 'supervisor@example.com',
+        User::factory()->superuser()->create([
+            'name' => 'Superuser User',
+            'email' => 'superuser@example.com',
         ]);
 
         User::factory()->employee()->create([
@@ -35,10 +35,10 @@ class UserSeeder extends Seeder
             'email' => 'employee@example.com',
         ]);
 
-        // Create additional supervisor users
-        User::factory()->supervisor()->create([
-            'name' => 'Supervisor Two',
-            'email' => 'supervisor2@example.com',
+        // Create additional superuser users
+        User::factory()->superuser()->create([
+            'name' => 'Superuser Two',
+            'email' => 'superuser2@example.com',
         ]);
 
         // Create additional employee users

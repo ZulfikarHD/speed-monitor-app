@@ -3,7 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Employee\StatisticsController;
 use App\Http\Controllers\SettingsController;
-use App\Http\Controllers\Supervisor\DashboardController;
+use App\Http\Controllers\Superuser\DashboardController;
 use App\Http\Controllers\TripController;
 use Illuminate\Support\Facades\Route;
 

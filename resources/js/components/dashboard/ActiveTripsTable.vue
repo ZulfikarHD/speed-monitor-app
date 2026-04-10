@@ -2,7 +2,7 @@
 /**
  * ActiveTripsTable Component
  *
- * Real-time active trips monitoring table for supervisor dashboard.
+ * Real-time active trips monitoring table for superuser dashboard.
  * Displays currently in-progress trips with live duration updates.
  *
  * Features:
@@ -16,7 +16,7 @@
  * - Full light/dark theme support
  */
 
-import { Car } from '@lucide/vue';
+import { Route } from '@lucide/vue';
 import { motion } from 'motion-v';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
@@ -104,10 +104,10 @@ const hasTrips = computed(() => props.trips.length > 0);
         <div class="flex items-start justify-between border-b border-zinc-200 dark:border-white/5 px-6 py-4">
             <div class="flex-1">
                 <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">
-                    Active Trips
+                    Trip Aktif
                 </h3>
                 <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                    Real-time monitoring of ongoing employee trips
+                    Pemantauan perjalanan karyawan yang sedang berlangsung
                 </p>
             </div>
             <div v-if="$slots.actions" class="ml-4">
@@ -145,17 +145,17 @@ const hasTrips = computed(() => props.trips.length > 0);
                 :animate="{ opacity: 1 }"
                 :transition="{ duration: 0.3 }"
             >
-                <Car
+                <Route
                     :size="48"
                     :stroke-width="1.5"
                     class="mx-auto mb-4 text-zinc-400 dark:text-zinc-600"
                     aria-hidden="true"
                 />
                 <p class="text-lg font-medium text-zinc-900 dark:text-white">
-                    No Active Trips
+                    Tidak Ada Trip Aktif
                 </p>
                 <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                    All employees have completed their trips
+                    Semua karyawan telah menyelesaikan perjalanan mereka
                 </p>
             </motion.div>
         </div>
@@ -167,7 +167,7 @@ const hasTrips = computed(() => props.trips.length > 0);
                 <table
                     class="w-full"
                     role="table"
-                    aria-label="Active trips table"
+                    aria-label="Tabel trip aktif"
                 >
                     <thead>
                         <tr class="border-b border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/50">
@@ -175,13 +175,13 @@ const hasTrips = computed(() => props.trips.length > 0);
                                 class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
                                 scope="col"
                             >
-                                Employee
+                                Karyawan
                             </th>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
                                 scope="col"
                             >
-                                Duration
+                                Durasi
                             </th>
                         </tr>
                     </thead>

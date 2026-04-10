@@ -15,7 +15,6 @@
 
 import {
     BarChart3,
-    Car,
     ClipboardList,
     Gauge,
     Route,
@@ -41,7 +40,7 @@ const props = defineProps<StatCardProps>();
  */
 function getIconComponent(icon: string): Component | null {
     const iconMap: Record<string, Component> = {
-        car: Car,
+        car: Route,
         gauge: Gauge,
         'bar-chart': BarChart3,
         'shield-alert': ShieldAlert,

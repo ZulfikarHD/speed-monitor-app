@@ -8,7 +8,6 @@
  * - Accepts size prop (default 24px)
  */
 
-export { default as IconCar } from './IconCar.vue';
 export { default as IconChart } from './IconChart.vue';
 export { default as IconClipboard } from './IconClipboard.vue';
 export { default as IconGauge } from './IconGauge.vue';

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * User Form Modal Component (Supervisor)
+ * User Form Modal Component (Superuser)
  *
  * Modal form for creating new users or editing existing users.
  * Supports validation, role assignment, and account status management.
@@ -22,7 +22,7 @@ import { X } from '@lucide/vue';
 import { AnimatePresence, motion } from 'motion-v';
 import { computed, watch } from 'vue';
 
-import { store, update } from '@/actions/App/Http/Controllers/Supervisor/EmployeesController';
+import { store, update } from '@/actions/App/Http/Controllers/Superuser/EmployeesController';
 import Button from '@/components/ui/Button.vue';
 import Input from '@/components/ui/Input.vue';
 import Label from '@/components/ui/Label.vue';
@@ -70,6 +70,10 @@ const submitButtonText = computed(() => {
 const form = useForm<UserFormData>({
     name: props.user?.name ?? '',
     email: props.user?.email ?? '',
+    npk: props.user?.npk ?? '',
+    divisi: props.user?.divisi ?? '',
+    departement: props.user?.departement ?? '',
+    section: props.user?.section ?? '',
     password: '',
     role: props.user?.role ?? 'employee',
     is_active: props.user?.is_active ?? true,
@@ -82,6 +86,10 @@ watch(
         if (newUser) {
             form.name = newUser.name;
             form.email = newUser.email;
+            form.npk = newUser.npk ?? '';
+            form.divisi = newUser.divisi ?? '';
+            form.departement = newUser.departement ?? '';
+            form.section = newUser.section ?? '';
             form.password = '';
             form.role = newUser.role;
             form.is_active = newUser.is_active;
@@ -234,6 +242,62 @@ if (typeof window !== 'undefined') {
                             />
                         </div>
 
+                        <!-- NPK Field -->
+                        <div>
+                            <Label for="npk">
+                                NPK
+                            </Label>
+                            <Input
+                                id="npk"
+                                v-model="form.npk"
+                                type="text"
+                                placeholder="Nomor Pokok Karyawan"
+                                :error="form.errors.npk"
+                            />
+                        </div>
+
+                        <!-- Divisi Field -->
+                        <div>
+                            <Label for="divisi">
+                                Divisi
+                            </Label>
+                            <Input
+                                id="divisi"
+                                v-model="form.divisi"
+                                type="text"
+                                placeholder="Nama divisi"
+                                :error="form.errors.divisi"
+                            />
+                        </div>
+
+                        <!-- Departement Field -->
+                        <div>
+                            <Label for="departement">
+                                Departement
+                            </Label>
+                            <Input
+                                id="departement"
+                                v-model="form.departement"
+                                type="text"
+                                placeholder="Nama departement"
+                                :error="form.errors.departement"
+                            />
+                        </div>
+
+                        <!-- Section Field -->
+                        <div>
+                            <Label for="section">
+                                Section
+                            </Label>
+                            <Input
+                                id="section"
+                                v-model="form.section"
+                                type="text"
+                                placeholder="Nama section"
+                                :error="form.errors.section"
+                            />
+                        </div>
+
                         <!-- Password Field -->
                         <div>
                             <Label
@@ -274,7 +338,7 @@ if (typeof window !== 'undefined') {
                                 ]"
                             >
                                 <option value="employee">Karyawan</option>
-                                <option value="supervisor">Supervisor</option>
+                                <option value="superuser">Superuser</option>
                                 <option value="admin">Admin</option>
                             </select>
                             <p

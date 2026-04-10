@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('trips', function (Blueprint $table) {
-            // Suspicious behavior flags for supervisor review
+            // Suspicious behavior flags for superuser review
             $table->boolean('is_suspicious')->default(false)->after('synced_at');
             $table->json('suspicious_reasons')->nullable()->after('is_suspicious');
-            
+
             // Additional metrics for pattern analysis
             $table->integer('trip_count_today')->default(0)->after('suspicious_reasons');
             $table->timestamp('flagged_at')->nullable()->after('trip_count_today');

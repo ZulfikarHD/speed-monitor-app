@@ -25,7 +25,7 @@ class DashboardPerformanceTest extends TestCase
 
     public function test_active_trips_uses_eager_loading_to_prevent_n_plus_1(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
 
         // Create 10 active trips with different users
         for ($i = 0; $i < 10; $i++) {
@@ -40,7 +40,7 @@ class DashboardPerformanceTest extends TestCase
         DB::enableQueryLog();
 
         // Make request
-        $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         // Get queries executed
         $queries = DB::getQueryLog();
@@ -66,7 +66,7 @@ class DashboardPerformanceTest extends TestCase
 
     public function test_top_violators_uses_eager_loading(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
 
         // Create 5 trips with violations from different users
         for ($i = 1; $i <= 5; $i++) {
@@ -85,7 +85,7 @@ class DashboardPerformanceTest extends TestCase
         DB::enableQueryLog();
 
         // Make request
-        $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         // Get queries
         $queries = DB::getQueryLog();
@@ -104,7 +104,7 @@ class DashboardPerformanceTest extends TestCase
 
     public function test_cache_reduces_database_queries_on_subsequent_requests(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
         $employee = User::factory()->create(['role' => 'employee']);
 
         // Create test data
@@ -117,7 +117,7 @@ class DashboardPerformanceTest extends TestCase
         $this->assertFalse(Cache::has('dashboard:overview'));
 
         // First request - should populate cache
-        $firstResponse = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $firstResponse = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
         $firstResponse->assertStatus(200);
 
         // Verify cache is now populated
@@ -131,7 +131,7 @@ class DashboardPerformanceTest extends TestCase
         $this->assertArrayHasKey('active_trips', $cachedData);
 
         // Make a second request - verify it returns same cached data
-        $secondResponse = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $secondResponse = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
         $secondResponse->assertStatus(200);
 
         // The response should match the cached data
@@ -140,20 +140,20 @@ class DashboardPerformanceTest extends TestCase
 
     public function test_cache_key_is_consistent(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
 
         // Clear cache
         Cache::forget('dashboard:overview');
 
         // Make first request
-        $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         // Verify cache key exists
         $this->assertTrue(Cache::has('dashboard:overview'),
             'Cache key "dashboard:overview" should exist after first request');
 
         // Make second request
-        $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         // Cache key should still exist
         $this->assertTrue(Cache::has('dashboard:overview'),
@@ -162,13 +162,13 @@ class DashboardPerformanceTest extends TestCase
 
     public function test_cache_expires_after_5_minutes(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
 
         // Clear cache
         Cache::forget('dashboard:overview');
 
         // Make request to populate cache
-        $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         // Verify cache exists
         $this->assertTrue(Cache::has('dashboard:overview'));
@@ -187,7 +187,7 @@ class DashboardPerformanceTest extends TestCase
 
     public function test_dashboard_response_time_is_acceptable_with_many_trips(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
 
         // Create 50 trips with various states
         for ($i = 0; $i < 50; $i++) {
@@ -210,7 +210,7 @@ class DashboardPerformanceTest extends TestCase
         // Measure response time
         $startTime = microtime(true);
 
-        $response = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $response = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         $endTime = microtime(true);
         $duration = ($endTime - $startTime) * 1000; // Convert to milliseconds
@@ -225,16 +225,16 @@ class DashboardPerformanceTest extends TestCase
 
     public function test_cached_response_is_very_fast(): void
     {
-        $supervisor = User::factory()->create(['role' => 'supervisor']);
+        $superuser = User::factory()->create(['role' => 'superuser']);
 
         // Populate cache with first request
         Cache::forget('dashboard:overview');
-        $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         // Measure cached response time
         $startTime = microtime(true);
 
-        $response = $this->actingAs($supervisor)->getJson('/api/dashboard/overview');
+        $response = $this->actingAs($superuser)->getJson('/api/dashboard/overview');
 
         $endTime = microtime(true);
         $duration = ($endTime - $startTime) * 1000; // Convert to milliseconds

@@ -15,7 +15,7 @@ class UserPolicy
     /**
      * Determine if the user can view the dashboard.
      *
-     * Only supervisors and admins have access to the monitoring dashboard
+     * Only superusers and admins have access to the monitoring dashboard
      * which displays aggregate statistics and employee trip data.
      *
      * @param  User  $user  The authenticated user
@@ -23,13 +23,13 @@ class UserPolicy
      */
     public function viewDashboard(User $user): bool
     {
-        return $user->isSupervisor() || $user->isAdmin();
+        return $user->isSuperuser() || $user->isAdmin();
     }
 
     /**
      * Determine if the user can view any users.
      *
-     * Supervisors and admins have access to the employee management page
+     * Superusers and admins have access to the employee management page
      * which lists all users in the system for operational flexibility.
      *
      * @param  User  $user  The authenticated user
@@ -37,13 +37,13 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isSupervisor() || $user->isAdmin();
+        return $user->isSuperuser() || $user->isAdmin();
     }
 
     /**
      * Determine if the user can create new users.
      *
-     * Supervisors and admins can create new user accounts to allow
+     * Superusers and admins can create new user accounts to allow
      * operational flexibility in onboarding employees.
      *
      * @param  User  $user  The authenticated user
@@ -51,13 +51,13 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isSupervisor() || $user->isAdmin();
+        return $user->isSuperuser() || $user->isAdmin();
     }
 
     /**
      * Determine if the user can update another user.
      *
-     * Supervisors and admins can update user details, but they cannot
+     * Superusers and admins can update user details, but they cannot
      * update their own account to prevent accidental lockouts.
      *
      * @param  User  $user  The authenticated user
@@ -66,13 +66,13 @@ class UserPolicy
      */
     public function update(User $user, User $targetUser): bool
     {
-        return ($user->isSupervisor() || $user->isAdmin()) && $user->id !== $targetUser->id;
+        return ($user->isSuperuser() || $user->isAdmin()) && $user->id !== $targetUser->id;
     }
 
     /**
      * Determine if the user can deactivate another user.
      *
-     * Supervisors and admins can deactivate users, but they cannot
+     * Superusers and admins can deactivate users, but they cannot
      * deactivate their own account to prevent self-lockout.
      *
      * @param  User  $user  The authenticated user
@@ -81,6 +81,6 @@ class UserPolicy
      */
     public function deactivate(User $user, User $targetUser): bool
     {
-        return ($user->isSupervisor() || $user->isAdmin()) && $user->id !== $targetUser->id;
+        return ($user->isSuperuser() || $user->isAdmin()) && $user->id !== $targetUser->id;
     }
 }

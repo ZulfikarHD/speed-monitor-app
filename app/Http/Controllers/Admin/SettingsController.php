@@ -15,7 +15,7 @@ use Inertia\Response;
 | Settings Controller (Admin)
 |--------------------------------------------------------------------------
 |
-| Handles settings page view and form submission for admins and supervisors
+| Handles settings page view and form submission for admins and superusers
 | to configure application-wide parameters including speed limits, auto-stop
 | duration, and logging intervals.
 |
@@ -30,7 +30,7 @@ class SettingsController extends Controller
      * Show settings page.
      *
      * Returns Inertia view with current settings pre-loaded for editing.
-     * Supervisor and admin access enforced via policy.
+     * Superuser and admin access enforced via policy.
      *
      * @return Response Inertia response with settings data
      */

@@ -20,12 +20,13 @@
  */
 
 import { Link } from '@inertiajs/vue3';
-import { ChevronDown, KeyRound, Loader2, LogOut, User } from '@lucide/vue';
+import { ChevronDown, KeyRound, Loader2, LogOut, Moon, Sun, User } from '@lucide/vue';
 import { AnimatePresence, motion } from 'motion-v';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { show as profileShow } from '@/actions/App/Http/Controllers/ProfileController';
 import { useAuth } from '@/composables/useAuth';
+import { useTheme } from '@/composables/useTheme';
 import { useAuthStore } from '@/stores/auth';
 
 // ========================================================================
@@ -34,6 +35,7 @@ import { useAuthStore } from '@/stores/auth';
 
 const authStore = useAuthStore();
 const { handleLogout, isLoading } = useAuth();
+const { isDark, toggleTheme } = useTheme();
 
 // ========================================================================
 // Local State
@@ -120,7 +122,7 @@ onBeforeUnmount(() => {
             class="flex min-h-[44px] items-center gap-3 rounded-lg px-4 py-3 transition-colors duration-200 hover:bg-zinc-100 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-cyan-500 dark:focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900"
             :aria-expanded="isOpen"
             aria-haspopup="true"
-            aria-label="User menu"
+            aria-label="Menu pengguna"
         >
             <!-- User Avatar -->
             <div
@@ -180,7 +182,7 @@ onBeforeUnmount(() => {
                         role="menuitem"
                     >
                         <User :size="18" aria-hidden="true" />
-                        <span>Profile</span>
+                        <span>Profil</span>
                     </Link>
 
                     <!-- Change Password Link -->
@@ -191,8 +193,20 @@ onBeforeUnmount(() => {
                         role="menuitem"
                     >
                         <KeyRound :size="18" aria-hidden="true" />
-                        <span>Change Password</span>
+                        <span>Ubah Kata Sandi</span>
                     </Link>
+
+                    <!-- Theme Toggle -->
+                    <button
+                        @click="toggleTheme"
+                        type="button"
+                        class="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 transition-colors duration-200 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-zinc-100"
+                        role="menuitem"
+                    >
+                        <Moon v-if="!isDark" :size="18" aria-hidden="true" />
+                        <Sun v-else :size="18" aria-hidden="true" />
+                        <span>{{ isDark ? 'Mode Terang' : 'Mode Gelap' }}</span>
+                    </button>
 
                     <!-- Divider -->
                     <div class="my-1 border-t border-zinc-200 dark:border-white/10"></div>
@@ -216,7 +230,7 @@ onBeforeUnmount(() => {
                             :size="18"
                             aria-hidden="true"
                         />
-                        <span>{{ isLoading ? 'Logging out...' : 'Logout' }}</span>
+                        <span>{{ isLoading ? 'Keluar...' : 'Keluar' }}</span>
                     </button>
                 </div>
             </motion.div>

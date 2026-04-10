@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
- * SupervisorTripFilters Component
+ * SuperuserTripFilters Component
  *
- * Advanced filtering controls for supervisor trip list with employee selection,
+ * Advanced filtering controls for superuser trip list with employee selection,
  * date range, status, violations filter, and sorting options.
  *
  * Features:
@@ -27,7 +27,7 @@ import { getTodayDate } from '@/utils/date';
 // Component Props
 // ========================================================================
 
-interface SupervisorTripFiltersProps {
+interface SuperuserTripFiltersProps {
     /** List of employees for dropdown */
     employees: EmployeeSummary[];
 
@@ -53,7 +53,7 @@ interface SupervisorTripFiltersProps {
     sortOrder?: 'asc' | 'desc';
 }
 
-const props = withDefaults(defineProps<SupervisorTripFiltersProps>(), {
+const props = withDefaults(defineProps<SuperuserTripFiltersProps>(), {
     employee: null,
     dateFrom: '',
     dateTo: '',
@@ -67,7 +67,7 @@ const props = withDefaults(defineProps<SupervisorTripFiltersProps>(), {
 // Component Emits
 // ========================================================================
 
-interface SupervisorTripFiltersEmits {
+interface SuperuserTripFiltersEmits {
     (event: 'update:employee', value: number | null): void;
     (event: 'update:dateFrom', value: string): void;
     (event: 'update:dateTo', value: string): void;
@@ -79,7 +79,7 @@ interface SupervisorTripFiltersEmits {
     (event: 'reset'): void;
 }
 
-const emit = defineEmits<SupervisorTripFiltersEmits>();
+const emit = defineEmits<SuperuserTripFiltersEmits>();
 
 // ========================================================================
 // Local State

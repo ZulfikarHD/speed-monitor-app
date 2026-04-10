@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Supervisor;
+namespace App\Http\Controllers\Superuser;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -13,10 +13,10 @@ use Inertia\Response;
 
 /*
 |--------------------------------------------------------------------------
-| Supervisor Dashboard Controller
+| Superuser Dashboard Controller
 |--------------------------------------------------------------------------
 |
-| Handles supervisor/admin dashboard data retrieval with caching
+| Handles superuser/admin dashboard data retrieval with caching
 | and authorization for monitoring employee trip compliance.
 |
 */
@@ -27,19 +27,19 @@ class DashboardController extends Controller
     ) {}
 
     /**
-     * Display supervisor dashboard page.
+     * Display superuser dashboard page.
      *
      * Returns Inertia view for dashboard with optional initial data.
      * Client-side will fetch fresh data via overview() API endpoint
      * and auto-refresh every 30 seconds for real-time monitoring.
      *
-     * @return Response Inertia response rendering supervisor dashboard
+     * @return Response Inertia response rendering superuser dashboard
      */
     public function index(): Response
     {
         $this->authorize('viewDashboard', User::class);
 
-        return Inertia::render('supervisor/Dashboard');
+        return Inertia::render('superuser/Dashboard');
     }
 
     /**
@@ -72,7 +72,7 @@ class DashboardController extends Controller
      * Display violation leaderboard page.
      *
      * Shows employees ranked by violation count within specified date range.
-     * Allows supervisors and admins to identify problematic drivers and monitor
+     * Allows superusers and admins to identify problematic drivers and monitor
      * speed compliance trends across the organization.
      *
      * @param  Request  $request  HTTP request with optional date_from and date_to query params
@@ -87,7 +87,7 @@ class DashboardController extends Controller
 
         $leaderboard = $this->dashboardService->getViolationLeaderboard($dateFrom, $dateTo);
 
-        return Inertia::render('supervisor/ViolationLeaderboard', [
+        return Inertia::render('superuser/ViolationLeaderboard', [
             'leaderboard' => $leaderboard,
             'filters' => [
                 'date_from' => $dateFrom,

@@ -37,8 +37,12 @@ class StoreUserRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'string', 'max:255', 'unique:users,email'],
+            'npk' => ['nullable', 'string', 'max:50', 'unique:users,npk'],
+            'divisi' => ['nullable', 'string', 'max:100'],
+            'departement' => ['nullable', 'string', 'max:100'],
+            'section' => ['nullable', 'string', 'max:100'],
             'password' => ['required', 'string', 'min:8', Password::defaults()],
-            'role' => ['required', 'string', 'in:employee,supervisor,admin'],
+            'role' => ['required', 'string', 'in:employee,superuser,admin'],
             'is_active' => ['boolean'],
         ];
     }

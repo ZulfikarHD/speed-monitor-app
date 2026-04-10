@@ -56,12 +56,12 @@ class UserFactory extends Factory
     }
 
     /**
-     * Create user with supervisor role.
+     * Create user with superuser role.
      */
-    public function supervisor(): static
+    public function superuser(): static
     {
         return $this->state(fn (array $attributes) => [
-            'role' => 'supervisor',
+            'role' => 'superuser',
         ]);
     }
 

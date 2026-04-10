@@ -31,7 +31,7 @@ class SettingPolicy
     /**
      * Determine if the user can update settings.
      *
-     * Supervisors and admins can modify application settings to allow
+     * Superusers and admins can modify application settings to allow
      * operational flexibility in adjusting speed limits, tracking intervals,
      * and auto-stop duration based on business needs.
      *
@@ -40,6 +40,6 @@ class SettingPolicy
      */
     public function update(User $user): bool
     {
-        return $user->isSupervisor() || $user->isAdmin();
+        return $user->isSuperuser() || $user->isAdmin();
     }
 }

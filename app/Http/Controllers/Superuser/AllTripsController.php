@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Supervisor;
+namespace App\Http\Controllers\Superuser;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Trip\ExportTripsRequest;
@@ -14,10 +14,10 @@ use Inertia\Response;
 
 /*
 |--------------------------------------------------------------------------
-| All Trips Controller (Supervisor)
+| All Trips Controller (Superuser)
 |--------------------------------------------------------------------------
 |
-| Handles supervisor trip monitoring page with advanced filtering, sorting,
+| Handles superuser trip monitoring page with advanced filtering, sorting,
 | and pagination. Displays trips from all employees with comprehensive
 | filtering options for effective monitoring.
 |
@@ -34,7 +34,7 @@ class AllTripsController extends Controller
     ) {}
 
     /**
-     * Display paginated list of all employee trips for supervisors.
+     * Display paginated list of all employee trips for superusers.
      *
      * Provides comprehensive trip monitoring with filtering by employee,
      * date range, status, and violations. Supports sorting by various
@@ -88,7 +88,7 @@ class AllTripsController extends Controller
             ->orderBy('name')
             ->get();
 
-        return Inertia::render('supervisor/AllTrips', [
+        return Inertia::render('superuser/AllTrips', [
             'trips' => $trips->items(),
             'employees' => $employees,
             'meta' => [

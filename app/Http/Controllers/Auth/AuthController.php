@@ -42,7 +42,7 @@ class AuthController extends Controller
             // Redirect to role-based dashboard
             $redirectUrl = match ($user->role) {
                 'admin' => route('admin.dashboard'),
-                'supervisor' => route('supervisor.dashboard'),
+                'superuser' => route('superuser.dashboard'),
                 default => route('employee.dashboard'),
             };
 

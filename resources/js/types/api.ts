@@ -44,7 +44,7 @@ export interface LoginResponse {
         /** Email address */
         email: string;
         /** User role for RBAC */
-        role: 'employee' | 'supervisor' | 'admin';
+        role: 'employee' | 'superuser' | 'admin';
         /** Account status */
         is_active: boolean;
     };

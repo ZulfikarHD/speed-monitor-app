@@ -2,7 +2,7 @@
 /**
  * RecentViolationsList Component
  *
- * Top violators leaderboard for supervisor dashboard showing employees
+ * Top violators leaderboard for superuser dashboard showing employees
  * with highest violation counts for today (max 5 entries).
  *
  * Features:
@@ -96,10 +96,10 @@ function getRankColorClasses(rank: number): string {
         <div class="flex items-start justify-between border-b border-zinc-200 dark:border-white/5 px-6 py-4">
             <div class="flex-1">
                 <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">
-                    Recent Violations
+                    Pelanggaran Terbaru
                 </h3>
                 <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                    Top 5 employees by violation count today
+                    5 karyawan teratas berdasarkan jumlah pelanggaran hari ini
                 </p>
             </div>
             <div v-if="$slots.actions" class="ml-4">
@@ -145,10 +145,10 @@ function getRankColorClasses(rank: number): string {
                     aria-hidden="true"
                 />
                 <p class="text-lg font-medium text-zinc-900 dark:text-white">
-                    No Violations Today
+                    Tidak Ada Pelanggaran Hari Ini
                 </p>
                 <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                    All employees are driving safely within speed limits
+                    Semua karyawan berkendara dengan aman dalam batas kecepatan
                 </p>
             </motion.div>
         </div>
@@ -209,7 +209,7 @@ function getRankColorClasses(rank: number): string {
                         >
                             {{ violator.violation_count }}
                             <span class="ml-1 text-xs font-normal">
-                                {{ violator.violation_count === 1 ? 'violation' : 'violations' }}
+                                pelanggaran
                             </span>
                         </span>
                     </div>
