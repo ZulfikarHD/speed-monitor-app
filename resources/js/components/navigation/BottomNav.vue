@@ -20,7 +20,7 @@ import {
     ClipboardList,
     Gauge,
     Home,
-    Route,
+    Road,
     Trophy,
     User,
     Users,
@@ -56,7 +56,7 @@ const employeeNavItems: NavItem[] = [
 /** Superuser/Admin navigation items (mobile) */
 const superuserNavItems: NavItem[] = [
     { id: 'dashboard', label: 'Dasbor', icon: BarChart3, href: '/superuser/dashboard' },
-    { id: 'trips', label: 'Semua Trip', icon: Route, href: '/superuser/trips' },
+    { id: 'trips', label: 'Semua Trip', icon: Road, href: '/superuser/trips' },
     { id: 'leaderboard', label: 'Peringkat', icon: Trophy, href: '/superuser/leaderboard' },
     { id: 'employees', label: 'Karyawan', icon: Users, href: '/superuser/employees' },
     { id: 'profile', label: 'Profil', icon: User, href: '/profile' },

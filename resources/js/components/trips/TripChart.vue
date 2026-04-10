@@ -70,7 +70,10 @@ const subtitleMap: Record<string, string> = {
 };
 
 function parseSpeed(val: number | string | null): number {
-    if (val === null) return 0;
+    if (val === null) {
+return 0;
+}
+
     return typeof val === 'string' ? parseFloat(val) : val;
 }
 
@@ -98,10 +101,15 @@ const chartData = computed<ChartData<'line'>>(() => {
                     backgroundColor: (context) => {
                         const chart = context.chart;
                         const { ctx, chartArea } = chart;
-                        if (!chartArea) return 'rgba(34, 211, 238, 0.1)';
+
+                        if (!chartArea) {
+return 'rgba(34, 211, 238, 0.1)';
+}
+
                         const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
                         gradient.addColorStop(0, 'rgba(34, 211, 238, 0.3)');
                         gradient.addColorStop(1, 'rgba(34, 211, 238, 0)');
+
                         return gradient;
                     },
                     borderWidth: 2,
@@ -145,10 +153,15 @@ const chartData = computed<ChartData<'line'>>(() => {
                     backgroundColor: (context) => {
                         const chart = context.chart;
                         const { ctx, chartArea } = chart;
-                        if (!chartArea) return 'rgba(34, 211, 238, 0.1)';
+
+                        if (!chartArea) {
+return 'rgba(34, 211, 238, 0.1)';
+}
+
                         const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
                         gradient.addColorStop(0, 'rgba(34, 211, 238, 0.3)');
                         gradient.addColorStop(1, 'rgba(34, 211, 238, 0)');
+
                         return gradient;
                     },
                     borderWidth: 2,
@@ -240,8 +253,15 @@ const chartOptions = computed<ChartOptions<'line'>>(() => ({
             callbacks: {
                 label(context) {
                     let label = context.dataset.label || '';
-                    if (label) label += ': ';
-                    if (context.parsed.y !== null) label += context.parsed.y.toFixed(1) + ' km/h';
+
+                    if (label) {
+label += ': ';
+}
+
+                    if (context.parsed.y !== null) {
+label += context.parsed.y.toFixed(1) + ' km/h';
+}
+
                     return label;
                 },
             },
@@ -289,6 +309,7 @@ const hasData = computed(() => {
     if (props.variant === 'violations') {
         return props.speedLogs.some((log) => log.is_violation);
     }
+
     return props.speedLogs.length > 0;
 });
 </script>

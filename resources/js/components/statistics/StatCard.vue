@@ -17,7 +17,7 @@ import {
     BarChart3,
     ClipboardList,
     Gauge,
-    Route,
+    Road,
     ShieldAlert,
     Zap,
 } from '@lucide/vue';
@@ -40,11 +40,11 @@ const props = defineProps<StatCardProps>();
  */
 function getIconComponent(icon: string): Component | null {
     const iconMap: Record<string, Component> = {
-        car: Route,
+        car: Road,
         gauge: Gauge,
         'bar-chart': BarChart3,
         'shield-alert': ShieldAlert,
-        route: Route,
+        route: Road,
         zap: Zap,
         clipboard: ClipboardList,
         chart: BarChart3,

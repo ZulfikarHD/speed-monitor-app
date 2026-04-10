@@ -9,7 +9,7 @@
  */
 
 import { Link } from '@inertiajs/vue3';
-import { Download, Route, Trophy } from '@lucide/vue';
+import { Download, Road, Trophy } from '@lucide/vue';
 
 import { index as tripsIndex } from '@/actions/App/Http/Controllers/Superuser/AllTripsController';
 import { violations as leaderboardIndex } from '@/actions/App/Http/Controllers/Superuser/DashboardController';
@@ -26,7 +26,7 @@ import { violations as leaderboardIndex } from '@/actions/App/Http/Controllers/S
                 :href="tripsIndex.url()"
                 class="group flex items-center justify-center gap-2 rounded-lg border border-zinc-300 dark:border-white/10 bg-white dark:bg-zinc-800/50 px-4 py-3 text-sm font-medium text-zinc-900 dark:text-zinc-200 transition-all duration-200 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 hover:border-cyan-500/50 dark:hover:border-cyan-500/50 active:scale-95"
             >
-                <Route :size="18" :stroke-width="2" class="transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
+                <Road :size="18" :stroke-width="2" class="transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
                 <span>Lihat Semua Perjalanan</span>
             </Link>
 

@@ -96,9 +96,19 @@ const hasActiveFilters = computed(() => {
 
 const activeFilterCount = computed(() => {
     let count = 0;
-    if (localDateFrom.value) count++;
-    if (localDateTo.value) count++;
-    if (localStatus.value) count++;
+
+    if (localDateFrom.value) {
+count++;
+}
+
+    if (localDateTo.value) {
+count++;
+}
+
+    if (localStatus.value) {
+count++;
+}
+
     return count;
 });
 </script>

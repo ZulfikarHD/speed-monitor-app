@@ -7,7 +7,7 @@
  */
 
 import { Link } from '@inertiajs/vue3';
-import { BarChart3, ClipboardList, Mail, Route, Shield, User } from '@lucide/vue';
+import { BarChart3, ClipboardList, Mail, Road, Shield, User } from '@lucide/vue';
 
 import EmployeeLayout from '@/layouts/EmployeeLayout.vue';
 import { useAuthStore } from '@/stores/auth';
@@ -46,7 +46,7 @@ const authStore = useAuthStore();
                         <div
                             class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg shadow-zinc-200 dark:from-blue-500 dark:to-indigo-600 dark:shadow-blue-500/25"
                         >
-                            <Route :size="28" :stroke-width="2" class="text-white" />
+                            <Road :size="28" :stroke-width="2" class="text-white" />
                         </div>
                         <div class="flex-1">
                             <h3 class="mb-1 text-lg font-semibold text-zinc-900 transition-colors duration-200 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">

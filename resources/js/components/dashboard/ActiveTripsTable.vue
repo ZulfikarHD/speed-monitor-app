@@ -16,7 +16,7 @@
  * - Full light/dark theme support
  */
 
-import { Route } from '@lucide/vue';
+import { Road } from '@lucide/vue';
 import { motion } from 'motion-v';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
@@ -145,7 +145,7 @@ const hasTrips = computed(() => props.trips.length > 0);
                 :animate="{ opacity: 1 }"
                 :transition="{ duration: 0.3 }"
             >
-                <Route
+                <Road
                     :size="48"
                     :stroke-width="1.5"
                     class="mx-auto mb-4 text-zinc-400 dark:text-zinc-600"

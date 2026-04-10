@@ -19,7 +19,7 @@
  * - Desktop Chrome: Creates desktop shortcut
  */
 
-import { Loader2, Route } from '@lucide/vue';
+import { Loader2, Road } from '@lucide/vue';
 import { motion } from 'motion-v';
 
 // ========================================================================
@@ -98,7 +98,7 @@ const handleDismiss = (): void => {
                         <div
                             class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/30"
                         >
-                            <Route
+                            <Road
                                 :size="28"
                                 class="text-white"
                                 aria-hidden="true"

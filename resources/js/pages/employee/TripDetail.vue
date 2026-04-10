@@ -40,7 +40,10 @@ const filterEndTime = ref('');
 /** Speed logs filtered by the selected time range. */
 const filteredSpeedLogs = computed(() => {
     const logs = props.trip.speed_logs || [];
-    if (!filterStartTime.value && !filterEndTime.value) return logs;
+
+    if (!filterStartTime.value && !filterEndTime.value) {
+return logs;
+}
 
     return logs.filter((log) => {
         const logTime = new Date(log.recorded_at);
@@ -51,8 +54,14 @@ const filteredSpeedLogs = computed(() => {
             timeZone: 'Asia/Jakarta',
         });
 
-        if (filterStartTime.value && timeStr < filterStartTime.value) return false;
-        if (filterEndTime.value && timeStr > filterEndTime.value) return false;
+        if (filterStartTime.value && timeStr < filterStartTime.value) {
+return false;
+}
+
+        if (filterEndTime.value && timeStr > filterEndTime.value) {
+return false;
+}
+
         return true;
     });
 });
@@ -102,6 +111,7 @@ const shiftText = computed(() => {
         shift_pagi: 'Shift Pagi',
         shift_malam: 'Shift Malam',
     };
+
     return props.trip.shift_type ? shiftMap[props.trip.shift_type] || props.trip.shift_type : '-';
 });
 
@@ -110,18 +120,27 @@ const vehicleText = computed(() => {
         mobil: 'Mobil',
         motor: 'Motor',
     };
+
     return props.trip.vehicle_type ? vehicleMap[props.trip.vehicle_type] || props.trip.vehicle_type : '-';
 });
 
 function formatDistance(distance: number | string | null): string {
-    if (distance === null) return '-';
+    if (distance === null) {
+return '-';
+}
+
     const numDistance = typeof distance === 'string' ? parseFloat(distance) : distance;
+
     return `${numDistance.toFixed(2)} km`;
 }
 
 function formatSpeed(speed: number | string | null): string {
-    if (speed === null) return '-';
+    if (speed === null) {
+return '-';
+}
+
     const numSpeed = typeof speed === 'string' ? parseFloat(speed) : speed;
+
     return `${numSpeed.toFixed(1)} km/h`;
 }
 </script>

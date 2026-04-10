@@ -16,7 +16,7 @@
  */
 
 import { Head, useForm } from '@inertiajs/vue3';
-import { Loader2, Lock, Moon, Route, Sun, User } from '@lucide/vue';
+import { Loader2, Lock, Moon, Road, Sun, User } from '@lucide/vue';
 import { motion } from 'motion-v';
 
 import { useTheme } from '@/composables/useTheme';
@@ -54,12 +54,12 @@ const handleSubmit = (): void => {
         <!-- Theme Toggle (top-right corner) -->
         <button
             type="button"
-            class="fixed top-4 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 shadow-lg transition-all duration-200 hover:bg-zinc-100 dark:hover:bg-white/10 hover:text-zinc-900 dark:hover:text-zinc-200"
+            class="fixed top-4 right-4 z-[999] flex h-11 w-11 items-center justify-center rounded-xl border-2 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 shadow-xl shadow-zinc-300/50 dark:shadow-black/50 transition-all duration-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:scale-105 active:scale-95"
             :aria-label="isDark ? 'Beralih ke mode terang' : 'Beralih ke mode gelap'"
             @click="toggleTheme"
         >
-            <Moon v-if="!isDark" :size="20" />
-            <Sun v-else :size="20" />
+            <Moon v-if="!isDark" :size="22" />
+            <Sun v-else :size="22" />
         </button>
 
         <!-- Tech Grid Background (64px pattern, theme-aware) -->
@@ -93,7 +93,7 @@ const handleSubmit = (): void => {
                         <div
                             class="flex h-16 w-16 items-center justify-center rounded-xl border border-cyan-200 dark:border-cyan-500/20 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-500/10 dark:to-blue-600/10 shadow-lg shadow-cyan-200 dark:shadow-cyan-500/10"
                         >
-                            <Route
+                            <Road
                                 :size="32"
                                 class="text-cyan-600 dark:text-cyan-400"
                             />
